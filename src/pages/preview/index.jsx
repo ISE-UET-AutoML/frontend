@@ -1,26 +1,27 @@
-import { Dialog, Transition } from '@headlessui/react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
-import { Slider } from 'antd'
-import { Fragment, useEffect, useRef, useState } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
-import { listImages, trainModel } from '../../api/project'
-import Loading from '../../components/Loading'
-import Pagination from '../../components/Pagination'
-import useIntervalFetch from '../../hooks/useIntervalFetch'
+import { Dialog, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { Slider } from "antd";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { listImages, trainModel } from "../../api/project";
+import Loading from "../../components/Loading";
+import Pagination from "../../components/Pagination";
+import useIntervalFetch from "../../hooks/useIntervalFetch";
 
 const types = [
   {
     id: 0,
-    type: 'FLIP',
-    title: 'Flip',
+    type: "FLIP",
+    title: "Flip",
 
     description:
-      'Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.',
-    originImg: 'https://app.roboflow.com/images/augmentation/flip.jpg',
-    generatedImgs: ['https://app.roboflow.com/images/augmentation/flip.jpg'],
-    question: 'How Flip Augmentation Improves Model Performance',
-    questionDes: 'Flipping an image can improve model performance in substantial ways.',
+      "Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.",
+    originImg: "https://app.roboflow.com/images/augmentation/flip.jpg",
+    generatedImgs: ["https://app.roboflow.com/images/augmentation/flip.jpg"],
+    question: "How Flip Augmentation Improves Model Performance",
+    questionDes:
+      "Flipping an image can improve model performance in substantial ways.",
     option: {
       flipHorizontal: false,
       flipVertical: false,
@@ -29,18 +30,18 @@ const types = [
 
   {
     id: 1,
-    type: 'ROTATE',
-    title: 'Rotate',
+    type: "ROTATE",
+    title: "Rotate",
 
     description:
-      'Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.',
-    originImg: 'https://app.roboflow.com/images/augmentation/rotate.jpg',
+      "Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.",
+    originImg: "https://app.roboflow.com/images/augmentation/rotate.jpg",
     generatedImgs: [
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
     ],
 
-    question: 'When should I rotate my images? ',
+    question: "When should I rotate my images? ",
     questionDes: `If orientation doesn'teg they may be taken in portrait/landscape mode or from above`,
 
     option: {
@@ -52,17 +53,17 @@ const types = [
   {
     id: 2,
 
-    type: 'SHEAR',
-    title: 'Shear',
+    type: "SHEAR",
+    title: "Shear",
 
     description:
-      'Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.',
-    originImg: 'https://app.roboflow.com/images/augmentation/shear.jpg',
+      "Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.",
+    originImg: "https://app.roboflow.com/images/augmentation/shear.jpg",
     generatedImgs: [
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
     ],
     option: {
       shearHorizontal: 10,
@@ -72,17 +73,17 @@ const types = [
   {
     id: 3,
 
-    type: 'GRAYSCALE',
-    title: 'Grayscale',
+    type: "GRAYSCALE",
+    title: "Grayscale",
 
     description:
-      'Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.',
-    originImg: 'https://app.roboflow.com/images/augmentation/rgrayscale.jpg',
+      "Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.",
+    originImg: "https://app.roboflow.com/images/augmentation/rgrayscale.jpg",
     generatedImgs: [
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
     ],
     option: {
       grayscalePercent: 25,
@@ -91,69 +92,69 @@ const types = [
   {
     id: 4,
 
-    type: 'HUE',
-    title: 'Hue',
+    type: "HUE",
+    title: "Hue",
 
-    description: 'Randomly adjust the colors in the image.',
-    originImg: 'https://app.roboflow.com/images/augmentation/hue.jpg',
+    description: "Randomly adjust the colors in the image.",
+    originImg: "https://app.roboflow.com/images/augmentation/hue.jpg",
     generatedImgs: [
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
     ],
     option: { huePercent: 30 },
   },
   {
     id: 5,
 
-    type: 'EXPOSURE',
-    title: 'Exposure',
+    type: "EXPOSURE",
+    title: "Exposure",
 
     description:
-      'Add variability to image brightness to help your model be more resilient to lighting and camera setting changes.',
-    originImg: 'https://app.roboflow.com/images/augmentation/exposure.jpg',
+      "Add variability to image brightness to help your model be more resilient to lighting and camera setting changes.",
+    originImg: "https://app.roboflow.com/images/augmentation/exposure.jpg",
     generatedImgs: [
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
-      'https://app.roboflow.com/images/augmentation/flip.jpg',
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
+      "https://app.roboflow.com/images/augmentation/flip.jpg",
     ],
     option: { exposurePercent: 30 },
   },
   {
     id: 6,
 
-    type: 'CUTOUT',
-    title: 'Cutout',
+    type: "CUTOUT",
+    title: "Cutout",
 
     description:
-      'Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.',
-    originImg: 'https://app.roboflow.com/images/augmentation/cutout.jpg',
-    generatedImgs: ['https://app.roboflow.com/images/augmentation/flip.jpg'],
+      "Add variability to perspective to help your model be more resilient to camera and subject pitch and yaw.",
+    originImg: "https://app.roboflow.com/images/augmentation/cutout.jpg",
+    generatedImgs: ["https://app.roboflow.com/images/augmentation/flip.jpg"],
     option: {
       cutoutCount: 0,
       cutoutPercent: 0,
     },
   },
-]
+];
 
 const LabelSelector = ({ current, labels, setLabels }) => {
-  const [currentLabel, setCurrentLabel] = useState(current)
-  const [open, setOpen] = useState(false)
-  const cancelButtonRef = useRef(null)
-  const newLabelRef = useRef(null)
+  const [currentLabel, setCurrentLabel] = useState(current);
+  const [open, setOpen] = useState(false);
+  const cancelButtonRef = useRef(null);
+  const newLabelRef = useRef(null);
 
   const handleOnChange = (e) => {
-    if (e.target.value === 'new') {
-      setOpen(true)
+    if (e.target.value === "new") {
+      setOpen(true);
     } else {
-      setCurrentLabel(e.target.value)
+      setCurrentLabel(e.target.value);
     }
-  }
+  };
 
   return (
     <div>
       <select
         className="absolute mt-1 block rounded-md border-white py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm bottom-0 left-0 w-fit border bg-[#1e2a37e6] text-white"
         onChange={handleOnChange}
-        defaultValue={labels && labels.length === 0 ? 'unknown' : currentLabel}
+        defaultValue={labels && labels.length === 0 ? "unknown" : currentLabel}
         value={currentLabel}
       >
         {!labels && <option value="unknown">unknown</option>}
@@ -166,7 +167,12 @@ const LabelSelector = ({ current, labels, setLabels }) => {
         <option value="new">Create label</option>
       </select>
       <Transition.Root show={open} as={Fragment}>
-        <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          initialFocus={cancelButtonRef}
+          onClose={setOpen}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -223,10 +229,10 @@ const LabelSelector = ({ current, labels, setLabels }) => {
                       type="button"
                       className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
                       onClick={() => {
-                        console.log(newLabelRef.current.value)
-                        setOpen(false)
-                        const label = newLabelRef.current.value
-                        setLabels([label, ...labels])
+                        console.log(newLabelRef.current.value);
+                        setOpen(false);
+                        const label = newLabelRef.current.value;
+                        setLabels([label, ...labels]);
                         // setCurrentLabel(label)
                       }}
                     >
@@ -248,71 +254,85 @@ const LabelSelector = ({ current, labels, setLabels }) => {
         </Dialog>
       </Transition.Root>
     </div>
-  )
-}
+  );
+};
 
 const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
-  const location = useLocation()
-  const [openOptions, setOpenOptions] = useState(false)
-  const [openAugmentation, setOpenAugmentation] = useState(false)
-  const [selectedType, setSelectedType] = useState(types[0])
-  const cancelButtonRef = useRef(null)
+  const location = useLocation();
+  const [openOptions, setOpenOptions] = useState(false);
+  const [openAugmentation, setOpenAugmentation] = useState(false);
+  const [selectedType, setSelectedType] = useState(types[0]);
+  const cancelButtonRef = useRef(null);
   const handleOpentTrainModel = () => {
-    setOpenOptions(true)
-  }
+    setOpenOptions(true);
+  };
 
-  let [searchParams, setSearchParams] = useSearchParams()
-  const [projectId, setProjectId] = useState(searchParams.get('id'))
-  const [labels, setLabels] = useState(savedLabels)
-  const [triggerFetch, setTriggerFetch] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  let [searchParams, setSearchParams] = useSearchParams();
+  const [projectId, setProjectId] = useState(searchParams.get("id"));
+  const [labels, setLabels] = useState(savedLabels);
+  const [triggerFetch, setTriggerFetch] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [paginationStep2, setPaginationStep2] = useState({
     currentPage: pagination?.page ?? 1,
     totalPages: pagination?.total_page ?? 10,
-  })
+  });
   const handleTrain = async () => {
     try {
-      const { data } = await trainModel(projectId)
-      console.log(data.experiment_name)
-      const searchParams = new URLSearchParams(location.search)
-      searchParams.get('experiment_name') ?? setSearchParams((pre) => pre.toString().concat(`&experiment_name=${data.experiment_name}`))
-      updateFields({ experiment_name: data.experiment_name })
-      next()
+      const { data } = await trainModel(projectId);
+      //!
+      // await fetch(`${process.env.REACT_APP_ML_SERVICE_ADDR}/clf/train`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: { data },
+      // });
+      //!
+
+      console.log(data.experiment_name);
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.get("experiment_name") ??
+        setSearchParams((pre) =>
+          pre.toString().concat(`&experiment_name=${data.experiment_name}`)
+        );
+      updateFields({ experiment_name: data.experiment_name });
+      next();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   const handlePageChange = async (page) => {
-    const searchParams = new URLSearchParams(location.search)
-    const id = searchParams.get('id')
+    const searchParams = new URLSearchParams(location.search);
+    const id = searchParams.get("id");
     if (id) {
-      setIsLoading(true)
-      const { data } = await listImages(id, `&page=${page}&size=24`)
-      setPaginationStep2({ ...paginationStep2, currentPage: page })
+      setIsLoading(true);
+      const { data } = await listImages(id, `&page=${page}&size=24`);
+      setPaginationStep2({ ...paginationStep2, currentPage: page });
       updateFields({
         ...data.data,
         pagination: data.meta,
-      })
-      setIsLoading(false)
+      });
+      setIsLoading(false);
     }
-  }
+  };
+
   useEffect(() => {
     if (pagination) {
       setPaginationStep2({
         currentPage: pagination?.page ?? 1,
         totalPages: pagination?.total_page ?? 10,
-      })
+      });
     }
-  }, [pagination])
+  }, [pagination]);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search)
-    const experimentName = searchParams.get('experiment_name')
+    const searchParams = new URLSearchParams(location.search);
+    const experimentName = searchParams.get("experiment_name");
     if (experimentName) {
-      updateFields({ isDoneStepTwo: true })
+      updateFields({ isDoneStepTwo: true });
     }
-  }, [])
+  }, []);
 
   return (
     <div className="container w-full mx-auto">
@@ -321,13 +341,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
         <div className="flex justify-between items-center w-full my-5">
           <label>Label all your images to start training process</label>
           <div className="relative flex rounded-md bg-indigo-600 justify-between items-center text-white">
-              <button
-                onClick={handleTrain}
-                className="hover:bg-indigo-800 py-[6px] px-4 rounded-md w-fit"
-              >
-                Train Model
-              </button>
-              {/* <div className="group/item h-9 w-fit z-20">
+            <button
+              onClick={handleTrain}
+              className="hover:bg-indigo-800 py-[6px] px-4 rounded-md w-fit"
+            >
+              Train Model
+            </button>
+            {/* <div className="group/item h-9 w-fit z-20">
                 <ChevronDownIcon
                   className="h-10 w-6 text-violet-200 hover:text-violet-100 "
                   aria-hidden="true"
@@ -346,7 +366,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                   </button>
                 </div>
               </div> */}
-            </div>
+          </div>
         </div>
         <div>
           <div className="grid grid-cols-4 gap-4">
@@ -355,7 +375,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                 <div className="relative flex justify-center hover:border hover:border-red-500 rounded-md overflow-hidden">
                   <img src={image.url} alt="" />
                   <LabelSelector
-                    current={image.label ?? 'unlabeled'}
+                    current={image.label ?? "unlabeled"}
                     labels={savedLabels}
                     setLabels={setLabels}
                   />
@@ -424,7 +444,8 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                     </div>
 
                     <div className="description border text-[14px] p-[15px]">
-                      Augmentations create new training examples for your model to learn from.
+                      Augmentations create new training examples for your model
+                      to learn from.
                     </div>
 
                     <h3 className="text-[#666] text-[14px] font-[700] p-[15px]">
@@ -437,12 +458,17 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                           key={index}
                           className="flex flex-col justify-between w-[90px] items-center gap-1 item rounded-md hover:shadow overflow-hidden border-transparent hover:border-[#f0f] border-[2px] hover:font-[600] hover:text-[16px] focus:font-[600] focus:text-[16px] px-[3px] pt-[2px] hover:bg-gray-200"
                           onClick={() => {
-                            setSelectedType(types[item.id])
+                            setSelectedType(types[item.id]);
 
-                            setOpenAugmentation(true)
+                            setOpenAugmentation(true);
                           }}
                         >
-                          <img src={item.originImg} alt="" srcset="" className="rounded-md" />
+                          <img
+                            src={item.originImg}
+                            alt=""
+                            srcset=""
+                            className="rounded-md"
+                          />
                           <span className="text-gray-600 text-center text-[14px] w-full ">
                             {item.title}
                           </span>
@@ -511,7 +537,9 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                         </Dialog.Title>
                       </div>
                       <div className="text-[30px] text-gray-400 mx-auto flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-transparent hover:text-red-200 sm:mx-0 sm:h-10 sm:w-10">
-                        <button onClick={() => setOpenAugmentation(false)}>×</button>
+                        <button onClick={() => setOpenAugmentation(false)}>
+                          ×
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -527,7 +555,10 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                       </div>
 
                       {selectedType.generatedImgs.map((url, index) => (
-                        <div key={index} className={`w-1/2 m-auto overflow-hidden`}>
+                        <div
+                          key={index}
+                          className={`w-1/2 m-auto overflow-hidden`}
+                        >
                           <div className="p-2  w-full overflow-hidden">
                             <img
                               src="https://app.roboflow.com/images/augmentation/flip.jpg"
@@ -541,77 +572,101 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                     </div>
                     <div className="w-1/2">
                       <div className="info p-[15px] h-full flex flex-col bg-[#f0f0f0]">
-                        <h3 className="text-[15px] font-[700]">{selectedType.title}</h3>
-                        <p className="whitespace-normal text-[12px]">{selectedType.description}</p>
-                        {selectedType.type === 'FLIP' && (
+                        <h3 className="text-[15px] font-[700]">
+                          {selectedType.title}
+                        </h3>
+                        <p className="whitespace-normal text-[12px]">
+                          {selectedType.description}
+                        </p>
+                        {selectedType.type === "FLIP" && (
                           <>
                             <div className="flex flex-col">
                               <label className="inline-flex items-center mt-3">
                                 <input
                                   type="checkbox"
-                                  checked={selectedType?.option?.flipHorizontal ?? false}
+                                  checked={
+                                    selectedType?.option?.flipHorizontal ??
+                                    false
+                                  }
                                   className="form-checkbox h-4 w-4 text-gray-600"
                                   onChange={(event) => {
                                     setSelectedType((pre) => {
-                                      const newPre = { ...pre }
+                                      const newPre = { ...pre };
 
-                                      newPre.option.flipHorizontal = event.target.checked
-                                      return newPre
-                                    })
+                                      newPre.option.flipHorizontal =
+                                        event.target.checked;
+                                      return newPre;
+                                    });
                                   }}
                                 />
-                                <span className="ml-2 text-gray-700 text-[12px]">Horizontal</span>
+                                <span className="ml-2 text-gray-700 text-[12px]">
+                                  Horizontal
+                                </span>
                               </label>
                               <label className="inline-flex items-center mt-3">
                                 <input
                                   type="checkbox"
                                   className="form-checkbox h-4 w-4 text-gray-600"
-                                  value={selectedType?.option?.flipVertical ?? false}
+                                  value={
+                                    selectedType?.option?.flipVertical ?? false
+                                  }
                                   onChange={(event) => {
                                     setSelectedType((pre) => {
-                                      const newPre = { ...pre }
+                                      const newPre = { ...pre };
 
-                                      newPre.option.flipVertical = event.target.checked
-                                      return newPre
-                                    })
+                                      newPre.option.flipVertical =
+                                        event.target.checked;
+                                      return newPre;
+                                    });
                                   }}
                                 />
-                                <span className="ml-2 text-gray-700 text-[12px]">Vertical</span>
+                                <span className="ml-2 text-gray-700 text-[12px]">
+                                  Vertical
+                                </span>
                               </label>
                             </div>
                           </>
                         )}
-                        {selectedType.type === 'ROTATE' && (
+                        {selectedType.type === "ROTATE" && (
                           <>
                             <div className="flex flex-col">
                               <label className="inline-flex items-center mt-3">
                                 <input
                                   type="checkbox"
                                   className="form-checkbox h-4 w-4 text-gray-600"
-                                  value={selectedType?.option?.clockwise ?? false}
+                                  value={
+                                    selectedType?.option?.clockwise ?? false
+                                  }
                                   onChange={(event) => {
                                     setSelectedType((pre) => {
-                                      const newPre = { ...pre }
+                                      const newPre = { ...pre };
 
-                                      newPre.option.clockwise = event.target.checked
-                                      return newPre
-                                    })
+                                      newPre.option.clockwise =
+                                        event.target.checked;
+                                      return newPre;
+                                    });
                                   }}
                                 />
-                                <span className="ml-2 text-gray-700 text-[12px]">Clockwise</span>
+                                <span className="ml-2 text-gray-700 text-[12px]">
+                                  Clockwise
+                                </span>
                               </label>
                               <label className="inline-flex items-center mt-3">
                                 <input
                                   type="checkbox"
                                   className="form-checkbox h-4 w-4 text-gray-600"
-                                  value={selectedType?.option?.counterClockwise ?? false}
+                                  value={
+                                    selectedType?.option?.counterClockwise ??
+                                    false
+                                  }
                                   onChange={(event) => {
                                     setSelectedType((pre) => {
-                                      const newPre = { ...pre }
+                                      const newPre = { ...pre };
 
-                                      newPre.option.counterClockwise = event.target.checked
-                                      return newPre
-                                    })
+                                      newPre.option.counterClockwise =
+                                        event.target.checked;
+                                      return newPre;
+                                    });
                                   }}
                                 />
                                 <span className="ml-2 text-gray-700 text-[12px]">
@@ -622,22 +677,27 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                                 <input
                                   type="checkbox"
                                   className="form-checkbox h-4 w-4 text-gray-600"
-                                  value={selectedType?.option?.upsideDown ?? false}
+                                  value={
+                                    selectedType?.option?.upsideDown ?? false
+                                  }
                                   onChange={(event) => {
                                     setSelectedType((pre) => {
-                                      const newPre = { ...pre }
+                                      const newPre = { ...pre };
 
-                                      newPre.option.upsideDown = event.target.checked
-                                      return newPre
-                                    })
+                                      newPre.option.upsideDown =
+                                        event.target.checked;
+                                      return newPre;
+                                    });
                                   }}
                                 />
-                                <span className="ml-2 text-gray-700 text-[12px]">Upside Down</span>
+                                <span className="ml-2 text-gray-700 text-[12px]">
+                                  Upside Down
+                                </span>
                               </label>
                             </div>
                           </>
                         )}
-                        {selectedType.type === 'SHEAR' && (
+                        {selectedType.type === "SHEAR" && (
                           <>
                             <p className="text-center mb-[7px] font-[700] text-[12px] mt-5">
                               Horizontal
@@ -645,47 +705,55 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                             <Slider
                               className="mt-0"
                               marks={{
-                                0: '0°',
-                                100: '45°',
+                                0: "0°",
+                                100: "45°",
                               }}
                               defaultValue={selectedType.option.shearHorizontal}
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.shearHorizontal = Math.round((value * 45) / 100.0)
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.shearHorizontal = Math.round(
+                                    (value * 45) / 100.0
+                                  );
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{
                                 open: true,
-                                formatter: (value) => Math.round((value * 45) / 100.0),
+                                formatter: (value) =>
+                                  Math.round((value * 45) / 100.0),
                               }}
                             />
-                            <p className="text-center mb-[7px] font-[700] text-[12px]">Vertical</p>
+                            <p className="text-center mb-[7px] font-[700] text-[12px]">
+                              Vertical
+                            </p>
                             <Slider
                               className="mt-0"
                               marks={{
-                                0: '0°',
-                                100: '45°',
+                                0: "0°",
+                                100: "45°",
                               }}
                               defaultValue={selectedType.option.shearVertical}
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.shearVertical = Math.round((value * 45) / 100.0)
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.shearVertical = Math.round(
+                                    (value * 45) / 100.0
+                                  );
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{
                                 open: true,
-                                formatter: (value) => Math.round((value * 45) / 100.0),
+                                formatter: (value) =>
+                                  Math.round((value * 45) / 100.0),
                               }}
                             />
                           </>
                         )}
-                        {selectedType.type === 'GRAYSCALE' && (
+                        {selectedType.type === "GRAYSCALE" && (
                           <>
                             <p className="text-center mb-[7px] font-[700] text-[12px] mt-5">
                               Percent of Outputted Images to Grayscale
@@ -693,65 +761,67 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                             <Slider
                               className="mt-0"
                               marks={{
-                                0: '0%',
-                                100: '100%',
+                                0: "0%",
+                                100: "100%",
                               }}
-                              defaultValue={selectedType.option.grayscalePercent}
+                              defaultValue={
+                                selectedType.option.grayscalePercent
+                              }
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.grayscalePercent = value
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.grayscalePercent = value;
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{ open: true }}
                             />
                           </>
                         )}
-                        {selectedType.type === 'HUE' && (
+                        {selectedType.type === "HUE" && (
                           <>
                             <Slider
                               className="mt-5"
                               marks={{
-                                0: '0%',
-                                100: '100%',
+                                0: "0%",
+                                100: "100%",
                               }}
                               defaultValue={selectedType.option.huePercent}
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.huePercent = value
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.huePercent = value;
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{ open: true }}
                             />
                           </>
                         )}
-                        {selectedType.type === 'EXPOSURE' && (
+                        {selectedType.type === "EXPOSURE" && (
                           <>
                             <Slider
                               className="mt-5"
                               marks={{
-                                0: '0%',
-                                100: '100%',
+                                0: "0%",
+                                100: "100%",
                               }}
                               defaultValue={selectedType.option.exposurePercent}
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.exposurePercent = value
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.exposurePercent = value;
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{ open: true }}
                             />
                           </>
                         )}
-                        {selectedType.type === 'CUTOUT' && (
+                        {selectedType.type === "CUTOUT" && (
                           <>
                             <p className="text-center mb-[7px] font-[700] text-[12px] mt-5">
                               Percent
@@ -759,39 +829,44 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                             <Slider
                               className="mt-0"
                               marks={{
-                                0: '0%',
-                                100: '100%',
+                                0: "0%",
+                                100: "100%",
                               }}
                               defaultValue={selectedType.option.cutoutPercent}
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.cutoutPercent = value
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.cutoutPercent = value;
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{ open: true }}
                             />
-                            <p className="text-center mb-[7px] font-[700] text-[12px]">Count</p>
+                            <p className="text-center mb-[7px] font-[700] text-[12px]">
+                              Count
+                            </p>
                             <Slider
                               className="mt-0"
                               marks={{
-                                0: '1',
-                                100: '25',
+                                0: "1",
+                                100: "25",
                               }}
                               defaultValue={selectedType.option.cutoutCount}
                               onChange={(value) => {
                                 setSelectedType((pre) => {
-                                  const newPre = { ...pre }
-                                  newPre.option.cutoutCount = Math.round((value * 25) / 100.0)
-                                  return newPre
-                                })
+                                  const newPre = { ...pre };
+                                  newPre.option.cutoutCount = Math.round(
+                                    (value * 25) / 100.0
+                                  );
+                                  return newPre;
+                                });
                               }}
                               disabled={false}
                               tooltip={{
                                 open: true,
-                                formatter: (value) => Math.round((value * 25) / 100.0),
+                                formatter: (value) =>
+                                  Math.round((value * 25) / 100.0),
                               }}
                             />
                           </>
@@ -802,7 +877,8 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                             How Flip Augmentation Improves Model Performance
                           </h2>
                           <p>
-                            Flipping an image can improve model performance in substantial ways.
+                            Flipping an image can improve model performance in
+                            substantial ways.
                           </p>
                         </div>
                       </div>
@@ -825,11 +901,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                       className="mt-3 inline-flex w-full justify-center rounded-md bg-[#5e6dc6] px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 sm:mt-0 sm:w-auto"
                       onClick={() => {
                         setSelectedType((pre) => {
-                          console.log()
-                          return pre.id === types.length - 1 ? types[0] : types[pre.id + 1]
-                        })
+                          console.log();
+                          return pre.id === types.length - 1
+                            ? types[0]
+                            : types[pre.id + 1];
+                        });
 
-                        console.log(selectedType)
+                        console.log(selectedType);
                       }}
                       ref={cancelButtonRef}
                     >
@@ -843,7 +921,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
         </Dialog>
       </Transition.Root>
     </div>
-  )
-}
+  );
+};
 
-export default Preview
+export default Preview;
