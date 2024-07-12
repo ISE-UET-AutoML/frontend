@@ -41,7 +41,7 @@ export default function ProjectCard({ project, className }) {
                             <a
                                 href={
                                     project.uploaded
-                                        ? `${PATHS.PROJECT_BUILD(project?._id)}&step=1`
+                                        ? `${PATHS.PROJECT_BUILD(project?._id)}`
                                         : PATHS.PROJECT_BUILD(project?._id)
                                 }
                                 className="focus:outline-none"
