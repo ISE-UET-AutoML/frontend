@@ -1,0 +1,78 @@
+.app {
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f1f1;
+    width: 100%;
+}
+
+.card-list-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card-list {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-image img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 16px;
+}
+
+.checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+    margin-bottom: 8px;
+}
+
+.checkbox input[type='checkbox'] {
+    margin-right: 6px;
+}
+
+.card-button {
+    display: block;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.prev-button,
+.next-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

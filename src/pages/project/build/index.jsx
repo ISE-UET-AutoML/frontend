@@ -178,6 +178,7 @@ export default function ProjectBuild(props) {
                 {steps[currentStepIndex]}
                 {/*steps content  */}
                 <div className="content mt-5">{/* <h1>{step}</h1> */}</div>
+
             </div>
         </>
     );

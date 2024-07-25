@@ -8,6 +8,7 @@ import { listImages, trainModel } from 'src/api/project';
 import Loading from 'src/components/Loading';
 import Pagination from 'src/components/Pagination';
 import useIntervalFetch from 'src/hooks/useIntervalFetch';
+import 'src/assets/css/card.css'
 
 const types = [
     {
@@ -141,12 +142,16 @@ const types = [
 ];
 
 const LabelSelector = ({ current, labels, setLabels }) => {
+    console.log("label selector", current);
+    console.log(setLabels);
     const [currentLabel, setCurrentLabel] = useState(current);
     const [open, setOpen] = useState(false);
     const cancelButtonRef = useRef(null);
     const newLabelRef = useRef(null);
 
     const handleOnChange = (e) => {
+        // update change label 
+        console.log(currentLabel, e.target.value);
         if (e.target.value === 'new') {
             setOpen(true);
         } else {
@@ -264,6 +269,29 @@ const LabelSelector = ({ current, labels, setLabels }) => {
     );
 };
 
+
+const Card = ({ image, checkboxes, button }) => {
+    return (
+        <div className="card">
+            <div className="card-image">
+                <img src={image} alt="Card Image" />
+            </div>
+            <div className="card-content">
+                <div className="checkboxes">
+                    {checkboxes.map((checkbox, index) => (
+                        <div key={index} className="checkbox">
+                            <input type="checkbox" />
+                            <label>{checkbox}</label>
+                        </div>
+                    ))}
+                </div>
+                <button className="card-button">{button}</button>
+            </div>
+        </div>
+    );
+};
+
+
 const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
     const location = useLocation();
     const [openOptions, setOpenOptions] = useState(false);
@@ -301,11 +329,24 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
     };
 
     const handlePageChange = async (page) => {
-        const searchParams = new URLSearchParams(location.search);
-        const id = searchParams.get('id');
+        console.log("handle change");
+        const searchParams = new URLSearchParams();
+        console.log(searchParams, location.search);
+        const id = new URLSearchParams(location.search).get('id')
+        console.log(id, projectId);
+        console.log(window.location.href);
         if (id) {
             setIsLoading(true);
             const { data } = await listImages(id, `&page=${page}&size=24`);
+            setPaginationStep2({ ...paginationStep2, currentPage: page });
+            updateFields({
+                ...data.data,
+                pagination: data.meta,
+            });
+            setIsLoading(false);
+        } else if (projectId) {
+            setIsLoading(true);
+            const { data } = await listImages(projectId, `&page=${page}&size=24`);
             setPaginationStep2({ ...paginationStep2, currentPage: page });
             updateFields({
                 ...data.data,
@@ -330,6 +371,45 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
             updateFields({ isDoneStepTwo: true });
         }
     }, []);
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const handlePrevious = () => {
+        setCurrentIndex((prevIndex) => (prevIndex === 0 ? cards.length - 1 : prevIndex - 1));
+    };
+
+    const handleNext = () => {
+        setCurrentIndex((prevIndex) => (prevIndex === cards.length - 1 ? 0 : prevIndex + 1));
+    };
+
+    const [cards, setCards] = useState([
+        {
+            image: 'https://via.placeholder.com/300x200',
+            checkboxes: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+            button: 'Click Me',
+        },
+        {
+            image: 'https://via.placeholder.com/300x200',
+            checkboxes: ['Option 1', 'Option 2'],
+            button: 'Learn More',
+        },
+        {
+            image: 'https://via.placeholder.com/300x200',
+            checkboxes: ['Option 1', 'Option 2'],
+            button: 'Learn More',
+        },
+        {
+            image: 'https://via.placeholder.com/300x200',
+            checkboxes: ['Option 1', 'Option 2'],
+            button: 'Learn More',
+        },
+        {
+            image: 'https://via.placeholder.com/300x200',
+            checkboxes: ['Option 1', 'Option 2'],
+            button: 'Learn More',
+        },
+        // Add more card data as needed
+    ]);
 
     return (
         <div className="container w-full mx-auto">
@@ -368,6 +448,29 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                     </div>
                 </div>
                 <div>
+
+                    {/* test */}
+                    <div className="app">
+                        <div className="card-list-container">
+                            <div className="card-list">
+                                <Card
+                                    key={currentIndex}
+                                    image={cards[currentIndex].image}
+                                    checkboxes={cards[currentIndex].checkboxes}
+                                    button={cards[currentIndex].button}
+                                />
+                            </div>
+                            <div className="button-container">
+                                <button className="prev-button" onClick={handlePrevious}>
+                                    Previous
+                                </button>
+                                <button className="next-button" onClick={handleNext}>
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {/* end test */}
                     <div className="grid grid-cols-4 gap-4">
                         {images ? (
                             images.map((image) => (

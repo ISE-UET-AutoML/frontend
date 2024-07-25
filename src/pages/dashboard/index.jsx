@@ -39,6 +39,7 @@ const Dashboard = ({ updateFields }) => {
 
     const uploadImages = async (e) => {
         e.preventDefault();
+        console.log('upload images')
         if (dashboardState.uploadFiles.length === 0) return;
         if (
             dashboardState.uploadFiles !== undefined &&
@@ -67,6 +68,7 @@ const Dashboard = ({ updateFields }) => {
                     projectID,
                     formData
                 );
+                console.log('data', data)
                 message.success('Successfully uploaded', 3);
                 updateState({ isUploading: false });
                 updateFields({
@@ -93,6 +95,22 @@ const Dashboard = ({ updateFields }) => {
             });
         }
     };
+
+    // pass
+    // check label data
+    // const queryString = new URLSearchParams({
+    //     id: projectID,
+    // }).toString();
+    // const { data } = await projectAPI.uploadFiles(
+    //     projectID,
+    // );
+    // console.log('data', data)
+    // message.success('Successfully uploaded', 3);
+    // updateState({ isUploading: false });
+    // updateFields({
+    //     isDoneStepOne: true,
+    //     ...data,
+    // });
 
     return (
         <>
@@ -148,8 +166,8 @@ const Dashboard = ({ updateFields }) => {
             {/* bottom up modal of classify */}
             <div
                 className={`${dashboardState.show
-                        ? 'top-0 bottom-full z-[1000] opacity-100 left-0'
-                        : 'top-full bottom-0 opacity-0'
+                    ? 'top-0 bottom-full z-[1000] opacity-100 left-0'
+                    : 'top-full bottom-0 opacity-0'
                     } fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
             >
                 <button
@@ -214,8 +232,8 @@ const Dashboard = ({ updateFields }) => {
             {/* bottom up modal of classify image uploader */}
             <div
                 className={`${dashboardState.showUploader
-                        ? 'top-0 z-[1000] opacity-100'
-                        : 'top-full bottom-0 opacity-0'
+                    ? 'top-0 z-[1000] opacity-100'
+                    : 'top-full bottom-0 opacity-0'
                     } fixed flex flex-col items-center h-full w-full justify-center bg-white  transition-all duration-500 ease overscroll-auto min-h-screen left-0  overflow-hidden`}
             >
                 <button
