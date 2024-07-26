@@ -32,47 +32,100 @@ const StepFour = (props) => {
         initialState
     );
 
-    const handleFileChange = async (event) => {
-        const files = Array.from(event.target.files);
-        const validFiles = validateFiles(files);
+
+    const predictSingleFile = async (file) => {
 
         const formData = new FormData();
-        validFiles.forEach((file, index) => {
-            formData.append(`${index}`, file);
-        });
-        updateState({
-            isLoading: true,
-        });
+        const jsonObject = {
+            userEmail: "test-automl",
+            projectName: "4-animal",
+            runName: "ISE",
+        }; // Replace with your actual JSON object
+        
+        formData.append('file', file);
+        formData.append('json', JSON.stringify(jsonObject));
 
-        const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_PREDICT_URL}/predict`, {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification/temp_predict`, {
                 method: 'POST',
-                // headers: {
-                //   'Content-Type': 'multipart/form-data',
-                // },
                 body: formData,
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    clearTimeout(timer);
-                    const { predictions } = data;
-                    const images = predictions.map((item) => ({
-                        id: item.key,
-                        value: null,
-                        label: item.class,
-                    }));
-                    updateState({
-                        uploadFiles: validFiles,
-                        seletedImage: validFiles[0],
-                        confidences: predictions,
-                        confidenceScore: parseFloat(predictions[0].confidence),
-                        confidenceLabel: predictions[0].class,
-                        isLoading: false,
-                        userConfirm: images,
-                    });
-                })
-                .catch((err) => updateState({ isLoading: false }));
-        }, 20000);
+            });
+            const result = await response.json();
+
+            alert(result.predictions);
+            // Handle the result
+        } catch (error) {
+            // Handle the error
+            console.log(error);
+        }
+    }
+
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        console.log("Executing");
+        const fileInput = event.target.elements.file;
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            updateState({ isLoading: true });
+            await predictSingleFile(file);
+            updateState({ isLoading: false });
+        }
+    };
+
+    const handleFileChange = async (event) => {
+        const files = Array.from(event.target.files);
+
+        await predictSingleFile(files[0]);
+        // const validFiles = validateFiles(files);
+
+        // const formData = new FormData();
+        // validFiles.forEach((file, index) => {
+        //     formData.append(`${index}`, file);
+        // });
+        // updateState({
+        //     isLoading: true,
+        // });
+
+        // const timer = setTimeout(() => {
+        //     fetch(`${process.env.REACT_APP_PREDICT_URL}/predict`, {
+        //         method: 'POST',
+        //         // headers: {
+        //         //   'Content-Type': 'multipart/form-data',
+        //         // },
+        //         body: formData,
+        //     })
+        //         .then((res) => res.json())
+        //         .then((data) => {
+        //             clearTimeout(timer);
+        //             const { predictions } = data;
+        //             const images = predictions.map((item) => ({
+        //                 id: item.key,
+        //                 value: null,
+        //                 label: item.class,
+        //             }));
+        //             updateState({
+        //                 uploadFiles: validFiles,
+        //                 seletedImage: validFiles[0],
+        //                 confidences: predictions,
+        //                 confidenceScore: parseFloat(predictions[0].confidence),
+        //                 confidenceLabel: predictions[0].class,
+        //                 isLoading: false,
+        //                 userConfirm: images,
+        //             });
+        //         })
+        //         .catch((err) => updateState({ isLoading: false }));
+        // }, 20000);
+
+        // updateState({
+        //     uploadFiles: validFiles,
+        //     seletedImage: validFiles[0],
+        //     // confidences: predictions,
+        //     // confidenceScore: parseFloat(predictions[0].confidence),
+        //     // confidenceLabel: predictions[0].class,
+        //     isLoading: false,
+        //     // userConfirm: images,
+        // });
     };
 
     const handleDeploy = async () => {
@@ -127,6 +180,18 @@ const StepFour = (props) => {
             confidenceLabel: stepFourState.confidences[nextIdx].class,
         });
     };
+
+    return (
+        <>
+        <h1>Test</h1>
+        <form onSubmit={handleSubmit}>
+            <input type="file" name="file" />
+            <button type="submit">Submit</button>
+        </form>
+        </>
+    );
+
+
     return (
         <>
             <Transition.Root show={stepFourState.showResultModal} as={Fragment}>
@@ -247,7 +312,7 @@ const StepFour = (props) => {
                                                     showResultModal: false,
                                                     isLoading: true,
                                                 });
-                                                saveBestModel();
+                                                // saveBestModel();
                                                 const timer = setTimeout(() => {
                                                     updateState({
                                                         isLoading: false,
@@ -277,7 +342,7 @@ const StepFour = (props) => {
                 <button
                     onClick={() => {
                         updateState({ showUploadModal: true });
-                        handleDeploy();
+                        // handleDeploy();
                     }}
                     className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
                 // hidden
