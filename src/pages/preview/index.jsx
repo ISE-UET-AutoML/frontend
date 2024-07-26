@@ -5,6 +5,8 @@ import { Slider } from 'antd';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { listImages, trainModel } from 'src/api/project';
+import { updateLabel } from 'src/api/images';
+
 import Loading from 'src/components/Loading';
 import Pagination from 'src/components/Pagination';
 import useIntervalFetch from 'src/hooks/useIntervalFetch';
@@ -142,8 +144,6 @@ const types = [
 ];
 
 const LabelSelector = ({ current, labels, setLabels }) => {
-    console.log("label selector", current);
-    console.log(setLabels);
     const [currentLabel, setCurrentLabel] = useState(current);
     const [open, setOpen] = useState(false);
     const cancelButtonRef = useRef(null);
@@ -155,7 +155,7 @@ const LabelSelector = ({ current, labels, setLabels }) => {
         if (e.target.value === 'new') {
             setOpen(true);
         } else {
-            setCurrentLabel(e.target.value);
+
         }
     };
 
@@ -270,27 +270,44 @@ const LabelSelector = ({ current, labels, setLabels }) => {
 };
 
 
-const Card = ({ image, checkboxes, button }) => {
+const Card = ({ image, labels, uselabel, setLabel }) => {
+    // const [uselabel, setLabel] = useState(label);
+    const handlerCheckBox = (index) => {
+        uselabel = labels[index].value
+        setLabel(uselabel)
+        console.log(uselabel, index);
+    }
     return (
-        <div className="card">
-            <div className="card-image">
-                <img src={image} alt="Card Image" />
+        <div>
+            <div className='content w-50'>
+                <img className='card-image' src={image} alt="" />
             </div>
-            <div className="card-content">
+            <div className='content'>
                 <div className="checkboxes">
-                    {checkboxes.map((checkbox, index) => (
-                        <div key={index} className="checkbox">
-                            <input type="checkbox" />
-                            <label>{checkbox}</label>
+                    {labels.map((lb, index) => (
+                        <div className="checkbox">
+                            <input class="radio" type="checkbox" checked={lb.value === uselabel} onChange={() => handlerCheckBox(index)} />
+                            <label>{lb.value}</label>
                         </div>
                     ))}
                 </div>
-                <button className="card-button">{button}</button>
             </div>
         </div>
     );
 };
 
+const MenuItem = ({ image, label }) => {
+    return (
+        <div className='hover-item card grid grid-cols-4 mx-4 mb-1'>
+            <div className='col-span-1'>
+                <img className='item-img w-10 h-10' src={image} alt="" />
+            </div>
+            <div className='col-span-3 mx-auto content'>
+                <div>{label}</div>
+            </div>
+        </div>
+    );
+}
 
 const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
     const location = useLocation();
@@ -313,6 +330,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
     });
     const handleTrain = async () => {
         try {
+            console.log("train");
             const { data } = await trainModel(projectId);
             const searchParams = new URLSearchParams(location.search);
             searchParams.get('experiment_name') ??
@@ -372,50 +390,56 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
         }
     }, []);
 
+
+    console.log('images', images);
+
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [useLabel, setLabel] = useState(images[currentIndex].label)
+    const handleSubmit = async () => {
+        console.log('current label', images[currentIndex].label);
+        console.log('new label', useLabel);
+        const oldLabel = images[currentIndex].label
+        if (oldLabel !== useLabel) {
+            // get id image
+            // get id label old, new
+            // push api 
+            // change local
+            var oldLabelId = ''
+            var newLabelId = ''
+            savedLabels.map((savedLabel) => {
+                if (savedLabel.value === oldLabel) {
+                    oldLabelId = savedLabel.id
+                } else if (savedLabel.value === useLabel) {
+                    newLabelId = savedLabel.id
+                }
+            })
+            if (oldLabelId.length > 0 && newLabelId.length > 0) {
+                const result_update = await updateLabel(images[currentIndex].id, oldLabelId, newLabelId)
+                console.log("update done", result_update);
+                images[currentIndex].label = useLabel
+                console.log('change labeled');
+            } else {
+                console.log('update falid');
+            }
 
-    const handlePrevious = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === 0 ? cards.length - 1 : prevIndex - 1));
+        }
+        const t = images['currentIndex'].label
+        setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+        setLabel(images[currentIndex].label)
     };
 
-    const handleNext = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === cards.length - 1 ? 0 : prevIndex + 1));
-    };
+    const handleClickItem = (index) => {
+        console.log('index', index);
+        setCurrentIndex(index)
+        setLabel(images[currentIndex].label)
+    }
 
-    const [cards, setCards] = useState([
-        {
-            image: 'https://via.placeholder.com/300x200',
-            checkboxes: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
-            button: 'Click Me',
-        },
-        {
-            image: 'https://via.placeholder.com/300x200',
-            checkboxes: ['Option 1', 'Option 2'],
-            button: 'Learn More',
-        },
-        {
-            image: 'https://via.placeholder.com/300x200',
-            checkboxes: ['Option 1', 'Option 2'],
-            button: 'Learn More',
-        },
-        {
-            image: 'https://via.placeholder.com/300x200',
-            checkboxes: ['Option 1', 'Option 2'],
-            button: 'Learn More',
-        },
-        {
-            image: 'https://via.placeholder.com/300x200',
-            checkboxes: ['Option 1', 'Option 2'],
-            button: 'Learn More',
-        },
-        // Add more card data as needed
-    ]);
 
     return (
-        <div className="container w-full mx-auto">
+        <div className="w-full mx-auto">
             {isLoading && <Loading />}
-            <div className="flex flex-col bg-white shadow-xl rounded-md h-full p-10">
-                <div className="flex justify-between items-center w-full my-5">
+            <div className="flex flex-col bg-white shadow-xl rounded-md card-container">
+                {<div className="flex justify-between items-center w-full my-5">
                     <label>
                         Label all your images to start training process
                     </label>
@@ -426,60 +450,17 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                         >
                             Train Model
                         </button>
-                        {/* <div className="group/item h-9 w-fit z-20">
-                <ChevronDownIcon
-                  className="h-10 w-6 text-violet-200 hover:text-violet-100 "
-                  aria-hidden="true"
-                />
-                <div
-                  className="absolute hidden  group-hover/item:block 
-                top-full right-0 py-4 px-3 bg-white w-[120%] rounded-md shadow-md"
-                >
-                  <button
-                    className={`bg-blue-600 hover:bg-blue-800  text-white group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                    onClick={() => {
-                      handleOpentTrainModel()
-                    }}
-                  >
-                    <span className="text-center w-full">Train with options</span>
-                  </button>
-                </div>
-              </div> */}
                     </div>
-                </div>
-                <div>
-
-                    {/* test */}
-                    <div className="app">
-                        <div className="card-list-container">
-                            <div className="card-list">
-                                <Card
-                                    key={currentIndex}
-                                    image={cards[currentIndex].image}
-                                    checkboxes={cards[currentIndex].checkboxes}
-                                    button={cards[currentIndex].button}
-                                />
-                            </div>
-                            <div className="button-container">
-                                <button className="prev-button" onClick={handlePrevious}>
-                                    Previous
-                                </button>
-                                <button className="next-button" onClick={handleNext}>
-                                    Next
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    {/* end test */}
-                    <div className="grid grid-cols-4 gap-4">
+                </div>}
+                <div className='grid grid-cols-6 label-frame'>
+                    <div className='col-span-1 menu-item height-element'>
                         {images ? (
-                            images.map((image) => (
-                                <div className="relative flex justify-center hover:border hover:border-red-500 rounded-md overflow-hidden">
-                                    <img src={image.url} alt="" />
-                                    <LabelSelector
-                                        current={image.label ?? 'unlabeled'}
-                                        labels={savedLabels}
-                                        setLabels={setLabels}
+                            images.map((img, index) => (
+                                <div
+                                    onClick={() => handleClickItem(index)}>
+                                    <MenuItem
+                                        image={img.url}
+                                        label={img.label}
                                     />
                                 </div>
                             ))
@@ -488,15 +469,28 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                                 <Loading />
                             </div>
                         )}
+
+                    </div>
+
+                    <div className='col-span-4 w-50 height-element'>
+                        {(images && savedLabels) ? (<Card
+                            key={images[currentIndex].id}
+                            image={images[currentIndex].url}
+                            labels={savedLabels}
+                            uselabel={useLabel}
+                            setLabel={setLabel}
+                        />) : (
+                            <div className="relative">
+                                <Loading />
+                            </div>
+                        )}
+                    </div>
+                    <div className='col-span-1 button-container height-element'>
+                        <button className="submit-button " onClick={handleSubmit}>
+                            Summit
+                        </button>
                     </div>
                 </div>
-                {images && (
-                    <Pagination
-                        currentPage={paginationStep2.currentPage}
-                        totalPages={paginationStep2.totalPages}
-                        onChange={handlePageChange}
-                    />
-                )}
             </div>
             <Transition.Root show={openOptions} as={Fragment}>
                 <Dialog

@@ -1,5 +1,5 @@
-.app {
-    /* display: flex; */
+.card-view {
+    display: flex;
     justify-content: center;
     align-items: center;
     background-color: #f1f1f1;
@@ -26,7 +26,6 @@
 }
 
 .card-image img {
-    height: 200px;
     object-fit: cover;
 }
 
@@ -67,12 +66,48 @@
     gap: 20px;
 }
 
-.prev-button,
-.next-button {
+.submit-button {
     padding: 8px 16px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    align-self: flex-end;
+    display: inline-block;
+}
+
+.menu-item {
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.label-frame {
+    height: 40vh;
+}
+
+.height-element {
+    height: 350px !important;
+}
+
+img.card-image {
+    object-fit: cover;
+    max-width: 50% !important;
+    max-height: 350px !important;
+}
+
+.card-container {
+    padding-left: 2.5rem;
+    padding-top: 2.5rem;
+    padding-right: 2.5rem;
+    padding-bottom: 6rem;
+}
+
+.hover-item {
+    background-color: #FFF;
+
+}
+
+.hover-item:hover {
+    background-color: blanchedalmond;
 }
