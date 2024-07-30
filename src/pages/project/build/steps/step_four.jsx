@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { message } from 'antd';
-import React, { Fragment, useReducer, useState } from 'react';
+import React, { Fragment, useReducer } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { UploadTypes } from 'src/constants/file';
 import Loading from 'src/components/Loading';
@@ -14,7 +14,7 @@ const initialState = {
     showResultModal: false,
     predictFile: { url: '', label: '' },
     uploadFiles: [],
-    selectedImage: null,
+    seletedImage: null,
     isDeploying: false,
     isLoading: false,
     confidences: [],
@@ -32,25 +32,24 @@ const StepFour = (props) => {
         initialState
     );
 
-    const [explainImageUrl, setExplainImageUrl] = useState('');
-
     const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
         const validFiles = validateFiles(files);
 
         const formData = new FormData();
-        const jsonObject = {
-            userEmail: "test-automl",
-            projectName: "4-animal",
-            runName: "ISE",
-        }; // Replace with your actual JSON object
-        
-        formData.append('file', file);
-        formData.append('json', JSON.stringify(jsonObject));
+        validFiles.forEach((file, index) => {
+            formData.append(`${index}`, file);
+        });
+        updateState({
+            isLoading: true,
+        });
 
-        try {
-            const response = await fetch(`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification/temp_predict`, {
+        const timer = setTimeout(() => {
+            fetch(`${process.env.REACT_APP_PREDICT_URL}/predict`, {
                 method: 'POST',
+                // headers: {
+                //   'Content-Type': 'multipart/form-data',
+                // },
                 body: formData,
             })
                 .then((res) => res.json())
@@ -64,7 +63,7 @@ const StepFour = (props) => {
                     }));
                     updateState({
                         uploadFiles: validFiles,
-                        selectedImage: validFiles[0],
+                        seletedImage: validFiles[0],
                         confidences: predictions,
                         confidenceScore: parseFloat(predictions[0].confidence),
                         confidenceLabel: predictions[0].class,
@@ -94,57 +93,19 @@ const StepFour = (props) => {
         }
     };
 
-    const handleExplainSelectedImage = async () => {
-        const item = stepFourState.selectedImage;
-        const jsonObject = {
-            userEmail: "test-automl",
-            projectName: "4-animal",
-            runName: "ISE",
-        }; // Replace with your actual JSON object
-        const formData = new FormData();
-        formData.append('file', item);
-        formData.append('json', JSON.stringify(jsonObject));
-        updateState({
-            isLoading: true,
-        });
-
-        const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`, {
-                method: 'POST',
-                body: formData,
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    clearTimeout(timer);
-                    const base64ImageString = data.explain_image;
-                    const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`;
-
-                    setExplainImageUrl(fetchedImageUrl);
-                    updateState({
-                        isLoading: false,
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    updateState({ isLoading: false });
-                });
-        }, 60000);
-    }
-
-
-    const handleSelectedImage = async (item) => {
+    const handleSeletedImage = async (item) => {
         const fileIndex = stepFourState.uploadFiles.findIndex(
             (file) => file.name === item.name
         );
         updateState({
-            selectedImage: item,
+            seletedImage: item,
             confidenceScore: stepFourState.confidences[fileIndex].confidence,
             confidenceLabel: stepFourState.confidences[fileIndex].class,
         });
     };
     const handleConfirmImage = (value) => {
         const currentImageSeletedIndex = stepFourState.uploadFiles.findIndex(
-            (file) => file.name === stepFourState.selectedImage.name
+            (file) => file.name === stepFourState.seletedImage.name
         );
 
         const nextIdx =
@@ -159,25 +120,13 @@ const StepFour = (props) => {
                 }
                 return item;
             }),
-            selectedImage: stepFourState.uploadFiles[nextIdx],
+            seletedImage: stepFourState.uploadFiles[nextIdx],
             confidenceScore: parseFloat(
                 stepFourState.confidences[nextIdx].confidence
             ),
             confidenceLabel: stepFourState.confidences[nextIdx].class,
         });
     };
-
-    return (
-        <>
-        <h1>Test</h1>
-        <form onSubmit={handleSubmit}>
-            <input type="file" name="file" />
-            <button type="submit">Submit</button>
-        </form>
-        </>
-    );
-
-
     return (
         <>
             <Transition.Root show={stepFourState.showResultModal} as={Fragment}>
@@ -298,7 +247,7 @@ const StepFour = (props) => {
                                                     showResultModal: false,
                                                     isLoading: true,
                                                 });
-                                                // saveBestModel();
+                                                saveBestModel();
                                                 const timer = setTimeout(() => {
                                                     updateState({
                                                         isLoading: false,
@@ -328,7 +277,7 @@ const StepFour = (props) => {
                 <button
                     onClick={() => {
                         updateState({ showUploadModal: true });
-                        // handleDeploy();
+                        handleDeploy();
                     }}
                     className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
                 // hidden
@@ -369,15 +318,15 @@ const StepFour = (props) => {
                                 <section>
                                     <div className="bg-white shadow sm:rounded-lg p-5">
                                         <div
-                                            class={`${stepFourState.selectedImage
+                                            class={`${stepFourState.seletedImage
                                                 ? ''
                                                 : 'animate-pulse'
                                                 } h-[400px] bg-[#e1e4e8]  p-4 w-full rounded-md mb-5 m-auto flex justify-center `}
                                         >
-                                            {stepFourState.selectedImage && (
+                                            {stepFourState.seletedImage && (
                                                 <img
                                                     src={URL.createObjectURL(
-                                                        stepFourState.selectedImage
+                                                        stepFourState.seletedImage
                                                     )}
                                                     alt=""
                                                     className="object-contain rounded-[8px]"
@@ -402,10 +351,10 @@ const StepFour = (props) => {
                                                                 : 'border-4 border-red-600 border-solid'
                                                             : ''
                                                             }
-                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.selectedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
+                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.seletedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
                           bg-[#F3F6F9] rounded-[8px] h-[130px] min-w-[200px] p-2 flex   justify-center `}
                                                         onClick={() =>
-                                                            handleSelectedImage(
+                                                            handleSeletedImage(
                                                                 item
                                                             )
                                                         }
@@ -459,15 +408,6 @@ const StepFour = (props) => {
                                         </button>
                                         <button
                                             onClick={(e) =>
-                                                handleExplainSelectedImage()
-                                            }
-                                            type="button"
-                                            className="w-fit inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                        >
-                                            Explain
-                                        </button>
-                                        <button
-                                            onClick={(e) =>
                                                 handleConfirmImage('true')
                                             }
                                             type="button"
@@ -487,11 +427,6 @@ const StepFour = (props) => {
                                                     ).toFixed(2)}
                                                 </strong>
                                             </span>
-                                        </div>
-                                        <div>
-                                            {explainImageUrl && (
-                                                <img src={explainImageUrl} alt="Explain" className="rounded-md mt-4" />
-                                            )}
                                         </div>
                                     </div>
                                 </div>
