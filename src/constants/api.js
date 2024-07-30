@@ -8,5 +8,5 @@ export const API_URL = {
     train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
     upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
     get_project_dataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/datasets`,
-    update_label: `${API_BASE_URL}/images`
+    update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`
 }

@@ -1,5 +1,7 @@
 import React, { memo, useEffect } from 'react';
 import Preview from 'src/pages/preview';
+import Labeling from 'src/pages/labeling';
+
 import { listImages } from 'src/api/project';
 import { useLocation } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
@@ -29,6 +31,25 @@ const StepTwo = ({ files, labels, pagination, updateFields }) => {
 			fetchListLabelingImages(id);
 		}
 	}, []);
+
+	if (labels != null && labels?.length <= 0) {
+		return (
+			<div>
+				<Labeling
+					images={files}
+					savedLabels={labels}
+					updateFields={updateFields}
+					next={() => {
+						updateFields({
+							isDoneStepTwo: true,
+						});
+					}}
+					pagination={pagination}
+				/>
+			</div>
+		);
+
+	}
 
 	return (
 		<div>
