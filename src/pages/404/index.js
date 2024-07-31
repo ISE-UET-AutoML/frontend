@@ -1,85 +1,29 @@
-import axios from 'axios';
-import React, { Fragment, useReducer, useState } from 'react';
-import * as projectAPI from 'src/api/project';
 
-const Page404 = (props) => {
-	const [explainImageUrl, setExplainImageUrl] = useState('');
-
-	const handleExplainSelectedImage = async (event) => {
-        event.preventDefault();
-        console.log("Executing");
-        const item = event.target.elements.file.files[0];
-        const jsonObject = {
-            userEmail: "test-automl",
-            projectName: "4-animal",
-            runName: "ISE",
-        }; // Replace with your actual JSON object
-        const formData = new FormData();
-        formData.append('image', item);
-        formData.append('json', JSON.stringify(jsonObject));
-
-        try {
-            console.log('Fetching');
-            const { data } = await axios.post(`${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            const base64_image_str = data.explain_image;
-            const explain_image_str = `data:image/jpeg;base64,${base64_image_str}`;
-            setExplainImageUrl(explain_image_str);
-            console.log('Fetch sucessfully');
-
-        } catch(err) {
-            console.log(err);
-        }
-
-    }
-
-
-	return <>
-        <h1>Test</h1>
-        <form onSubmit={handleExplainSelectedImage}>
-            <input type="file" name="file" />
-            <button type="submit">Submit</button>
-        </form>
-        <div>
-            {explainImageUrl && (
-                <img src={explainImageUrl} alt="Explain" className="rounded-md mt-4" />
-            )}
-        </div>
-    </>
+export default function Page404() {
+	return (
+		<div class="lg:px-24 lg:py-24 md:py-20 md:px-44 px-4 py-24 items-center flex justify-center flex-col-reverse lg:flex-row md:gap-28 gap-16">
+			<div class="xl:pt-24 w-full xl:w-1/2 relative pb-12 lg:pb-0">
+				<div class="relative">
+					<div class="absolute">
+						<div class="">
+							<h1 class="my-2 text-gray-800 font-bold text-2xl">
+								Looks like you've found the doorway to the great
+								nothing
+							</h1>
+							<p class="my-2 mb-5 text-gray-800">
+								Sorry about that! Please visit our hompage to
+								get where you need to go.
+							</p>
+						</div>
+					</div>
+					<div>
+						<img src="https://i.ibb.co/G9DC8S0/404-2.png" />
+					</div>
+				</div>
+			</div>
+			<div>
+				<img src="https://i.ibb.co/ck1SGFJ/Group.png" />
+			</div>
+		</div>
+	);
 }
-
-export default Page404;
-
-
-
-// export default function Page404() {
-// 	return (
-// 		<div class="lg:px-24 lg:py-24 md:py-20 md:px-44 px-4 py-24 items-center flex justify-center flex-col-reverse lg:flex-row md:gap-28 gap-16">
-// 			<div class="xl:pt-24 w-full xl:w-1/2 relative pb-12 lg:pb-0">
-// 				<div class="relative">
-// 					<div class="absolute">
-// 						<div class="">
-// 							<h1 class="my-2 text-gray-800 font-bold text-2xl">
-// 								Looks like you've found the doorway to the great
-// 								nothing
-// 							</h1>
-// 							<p class="my-2 mb-5 text-gray-800">
-// 								Sorry about that! Please visit our hompage to
-// 								get where you need to go.
-// 							</p>
-// 						</div>
-// 					</div>
-// 					<div>
-// 						<img src="https://i.ibb.co/G9DC8S0/404-2.png" />
-// 					</div>
-// 				</div>
-// 			</div>
-// 			<div>
-// 				<img src="https://i.ibb.co/ck1SGFJ/Group.png" />
-// 			</div>
-// 		</div>
-// 	);
-// }
