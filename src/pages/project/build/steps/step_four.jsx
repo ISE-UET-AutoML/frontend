@@ -37,6 +37,9 @@ const StepFour = (props) => {
         const validFiles = validateFiles(files);
 
         const formData = new FormData();
+        formData.append('userEmail', "test-automl");
+        formData.append('projectName', "4-animal");
+        formData.append('runName', "ISE");
         validFiles.forEach((file, index) => {
             formData.append(`${index}`, file);
         });
@@ -45,7 +48,7 @@ const StepFour = (props) => {
         });
 
         const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_PREDICT_URL}/predict`, {
+            fetch(`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification/temp_predict`, {
                 method: 'POST',
                 // headers: {
                 //   'Content-Type': 'multipart/form-data',
@@ -71,7 +74,11 @@ const StepFour = (props) => {
                         userConfirm: images,
                     });
                 })
-                .catch((err) => updateState({ isLoading: false }));
+                .catch((err) => {
+                    console.log(err);
+                    updateState({ isLoading: false })
+                    }
+                );
         }, 20000);
     };
 
@@ -277,7 +284,7 @@ const StepFour = (props) => {
                 <button
                     onClick={() => {
                         updateState({ showUploadModal: true });
-                        handleDeploy();
+                        handleFileChange();
                     }}
                     className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
                 // hidden

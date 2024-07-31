@@ -11,6 +11,7 @@ const StepOne = ({ name, email, updateFields }) => {
 	//     ...data,
 	// });
 	const { id: projectID } = useParams()
+	console.log(projectID)
 	projectAPI.getProjectDataset(projectID).then((data) => {
 		if (data?.data && data.data.files.length) {
 			console.log(data)
