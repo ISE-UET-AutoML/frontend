@@ -48,11 +48,8 @@ const StepFour = (props) => {
         });
 
         const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_PREDICT_URL}/predict`, {
+            fetch(`${process.env.REACT_APP_EXPLAIN_URL}/image_classification/predict`, {
                 method: 'POST',
-                // headers: {
-                //   'Content-Type': 'multipart/form-data',
-                // },
                 body: formData,
             })
                 .then((res) => res.json())
@@ -78,23 +75,23 @@ const StepFour = (props) => {
         }, 20000);
     };
 
-    const handleDeploy = async () => {
-        fetch(
-            `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
-        )
-            .then((res) => res.json())
-            .then((data) => console.log(data))
-            .catch((err) => console.log(err));
-    };
-    const saveBestModel = async () => {
-        try {
-            await instance.get(
-                `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
-            );
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    // const handleDeploy = async () => {
+    //     fetch(
+    //         `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
+    //     )
+    //         .then((res) => res.json())
+    //         .then((data) => console.log(data))
+    //         .catch((err) => console.log(err));
+    // };
+    // const saveBestModel = async () => {
+    //     try {
+    //         await instance.get(
+    //             `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
+    //         );
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
 
     const handleExplainSelectedImage = async () => {
         const item = stepFourState.selectedImage;
@@ -290,7 +287,7 @@ const StepFour = (props) => {
                                                     showResultModal: false,
                                                     isLoading: true,
                                                 });
-                                                saveBestModel();
+                                                // saveBestModel();
                                                 const timer = setTimeout(() => {
                                                     updateState({
                                                         isLoading: false,
@@ -320,7 +317,7 @@ const StepFour = (props) => {
                 <button
                     onClick={() => {
                         updateState({ showUploadModal: true });
-                        handleDeploy();
+                        // handleDeploy();
                     }}
                     className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
                 // hidden
