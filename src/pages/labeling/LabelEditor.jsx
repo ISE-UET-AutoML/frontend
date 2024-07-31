@@ -1,10 +1,9 @@
 
-import { useEffect, useRef } from 'react';
-import LabelStudio from '@thanhtlx/label-studio-fe-fix';
+import { useEffect, useContext, useRef } from 'react';
 import '@thanhtlx/label-studio-fe-fix/build/static/css/main.css';
 import LabelStudioReact from './LabelStudio'
 
-const LabelEditor = ({ index, image, labels, setCurrentIndex, forceUpdate }) => {
+const LabelEditor = ({ index, image, labels, setCurrentIndex }) => {
 
     const choice = labels.map((v, i) => {
         return '<Choice value="' + v + '"/>'
@@ -30,14 +29,15 @@ const LabelEditor = ({ index, image, labels, setCurrentIndex, forceUpdate }) => 
         console.log('update', index);
         console.log(annotation);
         setCurrentIndex(index + 1)
-        forceUpdate()
+        // forceUpdate()
+        // setValue(value + 1)
     }
 
     const callbackSkip = function (LS, annotation) {
         console.log('skip', index);
         console.log(annotation);
         setCurrentIndex(index + 1)
-        forceUpdate()
+        // forceUpdate()
     }
 
     const onloadAnnotation = function (LS) {
@@ -48,8 +48,7 @@ const LabelEditor = ({ index, image, labels, setCurrentIndex, forceUpdate }) => 
     }
 
     return (
-        <div className='label-editor-container' id='label-editor-container' >
-            <LabelStudioReact
+        <LabelStudioReact
                 config={labelinConfig}
                 task={currentTask}
                 interfaces={[
@@ -59,7 +58,7 @@ const LabelEditor = ({ index, image, labels, setCurrentIndex, forceUpdate }) => 
                     'topbar',
                     'predictions:menu', 'annotations:menu',
                     // 'annotations:current', 
-                    'side-column',
+                    // 'side-column',
                     //  'annotations:add-new', 
                     // 'annotations:view-all', 
                     // 'annotations:delete',
@@ -92,7 +91,7 @@ const LabelEditor = ({ index, image, labels, setCurrentIndex, forceUpdate }) => 
                 onSkipTask={callbackSkip}
                 onLabelStudioLoad={onloadAnnotation}
             />
-        </div>
+        
     );
 }
 
