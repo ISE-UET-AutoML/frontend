@@ -7,6 +7,7 @@ import Loading from 'src/components/Loading';
 import { validateFiles } from 'src/utils/file';
 import instance from 'src/api/axios';
 import { PATHS } from 'src/constants/paths';
+import { fetchWithTimeout } from 'src/utils/timeout';
 
 const initialState = {
     showUploadModal: false,
@@ -101,35 +102,37 @@ const StepFour = (props) => {
             userEmail: "test-automl",
             projectName: "4-animal",
             runName: "ISE",
-        }; // Replace with your actual JSON object
+        };
         const formData = new FormData();
-        formData.append('file', item);
+        formData.append('image', item);
         formData.append('json', JSON.stringify(jsonObject));
         updateState({
             isLoading: true,
         });
 
-        const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`, {
-                method: 'POST',
-                body: formData,
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    clearTimeout(timer);
-                    const base64ImageString = data.explain_image;
-                    const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`;
+        const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`;
 
-                    setExplainImageUrl(fetchedImageUrl);
-                    updateState({
-                        isLoading: false,
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    updateState({ isLoading: false });
+        const options = {
+            method: 'POST',
+            body: formData,
+        };
+
+        fetchWithTimeout(url, options, 60000)
+            .then(data => {
+                const base64ImageString = data.explain_image;
+                const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                setExplainImageUrl(fetchedImageUrl);
+
+                updateState({
+                    isLoading: false,
                 });
-        }, 60000);
+                console.log('Fetch successful');
+            })
+            .catch(error => {
+                console.error('Fetch error:', error.message);
+                updateState({ isLoading: false });
+            });
     }
 
 

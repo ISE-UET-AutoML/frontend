@@ -1,7 +1,8 @@
-import Explain from 'src/pages/testing';
+import { PATHS } from 'src/constants/paths';
+import Explain from 'src/pages/testing/explain';
 
 const routes = {
-	path: '/testing/explain',
+	path: `${PATHS.TESTING}/explain`,
 	element: <Explain />,
 };
 

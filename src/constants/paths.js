@@ -14,6 +14,7 @@ const PATHS = {
     PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,
     PROJECT_TASKS: (projectID) => `/app/project/${projectID}/tasks`,
     PROJECT_SETTINGS: (projectID) => `/app/project/${projectID}/settings`,
+    TESTING: '/testing',
 };
 
 export { PATHS };
