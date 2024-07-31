@@ -1,4 +1,4 @@
-// components/LabelStudio.js
+
 import { useEffect, useRef } from 'react';
 import LabelStudio from '@thanhtlx/label-studio-fe-fix';
 import '@thanhtlx/label-studio-fe-fix/build/static/css/main.css';
@@ -21,7 +21,7 @@ const LabelStudioReact = (props) => {
 
     return (
         <div
-            // id="label-studio"
+            id="label-studio"
             ref={function (el) {
                 labelStudioContainerRef.current = el
             }}
