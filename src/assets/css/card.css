@@ -1,114 +1,13 @@
-.card-view {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f1f1f1;
-    width: 100%;
+.label-editor-container {
+    max-height: calc(100vh - (100px + 100px)) !important;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
-.card-list-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.lsf-object>div {
+    max-height: 500px !important;
 }
-
-.card-list {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.lsf-toolbar {
+    max-height: 200px !important;
     overflow: hidden;
-}
-
-.card-image img {
-    object-fit: cover;
-}
-
-.card-content {
-    padding: 16px;
-}
-
-.checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 12px;
-}
-
-.checkbox {
-    display: flex;
-    align-items: center;
-    margin-right: 12px;
-    margin-bottom: 8px;
-}
-
-.checkbox input[type='checkbox'] {
-    margin-right: 6px;
-}
-
-.card-button {
-    display: block;
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.submit-button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    align-self: flex-end;
-    display: inline-block;
-}
-
-.menu-item {
-    overflow-y: scroll;
-    height: 100%;
-}
-
-.label-frame {
-    height: 40vh;
-}
-
-.height-element {
-    height: 350px !important;
-}
-
-img.card-image {
-    object-fit: cover;
-    max-width: 50% !important;
-    height: 350px;
-    max-height: 350px !important;
-}
-
-.card-container {
-    padding-left: 2.5rem;
-    padding-top: 2.5rem;
-    padding-right: 2.5rem;
-    padding-bottom: 6rem;
-}
-
-.hover-item {
-    background-color: #FFF;
-
-}
-
-.hover-item:hover {
-    background-color: blanchedalmond;
 }
