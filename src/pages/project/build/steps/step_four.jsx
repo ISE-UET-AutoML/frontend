@@ -1,12 +1,13 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { message } from 'antd';
-import React, { Fragment, useReducer } from 'react';
+import React, { Fragment, useReducer, useState } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { UploadTypes } from 'src/constants/file';
 import Loading from 'src/components/Loading';
 import { validateFiles } from 'src/utils/file';
 import instance from 'src/api/axios';
 import { PATHS } from 'src/constants/paths';
+import { fetchWithTimeout } from 'src/utils/timeout';
 
 const initialState = {
     showUploadModal: false,
@@ -14,7 +15,7 @@ const initialState = {
     showResultModal: false,
     predictFile: { url: '', label: '' },
     uploadFiles: [],
-    seletedImage: null,
+    selectedImage: null,
     isDeploying: false,
     isLoading: false,
     confidences: [],
@@ -31,6 +32,8 @@ const StepFour = (props) => {
         (pre, next) => ({ ...pre, ...next }),
         initialState
     );
+
+    const [explainImageUrl, setExplainImageUrl] = useState('');
 
     const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
@@ -63,7 +66,7 @@ const StepFour = (props) => {
                     }));
                     updateState({
                         uploadFiles: validFiles,
-                        seletedImage: validFiles[0],
+                        selectedImage: validFiles[0],
                         confidences: predictions,
                         confidenceScore: parseFloat(predictions[0].confidence),
                         confidenceLabel: predictions[0].class,
@@ -93,19 +96,59 @@ const StepFour = (props) => {
         }
     };
 
-    const handleSeletedImage = async (item) => {
+    const handleExplainSelectedImage = async () => {
+        const item = stepFourState.selectedImage;
+        const jsonObject = {
+            userEmail: "test-automl",
+            projectName: "4-animal",
+            runName: "ISE",
+        };
+        const formData = new FormData();
+        formData.append('image', item);
+        formData.append('json', JSON.stringify(jsonObject));
+        updateState({
+            isLoading: true,
+        });
+
+        const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`;
+
+        const options = {
+            method: 'POST',
+            body: formData,
+        };
+
+        fetchWithTimeout(url, options, 60000)
+            .then(data => {
+                const base64ImageString = data.explain_image;
+                const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                setExplainImageUrl(fetchedImageUrl);
+
+                updateState({
+                    isLoading: false,
+                });
+                console.log('Fetch successful');
+            })
+            .catch(error => {
+                console.error('Fetch error:', error.message);
+                updateState({ isLoading: false });
+            });
+    }
+
+
+    const handleSelectedImage = async (item) => {
         const fileIndex = stepFourState.uploadFiles.findIndex(
             (file) => file.name === item.name
         );
         updateState({
-            seletedImage: item,
+            selectedImage: item,
             confidenceScore: stepFourState.confidences[fileIndex].confidence,
             confidenceLabel: stepFourState.confidences[fileIndex].class,
         });
     };
     const handleConfirmImage = (value) => {
         const currentImageSeletedIndex = stepFourState.uploadFiles.findIndex(
-            (file) => file.name === stepFourState.seletedImage.name
+            (file) => file.name === stepFourState.selectedImage.name
         );
 
         const nextIdx =
@@ -120,7 +163,7 @@ const StepFour = (props) => {
                 }
                 return item;
             }),
-            seletedImage: stepFourState.uploadFiles[nextIdx],
+            selectedImage: stepFourState.uploadFiles[nextIdx],
             confidenceScore: parseFloat(
                 stepFourState.confidences[nextIdx].confidence
             ),
@@ -318,15 +361,15 @@ const StepFour = (props) => {
                                 <section>
                                     <div className="bg-white shadow sm:rounded-lg p-5">
                                         <div
-                                            class={`${stepFourState.seletedImage
+                                            class={`${stepFourState.selectedImage
                                                 ? ''
                                                 : 'animate-pulse'
                                                 } h-[400px] bg-[#e1e4e8]  p-4 w-full rounded-md mb-5 m-auto flex justify-center `}
                                         >
-                                            {stepFourState.seletedImage && (
+                                            {stepFourState.selectedImage && (
                                                 <img
                                                     src={URL.createObjectURL(
-                                                        stepFourState.seletedImage
+                                                        stepFourState.selectedImage
                                                     )}
                                                     alt=""
                                                     className="object-contain rounded-[8px]"
@@ -351,10 +394,10 @@ const StepFour = (props) => {
                                                                 : 'border-4 border-red-600 border-solid'
                                                             : ''
                                                             }
-                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.seletedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
+                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.selectedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
                           bg-[#F3F6F9] rounded-[8px] h-[130px] min-w-[200px] p-2 flex   justify-center `}
                                                         onClick={() =>
-                                                            handleSeletedImage(
+                                                            handleSelectedImage(
                                                                 item
                                                             )
                                                         }
@@ -408,6 +451,15 @@ const StepFour = (props) => {
                                         </button>
                                         <button
                                             onClick={(e) =>
+                                                handleExplainSelectedImage()
+                                            }
+                                            type="button"
+                                            className="w-fit inline-flex items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                        >
+                                            Explain
+                                        </button>
+                                        <button
+                                            onClick={(e) =>
                                                 handleConfirmImage('true')
                                             }
                                             type="button"
@@ -427,6 +479,11 @@ const StepFour = (props) => {
                                                     ).toFixed(2)}
                                                 </strong>
                                             </span>
+                                        </div>
+                                        <div>
+                                            {explainImageUrl && (
+                                                <img src={explainImageUrl} alt="Explain" className="rounded-md mt-4" />
+                                            )}
                                         </div>
                                     </div>
                                 </div>

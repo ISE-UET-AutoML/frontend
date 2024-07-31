@@ -23,4 +23,13 @@ const getProjectDataset = (projectID) => {
     return instance.get(API_URL.get_project_dataset(projectID));
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, updateData };
+
+const explainInstance = (projectID, data) => {
+    const options = {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    };
+
+    return instance.post(API_URL.explain_instance(projectID), data, options);
+}
+
+export { listImages, trainModel, uploadFiles, getProjectDataset, updateData, explainInstance };

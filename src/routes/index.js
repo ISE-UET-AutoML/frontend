@@ -1,10 +1,11 @@
 import authed from './authed';
 import nonAuthed from './nonAuthed';
+import testing from './testing';
 import error404 from './404.js';
 import { createElement } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-export const router = createBrowserRouter([authed, nonAuthed, error404])
+export const router = createBrowserRouter([authed, nonAuthed, error404, testing])
 
 export function Router() {
     return createElement(RouterProvider, { router });
