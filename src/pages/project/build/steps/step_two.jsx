@@ -32,6 +32,8 @@ const StepTwo = ({ files, labels, pagination, updateFields }) => {
 		}
 	}, []);
 
+
+	
 	if (labels != null && labels?.length <= 0) {
 		return (
 			<div>
