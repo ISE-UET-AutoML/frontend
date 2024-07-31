@@ -1,4 +1,4 @@
-import { API_URL } from 'src/constants/api';
+import { API_URL, API_BASE_URL } from 'src/constants/api';
 import instance from './axios';
 
 const uploadFiles = (projectID, files) => {
@@ -9,11 +9,18 @@ const uploadFiles = (projectID, files) => {
 };
 
 const listImages = (projectID, queryString = '&page=1&size=24') => {
-    return instance.get(`/images?project_id=${projectID}${queryString}`);
+    return instance.get(`${API_BASE_URL}/images?project_id=${projectID}${queryString}`);
 };
 
 const trainModel = (projectID) => {
     return instance.post(API_URL.train_model(projectID));
 };
 
-export { listImages, trainModel, uploadFiles };
+const updateData = (projectID) => {
+    return "test";
+}
+const getProjectDataset = (projectID) => {
+    return instance.get(API_URL.get_project_dataset(projectID));
+}
+
+export { listImages, trainModel, uploadFiles, getProjectDataset, updateData };

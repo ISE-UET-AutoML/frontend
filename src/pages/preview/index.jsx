@@ -312,6 +312,15 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                 pagination: data.meta,
             });
             setIsLoading(false);
+        } else if (projectId) {
+            setIsLoading(true);
+            const { data } = await listImages(projectId, `&page=${page}&size=24`);
+            setPaginationStep2({ ...paginationStep2, currentPage: page });
+            updateFields({
+                ...data.data,
+                pagination: data.meta,
+            });
+            setIsLoading(false);
         }
     };
     useEffect(() => {
