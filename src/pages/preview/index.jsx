@@ -1,5 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { message } from 'antd';
+
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Slider } from 'antd';
 import { Fragment, useEffect, useRef, useState } from 'react';
@@ -270,23 +272,23 @@ const LabelSelector = ({ current, labels, setLabels }) => {
 };
 
 
-const Card = ({ image, labels, uselabel, setLabel }) => {
-    // const [uselabel, setLabel] = useState(label);
+const Card = ({ image, labels, currentLabel, setCurrentLabel }) => {
     const handlerCheckBox = (index) => {
-        uselabel = labels[index].value
-        setLabel(uselabel)
-        console.log(uselabel, index);
+        setCurrentLabel(labels[index].value)
+        console.log('check box', currentLabel, index);
     }
     return (
         <div>
             <div className='content w-50'>
-                <img className='card-image' src={image} alt="" />
+                <img className='card-image' src={image.url} alt="" />
             </div>
             <div className='content'>
                 <div className="checkboxes">
                     {labels.map((lb, index) => (
                         <div className="checkbox">
-                            <input class="radio" type="checkbox" checked={lb.value === uselabel} onChange={() => handlerCheckBox(index)} />
+                            <input class="radio" type="checkbox"
+                                checked={lb.value === currentLabel}
+                                onChange={() => handlerCheckBox(index)} />
                             <label>{lb.value}</label>
                         </div>
                     ))}
@@ -319,10 +321,11 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
         setOpenOptions(true);
     };
 
+    const [useImages, setImages] = useState(images)
+    const [useLabels, setLabels] = useState(savedLabels)
+
     let [searchParams, setSearchParams] = useSearchParams();
     const { id: projectId } = useParams();
-    const [labels, setLabels] = useState(savedLabels);
-    const [triggerFetch, setTriggerFetch] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [paginationStep2, setPaginationStep2] = useState({
         currentPage: pagination?.page ?? 1,
@@ -390,20 +393,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
         }
     }, []);
 
-
-    console.log('images', images);
-
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [useLabel, setLabel] = useState(images[currentIndex].label)
+    const [useLabel, setLabel] = useState(useImages[currentIndex].label)
     const handleSubmit = async () => {
         console.log('current label', images[currentIndex].label);
         console.log('new label', useLabel);
         const oldLabel = images[currentIndex].label
         if (oldLabel !== useLabel) {
-            // get id image
-            // get id label old, new
-            // push api 
-            // change local
             var oldLabelId = ''
             var newLabelId = ''
             savedLabels.map((savedLabel) => {
@@ -414,24 +410,59 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                 }
             })
             if (oldLabelId.length > 0 && newLabelId.length > 0) {
-                const result_update = await updateLabel(images[currentIndex].id, oldLabelId, newLabelId)
+                console.log('start changing label');
+                const result_update = await updateLabel(images[currentIndex]._id, oldLabelId, newLabelId)
                 console.log("update done", result_update);
-                images[currentIndex].label = useLabel
+                useImages[currentIndex].label = useLabel
                 console.log('change labeled');
+                message.success('Successfully Labeling', 3);
+                const nextIndex = currentIndex === useImages.length - 1 ? 0 : currentIndex + 1
+                setCurrentIndex(nextIndex);
             } else {
                 console.log('update falid');
             }
 
         }
-        const t = images['currentIndex'].label
-        setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
-        setLabel(images[currentIndex].label)
+
     };
 
     const handleClickItem = (index) => {
         console.log('index', index);
+        setLabel(useImages[index].label)
         setCurrentIndex(index)
-        setLabel(images[currentIndex].label)
+    }
+    const max_size = pagination['size'] * pagination['total_page']
+    const label_ids = savedLabels.map((value) => value.id)
+    const handleLoadMore = async () => {
+        const current_lenth = useImages.length
+        if (current_lenth < max_size) {
+            const page = current_lenth / pagination['size'] + 1
+            const { data } = await listImages(projectId, `&page=${page}&size=24`);
+            // images.push(...data.data.files)
+            data.data.labels.map((value) => {
+                if (label_ids.includes(value.id)) {
+                    console.log('include', value);
+                } else {
+                    console.log('not include', value);
+                    savedLabels.push(value)
+                }
+            })
+            console.log(savedLabels);
+            setImages((images) => [...images, ...data.data.files])
+            setLabels(savedLabels)
+
+
+        }
+        // } else if (projectId) {
+        //     setIsLoading(true);
+        //     const { data } = await listImages(projectId, `&page=${page}&size=24`);
+        //     setPaginationStep2({ ...paginationStep2, currentPage: page });
+        //     updateFields({
+        //         ...data.data,
+        //         pagination: data.meta,
+        //     });
+        //     setIsLoading(false);
+        // }
     }
 
 
@@ -454,8 +485,8 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                 </div>}
                 <div className='grid grid-cols-6 label-frame'>
                     <div className='col-span-1 menu-item height-element'>
-                        {images ? (
-                            images.map((img, index) => (
+                        {useImages ? (
+                            useImages.map((img, index) => (
                                 <div
                                     onClick={() => handleClickItem(index)}>
                                     <MenuItem
@@ -469,16 +500,22 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                                 <Loading />
                             </div>
                         )}
+                        <div
+                            onClick={() => handleLoadMore()}>
+                            <div className='hover-item card grid grid-cols-4 mx-4 mb-1 content'>
+                                <div >Load more</div>
+                            </div>
+                        </div>
 
                     </div>
 
                     <div className='col-span-4 w-50 height-element'>
-                        {(images && savedLabels) ? (<Card
-                            key={images[currentIndex].id}
-                            image={images[currentIndex].url}
-                            labels={savedLabels}
-                            uselabel={useLabel}
-                            setLabel={setLabel}
+                        {(useImages && useLabels) ? (<Card
+                            key={useImages[currentIndex].id}
+                            image={useImages[currentIndex]}
+                            labels={useLabels}
+                            currentLabel={useLabel}
+                            setCurrentLabel={setLabel}
                         />) : (
                             <div className="relative">
                                 <Loading />
@@ -1224,5 +1261,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
         </div>
     );
 };
+
+
 
 export default Preview;

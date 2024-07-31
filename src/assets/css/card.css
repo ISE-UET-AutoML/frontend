@@ -93,6 +93,7 @@
 img.card-image {
     object-fit: cover;
     max-width: 50% !important;
+    height: 350px;
     max-height: 350px !important;
 }
 
