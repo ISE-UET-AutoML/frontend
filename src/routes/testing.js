@@ -1,8 +1,20 @@
-import Explain from 'src/pages/testing';
+import Explain from 'src/pages/testing/explain.jsx';
+import TrainGraph from 'src/pages/testing/traingraph.jsx';
+import DefaultLayout from 'src/layouts/DefaultLayout';
 
 const routes = {
-	path: '/testing/explain',
-	element: <Explain />,
+	element: <DefaultLayout />,
+	children: [
+		{
+			path: '/testing/explain',
+			element: <Explain />,
+		},
+		{
+			path: '/testing/train-graph',
+			element: <TrainGraph />,
+		},
+	]
 };
+
 
 export default routes;
