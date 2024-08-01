@@ -56,10 +56,20 @@ const StepThree = (props) => {
 		}
 
 		if (res.status === 200) {
-			setProcessValue((acc) => acc + 10);
+			setProcessValue((acc) => acc + 1);
 			document.getElementById('message').innerHTML = 'Progress';
 			document.getElementById('description').innerHTML = '';
 			// setProcessValue(data.accuracy)
+			if (data.status === 'SUCCESS') {
+				setProcessValue(100);
+				document.getElementById('message').innerHTML = 'Training Completed';
+				document.getElementById('description').innerHTML = '';
+				// const timer = setTimeout(() => {
+				// 	showTrainingGraph();
+				// 	clearTimeout(timer);
+				// }, 1000);
+				next();
+			}
 		}
 
 		return res.data;
@@ -79,7 +89,7 @@ const StepThree = (props) => {
 		getTrainingProgress(experimentName);
 		const interval = setInterval(() => {
 			getTrainingProgress(experimentName);
-		}, 10000);
+		}, 20000);
 
 		return () => clearInterval(interval);
 	}, [experimentName]);
