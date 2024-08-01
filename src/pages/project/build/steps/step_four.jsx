@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { message } from 'antd';
-import React, { Fragment, useReducer } from 'react';
+import React, { Fragment, useReducer,useState } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { UploadTypes } from 'src/constants/file';
 import Loading from 'src/components/Loading';
@@ -8,6 +8,7 @@ import { validateFiles } from 'src/utils/file';
 import instance from 'src/api/axios';
 import { PATHS } from 'src/constants/paths';
 import { fetchWithTimeout } from 'src/utils/timeout';
+import { API_URL } from 'src/constants/api';
 
 const initialState = {
     showUploadModal: false,
@@ -15,7 +16,7 @@ const initialState = {
     showResultModal: false,
     predictFile: { url: '', label: '' },
     uploadFiles: [],
-    seletedImage: null,
+    selectedImage: null,
     isDeploying: false,
     isLoading: false,
     confidences: [],
@@ -32,28 +33,44 @@ const StepFour = (props) => {
         (pre, next) => ({ ...pre, ...next }),
         initialState
     );
+    const [explainImageUrl, setExplainImageUrl] = useState('');
 
     const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
         const validFiles = validateFiles(files);
 
+        
+        updateState({
+            isLoading: true,
+        });
+
         const formData = new FormData();
 
-        // TODO: fix hardcorded values
-        const jsonObject = {
-            userEmail: "test-automl",
-            projectName: "4-animal",
-            runName: "ISE",
-        };
+        const model = await instance.get(API_URL.get_model(experimentName))
+        const jsonObject = model.data;
+        if (!jsonObject) {
+            console.error("Failed to get model info");
+        }
+        console.log(jsonObject);
+        // // TODO: fix hardcorded values
+        // const jsonObject = {
+        //     userEmail: "test-automl",
+        //     projectName: "4-animal",
+        //     runName: "ISE",
+        // };
+
+        console.log(jsonObject.userEmail);
+        console.log(jsonObject.projectName);
+        console.log(jsonObject.runID);
+
 
         for (let i = 0; i < validFiles.length; i++) {
             formData.append('files', validFiles[i]);
         }
-        formData.append('json', JSON.stringify(jsonObject));
+        formData.append('userEmail', jsonObject.userEmail);
+        formData.append('projectName', jsonObject.projectName);
+        formData.append('runName', 'ISE');
 
-        updateState({
-            isLoading: true,
-        });
 
         const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`;
 
@@ -61,8 +78,9 @@ const StepFour = (props) => {
             method: 'POST',
             body: formData,
         };
-
-
+        
+        console.log('Fetch start');
+        console.log(url);
         fetchWithTimeout(url, options, 60000)
             .then(data => {
                 const { predictions } = data;
@@ -152,14 +170,14 @@ const StepFour = (props) => {
             (file) => file.name === item.name
         );
         updateState({
-            seletedImage: item,
+            selectedImage: item,
             confidenceScore: stepFourState.confidences[fileIndex].confidence,
             confidenceLabel: stepFourState.confidences[fileIndex].class,
         });
     };
     const handleConfirmImage = (value) => {
         const currentImageSeletedIndex = stepFourState.uploadFiles.findIndex(
-            (file) => file.name === stepFourState.seletedImage.name
+            (file) => file.name === stepFourState.selectedImage.name
         );
 
         const nextIdx =
@@ -175,7 +193,7 @@ const StepFour = (props) => {
                 }
                 return item;
             }),
-            seletedImage: stepFourState.uploadFiles[nextIdx],
+            selectedImage: stepFourState.uploadFiles[nextIdx],
             confidenceScore: parseFloat(
                 stepFourState.confidences[nextIdx].confidence
             ),
@@ -373,15 +391,15 @@ const StepFour = (props) => {
                                 <section>
                                     <div className="bg-white shadow sm:rounded-lg p-5">
                                         <div
-                                            class={`${stepFourState.seletedImage
+                                            class={`${stepFourState.selectedImage
                                                 ? ''
                                                 : 'animate-pulse'
                                                 } h-[400px] bg-[#e1e4e8]  p-4 w-full rounded-md mb-5 m-auto flex justify-center `}
                                         >
-                                            {stepFourState.seletedImage && (
+                                            {stepFourState.selectedImage && (
                                                 <img
                                                     src={URL.createObjectURL(
-                                                        stepFourState.seletedImage
+                                                        stepFourState.selectedImage
                                                     )}
                                                     alt=""
                                                     className="object-contain rounded-[8px]"
@@ -406,10 +424,10 @@ const StepFour = (props) => {
                                                                 : 'border-4 border-red-600 border-solid'
                                                             : ''
                                                             }
-                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.seletedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
+                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.selectedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
                           bg-[#F3F6F9] rounded-[8px] h-[130px] min-w-[200px] p-2 flex   justify-center `}
                                                         onClick={() =>
-                                                            handleSeletedImage(
+                                                            handleselectedImage(
                                                                 item
                                                             )
                                                         }
