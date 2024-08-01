@@ -11,4 +11,5 @@ export const API_URL = {
     update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
     explain_instance: (projectID) => `${API_BASE_URL}/projects/${projectID}/explain`,
     get_model: (experimentName) => `${API_BASE_URL}/experiments/model/${experimentName}`,
+    get_training_history: (experimentName) => `${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
 }

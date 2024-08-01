@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { message } from 'antd';
-import React, { Fragment, useReducer,useState } from 'react';
+import React, { Fragment, useReducer,useState,useEffect } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { UploadTypes } from 'src/constants/file';
 import Loading from 'src/components/Loading';
@@ -34,6 +34,18 @@ const StepFour = (props) => {
         initialState
     );
     const [explainImageUrl, setExplainImageUrl] = useState('');
+
+    const [GraphData, setGraphData] = useState({});
+
+    useEffect(  () => { 
+        instance.get(API_URL.get_training_history(experimentName))
+        .then((res) => {
+            const data = res.data;
+            console.log(data);
+            setGraphData(data);
+        })
+    })
+
 
     const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
@@ -357,6 +369,10 @@ const StepFour = (props) => {
                 >
                     Predict
                 </button>
+                <div>
+                {JSON.stringify(GraphData)}
+                </div>
+
             </div>
             <div
                 className={`${stepFourState.showUploadModal
