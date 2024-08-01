@@ -38,68 +38,74 @@ const StepFour = (props) => {
         const validFiles = validateFiles(files);
 
         const formData = new FormData();
-        formData.append('userEmail', "test-automl");
-        formData.append('projectName', "4-animal");
-        formData.append('runName', "ISE");
-        validFiles.forEach((file, index) => {
-            formData.append(`${index}`, file);
-        });
+
+        // TODO: fix hardcorded values
+        const jsonObject = {
+            userEmail: "test-automl",
+            projectName: "4-animal",
+            runName: "ISE",
+        };
+
+        for (let i = 0; i < validFiles.length; i++) {
+            formData.append('files', validFiles[i]);
+        }
+        formData.append('json', JSON.stringify(jsonObject));
+
         updateState({
             isLoading: true,
         });
 
-        const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification/temp_predict`, {
-                method: 'POST',
-                // headers: {
-                //   'Content-Type': 'multipart/form-data',
-                // },
-                body: formData,
+        const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`;
+
+        const options = {
+            method: 'POST',
+            body: formData,
+        };
+
+
+        fetchWithTimeout(url, options, 60000)
+            .then(data => {
+                const { predictions } = data;
+                const images = predictions.map((item) => ({
+                    id: item.key,
+                    value: null,
+                    label: item.class,
+                }));
+                updateState({
+                    uploadFiles: validFiles,
+                    selectedImage: validFiles[0],
+                    confidences: predictions,
+                    confidenceScore: parseFloat(predictions[0].confidence),
+                    confidenceLabel: predictions[0].class,
+                    userConfirm: images,
+                });
+                console.log('Fetch successful');
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    clearTimeout(timer);
-                    const { predictions } = data;
-                    const images = predictions.map((item) => ({
-                        id: item.key,
-                        value: null,
-                        label: item.class,
-                    }));
-                    updateState({
-                        uploadFiles: validFiles,
-                        seletedImage: validFiles[0],
-                        confidences: predictions,
-                        confidenceScore: parseFloat(predictions[0].confidence),
-                        confidenceLabel: predictions[0].class,
-                        isLoading: false,
-                        userConfirm: images,
-                    });
-                })
-                .catch((err) => {
-                    console.log(err);
-                    updateState({ isLoading: false })
-                    }
-                );
-        }, 20000);
+            .catch(error => {
+                console.error('Fetch error:', error.message);
+            }).finally(() => {
+                updateState({ isLoading: false });
+                console.log("Fetch completed");
+            });
     };
 
-    const handleDeploy = async () => {
-        fetch(
-            `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
-        )
-            .then((res) => res.json())
-            .then((data) => console.log(data))
-            .catch((err) => console.log(err));
-    };
-    const saveBestModel = async () => {
-        try {
-            await instance.get(
-                `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
-            );
-        } catch (error) {
-            console.error(error);
-        }
-    };
+    // const handleDeploy = async () => {
+    //     fetch(
+    //         `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
+    //     )
+    //         .then((res) => res.json())
+    //         .then((data) => console.log(data))
+    //         .catch((err) => console.log(err));
+    // };
+    // const saveBestModel = async () => {
+    //     try {
+    //         await instance.get(
+    //             `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
+    //         );
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
 
     const handleExplainSelectedImage = async () => {
         const item = stepFourState.selectedImage;
@@ -161,6 +167,7 @@ const StepFour = (props) => {
                 ? currentImageSeletedIndex
                 : currentImageSeletedIndex + 1;
 
+        setExplainImageUrl('');
         updateState({
             userConfirm: stepFourState.userConfirm.map((item, index) => {
                 if (index === currentImageSeletedIndex) {
@@ -295,7 +302,7 @@ const StepFour = (props) => {
                                                     showResultModal: false,
                                                     isLoading: true,
                                                 });
-                                                saveBestModel();
+                                                // saveBestModel();
                                                 const timer = setTimeout(() => {
                                                     updateState({
                                                         isLoading: false,
@@ -325,7 +332,7 @@ const StepFour = (props) => {
                 <button
                     onClick={() => {
                         updateState({ showUploadModal: true });
-                        handleFileChange();
+                        // handleDeploy();
                     }}
                     className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
                 // hidden
@@ -456,6 +463,15 @@ const StepFour = (props) => {
                                         </button>
                                         <button
                                             onClick={(e) =>
+                                                handleExplainSelectedImage()
+                                            }
+                                            type="button"
+                                            className="w-fit inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                        >
+                                            Explain
+                                        </button>
+                                        <button
+                                            onClick={(e) =>
                                                 handleConfirmImage('true')
                                             }
                                             type="button"
@@ -466,7 +482,7 @@ const StepFour = (props) => {
                                     </div>
                                     <div className="h-full min-h-[300px] bg-[#e1e4e8]  p-4 w-full rounded-md mb-5 m-auto flex">
                                         <div className="bg-[#49525e] rounded-2xl border-2 border-dashed border-gray-200 text-white h-fit px-4 py-1">
-                                            <span>
+                                            <span style={{ display: 'block', width: '100%' }}>
                                                 {stepFourState.confidenceLabel}:{' '}
                                                 <strong>
                                                     {' '}
@@ -475,6 +491,11 @@ const StepFour = (props) => {
                                                     ).toFixed(2)}
                                                 </strong>
                                             </span>
+                                            <div style={{ display: 'block', marginTop: '20px' }}>
+                                            {explainImageUrl && (
+                                                <img src={explainImageUrl} alt="Explain" className="rounded-md mt-4" />
+                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
