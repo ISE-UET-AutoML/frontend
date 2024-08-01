@@ -22,7 +22,7 @@ const LabelEditor = ({ index, image, labels, setCurrentIndex, forceUpdate }) => 
         id: index,
         annotations: [],
         data: {
-            image: image.url
+            image: image.url.replace("undefined", "localhost")
         }
     }
 
