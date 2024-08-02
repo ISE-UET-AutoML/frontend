@@ -1,0 +1,13 @@
+.label-editor-container {
+    max-height: calc(100vh - (100px + 100px)) !important;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.lsf-object>div {
+    max-height: 500px !important;
+}
+.lsf-toolbar {
+    max-height: 200px !important;
+    overflow: hidden;
+}

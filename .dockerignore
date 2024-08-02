@@ -6,3 +6,6 @@ build
 yarn-error.log
 .env*
 Dockerfile
+
+yarn.lock
+package-lock.json

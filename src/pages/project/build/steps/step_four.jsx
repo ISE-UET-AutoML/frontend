@@ -1,12 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { message } from 'antd';
-import React, { Fragment, useReducer } from 'react';
+import React, { Fragment, useReducer,useState,useEffect } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { UploadTypes } from 'src/constants/file';
 import Loading from 'src/components/Loading';
 import { validateFiles } from 'src/utils/file';
 import instance from 'src/api/axios';
 import { PATHS } from 'src/constants/paths';
+import { fetchWithTimeout } from 'src/utils/timeout';
+import { API_URL } from 'src/constants/api';
 
 const initialState = {
     showUploadModal: false,
@@ -14,7 +16,7 @@ const initialState = {
     showResultModal: false,
     predictFile: { url: '', label: '' },
     uploadFiles: [],
-    seletedImage: null,
+    selectedImage: null,
     isDeploying: false,
     isLoading: false,
     confidences: [],
@@ -31,81 +33,163 @@ const StepFour = (props) => {
         (pre, next) => ({ ...pre, ...next }),
         initialState
     );
+    const [explainImageUrl, setExplainImageUrl] = useState('');
+
+    const [GraphData, setGraphData] = useState({});
+
+    useEffect(  () => { 
+        instance.get(API_URL.get_training_history(experimentName))
+        .then((res) => {
+            const data = res.data;
+            console.log(data);
+            setGraphData(data);
+        })
+    })
+
 
     const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
         const validFiles = validateFiles(files);
 
-        const formData = new FormData();
-        validFiles.forEach((file, index) => {
-            formData.append(`${index}`, file);
-        });
+        
         updateState({
             isLoading: true,
         });
 
-        const timer = setTimeout(() => {
-            fetch(`${process.env.REACT_APP_PREDICT_URL}/predict`, {
-                method: 'POST',
-                // headers: {
-                //   'Content-Type': 'multipart/form-data',
-                // },
-                body: formData,
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    clearTimeout(timer);
-                    const { predictions } = data;
-                    const images = predictions.map((item) => ({
-                        id: item.key,
-                        value: null,
-                        label: item.class,
-                    }));
-                    updateState({
-                        uploadFiles: validFiles,
-                        seletedImage: validFiles[0],
-                        confidences: predictions,
-                        confidenceScore: parseFloat(predictions[0].confidence),
-                        confidenceLabel: predictions[0].class,
-                        isLoading: false,
-                        userConfirm: images,
-                    });
-                })
-                .catch((err) => updateState({ isLoading: false }));
-        }, 20000);
-    };
+        const formData = new FormData();
 
-    const handleDeploy = async () => {
-        fetch(
-            `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
-        )
-            .then((res) => res.json())
-            .then((data) => console.log(data))
-            .catch((err) => console.log(err));
-    };
-    const saveBestModel = async () => {
-        try {
-            await instance.get(
-                `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
-            );
-        } catch (error) {
-            console.error(error);
+        const model = await instance.get(API_URL.get_model(experimentName))
+        const jsonObject = model.data;
+        if (!jsonObject) {
+            console.error("Failed to get model info");
         }
+        console.log(jsonObject);
+        // // TODO: fix hardcorded values
+        // const jsonObject = {
+        //     userEmail: "test-automl",
+        //     projectName: "4-animal",
+        //     runName: "ISE",
+        // };
+
+        console.log(jsonObject.userEmail);
+        console.log(jsonObject.projectName);
+        console.log(jsonObject.runID);
+
+
+        for (let i = 0; i < validFiles.length; i++) {
+            formData.append('files', validFiles[i]);
+        }
+        formData.append('userEmail', jsonObject.userEmail);
+        formData.append('projectName', jsonObject.projectName);
+        formData.append('runName', 'ISE');
+
+
+        const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`;
+
+        const options = {
+            method: 'POST',
+            body: formData,
+        };
+        
+        console.log('Fetch start');
+        console.log(url);
+        fetchWithTimeout(url, options, 60000)
+            .then(data => {
+                const { predictions } = data;
+                const images = predictions.map((item) => ({
+                    id: item.key,
+                    value: null,
+                    label: item.class,
+                }));
+                updateState({
+                    uploadFiles: validFiles,
+                    selectedImage: validFiles[0],
+                    confidences: predictions,
+                    confidenceScore: parseFloat(predictions[0].confidence),
+                    confidenceLabel: predictions[0].class,
+                    userConfirm: images,
+                });
+                console.log('Fetch successful');
+            })
+            .catch(error => {
+                console.error('Fetch error:', error.message);
+            }).finally(() => {
+                updateState({ isLoading: false });
+                console.log("Fetch completed");
+            });
     };
 
-    const handleSeletedImage = async (item) => {
+    // const handleDeploy = async () => {
+    //     fetch(
+    //         `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
+    //     )
+    //         .then((res) => res.json())
+    //         .then((data) => console.log(data))
+    //         .catch((err) => console.log(err));
+    // };
+    // const saveBestModel = async () => {
+    //     try {
+    //         await instance.get(
+    //             `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
+    //         );
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
+
+    const handleExplainSelectedImage = async () => {
+        const item = stepFourState.selectedImage;
+        const jsonObject = {
+            userEmail: "test-automl",
+            projectName: "4-animal",
+            runName: "ISE",
+        };
+        const formData = new FormData();
+        formData.append('image', item);
+        formData.append('json', JSON.stringify(jsonObject));
+        updateState({
+            isLoading: true,
+        });
+
+        const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`;
+
+        const options = {
+            method: 'POST',
+            body: formData,
+        };
+
+        fetchWithTimeout(url, options, 60000)
+            .then(data => {
+                const base64ImageString = data.explain_image;
+                const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                setExplainImageUrl(fetchedImageUrl);
+
+                updateState({
+                    isLoading: false,
+                });
+                console.log('Fetch successful');
+            })
+            .catch(error => {
+                console.error('Fetch error:', error.message);
+                updateState({ isLoading: false });
+            });
+    }
+
+
+    const handleSelectedImage = async (item) => {
         const fileIndex = stepFourState.uploadFiles.findIndex(
             (file) => file.name === item.name
         );
         updateState({
-            seletedImage: item,
+            selectedImage: item,
             confidenceScore: stepFourState.confidences[fileIndex].confidence,
             confidenceLabel: stepFourState.confidences[fileIndex].class,
         });
     };
     const handleConfirmImage = (value) => {
         const currentImageSeletedIndex = stepFourState.uploadFiles.findIndex(
-            (file) => file.name === stepFourState.seletedImage.name
+            (file) => file.name === stepFourState.selectedImage.name
         );
 
         const nextIdx =
@@ -113,6 +197,7 @@ const StepFour = (props) => {
                 ? currentImageSeletedIndex
                 : currentImageSeletedIndex + 1;
 
+        setExplainImageUrl('');
         updateState({
             userConfirm: stepFourState.userConfirm.map((item, index) => {
                 if (index === currentImageSeletedIndex) {
@@ -120,7 +205,7 @@ const StepFour = (props) => {
                 }
                 return item;
             }),
-            seletedImage: stepFourState.uploadFiles[nextIdx],
+            selectedImage: stepFourState.uploadFiles[nextIdx],
             confidenceScore: parseFloat(
                 stepFourState.confidences[nextIdx].confidence
             ),
@@ -247,7 +332,7 @@ const StepFour = (props) => {
                                                     showResultModal: false,
                                                     isLoading: true,
                                                 });
-                                                saveBestModel();
+                                                // saveBestModel();
                                                 const timer = setTimeout(() => {
                                                     updateState({
                                                         isLoading: false,
@@ -277,13 +362,17 @@ const StepFour = (props) => {
                 <button
                     onClick={() => {
                         updateState({ showUploadModal: true });
-                        handleDeploy();
+                        // handleDeploy();
                     }}
                     className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
                 // hidden
                 >
                     Predict
                 </button>
+                <div>
+                {JSON.stringify(GraphData)}
+                </div>
+
             </div>
             <div
                 className={`${stepFourState.showUploadModal
@@ -318,15 +407,15 @@ const StepFour = (props) => {
                                 <section>
                                     <div className="bg-white shadow sm:rounded-lg p-5">
                                         <div
-                                            class={`${stepFourState.seletedImage
+                                            class={`${stepFourState.selectedImage
                                                 ? ''
                                                 : 'animate-pulse'
                                                 } h-[400px] bg-[#e1e4e8]  p-4 w-full rounded-md mb-5 m-auto flex justify-center `}
                                         >
-                                            {stepFourState.seletedImage && (
+                                            {stepFourState.selectedImage && (
                                                 <img
                                                     src={URL.createObjectURL(
-                                                        stepFourState.seletedImage
+                                                        stepFourState.selectedImage
                                                     )}
                                                     alt=""
                                                     className="object-contain rounded-[8px]"
@@ -351,10 +440,10 @@ const StepFour = (props) => {
                                                                 : 'border-4 border-red-600 border-solid'
                                                             : ''
                                                             }
-                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.seletedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
+                          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.selectedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
                           bg-[#F3F6F9] rounded-[8px] h-[130px] min-w-[200px] p-2 flex   justify-center `}
                                                         onClick={() =>
-                                                            handleSeletedImage(
+                                                            handleselectedImage(
                                                                 item
                                                             )
                                                         }
@@ -408,6 +497,15 @@ const StepFour = (props) => {
                                         </button>
                                         <button
                                             onClick={(e) =>
+                                                handleExplainSelectedImage()
+                                            }
+                                            type="button"
+                                            className="w-fit inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                        >
+                                            Explain
+                                        </button>
+                                        <button
+                                            onClick={(e) =>
                                                 handleConfirmImage('true')
                                             }
                                             type="button"
@@ -418,7 +516,7 @@ const StepFour = (props) => {
                                     </div>
                                     <div className="h-full min-h-[300px] bg-[#e1e4e8]  p-4 w-full rounded-md mb-5 m-auto flex">
                                         <div className="bg-[#49525e] rounded-2xl border-2 border-dashed border-gray-200 text-white h-fit px-4 py-1">
-                                            <span>
+                                            <span style={{ display: 'block', width: '100%' }}>
                                                 {stepFourState.confidenceLabel}:{' '}
                                                 <strong>
                                                     {' '}
@@ -427,6 +525,11 @@ const StepFour = (props) => {
                                                     ).toFixed(2)}
                                                 </strong>
                                             </span>
+                                            <div style={{ display: 'block', marginTop: '20px' }}>
+                                            {explainImageUrl && (
+                                                <img src={explainImageUrl} alt="Explain" className="rounded-md mt-4" />
+                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

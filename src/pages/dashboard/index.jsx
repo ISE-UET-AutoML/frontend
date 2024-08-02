@@ -1,6 +1,11 @@
 import { message } from 'antd';
 import React, { useReducer } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+	useLocation,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from 'react-router-dom';
 import * as projectAPI from 'src/api/project';
 import { UploadTypes } from 'src/constants/file';
 import { validateFiles } from 'src/utils/file';
@@ -9,36 +14,40 @@ import Loading from 'src/components/Loading';
 const LOAD_CHUNK = 10;
 
 const initialState = {
-    show: false,
-    showUploader: false,
-    selectedBuild: null,
-    uploadFiles: [],
-    loadedChunk: LOAD_CHUNK,
-    isUploading: false,
+	show: false,
+	showUploader: false,
+	selectedBuild: null,
+	uploadFiles: [],
+	loadedChunk: LOAD_CHUNK,
+	isUploading: false,
 };
 
 const Dashboard = ({ updateFields }) => {
-    const { id: projectID } = useParams()
+	const { id: projectID } = useParams();
+	const location = useLocation();
 
-    //state
-    const [dashboardState, updateState] = useReducer((pre, next) => {
-        return { ...pre, ...next };
-    }, initialState);
+	//state
+	const [dashboardState, updateState] = useReducer((pre, next) => {
+		return { ...pre, ...next };
+	}, initialState);
 
-    // handler
-    const handleFileChange = (event) => {
-        const files = Array.from(event.target.files);
-        const validatedFiles = validateFiles(files);
-        updateState({ uploadFiles: validatedFiles });
-    };
-    const handleRemoveFile = (index) => {
-        const newState = [...dashboardState.uploadFiles];
-        newState.splice(index, 1);
-        updateState({ uploadFiles: newState });
-    };
+	let [searchParams, setSearchParams] = useSearchParams();
+
+	// handler
+	const handleFileChange = (event) => {
+		const files = Array.from(event.target.files);
+		const validatedFiles = validateFiles(files);
+		updateState({ uploadFiles: validatedFiles });
+	};
+	const handleRemoveFile = (index) => {
+		const newState = [...dashboardState.uploadFiles];
+		newState.splice(index, 1);
+		updateState({ uploadFiles: newState });
+	};
 
     const uploadImages = async (e) => {
         e.preventDefault();
+        console.log('upload images')
         if (dashboardState.uploadFiles.length === 0) return;
         if (
             dashboardState.uploadFiles !== undefined &&
@@ -67,6 +76,7 @@ const Dashboard = ({ updateFields }) => {
                     projectID,
                     formData
                 );
+                console.log('data', data)
                 message.success('Successfully uploaded', 3);
                 updateState({ isUploading: false });
                 updateFields({
@@ -78,13 +88,69 @@ const Dashboard = ({ updateFields }) => {
                 updateState({ isUploading: false });
                 message.error('Upload Failed', 3);
 
-                console.error(error);
-            }
-        }
+				console.error(error);
+			}
+		}
 
-        // TODO: validate folder structure
-        // Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
-    };
+		// TODO: validate folder structure
+		// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
+	};
+
+	const tempTrainModel = async () => {
+		try {
+			const payload = {
+				userEmail: 'test-automl',
+				projectName: '4-animal',
+				training_time: 60,
+				runName: 'ISE',
+				presets: 'medium_quality',
+				dataset_url: '1QEhox5PADwRiL8h_cWtpp2vb229rKRXE',
+				gcloud_dataset_bucketname: 'string',
+				gcloud_dataset_directory: 'string',
+				dataset_download_method: 'gdrive',
+				training_argument: {
+					data_args: {},
+					ag_model_args: {
+						pretrained: true,
+						hyperparameters: {
+							'model.timm_image.checkpoint_name':
+								'swin_small_patch4_window7_224',
+						},
+					},
+					ag_fit_args: {
+						time_limit: 60,
+						hyperparameters: {
+							'env.per_gpu_batch_size': 4,
+							'env.batch_size': 4,
+						},
+					},
+				},
+				label_column: 'label',
+			};
+
+			const res = await fetch(
+				`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification`,
+				{
+					method: 'POST',
+					body: JSON.stringify(payload),
+				}
+			);
+
+			const data = await res.json();
+
+			const searchParams = new URLSearchParams(location.search);
+			searchParams.get('experiment_name') ??
+				setSearchParams((pre) =>
+					pre.toString().concat(`&experiment_name=${data.task_id}`)
+				);
+			updateFields({
+				isDoneStepTwo: true,
+				experiment_name: data.task_id,
+			});
+		} catch (error) {
+			console.log(error);
+		}
+	};
 
     const handleLoadChunk = () => {
         if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
@@ -93,6 +159,22 @@ const Dashboard = ({ updateFields }) => {
             });
         }
     };
+
+    // pass
+    // check label data
+    // const queryString = new URLSearchParams({
+    //     id: projectID,
+    // }).toString();
+    // const { data } = await projectAPI.uploadFiles(
+    //     projectID,
+    // );
+    // console.log('data', data)
+    // message.success('Successfully uploaded', 3);
+    // updateState({ isUploading: false });
+    // updateFields({
+    //     isDoneStepOne: true,
+    //     ...data,
+    // });
 
     return (
         <>
@@ -148,8 +230,8 @@ const Dashboard = ({ updateFields }) => {
             {/* bottom up modal of classify */}
             <div
                 className={`${dashboardState.show
-                        ? 'top-0 bottom-full z-[1000] opacity-100 left-0'
-                        : 'top-full bottom-0 opacity-0'
+                    ? 'top-0 bottom-full z-[1000] opacity-100 left-0'
+                    : 'top-full bottom-0 opacity-0'
                     } fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
             >
                 <button
@@ -214,8 +296,8 @@ const Dashboard = ({ updateFields }) => {
             {/* bottom up modal of classify image uploader */}
             <div
                 className={`${dashboardState.showUploader
-                        ? 'top-0 z-[1000] opacity-100'
-                        : 'top-full bottom-0 opacity-0'
+                    ? 'top-0 z-[1000] opacity-100'
+                    : 'top-full bottom-0 opacity-0'
                     } fixed flex flex-col items-center h-full w-full justify-center bg-white  transition-all duration-500 ease overscroll-auto min-h-screen left-0  overflow-hidden`}
             >
                 <button
@@ -251,104 +333,110 @@ const Dashboard = ({ updateFields }) => {
                                     className="mt-5 w-[200px] h-full mx-auto"
                                 />
 
-                                <p className="text-center text-[12px] font-[300]">
-                                    We accept JPEG, PNG image format
-                                </p>
-                            </div>
-                        </div>
-                        <div className="w-full h-full bg-white p-10 rounded-md cursor-pointer">
-                            <div className="flex flex-col">
-                                <img
-                                    src="https://dr23pab8nlq87.cloudfront.net/images/unclassified_instruction_2-x08W.png"
-                                    alt=""
-                                    className="mt-5 w-[200px] h-full mx-auto"
-                                />
+								<p className="text-center text-[12px] font-[300]">
+									We accept JPEG, PNG image format
+								</p>
+							</div>
+						</div>
+						<div className="w-full h-full bg-white p-10 rounded-md cursor-pointer">
+							<div className="flex flex-col">
+								<img
+									src="https://dr23pab8nlq87.cloudfront.net/images/unclassified_instruction_2-x08W.png"
+									alt=""
+									className="mt-5 w-[200px] h-full mx-auto"
+								/>
 
-                                <p className="text-center text-[12px] font-[300]">
-                                    Folder information will be automatically
-                                    tagged as metadata to each media{' '}
-                                </p>
-                            </div>
-                        </div>
-                        <input
-                            type="file"
-                            name="files"
-                            webkitdirectory="true"
-                            id="classification"
-                            className="hidden"
-                            onChange={handleFileChange}
-                            onClick={(event) => {
-                                event.target.value = null;
-                            }}
-                        />
-                    </label>
-                    <br />
-                    <div className="text-center mx-auto">
-                        {dashboardState.uploadFiles.length} Image(s) Ready for
-                        Upload
-                    </div>
-                    <br />
-                    <div className="flex justify-between items-center ">
-                        <span className="mr-auto text-start font-[100]">
-                            Upload Preview
-                        </span>
-                        <button
-                            className="bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
-                            onClick={uploadImages}
-                        >
-                            Upload {dashboardState.uploadFiles.length} Image(s)
-                        </button>
-                    </div>
-                    <div className="h-[2px] bg-gray-100 w-full my-5"></div>
-                    <div className="grid grid-cols-6 gap-3 ">
-                        {dashboardState.uploadFiles
-                            .slice(0, dashboardState.loadedChunk)
-                            .map((file, index) => (
-                                <div className="rounded-md overflow-hidden relative group hover:opacity-100">
-                                    <button
-                                        className="absolute cursor-pointer right-2 top-2 bg-white flex justify-center items-center rounded-full h-[20px] w-[20px] opacity-0 group-hover:opacity-100"
-                                        onClick={() => {
-                                            handleRemoveFile(index);
-                                        }}
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="1.5"
-                                            stroke="currentColor"
-                                            className="w-6 h-6"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M6 18L18 6M6 6l12 12"
-                                            />
-                                        </svg>
-                                    </button>
+								<p className="text-center text-[12px] font-[300]">
+									Folder information will be automatically
+									tagged as metadata to each media{' '}
+								</p>
+							</div>
+						</div>
+						<input
+							type="file"
+							name="files"
+							webkitdirectory="true"
+							id="classification"
+							className="hidden"
+							onChange={handleFileChange}
+							onClick={(event) => {
+								event.target.value = null;
+							}}
+						/>
+					</label>
+					<br />
+					<div className="text-center mx-auto">
+						{dashboardState.uploadFiles.length} Image(s) Ready for
+						Upload
+					</div>
+					<br />
+					<div className="flex justify-between items-center ">
+						<span className="mr-auto text-start font-[100]">
+							Upload Preview
+						</span>
+						{/* <button
+							className="bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
+							onClick={uploadImages}
+						>
+							Upload {dashboardState.uploadFiles.length} Image(s)
+						</button> */}
+						<button
+							className="bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
+							onClick={uploadImages}
+						>
+							Train temp Model
+						</button>
+					</div>
+					<div className="h-[2px] bg-gray-100 w-full my-5"></div>
+					<div className="grid grid-cols-6 gap-3 ">
+						{dashboardState.uploadFiles
+							.slice(0, dashboardState.loadedChunk)
+							.map((file, index) => (
+								<div className="rounded-md overflow-hidden relative group hover:opacity-100">
+									<button
+										className="absolute cursor-pointer right-2 top-2 bg-white flex justify-center items-center rounded-full h-[20px] w-[20px] opacity-0 group-hover:opacity-100"
+										onClick={() => {
+											handleRemoveFile(index);
+										}}
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											fill="none"
+											viewBox="0 0 24 24"
+											strokeWidth="1.5"
+											stroke="currentColor"
+											className="w-6 h-6"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M6 18L18 6M6 6l12 12"
+											/>
+										</svg>
+									</button>
 
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt=""
-                                        className="h-[150px] w-full m-0 object-cover"
-                                    />
-                                </div>
-                            ))}
-                    </div>
+									<img
+										src={URL.createObjectURL(file)}
+										alt=""
+										className="h-[150px] w-full m-0 object-cover"
+									/>
+								</div>
+							))}
+					</div>
 
-                    {dashboardState.loadedChunk <
-                        dashboardState.uploadFiles.length && (
-                            <button
-                                className="mx-auto flex mt-5 bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
-                                onClick={handleLoadChunk}
-                            >
-                                Load more
-                            </button>
-                        )}
-                </div>
-            </div>
-        </>
-    );
+					{dashboardState.loadedChunk <
+						dashboardState.uploadFiles.length && (
+						<button
+							className="mx-auto flex mt-5 bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
+							onClick={handleLoadChunk}
+						>
+							Load more
+						</button>
+					)}
+				</div>
+			</div>
+		</>
+	);
 };
 
 export default Dashboard;

@@ -57,3 +57,45 @@ body {
 	height: 100vh;
 	/* background-color: #edf3fe; */
 }
+
+
+.container {
+	display: flex;
+	height: 100vh;
+}
+
+.menu {
+	width: 200px;
+	background-color: #f0f0f0;
+	padding: 20px;
+}
+
+.menu h2 {
+	margin-top: 0;
+}
+
+.menu ul {
+	list-style-type: none;
+	padding: 0;
+}
+
+.menu li {
+	cursor: pointer;
+	padding: 10px;
+}
+
+.menu li:hover {
+	background-color: #e0e0e0;
+}
+
+.content {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.content img {
+	max-width: 100%;
+	max-height: 100%;
+}
