@@ -218,17 +218,33 @@ const StepFour = (props) => {
 
 	const handleExplainSelectedImage = async () => {
 		const item = stepFourState.selectedImage
-		const jsonObject = {
-			userEmail: 'test-automl',
-			projectName: '4-animal',
-			runName: 'ISE',
-		}
+
 		const formData = new FormData()
-		formData.append('image', item)
-		formData.append('json', JSON.stringify(jsonObject))
+
+		const model = await instance.get(API_URL.get_model(experimentName))
+		const jsonObject = model.data
+		if (!jsonObject) {
+			console.error('Failed to get model info')
+		}
+		console.log(jsonObject)
+		// // TODO: fix hardcorded values
+		// const jsonObject = {
+		//     userEmail: "test-automl",
+		//     projectName: "4-animal",
+		//     runName: "ISE",
+		// };
+
+		console.log(jsonObject.userEmail)
+		console.log(jsonObject.projectName)
+		console.log(jsonObject.runID)
 		updateState({
 			isLoading: true,
 		})
+
+		formData.append('userEmail', jsonObject.userEmail)
+		formData.append('projectName', jsonObject.projectName)
+		formData.append('runName', 'ISE')
+		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
 
@@ -524,7 +540,7 @@ const StepFour = (props) => {
                           ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.selectedImage.name === item.name ? 'border-4 !border-yellow-500 border-solid' : '') : ''}
                           bg-[#F3F6F9] rounded-[8px] h-[130px] min-w-[200px] p-2 flex   justify-center `}
 														onClick={() =>
-															handleselectedImage(
+															handleSelectedImage(
 																item
 															)
 														}
