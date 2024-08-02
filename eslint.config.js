@@ -13,6 +13,7 @@ export default [
                   presets: ["@babel/preset-env"]
                 }
             }
-        }
+        },
+        ignorePatterns: ["node_modules"],
     }
 ];
