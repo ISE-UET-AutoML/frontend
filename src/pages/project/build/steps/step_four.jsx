@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { message } from 'antd';
-import React, { Fragment, useReducer,useState,useEffect } from 'react';
+import React, { Fragment, useReducer, useState, useEffect } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { UploadTypes } from 'src/constants/file';
 import Loading from 'src/components/Loading';
@@ -35,115 +35,87 @@ const StepFour = (props) => {
 	);
 
 	const [explainImageUrl, setExplainImageUrl] = useState('');
-    const location = useLocation();
-    const navigate = useNavigate();
-    const searchParams = new URLSearchParams(location.search);
-    const experimentName = searchParams.get('experiment_name');
-    const [stepFourState, updateState] = useReducer(
-        (pre, next) => ({ ...pre, ...next }),
-        initialState
-    );
-    const [explainImageUrl, setExplainImageUrl] = useState('');
+	const [GraphData, setGraphData] = useState({});
 
-    const [GraphData, setGraphData] = useState({});
-
-    useEffect(  () => { 
-        instance.get(API_URL.get_training_history(experimentName))
-        .then((res) => {
-            const data = res.data;
-            console.log(data);
-            setGraphData(data);
-        })
-    })
-
+	useEffect(() => {
+		instance
+			.get(API_URL.get_training_history(experimentName))
+			.then((res) => {
+				const data = res.data;
+				console.log(data);
+				setGraphData(data);
+			});
+	});
 
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files);
 		const validFiles = validateFiles(files);
-    const handleFileChange = async (event) => {
-        const files = Array.from(event.target.files);
-        const validFiles = validateFiles(files);
-
-        
-        updateState({
-            isLoading: true,
-        });
-
-		const formData = new FormData();
-
-		// TODO: fix hardcorded values
-		const jsonObject = {
-			userEmail: 'test-automl',
-			projectName: '4-animal',
-			runName: 'ISE',
-		};
-        const model = await instance.get(API_URL.get_model(experimentName))
-        const jsonObject = model.data;
-        if (!jsonObject) {
-            console.error("Failed to get model info");
-        }
-        console.log(jsonObject);
-        // // TODO: fix hardcorded values
-        // const jsonObject = {
-        //     userEmail: "test-automl",
-        //     projectName: "4-animal",
-        //     runName: "ISE",
-        // };
-
-        console.log(jsonObject.userEmail);
-        console.log(jsonObject.projectName);
-        console.log(jsonObject.runID);
-
-
-		for (let i = 0; i < validFiles.length; i++) {
-			formData.append('files', validFiles[i]);
-		}
-		formData.append('json', JSON.stringify(jsonObject));
-        for (let i = 0; i < validFiles.length; i++) {
-            formData.append('files', validFiles[i]);
-        }
-        formData.append('userEmail', jsonObject.userEmail);
-        formData.append('projectName', jsonObject.projectName);
-        formData.append('runName', 'ISE');
 
 		updateState({
 			isLoading: true,
 		});
 
+		const formData = new FormData();
+
+		const model = await instance.get(API_URL.get_model(experimentName));
+		const jsonObject = model.data;
+		if (!jsonObject) {
+			console.error('Failed to get model info');
+		}
+		console.log(jsonObject);
+		// // TODO: fix hardcorded values
+		// const jsonObject = {
+		//     userEmail: "test-automl",
+		//     projectName: "4-animal",
+		//     runName: "ISE",
+		// };
+
+		console.log(jsonObject.userEmail);
+		console.log(jsonObject.projectName);
+		console.log(jsonObject.runID);
+
+		for (let i = 0; i < validFiles.length; i++) {
+			formData.append('files', validFiles[i]);
+		}
+		formData.append('userEmail', jsonObject.userEmail);
+		formData.append('projectName', jsonObject.projectName);
+		formData.append('runName', 'ISE');
+
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`;
 
-        const options = {
-            method: 'POST',
-            body: formData,
-        };
-        
-        console.log('Fetch start');
-        console.log(url);
-        fetchWithTimeout(url, options, 60000)
-            .then(data => {
-                const { predictions } = data;
-                const images = predictions.map((item) => ({
-                    id: item.key,
-                    value: null,
-                    label: item.class,
-                }));
-                updateState({
-                    uploadFiles: validFiles,
-                    selectedImage: validFiles[0],
-                    confidences: predictions,
-                    confidenceScore: parseFloat(predictions[0].confidence),
-                    confidenceLabel: predictions[0].class,
-                    userConfirm: images,
-                });
-                console.log('Fetch successful');
-            })
-            .catch(error => {
-                console.error('Fetch error:', error.message);
-            }).finally(() => {
-                updateState({ isLoading: false });
-                console.log("Fetch completed");
-            });
-    };
+		const options = {
+			method: 'POST',
+			body: formData,
+		};
+
+		console.log('Fetch start');
+		console.log(url);
+		fetchWithTimeout(url, options, 60000)
+			.then((data) => {
+				const { predictions } = data;
+				const images = predictions.map((item) => ({
+					id: item.key,
+					value: null,
+					label: item.class,
+				}));
+				updateState({
+					uploadFiles: validFiles,
+					selectedImage: validFiles[0],
+					confidences: predictions,
+					confidenceScore: parseFloat(predictions[0].confidence),
+					confidenceLabel: predictions[0].class,
+					userConfirm: images,
+				});
+				console.log('Fetch successful');
+			})
+			.catch((error) => {
+				console.error('Fetch error:', error.message);
+			})
+			.finally(() => {
+				updateState({ isLoading: false });
+				console.log('Fetch completed');
+			});
+	};
 
 	// const handleDeploy = async () => {
 	//     fetch(
@@ -184,25 +156,20 @@ const StepFour = (props) => {
 			body: formData,
 		};
 
-		const startTime = performance.now();
-
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
 				const base64ImageString = data.explain_image;
 				const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`;
 
 				setExplainImageUrl(fetchedImageUrl);
+
+				updateState({
+					isLoading: false,
+				});
 				console.log('Fetch successful');
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message);
-			})
-			.finally(() => {
-				const endTime = performance.now();
-				const elapsedTime = endTime - startTime;
-				console.log(
-					`Explain image took ${Math.round(elapsedTime / 1000)} seconds.`
-				);
 				updateState({ isLoading: false });
 			});
 	};
@@ -400,6 +367,7 @@ const StepFour = (props) => {
 				>
 					Predict
 				</button>
+				<div>{JSON.stringify(GraphData)}</div>
 			</div>
 			<div
 				className={`${
@@ -426,46 +394,6 @@ const StepFour = (props) => {
 					</svg>
 				</button>
 				{stepFourState.isLoading && <Loading />}
-            <div className="mt-20 flex justify-center items-center flex-col gap-6">
-                <button
-                    onClick={() => {
-                        updateState({ showUploadModal: true });
-                        // handleDeploy();
-                    }}
-                    className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
-                // hidden
-                >
-                    Predict
-                </button>
-                <div>
-                {JSON.stringify(GraphData)}
-                </div>
-
-            </div>
-            <div
-                className={`${stepFourState.showUploadModal
-                    ? 'top-0 left-0 bottom-full z-[1000] opacity-100'
-                    : 'left-0 top-full bottom-0 opacity-0'
-                    } fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overflow-auto`}
-            >
-                <button
-                    onClick={() => {
-                        updateState(initialState);
-                    }}
-                    className="absolute top-5 right-5 p-[12px] rounded-full bg-white hover:bg-gray-300 hover:text-white font-[600] w-[48px] h-[48px]"
-                >
-                    <svg
-                        className="hover:scale-125 hover:fill-red-500"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                        color="#69717A"
-                        aria-hidden="true"
-                        data-testid="close-upload-media-dialog-btn"
-                    >
-                        <path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
-                    </svg>
-                </button>
-                {stepFourState.isLoading && <Loading />}
 
 				{/* uploaded */}
 				{stepFourState.uploadFiles.length > 0 ? (
@@ -475,7 +403,7 @@ const StepFour = (props) => {
 								<section>
 									<div className="bg-white shadow sm:rounded-lg p-5">
 										<div
-											className={`${
+											class={`${
 												stepFourState.selectedImage
 													? ''
 													: 'animate-pulse'
@@ -496,7 +424,7 @@ const StepFour = (props) => {
 											{stepFourState.uploadFiles.map(
 												(item, index) => (
 													<div
-														className={`${
+														class={`${
 															typeof stepFourState
 																?.userConfirm[
 																index
@@ -532,26 +460,6 @@ const StepFour = (props) => {
 									</div>
 								</section>
 							</div>
-                                                        onClick={() =>
-                                                            handleselectedImage(
-                                                                item
-                                                            )
-                                                        }
-                                                    >
-                                                        <img
-                                                            src={URL.createObjectURL(
-                                                                item
-                                                            )}
-                                                            alt=""
-                                                            className="object-contain  rounded-[8px]"
-                                                        />
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
 
 							<section
 								aria-labelledby="timeline-title"
