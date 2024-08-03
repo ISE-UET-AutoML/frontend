@@ -7,10 +7,20 @@ import { message } from 'antd';
 import { API_URL } from 'src/constants/api';
 import { PATHS } from 'src/constants/paths';
 
+const projTypeOptions = {
+    IMAGE_CLASSIFICATION: 'Image Classification',
+    TEXT_CLASSIFICATION: 'Text Classification',
+    OBJECT_DETECTION: 'Object Detection',
+    SEGMENTATION: 'Segmentation',
+};
+
+const projType = Object.keys(projTypeOptions);
+
 const initialState = {
     showUploader: false,
     projects: [],
 };
+
 export default function ProjectList() {
     const [dashboardState, updateState] = useReducer((state, newState) => ({ ...state, ...newState }), initialState);
 
@@ -25,7 +35,6 @@ export default function ProjectList() {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
             console.log({ response });
             if (response.status === 200) {
                 console.log({ response });
@@ -230,7 +239,11 @@ export default function ProjectList() {
                                             name="type"
                                             className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
                                         >
-                                            <option>CLASSIFICATION</option>
+                                            {projType.map((type) => (
+                                                <option key={type} value={type}>
+                                                    {projTypeOptions[type]}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
