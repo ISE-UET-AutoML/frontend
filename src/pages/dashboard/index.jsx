@@ -1,17 +1,17 @@
-import { message } from 'antd';
-import React, { useReducer } from 'react';
+import { message } from 'antd'
+import React, { useReducer } from 'react'
 import {
 	useLocation,
 	useNavigate,
 	useParams,
 	useSearchParams,
-} from 'react-router-dom';
-import * as projectAPI from 'src/api/project';
-import { UploadTypes } from 'src/constants/file';
-import { validateFiles } from 'src/utils/file';
-import Loading from 'src/components/Loading';
+} from 'react-router-dom'
+import * as projectAPI from 'src/api/project'
+import { UploadTypes } from 'src/constants/file'
+import { validateFiles } from 'src/utils/file'
+import Loading from 'src/components/Loading'
 
-const LOAD_CHUNK = 10;
+const LOAD_CHUNK = 10
 
 const initialState = {
 	show: false,
@@ -20,145 +20,86 @@ const initialState = {
 	uploadFiles: [],
 	loadedChunk: LOAD_CHUNK,
 	isUploading: false,
-};
+}
 
 const Dashboard = ({ updateFields }) => {
-	const { id: projectID } = useParams();
-	const location = useLocation();
+	const { id: projectID } = useParams()
+	const location = useLocation()
 
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
-		return { ...pre, ...next };
-	}, initialState);
+		return { ...pre, ...next }
+	}, initialState)
 
-	let [searchParams, setSearchParams] = useSearchParams();
+	let [searchParams, setSearchParams] = useSearchParams()
 
 	// handler
 	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files);
-		const validatedFiles = validateFiles(files);
-		updateState({ uploadFiles: validatedFiles });
-	};
+		const files = Array.from(event.target.files)
+		const validatedFiles = validateFiles(files)
+		updateState({ uploadFiles: validatedFiles })
+	}
 	const handleRemoveFile = (index) => {
-		const newState = [...dashboardState.uploadFiles];
-		newState.splice(index, 1);
-		updateState({ uploadFiles: newState });
-	};
+		const newState = [...dashboardState.uploadFiles]
+		newState.splice(index, 1)
+		updateState({ uploadFiles: newState })
+	}
 
 	const uploadImages = async (e) => {
-		e.preventDefault();
-		console.log('upload images');
-		if (dashboardState.uploadFiles.length === 0) return;
+		e.preventDefault()
+		console.log('upload images')
+		if (dashboardState.uploadFiles.length === 0) return
 		if (
 			dashboardState.uploadFiles !== undefined &&
 			dashboardState.uploadFiles.length > 0
 		) {
-			const formData = new FormData();
-			formData.append('type', UploadTypes.FOLDER);
+			const formData = new FormData()
+			formData.append('type', UploadTypes.FOLDER)
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string
 				const fileNameBase64 = window.btoa(
 					dashboardState.uploadFiles[i].webkitRelativePath
-				);
+				)
 				formData.append(
 					'files',
 					dashboardState.uploadFiles[i],
 					fileNameBase64
-				);
+				)
 			}
-			// TODO: Remove this line
-			const queryString = new URLSearchParams({
-				id: projectID,
-			}).toString();
+
 			try {
-				updateState({ isUploading: true });
+				updateState({ isUploading: true })
 				const { data } = await projectAPI.uploadFiles(
 					projectID,
 					formData
-				);
-				console.log('data', data);
-				message.success('Successfully uploaded', 3);
-				updateState({ isUploading: false });
+				)
+				console.log('data', data)
+				message.success('Successfully uploaded', 3)
+				updateState({ isUploading: false })
 				updateFields({
 					isDoneStepOne: true,
 					...data,
-				});
+				})
 				// navigate(`/app/new-project?${queryString}`, { replace: true });
 			} catch (error) {
-				updateState({ isUploading: false });
-				message.error('Upload Failed', 3);
+				updateState({ isUploading: false })
+				message.error('Upload Failed', 3)
 
-				console.error(error);
+				console.error(error)
 			}
 		}
 
 		// TODO: validate folder structure
 		// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
-	};
-
-	const tempTrainModel = async () => {
-		try {
-			const payload = {
-				userEmail: 'test-automl',
-				projectName: '4-animal',
-				training_time: 60,
-				runName: 'ISE',
-				presets: 'medium_quality',
-				dataset_url: '1QEhox5PADwRiL8h_cWtpp2vb229rKRXE',
-				gcloud_dataset_bucketname: 'string',
-				gcloud_dataset_directory: 'string',
-				dataset_download_method: 'gdrive',
-				training_argument: {
-					data_args: {},
-					ag_model_args: {
-						pretrained: true,
-						hyperparameters: {
-							'model.timm_image.checkpoint_name':
-								'swin_small_patch4_window7_224',
-						},
-					},
-					ag_fit_args: {
-						time_limit: 60,
-						hyperparameters: {
-							'env.per_gpu_batch_size': 4,
-							'env.batch_size': 4,
-						},
-					},
-				},
-				label_column: 'label',
-			};
-
-			const res = await fetch(
-				`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification`,
-				{
-					method: 'POST',
-					body: JSON.stringify(payload),
-				}
-			);
-
-			const data = await res.json();
-
-			const searchParams = new URLSearchParams(location.search);
-			searchParams.get('experiment_name') ??
-				setSearchParams((pre) =>
-					pre.toString().concat(`&experiment_name=${data.task_id}`)
-				);
-			updateFields({
-				isDoneStepTwo: true,
-				experiment_name: data.task_id,
-			});
-		} catch (error) {
-			console.log(error);
-		}
-	};
+	}
 
 	const handleLoadChunk = () => {
 		if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
 			updateState({
 				loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
-			});
+			})
 		}
-	};
+	}
 
 	// pass
 	// check label data
@@ -223,7 +164,7 @@ const Dashboard = ({ updateFields }) => {
 					className="hidden"
 					onChange={handleFileChange}
 					onClick={(event) => {
-						event.target.value = null;
+						event.target.value = null
 					}}
 				/>
 			</div>
@@ -362,7 +303,7 @@ const Dashboard = ({ updateFields }) => {
 							className="hidden"
 							onChange={handleFileChange}
 							onClick={(event) => {
-								event.target.value = null;
+								event.target.value = null
 							}}
 						/>
 					</label>
@@ -392,7 +333,7 @@ const Dashboard = ({ updateFields }) => {
 									<button
 										className="absolute cursor-pointer right-2 top-2 bg-white flex justify-center items-center rounded-full h-[20px] w-[20px] opacity-0 group-hover:opacity-100"
 										onClick={() => {
-											handleRemoveFile(index);
+											handleRemoveFile(index)
 										}}
 									>
 										<svg
@@ -432,7 +373,7 @@ const Dashboard = ({ updateFields }) => {
 				</div>
 			</div>
 		</>
-	);
-};
+	)
+}
 
-export default Dashboard;
+export default Dashboard

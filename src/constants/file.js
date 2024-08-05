@@ -1,4 +1,4 @@
-const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp','csv','json'];
 
 const UploadTypes = Object.freeze({
 	MULTIPLE: 0,
