@@ -4,6 +4,7 @@ import LabelStudio from '@thanhtlx/label-studio-fe-fix';
 import '@thanhtlx/label-studio-fe-fix/build/static/css/main.css';
 
 const LabelStudioReact = (props) => {
+    /*
     const labelStudioContainerRef = useRef();
     const labelStudioRef = useRef();
 
@@ -26,7 +27,7 @@ const LabelStudioReact = (props) => {
                 labelStudioContainerRef.current = el
             }}
         />
-    );
+    );*/
 }
 
 export default LabelStudioReact;

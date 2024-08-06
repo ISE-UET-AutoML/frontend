@@ -4,7 +4,7 @@ import '@thanhtlx/label-studio-fe-fix/build/static/css/main.css';
 import LabelStudioReact from './LabelStudio'
 
 const LabelEditor = ({ index, image, labels, setCurrentIndex }) => {
-
+    /*
     const choice = labels.map((v, i) => {
         return '<Choice value="' + v + '"/>'
     })
@@ -92,7 +92,8 @@ const LabelEditor = ({ index, image, labels, setCurrentIndex }) => {
                 onLabelStudioLoad={onloadAnnotation}
             />
         
-    );
+    );*/
+    return <div></div>
 }
 
 export default LabelEditor;
