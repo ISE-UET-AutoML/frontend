@@ -6,6 +6,7 @@ import instance from 'src/api/axios';
 import { message } from 'antd';
 import { API_URL } from 'src/constants/api';
 import { PATHS } from 'src/constants/paths';
+import {TYPES} from 'src/constants/types';
 
 const projTypeOptions = {
     IMAGE_CLASSIFICATION: 'Image Classification',
@@ -14,7 +15,7 @@ const projTypeOptions = {
     SEGMENTATION: 'Segmentation',
 };
 
-const projType = Object.keys(projTypeOptions);
+const projType = Object.keys(TYPES);
 
 const initialState = {
     showUploader: false,
@@ -88,7 +89,6 @@ export default function ProjectList() {
                                     <button
                                         type="button"
                                         className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
-                                        // onClick={() => (window.location = '/app/new-project')}
                                         onClick={() =>
                                             updateState({ showUploader: true })
                                         }
@@ -241,7 +241,7 @@ export default function ProjectList() {
                                         >
                                             {projType.map((type) => (
                                                 <option key={type} value={type}>
-                                                    {projTypeOptions[type]}
+                                                    {TYPES[type].type}
                                                 </option>
                                             ))}
                                         </select>

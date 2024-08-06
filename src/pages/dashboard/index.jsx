@@ -10,6 +10,7 @@ import * as projectAPI from 'src/api/project';
 import { UploadTypes } from 'src/constants/file';
 import { validateFiles } from 'src/utils/file';
 import Loading from 'src/components/Loading';
+import { TYPES} from 'src/constants/types';
 
 const LOAD_CHUNK = 10;
 
@@ -22,9 +23,11 @@ const initialState = {
 	isUploading: false,
 };
 
-const Dashboard = ({ updateFields }) => {
+const Dashboard = ({ updateFields, projectInfo }) => {
 	const { id: projectID } = useParams();
 	const location = useLocation();
+
+	console.log(projectInfo);
 
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
@@ -35,9 +38,11 @@ const Dashboard = ({ updateFields }) => {
 
 	// handler
 	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files);
-		const validatedFiles = validateFiles(files);
-		updateState({ uploadFiles: validatedFiles });
+		if (projectInfo) {
+			const files = Array.from(event.target.files);
+			const validatedFiles = validateFiles(files, projectInfo.type);
+			updateState({ uploadFiles: validatedFiles });
+		}
 	};
 	const handleRemoveFile = (index) => {
 		const newState = [...dashboardState.uploadFiles];
@@ -227,7 +232,7 @@ const Dashboard = ({ updateFields }) => {
 					}}
 				/>
 			</div>
-			{/* bottom up modal of classify */}
+			{/* bottom up modal of image classify */}
 			<div
 				className={`${
 					dashboardState.show
@@ -250,20 +255,21 @@ const Dashboard = ({ updateFields }) => {
 						<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 					</svg>
 				</button>
-				<h3 className="text-center w-full text-[24px] font-[500] leading-[1.16] mb-8 ">
-					Select how you want upload images
+				<h3 className="text-center w-full text-[30px] font-[500] leading-[1.16] mb-8 mt-4">
+					Select how you want to upload
 				</h3>
 				<div className="container flex justify-around items-center mx-auto gap-4">
 					<div
-						onClick={() => updateState({ showUploader: true })}
+					// chuyển hướng sang phần Label Studio của anh Thanh
+						onClick={() => updateState({ showUploader: false })}
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
-							<p className="text-center text-[16px] ">
-								Unclassified images upload
+							<p className="text-center text-[24px] ">
+								Unlabelled dataset upload
 							</p>
-							<p className="text-center text-[12px] font-[300]">
-								uploaded images will be raw status, you can
+							<p className="text-center text-[16px] font-[300]">
+								uploaded dataset will be raw status, you can
 								classify them using the platform labeling tool
 							</p>
 							<img
@@ -278,11 +284,11 @@ const Dashboard = ({ updateFields }) => {
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
-							<p className="text-center text-[16px] ">
-								Classified Images{' '}
+							<p className="text-center text-[24px] ">
+								Labelled dataset upload{' '}
 							</p>
-							<p className="text-center text-[12px] font-[300]">
-								uploaded images will be classified based on your
+							<p className="text-center text-[16px] font-[300]">
+								uploaded dataset will be classified based on your
 								folder structure
 							</p>
 							<img
@@ -321,11 +327,11 @@ const Dashboard = ({ updateFields }) => {
 				</button>
 				<div className="h-[3000px] overflow-auto py-[100px] w-full left-0 px-10 ">
 					<h3 className="text-center w-full text-[24px] font-[500] leading-[1.16] mb-8 ">
-						Classified images upload
+						Labelled dataset upload
 					</h3>
 					<label
 						htmlFor="classification"
-						className="container flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 p-5 rounded-[15px]"
+						className="h-[300px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 p-5 rounded-[15px]"
 					>
 						<div className="w-full h-full bg-white p-10 rounded-md cursor-pointer">
 							<div className="flex flex-col">
@@ -336,7 +342,7 @@ const Dashboard = ({ updateFields }) => {
 								/>
 
 								<p className="text-center text-[12px] font-[300]">
-									We accept JPEG, PNG image format
+									{projectInfo && TYPES[projectInfo.type]?.description || 'No description available'}
 								</p>
 							</div>
 						</div>

@@ -7,22 +7,6 @@ import StepOne from './steps/step_one';
 import StepThree from './steps/step_three';
 import StepTwo from './steps/step_two';
 
-const stepData = [
-	{
-		id: '01',
-		name: 'Upload',
-		href: '/app/new-project/step1',
-		status: 'complete',
-	},
-	{
-		id: '02',
-		name: 'Label',
-		href: '/app/new-project/step2',
-		status: 'current',
-	},
-	{ id: '03', name: 'Train', href: '#', status: 'upcoming' },
-	{ id: '04', name: 'Predict', href: '#', status: 'upcoming' },
-];
 
 export default function ProjectBuild(props) {
 	function updateFields(fields) {

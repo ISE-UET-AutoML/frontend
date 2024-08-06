@@ -23,13 +23,23 @@ const stepData = [
 const currentStepIndex = 1
 
 const StepOne = ({ name, email, updateFields }) => {
-	// updateState({ isUploading: false });
-	// updateFields({
-	//     isDoneStepOne: true,
-	//     ...data,
-	// });
 	const { id: projectID } = useParams()
-	console.log(projectID)
+
+	const [projectInfo, setProjectInfo] = useState(null);
+
+    useEffect(() => {
+        const fetchProjectInfo = async () => {
+            try {
+                const response = await projectAPI.getProjectById(projectID);
+                setProjectInfo(response.data);
+            } catch (error) {
+                console.error('Error fetching project:', error);
+            }
+        };
+
+        fetchProjectInfo();
+    }, [projectID]);
+
 	projectAPI.getProjectDataset(projectID).then((data) => {
 		if (data?.data && data.data.files.length) {
 			console.log(data)
@@ -43,6 +53,7 @@ const StepOne = ({ name, email, updateFields }) => {
 		}
 
 	})
+	
 	return (
 		<>
 			<div className="flex justify-between mx-auto px-3 mb-5 ">
@@ -141,7 +152,7 @@ const StepOne = ({ name, email, updateFields }) => {
 						))}
 					</ul>
 				</div>
-				{<Dashboard updateFields={updateFields} />}
+				{<Dashboard updateFields={updateFields} projectInfo={projectInfo} />}
 				{/*steps content  */}
 				<div className="content mt-5">{/* <h1>{step}</h1> */}</div>
 
