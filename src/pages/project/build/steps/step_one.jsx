@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Dashboard from 'src/pages/dashboard';
-import * as projectAPI from 'src/api/project';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react'
+import Dashboard from 'src/pages/dashboard'
+import * as projectAPI from 'src/api/project'
+import { useParams } from 'react-router-dom'
 
 const stepData = [
 	{
@@ -18,27 +18,12 @@ const stepData = [
 	},
 	{ id: '03', name: 'Train', href: '#', status: 'upcoming' },
 	{ id: '04', name: 'Predict', href: '#', status: 'upcoming' },
-];
+]
 
 const currentStepIndex = 1
 
-const StepOne = ({ name, email, updateFields }) => {
+const StepOne = ({ name, email, updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
-
-	const [projectInfo, setProjectInfo] = useState(null);
-
-    useEffect(() => {
-        const fetchProjectInfo = async () => {
-            try {
-                const response = await projectAPI.getProjectById(projectID);
-                setProjectInfo(response.data);
-            } catch (error) {
-                console.error('Error fetching project:', error);
-            }
-        };
-
-        fetchProjectInfo();
-    }, [projectID]);
 
 	projectAPI.getProjectDataset(projectID).then((data) => {
 		if (data?.data && data.data.files.length) {
@@ -47,13 +32,12 @@ const StepOne = ({ name, email, updateFields }) => {
 				// change to isDoneStepThree: true to bypass to predict
 				isDoneStepOne: true,
 				...data.data,
-			});
+			})
 		} else {
-			console.log('no dataset');
+			console.log('no dataset')
 		}
-
 	})
-	
+
 	return (
 		<>
 			<div className="flex justify-between mx-auto px-3 mb-5 ">
@@ -85,23 +69,25 @@ const StepOne = ({ name, email, updateFields }) => {
 							>
 								<div className="flex items-center flex-col gap-x-2">
 									<div
-										className={`w-8 h-8 rounded-full border-2 flex-none flex items-center justify-center ${currentStepIndex > idx
-											? 'bg-blue-600 border-blue-600'
-											: '' || currentStepIndex === idx
-												? 'border-blue-600'
-												: ''
-											}`}
+										className={`w-8 h-8 rounded-full border-2 flex-none flex items-center justify-center ${
+											currentStepIndex > idx
+												? 'bg-blue-600 border-blue-600'
+												: '' || currentStepIndex === idx
+													? 'border-blue-600'
+													: ''
+										}`}
 									>
 										<span
 											id={`step-${idx + 1}`}
-											className={`next-step ${currentStepIndex > idx
-												? 'hidden'
-												: '' ||
-													currentStepIndex ===
-													idx
-													? 'text-blue-600'
-													: ''
-												}`}
+											className={`next-step ${
+												currentStepIndex > idx
+													? 'hidden'
+													: '' ||
+														  currentStepIndex ===
+																idx
+														? 'text-blue-600'
+														: ''
+											}`}
 										>
 											{idx + 1}
 										</span>
@@ -125,12 +111,13 @@ const StepOne = ({ name, email, updateFields }) => {
 										)}
 									</div>
 									<hr
-										className={`h-12 border md:hidden ${idx === 4
-											? 'hidden'
-											: '' || currentStepIndex > idx
-												? 'border-blue-600'
-												: ''
-											}`}
+										className={`h-12 border md:hidden ${
+											idx === 4
+												? 'hidden'
+												: '' || currentStepIndex > idx
+													? 'border-blue-600'
+													: ''
+										}`}
 									/>
 								</div>
 								<div className="h-8 flex items-center md:h-auto">
@@ -141,25 +128,29 @@ const StepOne = ({ name, email, updateFields }) => {
 									</h3>
 								</div>
 								<hr
-									className={`hidden mr-2 w-full border md:block ${idx === 4
-										? 'hidden'
-										: '' || currentStepIndex > idx
-											? 'border-blue-600'
-											: ''
-										}`}
+									className={`hidden mr-2 w-full border md:block ${
+										idx === 4
+											? 'hidden'
+											: '' || currentStepIndex > idx
+												? 'border-blue-600'
+												: ''
+									}`}
 								/>
 							</li>
 						))}
 					</ul>
 				</div>
-				{<Dashboard updateFields={updateFields} projectInfo={projectInfo} />}
+				{
+					<Dashboard
+						updateFields={updateFields}
+						projectInfo={projectInfo}
+					/>
+				}
 				{/*steps content  */}
 				<div className="content mt-5">{/* <h1>{step}</h1> */}</div>
-
 			</div>
 		</>
 	)
-	
-};
+}
 
-export default StepOne;
+export default StepOne

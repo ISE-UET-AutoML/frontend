@@ -14,7 +14,7 @@ import { TYPES } from 'src/constants/types'
 import ImagePreview from 'src/pages/dashboard/previews/image'
 import TextPreview from 'src/pages/dashboard/previews/text'
 
-const LOAD_CHUNK = 10
+const LOAD_CHUNK = 12
 
 const initialState = {
 	show: false,

@@ -9,17 +9,7 @@ import instance from 'src/api/axios'
 import { PATHS } from 'src/constants/paths'
 import { fetchWithTimeout } from 'src/utils/timeout'
 import { API_URL } from 'src/constants/api'
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	Legend,
-	BarChart,
-	Bar,
-} from 'recharts'
+import LineGraph from 'src/components/LineGraph'
 
 import 'src/assets/css/chart.css'
 
@@ -38,43 +28,8 @@ const initialState = {
 	userConfirm: [],
 }
 
-const LineGraph = ({ data, label }) => (
-	<>
-		<div>
-			{data.length > 0 && (
-				<div className="charts-container">
-					<h3>{label}</h3>
-					<div className="chart">
-						<LineChart
-							width={500}
-							height={300}
-							data={data}
-							margin={{
-								top: 5,
-								right: 30,
-								left: 0,
-								bottom: 5,
-							}}
-						>
-							<CartesianGrid strokeDasharray="3 3" />
-							<XAxis dataKey="step" />
-							<YAxis />
-							<Tooltip />
-							<Legend />
-							<Line
-								type="monotone"
-								dataKey="value"
-								stroke="#CA4F8E"
-								strokeWidth="3"
-							/>
-						</LineChart>
-					</div>
-				</div>
-			)}
-		</div>
-	</>
-)
 const StepFour = (props) => {
+	const { projectInfo } = props
 	const location = useLocation()
 	const navigate = useNavigate()
 	const searchParams = new URLSearchParams(location.search)
@@ -127,10 +82,9 @@ const StepFour = (props) => {
 
 		setGraph(parsedData)
 	}
-
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files)
-		const validFiles = validateFiles(files)
+		const validFiles = validateFiles(files, projectInfo.type)
 
 		updateState({
 			isLoading: true,
@@ -308,6 +262,25 @@ const StepFour = (props) => {
 	}
 	return (
 		<>
+			<div>
+				<h1>The result of training</h1>
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+					<LineGraph data={trainlossGraph} label="train_loss" />
+					<LineGraph data={val_lossGraph} label="val_loss" />
+					<LineGraph data={val_accGraph} label="val_accuracy" />
+				</div>
+				<button
+					onClick={() => {
+						updateState({ showUploadModal: true })
+						// handleDeploy();
+					}}
+					className="rounded-md bg-blue-600 py-2 px-4 text-white hover:bg-blue-700 transition"
+					// hidden
+				>
+					Predict
+				</button>
+			</div>
+
 			<Transition.Root show={stepFourState.showResultModal} as={Fragment}>
 				<Dialog
 					as="div"
@@ -452,22 +425,6 @@ const StepFour = (props) => {
 				</Dialog>
 			</Transition.Root>
 
-			<div className="mt-20 flex justify-center items-center flex-col gap-6">
-				<button
-					onClick={() => {
-						updateState({ showUploadModal: true })
-						// handleDeploy();
-					}}
-					className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
-					// hidden
-				>
-					Predict
-				</button>
-				<div>{JSON.stringify(GraphJSON)}</div>
-				<LineGraph data={trainlossGraph} label="train_loss" />
-				<LineGraph data={val_lossGraph} label="val_loss" />
-				<LineGraph data={val_accGraph} label="val_accuracy" />
-			</div>
 			<div
 				className={`${
 					stepFourState.showUploadModal
