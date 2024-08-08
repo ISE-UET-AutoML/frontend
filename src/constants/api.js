@@ -10,4 +10,5 @@ export const API_URL = {
     get_project_dataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/datasets`,
     update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
     explain_instance: (projectID) => `${API_BASE_URL}/projects/${projectID}/explain`,
+    create_label_for_dataset: (datasetID) => `${API_BASE_URL}/datasets/${datasetID}/labels`,
 }
