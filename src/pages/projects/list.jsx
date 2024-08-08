@@ -8,10 +8,10 @@ import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
 
 const projTypeOptions = {
-	IMAGE_CLASSIFICATION: 'Image Classification',
-	TEXT_CLASSIFICATION: 'Text Classification',
-	OBJECT_DETECTION: 'Object Detection',
-	SEGMENTATION: 'Segmentation',
+	IMAGE_CLASSIFICATION: 'IMAGE_CLASSIFICATION',
+	TEXT_CLASSIFICATION: 'TEXT_CLASSIFICATION',
+	OBJECT_DETECTION: 'OBJECT_DETECTION',
+	IMAGE_SEGMENTATION: 'IMAGE_SEGMENTATION',
 }
 
 const projType = Object.keys(projTypeOptions)
@@ -242,7 +242,9 @@ export default function ProjectList() {
 											name="type"
 											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 										>
-											<option>CLASSIFICATION</option>
+											<option>
+												IMAGE_CLASSIFICATION
+											</option>
 										</select>
 									</div>
 								</div>

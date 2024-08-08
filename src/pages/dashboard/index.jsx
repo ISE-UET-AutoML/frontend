@@ -54,6 +54,7 @@ const Dashboard = ({ updateFields }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			const formData = new FormData()
+			//TODO: make user be able to select upload type, see UploadTypes
 			formData.append('type', UploadTypes.FOLDER)
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string

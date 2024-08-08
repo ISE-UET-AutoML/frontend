@@ -7,6 +7,7 @@ export const API_URL = {
     all_models: `${API_BASE_URL}/projects/models`,
     train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
     upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
+    upload_file_ml_service: (projectID) => `http://localhost:8670/label_service/projects/${projectID}/upload/any`,
     get_project_dataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/datasets`,
     update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
     explain_instance: (projectID) => `${API_BASE_URL}/projects/${projectID}/explain`,
