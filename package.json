@@ -20,6 +20,7 @@
     "babel-plugin-polyfill-regenerator": "^0.6.2",
     "clsx": "^2.1.0",
     "mlops_frontend": "file:",
+    "papaparse": "^5.4.1",
     "postcss": "^8.0.9",
     "prop-types": "^15.6.0",
     "react": "^18.0.0",

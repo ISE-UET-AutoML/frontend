@@ -9,17 +9,8 @@ import instance from 'src/api/axios'
 import { PATHS } from 'src/constants/paths'
 import { fetchWithTimeout } from 'src/utils/timeout'
 import { API_URL } from 'src/constants/api'
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	Legend,
-	BarChart,
-	Bar,
-} from 'recharts'
+import LineGraph from 'src/components/LineGraph'
+import researchImage from 'src/assets/images/research.png'
 
 import 'src/assets/css/chart.css'
 
@@ -38,43 +29,8 @@ const initialState = {
 	userConfirm: [],
 }
 
-const LineGraph = ({ data, label }) => (
-	<>
-		<div>
-			{data.length > 0 && (
-				<div className="charts-container">
-					<h3>{label}</h3>
-					<div className="chart">
-						<LineChart
-							width={500}
-							height={300}
-							data={data}
-							margin={{
-								top: 5,
-								right: 30,
-								left: 0,
-								bottom: 5,
-							}}
-						>
-							<CartesianGrid strokeDasharray="3 3" />
-							<XAxis dataKey="step" />
-							<YAxis />
-							<Tooltip />
-							<Legend />
-							<Line
-								type="monotone"
-								dataKey="value"
-								stroke="#CA4F8E"
-								strokeWidth="3"
-							/>
-						</LineChart>
-					</div>
-				</div>
-			)}
-		</div>
-	</>
-)
 const StepFour = (props) => {
+	const { projectInfo } = props
 	const location = useLocation()
 	const navigate = useNavigate()
 	const searchParams = new URLSearchParams(location.search)
@@ -127,10 +83,9 @@ const StepFour = (props) => {
 
 		setGraph(parsedData)
 	}
-
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files)
-		const validFiles = validateFiles(files)
+		const validFiles = validateFiles(files, projectInfo.type)
 
 		updateState({
 			isLoading: true,
@@ -308,6 +263,106 @@ const StepFour = (props) => {
 	}
 	return (
 		<>
+			<section>
+				<div className="flex">
+					<h1 className="text-3xl font-bold text-center mb-6">
+						Outcomes of the training procedure
+					</h1>
+					<button
+						onClick={() => {
+							updateState({ showUploadModal: true })
+							// handleDeploy();
+						}}
+						className="ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+						// hidden
+					>
+						Predict
+					</button>
+				</div>
+				<div className="py-2.5">
+					<div className=" max-w-full text-gray-500">
+						<div className="relative">
+							<div className="relative z-10 grid gap-3 grid-cols-6">
+								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+									<div className="size-fit m-auto relative flex justify-center">
+										<LineGraph
+											data={trainlossGraph}
+											label="train_loss"
+										/>
+									</div>
+								</div>
+								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+									<div className="size-fit m-auto relative flex justify-center">
+										<LineGraph
+											data={val_lossGraph}
+											label="val_loss"
+										/>
+									</div>
+								</div>
+								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+									<div className="size-fit m-auto relative flex justify-center">
+										<LineGraph
+											data={val_accGraph}
+											label="val_accuracy"
+										/>
+									</div>
+								</div>
+
+								<div className=" h-56 col-span-full lg:col-span-5 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200">
+									<div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
+										<div className="space-y-2">
+											<p className=" text-gray-700">
+												Training an AI is a
+												sophisticated process that
+												involves the use of complex
+												algorithms designed to analyze
+												vast amounts of data. The
+												primary aim is to enable the AI
+												to learn patterns and make
+												predictions or decisions based
+												on the information it processes.
+												To achieve this, machine
+												learning models are trained
+												using various techniques,
+												including supervised learning,
+												unsupervised learning, and
+												reinforcement learning. These
+												techniques involve iteratively
+												adjusting the algorithms to
+												improve their accuracy and
+												effectiveness.
+											</p>
+											<p className=" text-gray-700">
+												Despite the advanced nature of
+												these algorithms, the training
+												process is not without its
+												challenges. Errors and
+												inaccuracies can still arise,
+												which can impact the performance
+												of the AI. These mistakes often
+												stem from limitations in the
+												data, such as biases or gaps,
+												and the inherent complexity of
+												the algorithms themselves.
+												Addressing these issues requires
+												continuous refinement of the
+												models and the data they are
+												trained on.
+											</p>
+										</div>
+									</div>
+								</div>
+								<div className="h-56 col-span-full lg:col-span-1 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+									<div className="size-fit m-auto relative flex justify-center">
+										<img src={researchImage} />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
 			<Transition.Root show={stepFourState.showResultModal} as={Fragment}>
 				<Dialog
 					as="div"
@@ -452,22 +507,6 @@ const StepFour = (props) => {
 				</Dialog>
 			</Transition.Root>
 
-			<div className="mt-20 flex justify-center items-center flex-col gap-6">
-				<button
-					onClick={() => {
-						updateState({ showUploadModal: true })
-						// handleDeploy();
-					}}
-					className="rounded-md bg-blue-600 py-[6px] px-4 text-white"
-					// hidden
-				>
-					Predict
-				</button>
-				<div>{JSON.stringify(GraphJSON)}</div>
-				<LineGraph data={trainlossGraph} label="train_loss" />
-				<LineGraph data={val_lossGraph} label="val_loss" />
-				<LineGraph data={val_accGraph} label="val_accuracy" />
-			</div>
 			<div
 				className={`${
 					stepFourState.showUploadModal

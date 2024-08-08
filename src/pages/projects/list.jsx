@@ -6,6 +6,7 @@ import instance from 'src/api/axios'
 import { message } from 'antd'
 import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
+import { TYPES } from 'src/constants/types'
 
 const projTypeOptions = {
 	IMAGE_CLASSIFICATION: 'IMAGE_CLASSIFICATION',
@@ -15,6 +16,7 @@ const projTypeOptions = {
 }
 
 const projType = Object.keys(projTypeOptions)
+
 const initialState = {
 	showUploader: false,
 	projects: [],
@@ -242,9 +244,11 @@ export default function ProjectList() {
 											name="type"
 											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 										>
-											<option>
-												IMAGE_CLASSIFICATION
-											</option>
+											{projType.map((type) => (
+												<option key={type} value={type}>
+													{projTypeOptions[type]}
+												</option>
+											))}
 										</select>
 									</div>
 								</div>

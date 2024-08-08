@@ -1,13 +1,13 @@
-import { Dialog, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { Slider } from 'antd';
-import { Fragment, useEffect, useRef, useState } from 'react';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
-import { listImages, trainModel } from 'src/api/project';
-import Loading from 'src/components/Loading';
-import Pagination from 'src/components/Pagination';
-import useIntervalFetch from 'src/hooks/useIntervalFetch';
+import { Dialog, Transition } from '@headlessui/react'
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
+import { Slider } from 'antd'
+import { Fragment, useEffect, useRef, useState } from 'react'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
+import { listImages, trainModel } from 'src/api/project'
+import Loading from 'src/components/Loading'
+import Pagination from 'src/components/Pagination'
+import useIntervalFetch from 'src/hooks/useIntervalFetch'
 
 const types = [
 	{
@@ -138,21 +138,21 @@ const types = [
 			cutoutPercent: 0,
 		},
 	},
-];
+]
 
 const LabelSelector = ({ current, labels, setLabels }) => {
-	const [currentLabel, setCurrentLabel] = useState(current);
-	const [open, setOpen] = useState(false);
-	const cancelButtonRef = useRef(null);
-	const newLabelRef = useRef(null);
+	const [currentLabel, setCurrentLabel] = useState(current)
+	const [open, setOpen] = useState(false)
+	const cancelButtonRef = useRef(null)
+	const newLabelRef = useRef(null)
 
-    const handleOnChange = (e) => {
-        if (e.target.value === 'new') {
-            setOpen(true);
-        } else {
-            setCurrentLabel(e.target.value);
-        }
-    };
+	const handleOnChange = (e) => {
+		if (e.target.value === 'new') {
+			setOpen(true)
+		} else {
+			setCurrentLabel(e.target.value)
+		}
+	}
 
 	return (
 		<div>
@@ -236,10 +236,10 @@ const LabelSelector = ({ current, labels, setLabels }) => {
 											type="button"
 											className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
 											onClick={() => {
-												setOpen(false);
+												setOpen(false)
 												const label =
-													newLabelRef.current.value;
-												setLabels([label, ...labels]);
+													newLabelRef.current.value
+												setLabels([label, ...labels])
 												// setCurrentLabel(label)
 											}}
 										>
@@ -261,101 +261,102 @@ const LabelSelector = ({ current, labels, setLabels }) => {
 				</Dialog>
 			</Transition.Root>
 		</div>
-	);
-};
+	)
+}
 
 const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
-	const location = useLocation();
-	const [openOptions, setOpenOptions] = useState(false);
-	const [openAugmentation, setOpenAugmentation] = useState(false);
-	const [selectedType, setSelectedType] = useState(types[0]);
-	const cancelButtonRef = useRef(null);
+	const location = useLocation()
+	const [openOptions, setOpenOptions] = useState(false)
+	const [openAugmentation, setOpenAugmentation] = useState(false)
+	const [selectedType, setSelectedType] = useState(types[0])
+	const cancelButtonRef = useRef(null)
 	const handleOpentTrainModel = () => {
-		setOpenOptions(true);
-	};
+		setOpenOptions(true)
+	}
 
-    let [searchParams, setSearchParams] = useSearchParams();
-    const { id: projectId } = useParams();
-    const [labels, setLabels] = useState(savedLabels);
-    const [triggerFetch, setTriggerFetch] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [paginationStep2, setPaginationStep2] = useState({
-        currentPage: pagination?.page ?? 1,
-        totalPages: pagination?.total_page ?? 10,
-    });
-    const handleTrain = async () => {
-        try {
-            const { data } = await trainModel(projectId);
-            const searchParams = new URLSearchParams(location.search);
-            searchParams.get('experiment_name') ??
-                setSearchParams((pre) =>
-                    pre
-                        .toString()
-                        .concat(`&experiment_name=${data.task_id}`)
-                );
-            updateFields({ experiment_name: data.task_id });
-            next();
-        } catch (error) {
-            console.error(error);
-        }
-    };
+	let [searchParams, setSearchParams] = useSearchParams()
+	const { id: projectId } = useParams()
+	const [labels, setLabels] = useState(savedLabels)
+	const [triggerFetch, setTriggerFetch] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
+	const [paginationStep2, setPaginationStep2] = useState({
+		currentPage: pagination?.page ?? 1,
+		totalPages: pagination?.total_page ?? 10,
+	})
+	const handleTrain = async () => {
+		try {
+			const { data } = await trainModel(projectId)
+			const searchParams = new URLSearchParams(location.search)
+			searchParams.get('experiment_name') ??
+				setSearchParams((pre) =>
+					pre.toString().concat(`&experiment_name=${data.task_id}`)
+				)
+			updateFields({ experiment_name: data.task_id })
+			next()
+		} catch (error) {
+			console.error(error)
+		}
+	}
 
-    const handlePageChange = async (page) => {
-        const searchParams = new URLSearchParams(location.search);
-        const id = searchParams.get('id');
-        if (id) {
-            setIsLoading(true);
-            const { data } = await listImages(id, `&page=${page}&size=24`);
-            setPaginationStep2({ ...paginationStep2, currentPage: page });
-            updateFields({
-                ...data.data,
-                pagination: data.meta,
-            });
-            setIsLoading(false);
-        } else if (projectId) {
-            setIsLoading(true);
-            const { data } = await listImages(projectId, `&page=${page}&size=24`);
-            setPaginationStep2({ ...paginationStep2, currentPage: page });
-            updateFields({
-                ...data.data,
-                pagination: data.meta,
-            });
-            setIsLoading(false);
-        }
-    };
-    useEffect(() => {
-        if (pagination) {
-            setPaginationStep2({
-                currentPage: pagination?.page ?? 1,
-                totalPages: pagination?.total_page ?? 10,
-            });
-        }
-    }, [pagination]);
+	const handlePageChange = async (page) => {
+		const searchParams = new URLSearchParams(location.search)
+		const id = searchParams.get('id')
+		if (id) {
+			setIsLoading(true)
+			const { data } = await listImages(id, `&page=${page}&size=24`)
+			setPaginationStep2({ ...paginationStep2, currentPage: page })
+			updateFields({
+				...data.data,
+				pagination: data.meta,
+			})
+			setIsLoading(false)
+		} else if (projectId) {
+			setIsLoading(true)
+			const { data } = await listImages(
+				projectId,
+				`&page=${page}&size=24`
+			)
+			setPaginationStep2({ ...paginationStep2, currentPage: page })
+			updateFields({
+				...data.data,
+				pagination: data.meta,
+			})
+			setIsLoading(false)
+		}
+	}
+	useEffect(() => {
+		if (pagination) {
+			setPaginationStep2({
+				currentPage: pagination?.page ?? 1,
+				totalPages: pagination?.total_page ?? 10,
+			})
+		}
+	}, [pagination])
 
-    useEffect(() => {
-        const searchParams = new URLSearchParams(location.search);
-        const experimentName = searchParams.get('experiment_name');
-        if (experimentName) {
-            updateFields({ isDoneStepTwo: true });
-        }
-    }, []);
+	useEffect(() => {
+		const searchParams = new URLSearchParams(location.search)
+		const experimentName = searchParams.get('experiment_name')
+		if (experimentName) {
+			updateFields({ isDoneStepTwo: true })
+		}
+	}, [])
 
-    return (
-        <div className="container w-full mx-auto">
-            {isLoading && <Loading />}
-            <div className="flex flex-col bg-white shadow-xl rounded-md h-full p-10">
-                <div className="flex justify-between items-center w-full my-5">
-                    <label>
-                        Label all your images to start training process
-                    </label>
-                    <div className="relative flex rounded-md bg-blue-600 justify-between items-center text-white">
-                        <button
-                            onClick={handleTrain}
-                            className="hover:bg-blue-800 py-[6px] px-4 rounded-md w-fit"
-                        >
-                            Train Model
-                        </button>
-                        {/* <div className="group/item h-9 w-fit z-20">
+	return (
+		<div className="container w-full mx-auto">
+			{isLoading && <Loading />}
+			<div className="flex flex-col bg-white shadow-xl rounded-md h-full p-10">
+				<div className="flex justify-between items-center w-full my-5">
+					<label>
+						Label all your images to start training process
+					</label>
+					<div className="relative flex rounded-md bg-blue-600 justify-between items-center text-white">
+						<button
+							onClick={handleTrain}
+							className="hover:bg-blue-800 py-[6px] px-4 rounded-md w-fit"
+						>
+							Train Model
+						</button>
+						{/* <div className="group/item h-9 w-fit z-20">
                 <ChevronDownIcon
                   className="h-10 w-6 text-violet-200 hover:text-violet-100 "
                   aria-hidden="true"
@@ -374,54 +375,54 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
                   </button>
                 </div>
               </div> */}
-                    </div>
-                </div>
-                <div>
-                    <div className="grid grid-cols-4 gap-4">
-                        {images ? (
-                            images.map((image) => (
-                                <div className="relative flex justify-center hover:border hover:border-red-500 rounded-md overflow-hidden">
-                                    <img src={image.url} alt="" />
-                                    <LabelSelector
-                                        current={image.label ?? 'unlabeled'}
-                                        labels={savedLabels}
-                                        setLabels={setLabels}
-                                    />
-                                </div>
-                            ))
-                        ) : (
-                            <div className="relative">
-                                <Loading />
-                            </div>
-                        )}
-                    </div>
-                </div>
-                {images && (
-                    <Pagination
-                        currentPage={paginationStep2.currentPage}
-                        totalPages={paginationStep2.totalPages}
-                        onChange={handlePageChange}
-                    />
-                )}
-            </div>
-            <Transition.Root show={openOptions} as={Fragment}>
-                <Dialog
-                    as="div"
-                    className="relative z-10"
-                    initialFocus={cancelButtonRef}
-                    onClose={setOpenOptions}
-                >
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-                    </Transition.Child>
+					</div>
+				</div>
+				<div>
+					<div className="grid grid-cols-4 gap-4">
+						{images ? (
+							images.map((image, index) => (
+								<div className="relative flex justify-center hover:border hover:border-red-500 rounded-md overflow-hidden">
+									<img src={image.url} alt="" key={index} />
+									<LabelSelector
+										current={image.label ?? 'unlabeled'}
+										labels={savedLabels}
+										setLabels={setLabels}
+									/>
+								</div>
+							))
+						) : (
+							<div className="relative">
+								<Loading />
+							</div>
+						)}
+					</div>
+				</div>
+				{images && (
+					<Pagination
+						currentPage={paginationStep2.currentPage}
+						totalPages={paginationStep2.totalPages}
+						onChange={handlePageChange}
+					/>
+				)}
+			</div>
+			<Transition.Root show={openOptions} as={Fragment}>
+				<Dialog
+					as="div"
+					className="relative z-10"
+					initialFocus={cancelButtonRef}
+					onClose={setOpenOptions}
+				>
+					<Transition.Child
+						as={Fragment}
+						enter="ease-out duration-300"
+						enterFrom="opacity-0"
+						enterTo="opacity-100"
+						leave="ease-in duration-200"
+						leaveFrom="opacity-100"
+						leaveTo="opacity-0"
+					>
+						<div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+					</Transition.Child>
 
 					<div className="fixed inset-0 z-10 overflow-y-auto">
 						<div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
@@ -475,11 +476,11 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 													onClick={() => {
 														setSelectedType(
 															types[item.id]
-														);
+														)
 
 														setOpenAugmentation(
 															true
-														);
+														)
 													}}
 												>
 													<img
@@ -631,13 +632,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																				const newPre =
 																					{
 																						...pre,
-																					};
+																					}
 
 																				newPre.option.flipHorizontal =
-																					event.target.checked;
-																				return newPre;
+																					event.target.checked
+																				return newPre
 																			}
-																		);
+																		)
 																	}}
 																/>
 																<span className="ml-2 text-gray-700 text-[12px]">
@@ -664,13 +665,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																				const newPre =
 																					{
 																						...pre,
-																					};
+																					}
 
 																				newPre.option.flipVertical =
-																					event.target.checked;
-																				return newPre;
+																					event.target.checked
+																				return newPre
 																			}
-																		);
+																		)
 																	}}
 																/>
 																<span className="ml-2 text-gray-700 text-[12px]">
@@ -704,13 +705,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																				const newPre =
 																					{
 																						...pre,
-																					};
+																					}
 
 																				newPre.option.clockwise =
-																					event.target.checked;
-																				return newPre;
+																					event.target.checked
+																				return newPre
 																			}
-																		);
+																		)
 																	}}
 																/>
 																<span className="ml-2 text-gray-700 text-[12px]">
@@ -737,13 +738,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																				const newPre =
 																					{
 																						...pre,
-																					};
+																					}
 
 																				newPre.option.counterClockwise =
-																					event.target.checked;
-																				return newPre;
+																					event.target.checked
+																				return newPre
 																			}
-																		);
+																		)
 																	}}
 																/>
 																<span className="ml-2 text-gray-700 text-[12px]">
@@ -770,13 +771,13 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																				const newPre =
 																					{
 																						...pre,
-																					};
+																					}
 
 																				newPre.option.upsideDown =
-																					event.target.checked;
-																				return newPre;
+																					event.target.checked
+																				return newPre
 																			}
-																		);
+																		)
 																	}}
 																/>
 																<span className="ml-2 text-gray-700 text-[12px]">
@@ -811,16 +812,16 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.shearHorizontal =
 																			Math.round(
 																				(value *
 																					45) /
 																					100.0
-																			);
-																		return newPre;
+																			)
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -857,16 +858,16 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.shearVertical =
 																			Math.round(
 																				(value *
 																					45) /
 																					100.0
-																			);
-																		return newPre;
+																			)
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -909,12 +910,12 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.grayscalePercent =
-																			value;
-																		return newPre;
+																			value
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -945,12 +946,12 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.huePercent =
-																			value;
-																		return newPre;
+																			value
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -981,12 +982,12 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.exposurePercent =
-																			value;
-																		return newPre;
+																			value
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -1020,12 +1021,12 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.cutoutPercent =
-																			value;
-																		return newPre;
+																			value
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -1054,16 +1055,16 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																		const newPre =
 																			{
 																				...pre,
-																			};
+																			}
 																		newPre.option.cutoutCount =
 																			Math.round(
 																				(value *
 																					25) /
 																					100.0
-																			);
-																		return newPre;
+																			)
+																		return newPre
 																	}
-																);
+																)
 															}}
 															disabled={false}
 															tooltip={{
@@ -1119,8 +1120,8 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 													return pre.id ===
 														types.length - 1
 														? types[0]
-														: types[pre.id + 1];
-												});
+														: types[pre.id + 1]
+												})
 											}}
 											ref={cancelButtonRef}
 										>
@@ -1134,7 +1135,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 				</Dialog>
 			</Transition.Root>
 		</div>
-	);
-};
+	)
+}
 
-export default Preview;
+export default Preview

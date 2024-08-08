@@ -8,7 +8,7 @@ const PATHS = {
     PROFILE: '/profile',
     SETTINGS: '/settings',
     MODELS: '/app/models',
-    PREDICT: '/app/predict',
+    PREDICT: (projectID,experimentName) => `/app/project/${projectID}/build?step=1&experiment_name=${experimentName}`,
     PROJECT_BUILD: (projectID) => `/app/project/${projectID}/build`,
     PROJECT_MODEL: (projectID) => `/app/project/${projectID}/model`,
     PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,
