@@ -32,13 +32,24 @@ const StepTwo = ({ files, labels, pagination, updateFields }) => {
 		}
 	}, []);
 
+	if (!files) return
+	let isUnlabelData = false
 
-	if ((labels != null && labels?.length <= 0) || (labels != null && labels?.length >= 10)) {
+	for (let i = 0; i < files.length; i++) {
+		// not have filed label or filed label is empty
+		if (!files[i]?.label || files[i].label.length <= 0) {
+			isUnlabelData = true
+			break
+		}
+	}
+	if (isUnlabelData) {
+		// const labels_value = labels.map((v, i) => v.value)
+		// console.log('label values', labels_value);
 		return (
 			<div>
 				<Labeling
 					images={files}
-					savedLabels={labels}
+					labelsWithID={labels}
 					updateFields={updateFields}
 					next={() => {
 						updateFields({
