@@ -1,11 +1,11 @@
 import {
 	ArrowLongLeftIcon,
 	ArrowLongRightIcon,
-} from '@heroicons/react/24/outline';
-import { memo } from 'react';
+} from '@heroicons/react/24/outline'
+import { memo } from 'react'
 
 const Pagination = (props) => {
-	const { currentPage, totalPages, totalItems, onChange } = props;
+	const { currentPage, totalPages, onChange } = props
 	return (
 		<>
 			<nav className="flex mx-auto mt-10 max-w-2xl items-center justify-between border-t border-gray-200 px-4 sm:px-0 w-full">
@@ -13,7 +13,7 @@ const Pagination = (props) => {
 					<a
 						onClick={() => {
 							if (currentPage > 1) {
-								onChange(currentPage - 1);
+								onChange(currentPage - 1)
 							}
 						}}
 						className={` ${
@@ -46,7 +46,7 @@ const Pagination = (props) => {
 								>
 									{index + 1}
 								</a>
-							);
+							)
 						}
 
 						if (
@@ -63,17 +63,17 @@ const Pagination = (props) => {
 								>
 									...
 								</span>
-							);
+							)
 						}
 
-						return null;
+						return null
 					})}
 				</div>
 				<div className="-mt-px flex w-0 flex-1 justify-end">
 					<a
 						onClick={() => {
 							if (currentPage < totalPages) {
-								onChange(currentPage + 1);
+								onChange(currentPage + 1)
 							}
 						}}
 						className={` ${
@@ -89,6 +89,6 @@ const Pagination = (props) => {
 				</div>
 			</nav>
 		</>
-	);
-};
-export default memo(Pagination);
+	)
+}
+export default memo(Pagination)
