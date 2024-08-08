@@ -29,12 +29,12 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
 	const location = useLocation()
 
-	//state
-	const [dashboardState, updateState] = useReducer((pre, next) => {
-		return { ...pre, ...next }
-	}, initialState)
+		//state
+		const [dashboardState, updateState] = useReducer((pre, next) => {
+			return { ...pre, ...next }
+		}, initialState)
 
-	let [searchParams, setSearchParams] = useSearchParams()
+		let [searchParams, setSearchParams] = useSearchParams()
 
 	// handler
 	const handleFileChange = (event) => {
@@ -89,77 +89,39 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				updateState({ isUploading: false })
 				message.error('Upload Failed', 3)
 
-				console.error(error)
+					console.error(error)
+				}
+			}
+
+			// TODO: validate folder structure
+			// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
+		}
+
+		const handleLoadChunk = () => {
+			if (
+				dashboardState.loadedChunk < dashboardState.uploadFiles.length
+			) {
+				updateState({
+					loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
+				})
 			}
 		}
 
-		// TODO: validate folder structure
-		// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
-	}
-
-	const handleLoadChunk = () => {
-		if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
-			updateState({
-				loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
-			})
-		}
-	}
-
-	// const tempTrainModel = async () => {
-	// 	try {
-	// 		const payload = {
-	// 			userEmail: 'test-automl',
-	// 			projectName: '4-animal',
-	// 			training_time: 60,
-	// 			runName: 'ISE',
-	// 			presets: 'medium_quality',
-	// 			dataset_url: '1QEhox5PADwRiL8h_cWtpp2vb229rKRXE',
-	// 			gcloud_dataset_bucketname: 'string',
-	// 			gcloud_dataset_directory: 'string',
-	// 			dataset_download_method: 'gdrive',
-	// 			training_argument: {
-	// 				data_args: {},
-	// 				ag_model_args: {
-	// 					pretrained: true,
-	// 					hyperparameters: {
-	// 						'model.timm_image.checkpoint_name':
-	// 							'swin_small_patch4_window7_224',
-	// 					},
-	// 				},
-	// 				ag_fit_args: {
-	// 					time_limit: 60,
-	// 					hyperparameters: {
-	// 						'env.per_gpu_batch_size': 4,
-	// 						'env.batch_size': 4,
-	// 					},
-	// 				},
-	// 			},
-	// 			label_column: 'label',
-	// 		}
-
-	// 		const res = await fetch(
-	// 			`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification`,
-	// 			{
-	// 				method: 'POST',
-	// 				body: JSON.stringify(payload),
-	// 			}
-	// 		)
-
-	// 		const data = await res.json()
-
-	// 		const searchParams = new URLSearchParams(location.search)
-	// 		searchParams.get('experiment_name') ??
-	// 			setSearchParams((pre) =>
-	// 				pre.toString().concat(`&experiment_name=${data.task_id}`)
-	// 			)
-	// 		updateFields({
-	// 			isDoneStepTwo: true,
-	// 			experiment_name: data.task_id,
-	// 		})
-	// 	} catch (error) {
-	// 		console.log(error)
-	// 	}
-	// }
+		// pass
+		// check label data
+		// const queryString = new URLSearchParams({
+		//     id: projectID,
+		// }).toString();
+		// const { data } = await projectAPI.uploadFiles(
+		//     projectID,
+		// );
+		// console.log('data', data)
+		// message.success('Successfully uploaded', 3);
+		// updateState({ isUploading: false });
+		// updateFields({
+		//     isDoneStepOne: true,
+		//     ...data,
+		// });
 
 	return (
 		<>

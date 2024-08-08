@@ -1,5 +1,6 @@
 import React, { Fragment, useReducer, useState } from 'react'
 import { fetchWithTimeout } from 'src/utils/timeout'
+import { explainInstance } from 'src/api/project';
 import parse from 'html-react-parser';
 
 const Explain = (props) => {
@@ -57,48 +58,47 @@ const Explain = (props) => {
 
 	const handleExplainText = async (event) => {
 		event.preventDefault()
+		
 
 		// TODO: fix hardcorded values
 		const formData = new FormData()
-		formData.append('userEmail', 'test-automl')
-		formData.append('projectName', '66aa68b3015d0ebc8b61cc76')
-		formData.append('runName', 'ISE')
+		// formData.append('userEmail', 'test-automl')
+		// formData.append('projectName', '66aa68b3015d0ebc8b61cc76')
+		// formData.append('runName', 'ISE')
 		formData.append('text', sentence)
 
-		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
+		const projectID = "66b4755b3d024a4cf2261722"
 
-		const options = {
-			method: 'POST',
-			body: formData,
+		console.log('Fetching explain text')
+
+		try {
+			const { data } = await explainInstance(projectID, formData)
+
+			const html = data.explain_html
+			setExplainTextHTML(html)
+			console.log(html)
+			const parsedHTML = new DOMParser().parseFromString(html, 'text/html');
+			const scriptContent = parsedHTML.querySelector('script').textContent;
+			// Create a script element
+			const script = document.createElement('script');
+
+			// Set the script content to execute
+			script.textContent = scriptContent;
+
+			// Append the script element to the document body or head
+			// You can choose where to append it based on your needs
+			document.body.appendChild(script);
+
+			console.log('Fetch successful')
+
+		} catch(error) {
+			console.error('Fetch error:', error.message)
+			// Handle timeout or other errors here
+			if (error.message === 'Request timed out') {
+				console.log('The request took too long and was terminated.')
+			}
 		}
-
-
-		fetchWithTimeout(url, options, 60000)
-			.then((data) => {
-				const html = data.explain_html
-				setExplainTextHTML(html)
-				console.log(html)
-				const parsedHTML = new DOMParser().parseFromString(html, 'text/html');
-				const scriptContent = parsedHTML.querySelector('script').textContent;
-				// Create a script element
-				const script = document.createElement('script');
-
-				// Set the script content to execute
-				script.textContent = scriptContent;
-
-				// Append the script element to the document body or head
-				// You can choose where to append it based on your needs
-				document.body.appendChild(script);
-
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-				// Handle timeout or other errors here
-				if (error.message === 'Request timed out') {
-					console.log('The request took too long and was terminated.')
-				}
-			})
+ 
 	}
 
 

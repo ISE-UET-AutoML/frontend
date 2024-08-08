@@ -1,21 +1,21 @@
-import ProjectCard from './card';
-import { RectangleStackIcon } from '@heroicons/react/20/solid';
-import { PlusIcon } from '@heroicons/react/24/solid';
-import { useReducer, useEffect } from 'react';
-import instance from 'src/api/axios';
-import { message } from 'antd';
-import { API_URL } from 'src/constants/api';
-import { PATHS } from 'src/constants/paths';
-import {TYPES} from 'src/constants/types';
+import ProjectCard from './card'
+import { RectangleStackIcon } from '@heroicons/react/20/solid'
+import { PlusIcon } from '@heroicons/react/24/solid'
+import { useReducer, useEffect } from 'react'
+import instance from 'src/api/axios'
+import { message } from 'antd'
+import { API_URL } from 'src/constants/api'
+import { PATHS } from 'src/constants/paths'
+import { TYPES } from 'src/constants/types'
 
 const projTypeOptions = {
-	IMAGE_CLASSIFICATION: 'Image Classification',
-	TEXT_CLASSIFICATION: 'Text Classification',
-	OBJECT_DETECTION: 'Object Detection',
-	SEGMENTATION: 'Segmentation',
+	IMAGE_CLASSIFICATION: 'IMAGE_CLASSIFICATION',
+	TEXT_CLASSIFICATION: 'TEXT_CLASSIFICATION',
+	OBJECT_DETECTION: 'OBJECT_DETECTION',
+	IMAGE_SEGMENTATION: 'IMAGE_SEGMENTATION',
 }
 
-const projType = Object.keys(TYPES);
+const projType = Object.keys(projTypeOptions)
 
 const initialState = {
 	showUploader: false,
@@ -231,39 +231,39 @@ export default function ProjectList() {
 										/>
 									</div>
 
-                                    <div className="">
-                                        <label
-                                            htmlFor="country"
-                                            className="block text-sm font-medium text-gray-700"
-                                        >
-                                            Project Type
-                                        </label>
-                                        <select
-                                            id="type"
-                                            name="type"
-                                            className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                                        >
-                                            {projType.map((type) => (
-                                                <option key={type} value={type}>
-                                                    {TYPES[type].type}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-                                <button
-                                    type="submit"
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </>
-    );
+									<div className="">
+										<label
+											htmlFor="country"
+											className="block text-sm font-medium text-gray-700"
+										>
+											Project Type
+										</label>
+										<select
+											id="type"
+											name="type"
+											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+										>
+											{projType.map((type) => (
+												<option key={type} value={type}>
+													{projTypeOptions[type]}
+												</option>
+											))}
+										</select>
+									</div>
+								</div>
+							</div>
+							<div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
+								<button
+									type="submit"
+									className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+								>
+									Save
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</>
+	)
 }
