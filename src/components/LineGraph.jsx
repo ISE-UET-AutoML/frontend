@@ -13,11 +13,11 @@ import {
 const LineGraph = ({ data, label }) => (
 	<>
 		{data.length > 0 && (
-			<div className="charts-container">
-				<h3>{label}</h3>
-				<div className="chart">
+			<div className="charts-container mx-auto relative flex items-center">
+				<h3 className="text-center">{label}</h3>
+				<div className="chart flex justify-center">
 					<LineChart
-						width={500}
+						width={400}
 						height={300}
 						data={data}
 						margin={{
@@ -35,7 +35,7 @@ const LineGraph = ({ data, label }) => (
 						<Line
 							type="monotone"
 							dataKey="value"
-							stroke="#CA4F8E"
+							stroke="#4e80ee"
 							strokeWidth="3"
 						/>
 					</LineChart>
