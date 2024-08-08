@@ -10,13 +10,6 @@ import * as projectAPI from 'src/api/project'
 import { UploadTypes } from 'src/constants/file'
 import { validateFiles } from 'src/utils/file'
 import Loading from 'src/components/Loading'
-
-const LOAD_CHUNK = 10
-} from 'react-router-dom'
-import * as projectAPI from 'src/api/project'
-import { UploadTypes } from 'src/constants/file'
-import { validateFiles } from 'src/utils/file'
-import Loading from 'src/components/Loading'
 import { TYPES } from 'src/constants/types'
 import ImagePreview from 'src/pages/dashboard/previews/image'
 import TextPreview from 'src/pages/dashboard/previews/text'
@@ -35,23 +28,23 @@ const initialState = {
 const Dashboard = ({ updateFields }) => {
 	const { id: projectID } = useParams()
 	const location = useLocation()
-const Dashboard = ({ updateFields, projectInfo }) => {
-	const { id: projectID } = useParams()
-	const location = useLocation()
+	const Dashboard = ({ updateFields, projectInfo }) => {
+		const { id: projectID } = useParams()
+		const location = useLocation()
 
-	//state
-	const [dashboardState, updateState] = useReducer((pre, next) => {
-		return { ...pre, ...next }
-	}, initialState)
+		//state
+		const [dashboardState, updateState] = useReducer((pre, next) => {
+			return { ...pre, ...next }
+		}, initialState)
 
-	let [searchParams, setSearchParams] = useSearchParams()
+		let [searchParams, setSearchParams] = useSearchParams()
 
-	// handler
-	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files)
-		const validatedFiles = validateFiles(files)
-		updateState({ uploadFiles: validatedFiles })
-	}
+		// handler
+		const handleFileChange = (event) => {
+			const files = Array.from(event.target.files)
+			const validatedFiles = validateFiles(files)
+			updateState({ uploadFiles: validatedFiles })
+		}
 		if (projectInfo) {
 			const files = Array.from(event.target.files)
 			const validatedFiles = validateFiles(files, projectInfo.type)
@@ -68,78 +61,79 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		e.preventDefault()
 		console.log('upload images')
 		if (dashboardState.uploadFiles.length === 0) return
-	const uploadFiles = async (e) => {
-		e.preventDefault()
-		console.log('upload images')
-		if (dashboardState.uploadFiles.length === 0) return
-		if (
-			dashboardState.uploadFiles !== undefined &&
-			dashboardState.uploadFiles.length > 0
-		) {
-			const formData = new FormData()
-			formData.append('type', UploadTypes.FOLDER)
-			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
-				// Convert file name with relative path to base64 string
-				const fileNameBase64 = window.btoa(
-					dashboardState.uploadFiles[i].webkitRelativePath
-				)
-				formData.append(
-					'files',
-					dashboardState.uploadFiles[i],
-					fileNameBase64
-				)
+		const uploadFiles = async (e) => {
+			e.preventDefault()
+			console.log('upload images')
+			if (dashboardState.uploadFiles.length === 0) return
+			if (
+				dashboardState.uploadFiles !== undefined &&
+				dashboardState.uploadFiles.length > 0
+			) {
+				const formData = new FormData()
+				formData.append('type', UploadTypes.FOLDER)
+				for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
+					// Convert file name with relative path to base64 string
+					const fileNameBase64 = window.btoa(
+						dashboardState.uploadFiles[i].webkitRelativePath
+					)
+					formData.append(
+						'files',
+						dashboardState.uploadFiles[i],
+						fileNameBase64
+					)
+				}
+
+				try {
+					updateState({ isUploading: true })
+					const { data } = await projectAPI.uploadFiles(
+						projectID,
+						formData
+					)
+					console.log('data', data)
+					message.success('Successfully uploaded', 3)
+					updateState({ isUploading: false })
+					updateFields({
+						isDoneStepOne: true,
+						...data,
+					})
+					// navigate(`/app/new-project?${queryString}`, { replace: true });
+				} catch (error) {
+					updateState({ isUploading: false })
+					message.error('Upload Failed', 3)
+
+					console.error(error)
+				}
 			}
 
-			try {
-				updateState({ isUploading: true })
-				const { data } = await projectAPI.uploadFiles(
-					projectID,
-					formData
-				)
-				console.log('data', data)
-				message.success('Successfully uploaded', 3)
-				updateState({ isUploading: false })
-				updateFields({
-					isDoneStepOne: true,
-					...data,
-				})
-				// navigate(`/app/new-project?${queryString}`, { replace: true });
-				})
-			} catch (error) {
-				updateState({ isUploading: false })
-				message.error('Upload Failed', 3)
+			// TODO: validate folder structure
+			// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
+		}
 
-				console.error(error)
+		const handleLoadChunk = () => {
+			if (
+				dashboardState.loadedChunk < dashboardState.uploadFiles.length
+			) {
+				updateState({
+					loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
+				})
 			}
 		}
 
-		// TODO: validate folder structure
-		// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
-	}
-
-	const handleLoadChunk = () => {
-		if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
-			updateState({
-				loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
-			})
-		}
-	}
-
-	// pass
-	// check label data
-	// const queryString = new URLSearchParams({
-	//     id: projectID,
-	// }).toString();
-	// const { data } = await projectAPI.uploadFiles(
-	//     projectID,
-	// );
-	// console.log('data', data)
-	// message.success('Successfully uploaded', 3);
-	// updateState({ isUploading: false });
-	// updateFields({
-	//     isDoneStepOne: true,
-	//     ...data,
-	// });
+		// pass
+		// check label data
+		// const queryString = new URLSearchParams({
+		//     id: projectID,
+		// }).toString();
+		// const { data } = await projectAPI.uploadFiles(
+		//     projectID,
+		// );
+		// console.log('data', data)
+		// message.success('Successfully uploaded', 3);
+		// updateState({ isUploading: false });
+		// updateFields({
+		//     isDoneStepOne: true,
+		//     ...data,
+		// });
 	}
 
 	// const tempTrainModel = async () => {
