@@ -10,8 +10,11 @@ import * as projectAPI from 'src/api/project'
 import { UploadTypes } from 'src/constants/file'
 import { validateFiles } from 'src/utils/file'
 import Loading from 'src/components/Loading'
+import { TYPES } from 'src/constants/types'
+import ImagePreview from 'src/pages/dashboard/previews/image'
+import TextPreview from 'src/pages/dashboard/previews/text'
 
-const LOAD_CHUNK = 10
+const LOAD_CHUNK = 12
 
 const initialState = {
 	show: false,
@@ -25,19 +28,28 @@ const initialState = {
 const Dashboard = ({ updateFields }) => {
 	const { id: projectID } = useParams()
 	const location = useLocation()
+	const Dashboard = ({ updateFields, projectInfo }) => {
+		const { id: projectID } = useParams()
+		const location = useLocation()
 
-	//state
-	const [dashboardState, updateState] = useReducer((pre, next) => {
-		return { ...pre, ...next }
-	}, initialState)
+		//state
+		const [dashboardState, updateState] = useReducer((pre, next) => {
+			return { ...pre, ...next }
+		}, initialState)
 
-	let [searchParams, setSearchParams] = useSearchParams()
+		let [searchParams, setSearchParams] = useSearchParams()
 
-	// handler
-	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files)
-		const validatedFiles = validateFiles(files)
-		updateState({ uploadFiles: validatedFiles })
+		// handler
+		const handleFileChange = (event) => {
+			const files = Array.from(event.target.files)
+			const validatedFiles = validateFiles(files)
+			updateState({ uploadFiles: validatedFiles })
+		}
+		if (projectInfo) {
+			const files = Array.from(event.target.files)
+			const validatedFiles = validateFiles(files, projectInfo.type)
+			updateState({ uploadFiles: validatedFiles })
+		}
 	}
 	const handleRemoveFile = (index) => {
 		const newState = [...dashboardState.uploadFiles]
@@ -49,74 +61,136 @@ const Dashboard = ({ updateFields }) => {
 		e.preventDefault()
 		console.log('upload images')
 		if (dashboardState.uploadFiles.length === 0) return
-		if (
-			dashboardState.uploadFiles !== undefined &&
-			dashboardState.uploadFiles.length > 0
-		) {
-			const formData = new FormData()
-			//TODO: make user be able to select upload type, see UploadTypes
-			formData.append('type', UploadTypes.FOLDER)
-			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
-				// Convert file name with relative path to base64 string
-				const fileNameBase64 = window.btoa(
-					dashboardState.uploadFiles[i].webkitRelativePath
-				)
-				formData.append(
-					'files',
-					dashboardState.uploadFiles[i],
-					fileNameBase64
-				)
+		const uploadFiles = async (e) => {
+			e.preventDefault()
+			console.log('upload images')
+			if (dashboardState.uploadFiles.length === 0) return
+			if (
+				dashboardState.uploadFiles !== undefined &&
+				dashboardState.uploadFiles.length > 0
+			) {
+				const formData = new FormData()
+				formData.append('type', UploadTypes.FOLDER)
+				for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
+					// Convert file name with relative path to base64 string
+					const fileNameBase64 = window.btoa(
+						dashboardState.uploadFiles[i].webkitRelativePath
+					)
+					formData.append(
+						'files',
+						dashboardState.uploadFiles[i],
+						fileNameBase64
+					)
+				}
+
+				try {
+					updateState({ isUploading: true })
+					const { data } = await projectAPI.uploadFiles(
+						projectID,
+						formData
+					)
+					console.log('data', data)
+					message.success('Successfully uploaded', 3)
+					updateState({ isUploading: false })
+					updateFields({
+						isDoneStepOne: true,
+						...data,
+					})
+					// navigate(`/app/new-project?${queryString}`, { replace: true });
+				} catch (error) {
+					updateState({ isUploading: false })
+					message.error('Upload Failed', 3)
+
+					console.error(error)
+				}
 			}
 
-			try {
-				updateState({ isUploading: true })
-				const { data } = await projectAPI.uploadFiles(
-					projectID,
-					formData
-				)
-				console.log('data', data)
-				message.success('Successfully uploaded', 3)
-				updateState({ isUploading: false })
-				updateFields({
-					isDoneStepOne: true,
-					...data,
+			// TODO: validate folder structure
+			// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
+		}
+
+		const handleLoadChunk = () => {
+			if (
+				dashboardState.loadedChunk < dashboardState.uploadFiles.length
+			) {
+				updateState({
+					loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
 				})
-				// navigate(`/app/new-project?${queryString}`, { replace: true });
-			} catch (error) {
-				updateState({ isUploading: false })
-				message.error('Upload Failed', 3)
-
-				console.error(error)
 			}
 		}
 
-		// TODO: validate folder structure
-		// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
+		// pass
+		// check label data
+		// const queryString = new URLSearchParams({
+		//     id: projectID,
+		// }).toString();
+		// const { data } = await projectAPI.uploadFiles(
+		//     projectID,
+		// );
+		// console.log('data', data)
+		// message.success('Successfully uploaded', 3);
+		// updateState({ isUploading: false });
+		// updateFields({
+		//     isDoneStepOne: true,
+		//     ...data,
+		// });
 	}
 
-	const handleLoadChunk = () => {
-		if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
-			updateState({
-				loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
-			})
-		}
-	}
+	// const tempTrainModel = async () => {
+	// 	try {
+	// 		const payload = {
+	// 			userEmail: 'test-automl',
+	// 			projectName: '4-animal',
+	// 			training_time: 60,
+	// 			runName: 'ISE',
+	// 			presets: 'medium_quality',
+	// 			dataset_url: '1QEhox5PADwRiL8h_cWtpp2vb229rKRXE',
+	// 			gcloud_dataset_bucketname: 'string',
+	// 			gcloud_dataset_directory: 'string',
+	// 			dataset_download_method: 'gdrive',
+	// 			training_argument: {
+	// 				data_args: {},
+	// 				ag_model_args: {
+	// 					pretrained: true,
+	// 					hyperparameters: {
+	// 						'model.timm_image.checkpoint_name':
+	// 							'swin_small_patch4_window7_224',
+	// 					},
+	// 				},
+	// 				ag_fit_args: {
+	// 					time_limit: 60,
+	// 					hyperparameters: {
+	// 						'env.per_gpu_batch_size': 4,
+	// 						'env.batch_size': 4,
+	// 					},
+	// 				},
+	// 			},
+	// 			label_column: 'label',
+	// 		}
 
-	// pass
-	// check label data
-	// const queryString = new URLSearchParams({
-	//     id: projectID,
-	// }).toString();
-	// const { data } = await projectAPI.uploadFiles(
-	//     projectID,
-	// );
-	// console.log('data', data)
-	// message.success('Successfully uploaded', 3);
-	// updateState({ isUploading: false });
-	// updateFields({
-	//     isDoneStepOne: true,
-	//     ...data,
-	// });
+	// 		const res = await fetch(
+	// 			`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/train/image_classification`,
+	// 			{
+	// 				method: 'POST',
+	// 				body: JSON.stringify(payload),
+	// 			}
+	// 		)
+
+	// 		const data = await res.json()
+
+	// 		const searchParams = new URLSearchParams(location.search)
+	// 		searchParams.get('experiment_name') ??
+	// 			setSearchParams((pre) =>
+	// 				pre.toString().concat(`&experiment_name=${data.task_id}`)
+	// 			)
+	// 		updateFields({
+	// 			isDoneStepTwo: true,
+	// 			experiment_name: data.task_id,
+	// 		})
+	// 	} catch (error) {
+	// 		console.log(error)
+	// 	}
+	// }
 
 	return (
 		<>
@@ -169,7 +243,7 @@ const Dashboard = ({ updateFields }) => {
 					}}
 				/>
 			</div>
-			{/* bottom up modal of classify */}
+			{/* bottom up modal of image classify */}
 			<div
 				className={`${
 					dashboardState.show
@@ -192,20 +266,21 @@ const Dashboard = ({ updateFields }) => {
 						<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 					</svg>
 				</button>
-				<h3 className="text-center w-full text-[24px] font-[500] leading-[1.16] mb-8 ">
-					Select how you want upload images
+				<h3 className="text-center w-full text-[30px] font-[500] leading-[1.16] mb-8 mt-4">
+					Select how you want to upload
 				</h3>
 				<div className="container flex justify-around items-center mx-auto gap-4">
 					<div
-						onClick={() => updateState({ showUploader: true })}
+						// chuyển hướng sang phần Label Studio của anh Thanh
+						onClick={() => updateState({ showUploader: false })}
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
-							<p className="text-center text-[16px] ">
-								Unclassified images upload
+							<p className="text-center text-[24px] ">
+								Unlabelled dataset upload
 							</p>
-							<p className="text-center text-[12px] font-[300]">
-								uploaded images will be raw status, you can
+							<p className="text-center text-[16px] font-[300]">
+								uploaded dataset will be raw status, you can
 								classify them using the platform labeling tool
 							</p>
 							<img
@@ -220,12 +295,12 @@ const Dashboard = ({ updateFields }) => {
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
-							<p className="text-center text-[16px] ">
-								Classified Images{' '}
+							<p className="text-center text-[24px] ">
+								Labelled dataset upload{' '}
 							</p>
-							<p className="text-center text-[12px] font-[300]">
-								uploaded images will be classified based on your
-								folder structure
+							<p className="text-center text-[16px] font-[300]">
+								uploaded dataset will be classified based on
+								your folder structure
 							</p>
 							<img
 								src="https://dr23pab8nlq87.cloudfront.net/images/classification_upload_classified-vOZv.png"
@@ -263,11 +338,11 @@ const Dashboard = ({ updateFields }) => {
 				</button>
 				<div className="h-[3000px] overflow-auto py-[100px] w-full left-0 px-10 ">
 					<h3 className="text-center w-full text-[24px] font-[500] leading-[1.16] mb-8 ">
-						Classified images upload
+						Labelled dataset upload
 					</h3>
 					<label
 						htmlFor="classification"
-						className="container flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 p-5 rounded-[15px]"
+						className="h-[300px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 p-5 rounded-[15px]"
 					>
 						<div className="w-full h-full bg-white p-10 rounded-md cursor-pointer">
 							<div className="flex flex-col">
@@ -278,7 +353,9 @@ const Dashboard = ({ updateFields }) => {
 								/>
 
 								<p className="text-center text-[12px] font-[300]">
-									We accept JPEG, PNG image format
+									{(projectInfo &&
+										TYPES[projectInfo.type]?.description) ||
+										'No description available'}
 								</p>
 							</div>
 						</div>
@@ -310,7 +387,7 @@ const Dashboard = ({ updateFields }) => {
 					</label>
 					<br />
 					<div className="text-center mx-auto">
-						{dashboardState.uploadFiles.length} Image(s) Ready for
+						{dashboardState.uploadFiles.length} File(s) Ready for
 						Upload
 					</div>
 					<br />
@@ -320,9 +397,9 @@ const Dashboard = ({ updateFields }) => {
 						</span>
 						<button
 							className="bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
-							onClick={uploadImages}
+							onClick={uploadFiles}
 						>
-							Upload {dashboardState.uploadFiles.length} Image(s)
+							Upload {dashboardState.uploadFiles.length} File(s)
 						</button>
 					</div>
 					<div className="h-[2px] bg-gray-100 w-full my-5"></div>
@@ -362,6 +439,35 @@ const Dashboard = ({ updateFields }) => {
 							))}
 					</div>
 
+					{projectInfo &&
+					projectInfo.type === 'IMAGE_CLASSIFICATION' ? (
+						<div className="grid grid-cols-6 gap-3">
+							{dashboardState.uploadFiles
+								.slice(0, dashboardState.loadedChunk)
+								.map((file, index) => (
+									<ImagePreview
+										key={index}
+										file={file}
+										index={index}
+										handleRemoveFile={handleRemoveFile}
+									/>
+								))}
+						</div>
+					) : projectInfo &&
+					  projectInfo.type === 'TEXT_CLASSIFICATION' ? (
+						<div className="grid grid-cols-1">
+							{dashboardState.uploadFiles
+								.slice(0, dashboardState.loadedChunk)
+								.map((file, index) => (
+									<TextPreview
+										key={index}
+										file={file}
+										index={index}
+										handleRemoveFile={handleRemoveFile}
+									/>
+								))}
+						</div>
+					) : null}
 					{dashboardState.loadedChunk <
 						dashboardState.uploadFiles.length && (
 						<button
