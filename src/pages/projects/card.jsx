@@ -39,11 +39,7 @@ export default function ProjectCard({ project, className }) {
                     <div className="flex w-full justify-between items-center">
                         <h3 className="text-xl font-medium">
                             <a
-                                href={
-                                    project.uploaded
-                                        ? `${PATHS.PROJECT_BUILD(project?._id)}`
-                                        : PATHS.PROJECT_BUILD(project?._id)
-                                }
+                                href={ PATHS.PROJECT_BUILD(project?._id)}
                                 className="focus:outline-none"
                             >
                                 {/* Extend touch target to entire panel */}
@@ -58,9 +54,14 @@ export default function ProjectCard({ project, className }) {
                             <span>{dayjs(project.createdAt).fromNow()}</span>
                         )}
                     </div>
-                    <p className="mt-2 text-sm text-gray-500">
-                        {project?.description}
-                    </p>
+                    <div className="flex w-full justify-between items-center">
+                        <p className="text-sm text-gray-500">
+                            {project?.description}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            {project?.type}
+                        </p>
+                    </div>
                 </div>
             </div>
         </>

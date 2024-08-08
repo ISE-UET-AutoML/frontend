@@ -23,6 +23,9 @@ const getProjectDataset = (projectID) => {
     return instance.get(API_URL.get_project_dataset(projectID));
 }
 
+const getProjectById = (projectID) => {
+    return instance.get(`${API_BASE_URL}/projects/${projectID}`);
+}
 
 const explainInstance = (projectID, data) => {
     const options = {
@@ -32,4 +35,4 @@ const explainInstance = (projectID, data) => {
     return instance.post(API_URL.explain_instance(projectID), data, options);
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, updateData, explainInstance };
+export { listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance };

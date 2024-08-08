@@ -1,11 +1,12 @@
-import ProjectCard from './card'
-import { RectangleStackIcon } from '@heroicons/react/20/solid'
-import { PlusIcon } from '@heroicons/react/24/solid'
-import { useReducer, useEffect } from 'react'
-import instance from 'src/api/axios'
-import { message } from 'antd'
-import { API_URL } from 'src/constants/api'
-import { PATHS } from 'src/constants/paths'
+import ProjectCard from './card';
+import { RectangleStackIcon } from '@heroicons/react/20/solid';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { useReducer, useEffect } from 'react';
+import instance from 'src/api/axios';
+import { message } from 'antd';
+import { API_URL } from 'src/constants/api';
+import { PATHS } from 'src/constants/paths';
+import {TYPES} from 'src/constants/types';
 
 const projTypeOptions = {
 	IMAGE_CLASSIFICATION: 'Image Classification',
@@ -14,7 +15,8 @@ const projTypeOptions = {
 	SEGMENTATION: 'Segmentation',
 }
 
-const projType = Object.keys(projTypeOptions)
+const projType = Object.keys(TYPES);
+
 const initialState = {
 	showUploader: false,
 	projects: [],
@@ -58,51 +60,50 @@ export default function ProjectList() {
 		dashboardState.projects.length >= 0 && getProjects()
 	}, [])
 
-	return (
-		<>
-			<div className="">
-				<div className="mx-auto w-full flex-grow lg:flex xl:px-2 -z-10 mt-2">
-					{/* Left sidebar & main wrapper */}
-					<div className="min-w-0 flex-1 bg-white xl:flex p-5 rounded-md">
-						{/* Projects List */}
-						<div className="bg-white lg:min-w-0 lg:flex-1">
-							<div className="flex justify-between mx-auto px-3 mb-5 ">
-								<div className="px-4 lg:px-0">
-									<h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-										Projects
-									</h1>
-									{/* Meta info */}
-									<div className="flex mt-5 flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-8 xl:flex-col xl:space-x-0 xl:space-y-6">
-										<div className="flex items-center space-x-2">
-											<RectangleStackIcon
-												className="h-5 w-5 text-gray-400"
-												aria-hidden="true"
-											/>
-											<span className="text-sm font-medium text-gray-500">
-												{dashboardState.projects.length}{' '}
-												Projects
-											</span>
-										</div>
-									</div>
-								</div>
-								{/* Action buttons */}
-								<div className="flex flex-col sm:flex-row xl:flex-col">
-									<button
-										type="button"
-										className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
-										// onClick={() => (window.location = '/app/new-project')}
-										onClick={() =>
-											updateState({ showUploader: true })
-										}
-									>
-										<PlusIcon
-											className="-ml-1 mr-2 h-5 w-5"
-											aria-hidden="true"
-										/>
-										New Project
-									</button>
-								</div>
-							</div>
+    return (
+        <>
+            <div className="">
+                <div className="mx-auto w-full flex-grow lg:flex xl:px-2 -z-10 mt-2">
+                    {/* Left sidebar & main wrapper */}
+                    <div className="min-w-0 flex-1 bg-white xl:flex p-5 rounded-md">
+                        {/* Projects List */}
+                        <div className="bg-white lg:min-w-0 lg:flex-1">
+                            <div className="flex justify-between mx-auto px-3 mb-5 ">
+                                <div className="px-4 lg:px-0">
+                                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                                        Projects
+                                    </h1>
+                                    {/* Meta info */}
+                                    <div className="flex mt-5 flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-8 xl:flex-col xl:space-x-0 xl:space-y-6">
+                                        <div className="flex items-center space-x-2">
+                                            <RectangleStackIcon
+                                                className="h-5 w-5 text-gray-400"
+                                                aria-hidden="true"
+                                            />
+                                            <span className="text-sm font-medium text-gray-500">
+                                                {dashboardState.projects.length}{' '}
+                                                Projects
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Action buttons */}
+                                <div className="flex flex-col sm:flex-row xl:flex-col">
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
+                                        onClick={() =>
+                                            updateState({ showUploader: true })
+                                        }
+                                    >
+                                        <PlusIcon
+                                            className="-ml-1 mr-2 h-5 w-5"
+                                            aria-hidden="true"
+                                        />
+                                        New Project
+                                    </button>
+                                </div>
+                            </div>
 
 							{dashboardState.projects.length > 0 ? (
 								<div className="px-3  mx-auto pt-5 overflow-hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-4">
@@ -230,35 +231,39 @@ export default function ProjectList() {
 										/>
 									</div>
 
-									<div className="">
-										<label
-											htmlFor="country"
-											className="block text-sm font-medium text-gray-700"
-										>
-											Project Type
-										</label>
-										<select
-											id="type"
-											name="type"
-											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-										>
-											<option>CLASSIFICATION</option>
-										</select>
-									</div>
-								</div>
-							</div>
-							<div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-								<button
-									type="submit"
-									className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-								>
-									Save
-								</button>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</>
-	)
+                                    <div className="">
+                                        <label
+                                            htmlFor="country"
+                                            className="block text-sm font-medium text-gray-700"
+                                        >
+                                            Project Type
+                                        </label>
+                                        <select
+                                            id="type"
+                                            name="type"
+                                            className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                                        >
+                                            {projType.map((type) => (
+                                                <option key={type} value={type}>
+                                                    {TYPES[type].type}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                                <button
+                                    type="submit"
+                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </>
+    );
 }

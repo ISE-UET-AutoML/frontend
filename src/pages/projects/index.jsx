@@ -1,6 +1,4 @@
 import React from 'react';
-import ProjectBlank from './blank';
-import Project from './project';
 import CreateProject from 'src/components/CreateProject';
 import ProjectCard from 'src/components/ProjectCard';
 import ProjectList from './list';

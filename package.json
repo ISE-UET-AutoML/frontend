@@ -23,6 +23,7 @@
     "html-react-parser": "^5.1.12",
     "konva": "8.x",
     "mlops_frontend": "file:",
+    "papaparse": "^5.4.1",
     "postcss": "^8.0.9",
     "prop-types": "^15.6.0",
     "react": "^18.0.0",
