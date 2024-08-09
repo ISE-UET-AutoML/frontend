@@ -59,7 +59,10 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			const formData = new FormData()
-			formData.append('type', UploadTypes.FOLDER)
+			if (projectInfo.type == 'IMAGE_CLASSIFICATION')
+				formData.append('type', UploadTypes.FOLDER)
+			if (projectInfo.type == 'TEXT_CLASSIFICATION')
+				formData.append('type', 'CSV_SINGLE')
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string
 				const fileNameBase64 = window.btoa(
@@ -375,7 +378,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					{projectInfo &&
 					projectInfo.type === 'IMAGE_CLASSIFICATION' ? (
 						<div className="grid grid-cols-6 gap-3">
-							{console.log(dashboardState.uploadFiles)}
+							{console.log(dashboardState.uploadFiles, 'hehehe')}
 							{dashboardState.uploadFiles
 								.slice(0, dashboardState.loadedChunk)
 								.map((file, index) => (
@@ -390,6 +393,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					) : projectInfo &&
 					  projectInfo.type === 'TEXT_CLASSIFICATION' ? (
 						<div className="grid grid-cols-1">
+							{console.log(dashboardState.uploadFiles, 'hehehe')}
 							{dashboardState.uploadFiles.map((file, index) => (
 								<TextPreview
 									key={index}

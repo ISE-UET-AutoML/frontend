@@ -3,10 +3,20 @@ import Preview from 'src/pages/preview'
 import Labeling from 'src/pages/labeling'
 
 import { listImages } from 'src/api/project'
-import { useLocation } from 'react-router-dom'
-import { useSearchParams } from 'react-router-dom'
+import { trainModel } from 'src/api/project'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
+import TextPreview from 'src/pages/dashboard/previews/text'
 
-const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
+// import fs from 'fs'
+
+const StepTwo = ({
+	files,
+	labels,
+	pagination,
+	csv_data_source,
+	updateFields,
+	projectInfo,
+}) => {
 	let [searchParams, setSearchParams] = useSearchParams()
 	const location = useLocation()
 	useEffect(() => {
@@ -32,24 +42,42 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 		}
 	}, [])
 
-	if (!files) return
-	let isUnlabelData = false
+	//if (!files) return
+	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
+		let isUnlabelData = false
 
-	for (let i = 0; i < files.length; i++) {
-		// not have filed label or filed label is empty
-		if (!files[i]?.label || files[i].label.length <= 0) {
-			isUnlabelData = true
-			break
+		for (let i = 0; i < files.length; i++) {
+			// not have filed label or filed label is empty
+			if (!files[i]?.label || files[i].label.length <= 0) {
+				isUnlabelData = true
+				break
+			}
 		}
-	}
-	if (isUnlabelData) {
-		// const labels_value = labels.map((v, i) => v.value)
-		// console.log('label values', labels_value);
+		if (isUnlabelData) {
+			// const labels_value = labels.map((v, i) => v.value)
+			// console.log('label values', labels_value);
+			return (
+				<div>
+					<Labeling
+						images={files}
+						labelsWithID={labels}
+						updateFields={updateFields}
+						next={() => {
+							updateFields({
+								isDoneStepTwo: true,
+							})
+						}}
+						pagination={pagination}
+					/>
+				</div>
+			)
+		}
+
 		return (
 			<div>
-				<Labeling
+				<Preview
 					images={files}
-					labelsWithID={labels}
+					savedLabels={labels}
 					updateFields={updateFields}
 					next={() => {
 						updateFields({
@@ -61,21 +89,51 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 			</div>
 		)
 	}
+	// const file = csv_data_source
 
+	// const file = fs.readFile(csv_data_source, (err, data) => {
+	// 	if (err) {
+	// 		throw err
+	// 	}
+	// 	console.log(data)
+	// })
+	const { id: projectId } = useParams()
+
+	const handleTrain = async () => {
+		try {
+			const { data } = await trainModel(projectId)
+			const searchParams = new URLSearchParams(location.search)
+			searchParams.get('experiment_name') ??
+				setSearchParams((pre) =>
+					pre.toString().concat(`&experiment_name=${data.task_id}`)
+				)
+			updateFields({
+				isDoneStepTwo: true,
+				experiment_name: data.task_id,
+			})
+			// next()
+		} catch (error) {
+			console.error(error)
+		}
+	}
+	console.log(typeof csv_data_source)
 	return (
-		<div>
-			<Preview
-				images={files}
-				savedLabels={labels}
-				updateFields={updateFields}
-				next={() => {
-					updateFields({
-						isDoneStepTwo: true,
-					})
-				}}
-				pagination={pagination}
-			/>
-		</div>
+		<>
+			<div>
+				<button
+					onClick={handleTrain}
+					className="hover:bg-blue-800 py-[6px] px-4 rounded-md w-fit"
+				>
+					Train Model
+				</button>
+			</div>
+
+			{/* <TextPreview
+				file={csv_data_source}
+				index={0}
+				handleRemoveFile={() => console.log('ok')}
+			></TextPreview> */}
+		</>
 	)
 }
 

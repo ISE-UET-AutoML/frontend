@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Papa from 'papaparse'
+import instance from 'src/api/axios'
 
 const TextPreview = ({ file, index, handleRemoveFile }) => {
 	const [csvData, setCsvData] = useState([])
@@ -8,8 +9,42 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	const [inputPage, setInputPage] = useState('')
 	const itemsPerPage = 10
 
-	useEffect(() => {
-		if (file && file.name.endsWith('.csv')) {
+	useEffect(async () => {
+		if (file && typeof file === 'string') {
+			// Fetch the CSV file from the URL
+			const { data } = await instance.get(file, {
+				method: 'GET',
+				headers: {
+					'Access-Control-Allow-Origin': 'localhost:3000',
+					'Access-Control-Allow-Credentials': true,
+					'Content-Type': 'text/csv',
+				},
+			})
+			console.log(data)
+			// .then((response) => {
+			// 	if (!response.ok) {
+			// 		throw new Error('Network response was not ok')
+			// 	}
+			// 	console.log(response.text)
+			// 	return response.text()
+			// })
+			// .then((text) => {
+			// 	console.log(text)
+			// 	Papa.parse(text, {
+			// 		header: true,
+			// 		skipEmptyLines: true,
+			// 		complete: (result) => {
+			// 			setCsvData(result.data)
+			// 		},
+			// 		error: (err) => {
+			// 			setError(err.message)
+			// 		},
+			// 	})
+			// })
+			// .catch((err) => {
+			// 	setError(err.message)
+			// })
+		} else if (file && file.name.endsWith('.csv')) {
 			const reader = new FileReader()
 
 			reader.onload = () => {
@@ -73,9 +108,9 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	return (
 		<div className="bg-white border border-gray-200 rounded-lg shadow-md p-4 mb-4">
 			<div className="flex justify-between items-center mb-2">
-				<h3 className="text-lg font-semibold text-gray-800">
+				{/* <h3 className="text-lg font-semibold text-gray-800">
 					{file.name}
-				</h3>
+				</h3> */}
 				<button
 					onClick={() => handleRemoveFile(index)}
 					className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"

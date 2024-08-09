@@ -824,7 +824,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 																)
 															}}
 															disabled={false}
-															tooltip={{
+															trooltip={{
 																open: true,
 																formatter: (
 																	value
