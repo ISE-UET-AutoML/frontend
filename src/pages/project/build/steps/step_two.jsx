@@ -5,7 +5,6 @@ import Labeling from 'src/pages/labeling'
 import { listImages } from 'src/api/project'
 import { trainModel } from 'src/api/project'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
-import TextPreview from 'src/pages/dashboard/previews/text'
 
 // import fs from 'fs'
 
@@ -19,31 +18,32 @@ const StepTwo = ({
 }) => {
 	let [searchParams, setSearchParams] = useSearchParams()
 	const location = useLocation()
-	useEffect(() => {
-		const searchParams = new URLSearchParams(location.search)
-		searchParams.get('step') ??
-			setSearchParams((pre) => pre.toString().concat('&step=1'))
-
-		if (files?.length || labels?.length) {
-			return
-		}
-
-		const id = searchParams.get('id')
-		async function fetchListLabelingImages(id) {
-			const { data } = await listImages(id)
-			updateFields({
-				...data.data,
-				pagination: data.meta,
-			})
-		}
-
-		if (id) {
-			fetchListLabelingImages(id)
-		}
-	}, [])
 
 	//if (!files) return
+	console.log('projectInfo', projectInfo)
 	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
+		useEffect(() => {
+			const searchParams = new URLSearchParams(location.search)
+			searchParams.get('step') ??
+				setSearchParams((pre) => pre.toString().concat('&step=1'))
+
+			if (files?.length || labels?.length) {
+				return
+			}
+
+			const id = searchParams.get('id')
+			async function fetchListLabelingImages(id) {
+				const { data } = await listImages(id)
+				updateFields({
+					...data.data,
+					pagination: data.meta,
+				})
+			}
+
+			if (id) {
+				fetchListLabelingImages(id)
+			}
+		}, [])
 		let isUnlabelData = false
 
 		for (let i = 0; i < files.length; i++) {
@@ -127,12 +127,6 @@ const StepTwo = ({
 					Train Model
 				</button>
 			</div>
-
-			{/* <TextPreview
-				file={csv_data_source}
-				index={0}
-				handleRemoveFile={() => console.log('ok')}
-			></TextPreview> */}
 		</>
 	)
 }

@@ -18,6 +18,7 @@ const initialState = {
 	showUploadModal: false,
 	showPredictModal: false,
 	showResultModal: false,
+	showTextModal: false,
 	predictFile: { url: '', label: '' },
 	uploadFiles: [],
 	selectedImage: null,
@@ -90,6 +91,15 @@ const StepFour = (props) => {
 		updateState({
 			isLoading: true,
 		})
+
+		if (files[0].name.endsWith('.csv')) {
+			updateState({
+				showTextModal: true,
+				isLoading: false,
+			})
+
+			return
+		}
 
 		const formData = new FormData()
 
@@ -520,7 +530,7 @@ const StepFour = (props) => {
 					</div>
 				</Dialog>
 			</Transition.Root>
-
+			<div></div>
 			<div
 				className={`${
 					stepFourState.showUploadModal

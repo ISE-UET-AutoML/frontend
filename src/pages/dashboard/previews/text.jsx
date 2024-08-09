@@ -9,42 +9,8 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	const [inputPage, setInputPage] = useState('')
 	const itemsPerPage = 10
 
-	useEffect(async () => {
-		if (file && typeof file === 'string') {
-			// Fetch the CSV file from the URL
-			const { data } = await instance.get(file, {
-				method: 'GET',
-				headers: {
-					'Access-Control-Allow-Origin': 'localhost:3000',
-					'Access-Control-Allow-Credentials': true,
-					'Content-Type': 'text/csv',
-				},
-			})
-			console.log(data)
-			// .then((response) => {
-			// 	if (!response.ok) {
-			// 		throw new Error('Network response was not ok')
-			// 	}
-			// 	console.log(response.text)
-			// 	return response.text()
-			// })
-			// .then((text) => {
-			// 	console.log(text)
-			// 	Papa.parse(text, {
-			// 		header: true,
-			// 		skipEmptyLines: true,
-			// 		complete: (result) => {
-			// 			setCsvData(result.data)
-			// 		},
-			// 		error: (err) => {
-			// 			setError(err.message)
-			// 		},
-			// 	})
-			// })
-			// .catch((err) => {
-			// 	setError(err.message)
-			// })
-		} else if (file && file.name.endsWith('.csv')) {
+	useEffect(() => {
+		if (file && file.name.endsWith('.csv')) {
 			const reader = new FileReader()
 
 			reader.onload = () => {
@@ -62,6 +28,7 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 
 			reader.readAsText(file)
 		}
+		return
 	}, [file])
 
 	// Tính toán các hàng cần hiển thị cho trang hiện tại
