@@ -19,6 +19,8 @@
     "babel-plugin-polyfill-corejs3": "^0.10.4",
     "babel-plugin-polyfill-regenerator": "^0.6.2",
     "clsx": "^2.1.0",
+    "html-react-parser": "^5.1.12",
+    "konva": "8.x",
     "mlops_frontend": "file:",
     "papaparse": "^5.4.1",
     "postcss": "^8.0.9",
