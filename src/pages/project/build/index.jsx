@@ -36,6 +36,7 @@ export default function ProjectBuild(props) {
 			try {
 				const response = await projectAPI.getProjectById(projectID)
 				setProjectInfo(response.data)
+				console.log(response.data)
 			} catch (error) {
 				console.error('Error fetching project:', error)
 			}

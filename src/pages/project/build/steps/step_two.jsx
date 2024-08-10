@@ -25,7 +25,7 @@ const StepTwo = ({
 			setSearchParams((pre) => pre.toString().concat('&step=1'))
 
 		if (files?.length || labels?.length) {
-			return
+			return () => {}
 		}
 
 		const id = searchParams.get('id')
@@ -116,7 +116,7 @@ const StepTwo = ({
 			console.error(error)
 		}
 	}
-	console.log(typeof csv_data_source)
+
 	return (
 		<>
 			<div>
@@ -128,11 +128,11 @@ const StepTwo = ({
 				</button>
 			</div>
 
-			{/* <TextPreview
+			<TextPreview
 				file={csv_data_source}
 				index={0}
 				handleRemoveFile={() => console.log('ok')}
-			></TextPreview> */}
+			></TextPreview>
 		</>
 	)
 }

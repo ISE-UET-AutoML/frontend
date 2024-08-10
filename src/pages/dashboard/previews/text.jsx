@@ -9,10 +9,10 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	const [inputPage, setInputPage] = useState('')
 	const itemsPerPage = 10
 
-	useEffect(async () => {
+	useEffect(() => {
 		if (file && typeof file === 'string') {
 			// Fetch the CSV file from the URL
-			const { data } = await instance.get(file, {
+			const { data } = instance.get(file, {
 				method: 'GET',
 				headers: {
 					'Access-Control-Allow-Origin': 'localhost:3000',

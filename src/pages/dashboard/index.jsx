@@ -378,7 +378,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					{projectInfo &&
 					projectInfo.type === 'IMAGE_CLASSIFICATION' ? (
 						<div className="grid grid-cols-6 gap-3">
-							{console.log(dashboardState.uploadFiles, 'hehehe')}
 							{dashboardState.uploadFiles
 								.slice(0, dashboardState.loadedChunk)
 								.map((file, index) => (
@@ -393,7 +392,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					) : projectInfo &&
 					  projectInfo.type === 'TEXT_CLASSIFICATION' ? (
 						<div className="grid grid-cols-1">
-							{console.log(dashboardState.uploadFiles, 'hehehe')}
 							{dashboardState.uploadFiles.map((file, index) => (
 								<TextPreview
 									key={index}
