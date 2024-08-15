@@ -68,7 +68,6 @@ const StepFour = (props) => {
 			})
 	}, [])
 
-
 	const handleTextChange = (event) => {
 		setSentence(event.target.value)
 	}
@@ -99,15 +98,6 @@ const StepFour = (props) => {
 			isLoading: true,
 		})
 
-		if (files[0].name.endsWith('.csv')) {
-			updateState({
-				showTextModal: true,
-				isLoading: false,
-			})
-
-			return
-		}
-
 		const formData = new FormData()
 
 		const model = await instance.get(API_URL.get_model(experimentName))
@@ -115,24 +105,45 @@ const StepFour = (props) => {
 		if (!jsonObject) {
 			console.error('Failed to get model info')
 		}
-		console.log(jsonObject)
-		// // TODO: fix hardcorded values
-		// const jsonObject = {
-		//     userEmail: "test-automl",
-		//     projectName: "4-animal",
-		//     runName: "ISE",
-		// };
 
-		console.log(jsonObject.userEmail)
-		console.log(jsonObject.projectName)
-		console.log(jsonObject.runID)
+		formData.append('userEmail', jsonObject.userEmail)
+		formData.append('projectName', jsonObject.projectName)
+		formData.append('runName', 'ISE')
+
+		// handle text prediction (temporary)
+		if (files[0].name.endsWith('.csv') && files.length === 1) {
+			formData.append('csv_file', validFiles[0])
+			const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/temp_predict`
+
+			const options = {
+				method: 'POST',
+				body: formData,
+			}
+
+			fetchWithTimeout(url, options, 60000)
+				.then((data) => {
+					// setPredictTextLabel(data.predictions)
+					console.log(data)
+					console.log('Fetch successful')
+
+					updateState({
+						showTextModal: true,
+						isLoading: false,
+					})
+				})
+				.catch((error) => {
+					console.error('Fetch error:', error.message)
+				})
+				.finally(() => {
+					updateState({ isLoading: false })
+				})
+
+			return
+		}
 
 		for (let i = 0; i < validFiles.length; i++) {
 			formData.append('files', validFiles[i])
 		}
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', 'ISE')
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
 
@@ -187,50 +198,6 @@ const StepFour = (props) => {
 	//         console.error(error);
 	//     }
 	// };
-
-	const handlePredictText = async (event) => {
-		event.preventDefault()
-
-		// TODO: fix hardcorded values
-		const formData = new FormData()
-
-		const model = await instance.get(API_URL.get_model(experimentName))
-		const jsonObject = model.data
-		if (!jsonObject) {
-			console.error('Failed to get model info')
-		}
-		console.log(jsonObject)
-
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', 'ISE')
-		formData.append('text_col', "sentence")
-		formData.append('text', sentence)
-
-		console.log('Fetching predict text')
-
-		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/temp_predict`
-
-		const options = {
-			method: 'POST',
-			body: formData,
-		}
-
-		fetchWithTimeout(url, options, 60000)
-			.then((data) => {
-				setPredictTextLabel(data.predictions)
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-				// Handle timeout or other errors here
-				if (error.message === 'Request timed out') {
-					console.log('The request took too long and was terminated.')
-				}
-			}).finally(() => {
-				updateState({ isLoading: false })
-			}
-	}
 
 	const handleExplainText = async (event) => {
 		event.preventDefault()
@@ -292,9 +259,10 @@ const StepFour = (props) => {
 				if (error.message === 'Request timed out') {
 					console.log('The request took too long and was terminated.')
 				}
-			}).finally(() => {
+			})
+			.finally(() => {
 				updateState({ isLoading: false })
-			}
+			})
 	}
 
 	const handleExplainSelectedImage = async () => {
@@ -670,9 +638,7 @@ const StepFour = (props) => {
 					/>
 					<button type="submit">Submit</button>
 				</form>
-				<div>
-					{predictTextLabel && <p>{predictTextLabel}</p>}
-				</div>
+				<div>{predictTextLabel && <p>{predictTextLabel}</p>}</div>
 				<div
 					style={{
 						width: '100%',
