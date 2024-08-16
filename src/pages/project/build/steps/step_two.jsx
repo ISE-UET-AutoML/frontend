@@ -22,28 +22,6 @@ const StepTwo = ({
 	//if (!files) return
 	console.log('projectInfo', projectInfo)
 	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
-		useEffect(() => {
-			const searchParams = new URLSearchParams(location.search)
-			searchParams.get('step') ??
-				setSearchParams((pre) => pre.toString().concat('&step=1'))
-
-			if (files?.length || labels?.length) {
-				return
-			}
-
-			const id = searchParams.get('id')
-			async function fetchListLabelingImages(id) {
-				const { data } = await listImages(id)
-				updateFields({
-					...data.data,
-					pagination: data.meta,
-				})
-			}
-
-			if (id) {
-				fetchListLabelingImages(id)
-			}
-		}, [])
 		let isUnlabelData = false
 
 		for (let i = 0; i < files.length; i++) {
@@ -116,7 +94,7 @@ const StepTwo = ({
 			console.error(error)
 		}
 	}
-	console.log(typeof csv_data_source)
+
 	return (
 		<>
 			<div>
@@ -127,6 +105,12 @@ const StepTwo = ({
 					Train Model
 				</button>
 			</div>
+
+			<TextPreview
+				file={csv_data_source}
+				index={0}
+				handleRemoveFile={() => console.log('ok')}
+			></TextPreview>
 		</>
 	)
 }
