@@ -35,4 +35,8 @@ const explainInstance = (projectID, data) => {
     return instance.post(API_URL.explain_instance(projectID), data, options);
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance };
+const deleteProject = (projectID) => {
+    return instance.delete(API_URL.delete_project(projectID));
+}
+
+export { listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject };

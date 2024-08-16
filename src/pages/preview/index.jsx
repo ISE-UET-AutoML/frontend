@@ -220,7 +220,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 	return (
 		<div className="container w-full mx-auto h-full">
 			{isLoading && <Loading />}
-			<div className="flex flex-col bg-white shadow-xl rounded-md h-max pl-10 pr-10">
+			<div className="flex flex-col bg-white shadow-xl rounded-md h-max pl-10 pr-10 pb-10">
 				<div className="flex w-full pt-2 pb-5">
 					<div
 						class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50"
