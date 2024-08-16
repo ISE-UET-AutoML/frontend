@@ -1,13 +1,14 @@
 
 import React, { useEffect, useRef, useMemo, useContext, useCallback, useState } from 'react';
 import 'src/assets/css/card.css'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { listImages, trainModel, autoLabel } from 'src/api/project';
 import { message } from 'antd';
 import { useLibrary } from 'src/utils/LibProvider';
 import { ImageConfig } from './Config'
 import { createLabels } from 'src/api/dataset'
-import { useParams } from 'react-router-dom';
 import { updateLabel } from 'src/api/images'
-import { listImages } from 'src/api/project';
+import Loading from 'src/components/Loading';
 
 
 const INTERFACES = [
@@ -36,6 +37,9 @@ const INTERFACES = [
 const Labeling = ({ images, pagination, labelsWithID, next, updateFields }) => {
     const currentLabelWithID = useRef(labelsWithID)
     const savedLabels = currentLabelWithID.current.map((v, i) => v.value)
+    let [searchParams, setSearchParams] = useSearchParams();
+    const [isLoading, setIsLoading] = useState(false);
+    const location = useLocation();
     // get info about project id 
     const { id: projectId } = useParams();
     // for create label 
@@ -103,6 +107,16 @@ const Labeling = ({ images, pagination, labelsWithID, next, updateFields }) => {
                     ],
                 }
             ]
+            if (image?.label_by && image.label_by == "autolabel") {
+                return {
+                    id: index,
+                    // predictions: annotations,
+                    annotations: annotations,
+                    data: {
+                        image: images[index].url
+                    }
+                }
+            }
         }
         return {
             id: index,
@@ -271,8 +285,77 @@ const Labeling = ({ images, pagination, labelsWithID, next, updateFields }) => {
         }
     }, [currentConfig])
 
+    const checkData = () => {
+        const currentLabeled = new Set()
+        for (let index = 0; index < images.length; index++) {
+            const element = images[index];
+            const lb_tmp = element['label']
+            if (lb_tmp.length)
+                currentLabeled.add(lb_tmp)
+        }
+        const fullLabel = new Set(savedLabels)
+        console.log(currentLabeled, fullLabel);
+        if (currentLabeled.length !== fullLabel.length) {
+            message.error('you must label more')
+            return false
+        }
+        return true
+    }
+
+    const handleTrain = async () => {
+        if (!checkData()) return
+        try {
+            const { data } = await trainModel(projectId);
+            const searchParams = new URLSearchParams(location.search);
+            searchParams.get('experiment_name') ??
+                setSearchParams((pre) =>
+                    pre
+                        .toString()
+                        .concat(`&experiment_name=${data.experiment_name}`)
+                );
+            updateFields({ experiment_name: data.experiment_name });
+            next();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleAutoLabeling = async () => {
+        if (!checkData()) return
+        setIsLoading(true)
+        const result = await autoLabel(projectId)
+        console.log(result);
+        if (result.status === 200) {
+            message.success('auto label sucessfully')
+            window.location.reload()
+        }
+    }
+
     return (
         <div className='label-editor-container' id='label-editor-container'>
+            {isLoading && <Loading />}
+            <div
+                className="group-hover/item:block flex 
+                top-full right-0 py-4 px-3 bg-white w-[120%] rounded-md shadow-md "
+            >
+                <button
+                    className={`bg-blue-500 hover:bg-blue-800  text-white group flex items-center rounded-md px-2 py-2 text-sm`}
+                    onClick={() => {
+                        handleTrain()
+                    }}
+                >
+                    <span className="text-center w-full">Train Model</span>
+
+                </button>
+                <button
+                    className={`ml-1 bg-blue-500 hover:bg-blue-800  text-white group flex items-center rounded-md px-2 py-2 text-sm`}
+                    onClick={() => {
+                        handleAutoLabeling()
+                    }}
+                >
+                    <span className="text-center w-full">Auto Labeling</span>
+                </button>
+            </div>
             <div id="label-studio" ref={rootRef} />
             <div
                 className={`${createLabel
