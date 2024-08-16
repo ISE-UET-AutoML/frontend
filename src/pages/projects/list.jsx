@@ -8,14 +8,7 @@ import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
 import { TYPES } from 'src/constants/types'
 
-const projTypeOptions = {
-	IMAGE_CLASSIFICATION: 'IMAGE_CLASSIFICATION',
-	TEXT_CLASSIFICATION: 'TEXT_CLASSIFICATION',
-	OBJECT_DETECTION: 'OBJECT_DETECTION',
-	IMAGE_SEGMENTATION: 'IMAGE_SEGMENTATION',
-}
-
-const projType = Object.keys(projTypeOptions)
+const projType = Object.keys(TYPES)
 
 const initialState = {
 	showUploader: false,
@@ -60,50 +53,50 @@ export default function ProjectList() {
 		dashboardState.projects.length >= 0 && getProjects()
 	}, [])
 
-    return (
-        <>
-            <div className="">
-                <div className="mx-auto w-full flex-grow lg:flex xl:px-2 -z-10 mt-2">
-                    {/* Left sidebar & main wrapper */}
-                    <div className="min-w-0 flex-1 bg-white xl:flex p-5 rounded-md">
-                        {/* Projects List */}
-                        <div className="bg-white lg:min-w-0 lg:flex-1">
-                            <div className="flex justify-between mx-auto px-3 mb-5 ">
-                                <div className="px-4 lg:px-0">
-                                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                                        Projects
-                                    </h1>
-                                    {/* Meta info */}
-                                    <div className="flex mt-5 flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-8 xl:flex-col xl:space-x-0 xl:space-y-6">
-                                        <div className="flex items-center space-x-2">
-                                            <RectangleStackIcon
-                                                className="h-5 w-5 text-gray-400"
-                                                aria-hidden="true"
-                                            />
-                                            <span className="text-sm font-medium text-gray-500">
-                                                {dashboardState.projects.length}{' '}
-                                                Projects
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/* Action buttons */}
-                                <div className="flex flex-col sm:flex-row xl:flex-col">
-                                    <button
-                                        type="button"
-                                        className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
-                                        onClick={() =>
-                                            updateState({ showUploader: true })
-                                        }
-                                    >
-                                        <PlusIcon
-                                            className="-ml-1 mr-2 h-5 w-5"
-                                            aria-hidden="true"
-                                        />
-                                        New Project
-                                    </button>
-                                </div>
-                            </div>
+	return (
+		<>
+			<div className="">
+				<div className="mx-auto w-full flex-grow lg:flex xl:px-2 -z-10 mt-2">
+					{/* Left sidebar & main wrapper */}
+					<div className="min-w-0 flex-1 bg-white xl:flex p-5 rounded-md">
+						{/* Projects List */}
+						<div className="bg-white lg:min-w-0 lg:flex-1">
+							<div className="flex justify-between mx-auto px-3 mb-5 ">
+								<div className="px-4 lg:px-0">
+									<h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+										Projects
+									</h1>
+									{/* Meta info */}
+									<div className="flex mt-5 flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-8 xl:flex-col xl:space-x-0 xl:space-y-6">
+										<div className="flex items-center space-x-2">
+											<RectangleStackIcon
+												className="h-5 w-5 text-gray-400"
+												aria-hidden="true"
+											/>
+											<span className="text-sm font-medium text-gray-500">
+												{dashboardState.projects.length}{' '}
+												Projects
+											</span>
+										</div>
+									</div>
+								</div>
+								{/* Action buttons */}
+								<div className="flex flex-col sm:flex-row xl:flex-col">
+									<button
+										type="button"
+										className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
+										onClick={() =>
+											updateState({ showUploader: true })
+										}
+									>
+										<PlusIcon
+											className="-ml-1 mr-2 h-5 w-5"
+											aria-hidden="true"
+										/>
+										New Project
+									</button>
+								</div>
+							</div>
 
 							{dashboardState.projects.length > 0 ? (
 								<div className="px-3  mx-auto pt-5 overflow-hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-4">
@@ -245,7 +238,7 @@ export default function ProjectList() {
 										>
 											{projType.map((type) => (
 												<option key={type} value={type}>
-													{projTypeOptions[type]}
+													{TYPES[type].type}
 												</option>
 											))}
 										</select>

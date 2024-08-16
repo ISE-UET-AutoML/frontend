@@ -123,7 +123,7 @@ const StepFour = (props) => {
 				body: formData,
 			}
 
-			fetchWithTimeout(url, options, 60000)
+			fetchWithTimeout(url, options, 120000)
 				.then((data) => {
 					// setPredictTextLabel(data.predictions)
 					console.log(data)
@@ -640,10 +640,10 @@ const StepFour = (props) => {
 				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overflow-auto`}
 			>
 				{stepFourState.showTextModal ? (
-					<>
-						<div>
+					<div className="relative">
+						<div className="max-h-96 overflow-auto">
 							<table>
-								<thead>
+								<thead className="sticky top-0">
 									<tr>
 										<th>Sentence</th>
 										<th>Confidence</th>
@@ -653,10 +653,22 @@ const StepFour = (props) => {
 								<tbody className="bg-white divide-y divide-gray-200">
 									{stepFourState.uploadSentences.map(
 										(item, index) => (
-											<tr key={index} onClick={() => handleSelectedText(item)} className={`hover:bg-gray-100 cursor-pointer ${stepFourState.selectedSentence === item.sentence ? 'border-2 border-blue-500' : ''}`}>
-												<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.sentence}</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.confidence}</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.label}</td>
+											<tr
+												key={index}
+												onClick={() =>
+													handleSelectedText(item)
+												}
+												className={`hover:bg-gray-100 cursor-pointer ${stepFourState.selectedSentence === item.sentence ? 'border-2 border-blue-500' : ''}`}
+											>
+												<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+													{item.sentence}
+												</td>
+												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+													{item.confidence}
+												</td>
+												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+													{item.label}
+												</td>
 											</tr>
 										)
 									)}
@@ -665,7 +677,12 @@ const StepFour = (props) => {
 						</div>
 
 						<div>
-							<button onClick={handleExplainText}>Explain</button>
+							<button
+								onClick={handleExplainText}
+								className=" text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+							>
+								Explain
+							</button>
 						</div>
 						<div
 							style={{
@@ -676,11 +693,16 @@ const StepFour = (props) => {
 								borderRadius: '8px',
 								overflow: 'auto',
 							}}
-							dangerouslySetInnerHTML={{ __html: explainTextHTML }}
+							dangerouslySetInnerHTML={{
+								__html: explainTextHTML,
+							}}
 						></div>
-				</>
-				) : (<p>Error</p>)}
+					</div>
+				) : (
+					<p>Error</p>
+				)}
 			</div>
+
 			<div
 				className={`${
 					stepFourState.showUploadModal
@@ -708,7 +730,7 @@ const StepFour = (props) => {
 				{stepFourState.isLoading && <Loading />}
 
 				{/* uploaded */}
-				{(stepFourState.uploadFiles.length > 0 && showImageModal) ? (
+				{stepFourState.uploadFiles.length > 0 && showImageModal ? (
 					<>
 						<div className="mx-auto mt-8 w-full grid grid-cols-1 gap-6 sm:px-6 lg:max-w-[1600px] lg:grid-flow-col-dense justify-center items-center lg:grid-cols-6 h-full ">
 							<div className="col-span-4">

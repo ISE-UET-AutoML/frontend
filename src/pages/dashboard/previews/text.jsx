@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import instance from 'src/api/axios'
+import axios from 'axios'
 
 const TextPreview = ({ file, index, handleRemoveFile }) => {
 	const [csvData, setCsvData] = useState([])
@@ -12,15 +13,19 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	useEffect(() => {
 		if (file && typeof file === 'string') {
 			// Fetch the CSV file from the URL
-			const { data } = instance.get(file, {
-				method: 'GET',
-				headers: {
-					'Access-Control-Allow-Origin': 'localhost:3000',
-					'Access-Control-Allow-Credentials': true,
-					'Content-Type': 'text/csv',
+			// const { data } = axios.get(file, {
+			// 	method: 'GET',
+			// })
+			const tmp = Papa.parse(file, {
+				download: true,
+				// rest of config ...
+				complete: function (results, file) {
+					console.log('Parsing complete:', results, file)
 				},
 			})
-			console.log(data)
+			console.log(tmp)
+
+			// console.log(data)
 			// .then((response) => {
 			// 	if (!response.ok) {
 			// 		throw new Error('Network response was not ok')
