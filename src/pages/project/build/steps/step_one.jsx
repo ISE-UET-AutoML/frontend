@@ -33,6 +33,7 @@ const StepOne = ({ name, email, updateFields }) => {
 		if (data?.data && data.data.files.length) {
 			console.log(data)
 			updateFields({
+				// change to isDoneStepThree: true to bypass to predict
 				isDoneStepOne: true,
 				...data.data,
 			});

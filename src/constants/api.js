@@ -13,4 +13,6 @@ export const API_URL = {
     explain_instance: (projectID) => `${API_BASE_URL}/projects/${projectID}/explain`,
     create_label_for_dataset: (datasetID) => `${API_BASE_URL}/datasets/${datasetID}/labels`,
     post_autolabel: (datasetID) => `${API_BASE_URL}/projects/${datasetID}/autolabel`,
+    get_model: (experimentName) => `${API_BASE_URL}/experiments/model/${experimentName}`,
+    get_training_history: (experimentName) => `${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
 }

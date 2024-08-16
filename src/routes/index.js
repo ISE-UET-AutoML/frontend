@@ -1,7 +1,7 @@
 import authed from './authed';
 import nonAuthed from './nonAuthed';
-import testing from './testing';
 import error404 from './404.js';
+import testing from './testing.js';
 import { createElement } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
