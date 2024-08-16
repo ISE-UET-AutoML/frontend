@@ -1,7 +1,7 @@
 import React, { memo, useEffect } from 'react'
 import Preview from 'src/pages/preview'
 import Labeling from 'src/pages/labeling'
-
+import TextPreview from 'src/pages/dashboard/previews/text'
 import { listImages } from 'src/api/project'
 import { trainModel } from 'src/api/project'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
@@ -17,6 +17,7 @@ const StepTwo = ({
 	projectInfo,
 }) => {
 	let [searchParams, setSearchParams] = useSearchParams()
+
 	const location = useLocation()
 
 	//if (!files) return

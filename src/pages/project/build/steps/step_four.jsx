@@ -18,6 +18,7 @@ const initialState = {
 	showUploadModal: false,
 	showPredictModal: false,
 	showResultModal: false,
+	showImageModal: false,
 	showTextModal: false,
 	predictFile: { url: '', label: '' },
 	uploadFiles: [],
@@ -28,6 +29,8 @@ const initialState = {
 	confidenceLabel: '',
 	confidenceScore: 0,
 	userConfirm: [],
+	selectedSentence: null,
+	uploadSentences: null,
 }
 
 const StepFour = (props) => {
@@ -124,12 +127,20 @@ const StepFour = (props) => {
 				.then((data) => {
 					// setPredictTextLabel(data.predictions)
 					console.log(data)
+					const sentences = data.predictions.map((item) => ({
+						sentence: item.sentence,
+						confidence: item.confidence,
+						label: item.class,
+					}))
 					console.log('Fetch successful')
 
 					updateState({
 						showTextModal: true,
-						isLoading: false,
+						showUploadModal: false,
+						uploadSentences: sentences,
 					})
+
+					console.log(stepFourState.showUploadModal)
 				})
 				.catch((error) => {
 					console.error('Fetch error:', error.message)
@@ -169,6 +180,7 @@ const StepFour = (props) => {
 					confidenceScore: parseFloat(predictions[0].confidence),
 					confidenceLabel: predictions[0].class,
 					userConfirm: images,
+					showImageModal: true,
 				})
 				console.log('Fetch successful')
 			})
@@ -199,6 +211,12 @@ const StepFour = (props) => {
 	//     }
 	// };
 
+	const handleSelectedText = async (item) => {
+		updateState({
+			selectedSentence: item.sentence,
+		})
+	}
+
 	const handleExplainText = async (event) => {
 		event.preventDefault()
 
@@ -219,7 +237,7 @@ const StepFour = (props) => {
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
 		formData.append('runName', 'ISE')
-		formData.append('text', sentence)
+		formData.append('text', stepFourState.selectedSentence)
 
 		console.log('Fetching explain text')
 
@@ -381,7 +399,7 @@ const StepFour = (props) => {
 							updateState({ showUploadModal: true })
 							// handleDeploy();
 						}}
-						className="ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+						className="items-center ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
 						// hidden
 					>
 						Predict
@@ -621,35 +639,47 @@ const StepFour = (props) => {
 						: 'left-0 top-full bottom-0 opacity-0'
 				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overflow-auto`}
 			>
-				<h1>Text</h1>
-				<form onSubmit={handleExplainText}>
-					<input
-						style={{
-							border: '2px solid #ccc',
-							borderRadius: '4px',
-							padding: '10px',
-							width: '100%',
-							boxSizing: 'border-box',
-						}}
-						type="text"
-						value={sentence}
-						name="sentence"
-						onChange={handleTextChange}
-					/>
-					<button type="submit">Submit</button>
-				</form>
-				<div>{predictTextLabel && <p>{predictTextLabel}</p>}</div>
-				<div
-					style={{
-						width: '100%',
-						maxWidth: '1000px',
-						padding: '20px',
-						backgroundColor: '#f9f9f9',
-						borderRadius: '8px',
-						overflow: 'auto',
-					}}
-					dangerouslySetInnerHTML={{ __html: explainTextHTML }}
-				></div>
+				{stepFourState.showTextModal ? (
+					<>
+						<div>
+							<table>
+								<thead>
+									<tr>
+										<th>Sentence</th>
+										<th>Confidence</th>
+										<th>Label</th>
+									</tr>
+								</thead>
+								<tbody className="bg-white divide-y divide-gray-200">
+									{stepFourState.uploadSentences.map(
+										(item, index) => (
+											<tr key={index} onClick={() => handleSelectedText(item)} className={`hover:bg-gray-100 cursor-pointer ${stepFourState.selectedSentence === item.sentence ? 'border-2 border-blue-500' : ''}`}>
+												<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.sentence}</td>
+												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.confidence}</td>
+												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.label}</td>
+											</tr>
+										)
+									)}
+								</tbody>
+							</table>
+						</div>
+
+						<div>
+							<button onClick={handleExplainText}>Explain</button>
+						</div>
+						<div
+							style={{
+								width: '100%',
+								maxWidth: '1000px',
+								padding: '20px',
+								backgroundColor: '#f9f9f9',
+								borderRadius: '8px',
+								overflow: 'auto',
+							}}
+							dangerouslySetInnerHTML={{ __html: explainTextHTML }}
+						></div>
+				</>
+				) : (<p>Error</p>)}
 			</div>
 			<div
 				className={`${
@@ -678,7 +708,7 @@ const StepFour = (props) => {
 				{stepFourState.isLoading && <Loading />}
 
 				{/* uploaded */}
-				{stepFourState.uploadFiles.length > 0 ? (
+				{(stepFourState.uploadFiles.length > 0 && showImageModal) ? (
 					<>
 						<div className="mx-auto mt-8 w-full grid grid-cols-1 gap-6 sm:px-6 lg:max-w-[1600px] lg:grid-flow-col-dense justify-center items-center lg:grid-cols-6 h-full ">
 							<div className="col-span-4">
