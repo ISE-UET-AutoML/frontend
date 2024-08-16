@@ -18,6 +18,8 @@ const initialState = {
 	showUploadModal: false,
 	showPredictModal: false,
 	showResultModal: false,
+	showImageModal: false,
+	showTextModal: false,
 	predictFile: { url: '', label: '' },
 	uploadFiles: [],
 	selectedImage: null,
@@ -27,6 +29,8 @@ const initialState = {
 	confidenceLabel: '',
 	confidenceScore: 0,
 	userConfirm: [],
+	selectedSentence: null,
+	uploadSentences: null,
 }
 
 const StepFour = (props) => {
@@ -40,7 +44,10 @@ const StepFour = (props) => {
 		initialState
 	)
 	const [explainImageUrl, setExplainImageUrl] = useState('')
+	const [sentence, setSentence] = useState('')
+	const [explainTextHTML, setExplainTextHTML] = useState('')
 
+	const [predictTextLabel, setPredictTextLabel] = useState('')
 	const [GraphJSON, setGraphJSON] = useState({})
 	const [trainlossGraph, setTrainlossGraph] = useState([])
 	const [val_lossGraph, setVallossGraph] = useState([])
@@ -64,6 +71,9 @@ const StepFour = (props) => {
 			})
 	}, [])
 
+	const handleTextChange = (event) => {
+		setSentence(event.target.value)
+	}
 	const readChart = (contents, setGraph) => {
 		const lines = contents.split('\n')
 		const header = lines[0].split(',')
@@ -98,24 +108,53 @@ const StepFour = (props) => {
 		if (!jsonObject) {
 			console.error('Failed to get model info')
 		}
-		console.log(jsonObject)
-		// // TODO: fix hardcorded values
-		// const jsonObject = {
-		//     userEmail: "test-automl",
-		//     projectName: "4-animal",
-		//     runName: "ISE",
-		// };
 
-		console.log(jsonObject.userEmail)
-		console.log(jsonObject.projectName)
-		console.log(jsonObject.runID)
+		formData.append('userEmail', jsonObject.userEmail)
+		formData.append('projectName', jsonObject.projectName)
+		formData.append('runName', 'ISE')
+
+		// handle text prediction (temporary)
+		if (files[0].name.endsWith('.csv') && files.length === 1) {
+			formData.append('csv_file', validFiles[0])
+			const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/temp_predict`
+
+			const options = {
+				method: 'POST',
+				body: formData,
+			}
+
+			fetchWithTimeout(url, options, 60000)
+				.then((data) => {
+					// setPredictTextLabel(data.predictions)
+					console.log(data)
+					const sentences = data.predictions.map((item) => ({
+						sentence: item.sentence,
+						confidence: item.confidence,
+						label: item.class,
+					}))
+					console.log('Fetch successful')
+
+					updateState({
+						showTextModal: true,
+						showUploadModal: false,
+						uploadSentences: sentences,
+					})
+
+					console.log(stepFourState.showUploadModal)
+				})
+				.catch((error) => {
+					console.error('Fetch error:', error.message)
+				})
+				.finally(() => {
+					updateState({ isLoading: false })
+				})
+
+			return
+		}
 
 		for (let i = 0; i < validFiles.length; i++) {
 			formData.append('files', validFiles[i])
 		}
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', 'ISE')
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
 
@@ -141,6 +180,7 @@ const StepFour = (props) => {
 					confidenceScore: parseFloat(predictions[0].confidence),
 					confidenceLabel: predictions[0].class,
 					userConfirm: images,
+					showImageModal: true,
 				})
 				console.log('Fetch successful')
 			})
@@ -170,6 +210,78 @@ const StepFour = (props) => {
 	//         console.error(error);
 	//     }
 	// };
+
+	const handleSelectedText = async (item) => {
+		updateState({
+			selectedSentence: item.sentence,
+		})
+	}
+
+	const handleExplainText = async (event) => {
+		event.preventDefault()
+
+		// TODO: fix hardcorded values
+		const formData = new FormData()
+
+		updateState({
+			isLoading: true,
+		})
+
+		const model = await instance.get(API_URL.get_model(experimentName))
+		const jsonObject = model.data
+		if (!jsonObject) {
+			console.error('Failed to get model info')
+		}
+		console.log(jsonObject)
+
+		formData.append('userEmail', jsonObject.userEmail)
+		formData.append('projectName', jsonObject.projectName)
+		formData.append('runName', 'ISE')
+		formData.append('text', stepFourState.selectedSentence)
+
+		console.log('Fetching explain text')
+
+		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
+
+		const options = {
+			method: 'POST',
+			body: formData,
+		}
+
+		fetchWithTimeout(url, options, 60000)
+			.then((data) => {
+				const html = data.explain_html
+				setExplainTextHTML(html)
+				console.log(html)
+				const parsedHTML = new DOMParser().parseFromString(
+					html,
+					'text/html'
+				)
+				const scriptContent =
+					parsedHTML.querySelector('script').textContent
+				// Create a script element
+				const script = document.createElement('script')
+
+				// Set the script content to execute
+				script.textContent = scriptContent
+
+				// Append the script element to the document body or head
+				// You can choose where to append it based on your needs
+				document.body.appendChild(script)
+
+				console.log('Fetch successful')
+			})
+			.catch((error) => {
+				console.error('Fetch error:', error.message)
+				// Handle timeout or other errors here
+				if (error.message === 'Request timed out') {
+					console.log('The request took too long and was terminated.')
+				}
+			})
+			.finally(() => {
+				updateState({ isLoading: false })
+			})
+	}
 
 	const handleExplainSelectedImage = async () => {
 		const item = stepFourState.selectedImage
@@ -520,7 +632,55 @@ const StepFour = (props) => {
 					</div>
 				</Dialog>
 			</Transition.Root>
+			<div
+				className={`${
+					stepFourState.showTextModal
+						? 'top-0 left-0 bottom-full z-[1000] opacity-100'
+						: 'left-0 top-full bottom-0 opacity-0'
+				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overflow-auto`}
+			>
+				{stepFourState.showTextModal ? (
+					<>
+						<div>
+							<table>
+								<thead>
+									<tr>
+										<th>Sentence</th>
+										<th>Confidence</th>
+										<th>Label</th>
+									</tr>
+								</thead>
+								<tbody className="bg-white divide-y divide-gray-200">
+									{stepFourState.uploadSentences.map(
+										(item, index) => (
+											<tr key={index} onClick={() => handleSelectedText(item)} className={`hover:bg-gray-100 cursor-pointer ${stepFourState.selectedSentence === item.sentence ? 'border-2 border-blue-500' : ''}`}>
+												<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.sentence}</td>
+												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.confidence}</td>
+												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.label}</td>
+											</tr>
+										)
+									)}
+								</tbody>
+							</table>
+						</div>
 
+						<div>
+							<button onClick={handleExplainText}>Explain</button>
+						</div>
+						<div
+							style={{
+								width: '100%',
+								maxWidth: '1000px',
+								padding: '20px',
+								backgroundColor: '#f9f9f9',
+								borderRadius: '8px',
+								overflow: 'auto',
+							}}
+							dangerouslySetInnerHTML={{ __html: explainTextHTML }}
+						></div>
+				</>
+				) : (<p>Error</p>)}
+			</div>
 			<div
 				className={`${
 					stepFourState.showUploadModal
@@ -548,7 +708,7 @@ const StepFour = (props) => {
 				{stepFourState.isLoading && <Loading />}
 
 				{/* uploaded */}
-				{stepFourState.uploadFiles.length > 0 ? (
+				{(stepFourState.uploadFiles.length > 0 && showImageModal) ? (
 					<>
 						<div className="mx-auto mt-8 w-full grid grid-cols-1 gap-6 sm:px-6 lg:max-w-[1600px] lg:grid-flow-col-dense justify-center items-center lg:grid-cols-6 h-full ">
 							<div className="col-span-4">

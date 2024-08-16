@@ -1,11 +1,10 @@
 import React, { memo, useEffect } from 'react'
 import Preview from 'src/pages/preview'
 import Labeling from 'src/pages/labeling'
-
+import TextPreview from 'src/pages/dashboard/previews/text'
 import { listImages } from 'src/api/project'
 import { trainModel } from 'src/api/project'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
-import TextPreview from 'src/pages/dashboard/previews/text'
 
 // import fs from 'fs'
 
@@ -18,31 +17,11 @@ const StepTwo = ({
 	projectInfo,
 }) => {
 	let [searchParams, setSearchParams] = useSearchParams()
+
 	const location = useLocation()
-	useEffect(() => {
-		const searchParams = new URLSearchParams(location.search)
-		searchParams.get('step') ??
-			setSearchParams((pre) => pre.toString().concat('&step=1'))
-
-		if (files?.length || labels?.length) {
-			return () => {}
-		}
-
-		const id = searchParams.get('id')
-		async function fetchListLabelingImages(id) {
-			const { data } = await listImages(id)
-			updateFields({
-				...data.data,
-				pagination: data.meta,
-			})
-		}
-
-		if (id) {
-			fetchListLabelingImages(id)
-		}
-	}, [])
 
 	//if (!files) return
+	console.log('projectInfo', projectInfo)
 	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
 		let isUnlabelData = false
 

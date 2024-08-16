@@ -62,6 +62,7 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 
 			reader.readAsText(file)
 		}
+		return
 	}, [file])
 
 	// Tính toán các hàng cần hiển thị cho trang hiện tại

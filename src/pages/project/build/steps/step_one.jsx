@@ -37,7 +37,6 @@ const StepOne = ({ name, email, updateFields, projectInfo }) => {
 			console.log('no dataset')
 		}
 	})
-
 	return (
 		<>
 			<div className="flex justify-between mx-auto px-3 mb-5 ">
