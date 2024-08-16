@@ -23,6 +23,10 @@ const getProjectDataset = (projectID) => {
     return instance.get(API_URL.get_project_dataset(projectID));
 }
 
+const getProjectFullDataset = (projectID) => {
+    return instance.get(API_URL.get_project_fulldataset(projectID));
+}
+
 
 const explainInstance = (projectID, data) => {
     const options = {
@@ -32,4 +36,8 @@ const explainInstance = (projectID, data) => {
     return instance.post(API_URL.explain_instance(projectID), data, options);
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, updateData, explainInstance };
+const autoLabel = (projectID) => {
+    return instance.post(API_URL.post_autolabel(projectID));
+}
+
+export { listImages, trainModel, uploadFiles, getProjectDataset, updateData, explainInstance, getProjectFullDataset, autoLabel };

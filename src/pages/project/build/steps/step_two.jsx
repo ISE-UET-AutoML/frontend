@@ -41,10 +41,18 @@ const StepTwo = ({ files, labels, pagination, updateFields }) => {
 			isUnlabelData = true
 			break
 		}
+		if (files[i].hasOwnProperty('label_by') && files[i].label_by !== 'human') {
+			isUnlabelData = true
+			break
+		}
 	}
 	if (isUnlabelData) {
-		// const labels_value = labels.map((v, i) => v.value)
-		// console.log('label values', labels_value);
+		files.sort((a, b) => {
+			if (!a?.label_by || a.label_by !== 'human') return -1
+			if (!b?.label_by || b.label_by !== 'human') return 1
+			return 0
+		})
+
 		return (
 			<div>
 				<Labeling
