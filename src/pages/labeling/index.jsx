@@ -1,347 +1,396 @@
-
-import React, { useEffect, useRef, useMemo, useContext, useCallback, useState } from 'react';
+import React, {
+	useEffect,
+	useRef,
+	useMemo,
+	useContext,
+	useCallback,
+	useState,
+} from 'react'
 import 'src/assets/css/card.css'
-import { message } from 'antd';
-import { useLibrary } from 'src/utils/LibProvider';
-import { ImageConfig } from './Config'
+import { message } from 'antd'
+import { useLibrary } from 'src/utils/LibProvider'
+import { ImageConfig, TextConfig } from './Config'
 import { createLabels } from 'src/api/dataset'
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom'
 import { updateLabel } from 'src/api/images'
-import { listImages } from 'src/api/project';
-
+import { listImages } from 'src/api/project'
 
 const INTERFACES = [
-    "panel",
-    "update",
-    "submit",
-    "skip",
-    "controls",
-    "topbar",
-    "instruction",
-    "side-column",
-    "ground-truth",
-    "annotations:tabs",
-    "annotations:menu",
-    "annotations:current",
-    "annotations:add-new",
-    "annotations:delete",
-    'annotations:view-all',
-    "predictions:tabs",
-    "predictions:menu",
-    "edit-history"
+	'panel',
+	'update',
+	'submit',
+	'skip',
+	'controls',
+	'topbar',
+	'instruction',
+	'side-column',
+	'ground-truth',
+	'annotations:tabs',
+	'annotations:menu',
+	'annotations:current',
+	'annotations:add-new',
+	'annotations:delete',
+	'annotations:view-all',
+	'predictions:tabs',
+	'predictions:menu',
+	'edit-history',
 ]
 
+const Labeling = ({
+	images,
+	pagination,
+	labelsWithID,
+	type,
+	next,
+	updateFields,
+}) => {
+	const currentLabelWithID = useRef(labelsWithID)
+	const savedLabels = currentLabelWithID.current.map((v, i) => v.value)
+	// get info about project id
+	const { id: projectId } = useParams()
+	// for create label
+	const [createLabel, setcreateLabel] = useState(savedLabels.length <= 0)
+	const [labelText, setLabelText] = useState('')
+	const [labelsEditing, setLabelEdit] = useState([])
+	// for labeling
+	const LabelStudio = useLibrary('lsf')
+	const rootRef = useRef()
+	const lsf = useRef(null)
+	const [currentIndex, setIndex] = useState(0)
+	const [currentConfig, setConfig] = useState(ImageConfig(savedLabels))
 
+	useEffect(() => {
+		if (type === 'IMAGE_CLASSIFICATION') {
+			setConfig(ImageConfig(savedLabels))
+		}
+		if (type === 'TEXT_CLASSIFICATION') {
+			setConfig(TextConfig(savedLabels))
+		}
+	}, [])
 
-const Labeling = ({ images, pagination, labelsWithID, next, updateFields }) => {
-    const currentLabelWithID = useRef(labelsWithID)
-    const savedLabels = currentLabelWithID.current.map((v, i) => v.value)
-    // get info about project id 
-    const { id: projectId } = useParams();
-    // for create label 
-    const [createLabel, setcreateLabel] = useState(savedLabels.length <= 0)
-    const [labelText, setLabelText] = useState("")
-    const [labelsEditing, setLabelEdit] = useState([])
-    // for labeling 
-    const LabelStudio = useLibrary("lsf");
-    const rootRef = useRef();
-    const lsf = useRef(null);
-    const [currentIndex, setIndex] = useState(0)
-    const [currentConfig, setConfig] = useState(ImageConfig(savedLabels))
-    let tempIndex = 0
+	let tempIndex = 0
 
-    const handleAddLabel = () => {
-        const text = labelText.trim()
-        if (text.length <= 0) return
-        const lbs = text.split(/\r?\n|\r|\n/g).map(e => e.toString().trim()).filter(e => e.length > 0);
-        if (lbs.length <= 0) return
-        setLabelEdit(le => [...le, ...lbs])
-        document.getElementById('edt-label').value = ''
-        setLabelText('')
-    }
-    const deleteLabel = (index) => {
-        setLabelEdit(le => le.filter((v, i) => i != index))
-    }
-    const saveLabel = async () => {
-        if (labelsEditing.length > 0) {
-            const res = await createLabels(projectId, { label: labelsEditing })
-            currentLabelWithID.current = res.data.map((v, i) => {
-                return {
-                    id: v._id,
-                    value: v.name
-                }
-            })
-            console.log('assign label with id ', currentLabelWithID.current);
-            if (currentLabelWithID.current.length >= 0) {
-                setcreateLabel(false)
-                setConfig(ImageConfig(labelsEditing))
-            }
+	const handleAddLabel = () => {
+		const text = labelText.trim()
+		if (text.length <= 0) return
+		const lbs = text
+			.split(/\r?\n|\r|\n/g)
+			.map((e) => e.toString().trim())
+			.filter((e) => e.length > 0)
+		if (lbs.length <= 0) return
+		setLabelEdit((le) => [...le, ...lbs])
+		document.getElementById('edt-label').value = ''
+		setLabelText('')
+	}
+	const deleteLabel = (index) => {
+		setLabelEdit((le) => le.filter((v, i) => i != index))
+	}
+	const saveLabel = async () => {
+		if (labelsEditing.length > 0) {
+			const res = await createLabels(projectId, { label: labelsEditing })
+			currentLabelWithID.current = res.data.map((v, i) => {
+				return {
+					id: v._id,
+					value: v.name,
+				}
+			})
+			console.log('assign label with id ', currentLabelWithID.current)
+			if (currentLabelWithID.current.length >= 0) {
+				setcreateLabel(false)
+				setConfig(ImageConfig(labelsEditing))
+			}
+		} else {
+			message.error('Error: label is empty!', 2)
+		}
+	}
 
-        } else {
-            message.error('Error: label is empty!', 2)
-        }
-    }
+	const getTask = (index) => {
+		const image = images[index]
+		let annotations = []
+		if (image?.label && image.label.length > 0) {
+			annotations = [
+				{
+					result: [
+						{
+							value: {
+								choices: [image.label],
+							},
+							from_name: 'choice',
+							to_name: 'image',
+							type: 'choices',
+							origin: 'manual',
+						},
+					],
+				},
+			]
+		}
+		if (type === 'IMAGE_CLASSIFICATION') {
+			return {
+				id: index,
+				annotations: annotations,
+				data: {
+					image: image.url,
+				},
+			}
+		}
+		if (type === 'TEXT_CLASSIFICATION') {
+			return {
+				id: index,
+				annotations: annotations,
+				data: {
+					text: image.url,
+				},
+			}
+		}
+		return {
+			id: index,
+			annotations: annotations,
+			data: {
+				image: images[index].url,
+			},
+		}
+	}
 
-    const getTask = (index) => {
-        const image = images[index]
-        let annotations = []
-        if (image?.label && image.label.length > 0) {
-            annotations = [
-                {
-                    "result": [
-                        {
-                            "value": {
-                                "choices": [
-                                    image.label
-                                ]
-                            },
-                            "from_name": "choice",
-                            "to_name": "image",
-                            "type": "choices",
-                            "origin": "manual"
-                        }
-                    ],
-                }
-            ]
-        }
-        return {
-            id: index,
-            annotations: annotations,
-            data: {
-                image: images[index].url
-            }
-        }
-    }
+	const updateLabelTask = async (image, newLabel) => {
+		let newLabelID = ''
+		for (let lb of currentLabelWithID.current) {
+			if (lb.value == newLabel) {
+				newLabelID = lb.id
+				break
+			}
+		}
+		console.log('id', image._id, newLabelID)
+		if (image._id.length <= 0 || newLabelID.length <= 0) {
+			return
+		}
+		return await updateLabel(image._id, newLabelID)
+	}
 
-    const updateLabelTask = async (image, newLabel) => {
-        let newLabelID = ''
-        for (let lb of currentLabelWithID.current) {
-            if (lb.value == newLabel) {
-                newLabelID = lb.id
-                break
-            }
-        }
-        console.log('id', image._id, newLabelID);
-        if (image._id.length <= 0 || newLabelID.length <= 0) {
-            return
-        }
-        return await updateLabel(image._id, newLabelID)
-    }
+	const HandleEndLoop = () => {
+		for (let img of images) {
+			if (img.label.length <= 0) {
+				setIndex(0)
+				return
+			}
+		}
+		window.location.reload()
+	}
 
-    const HandleEndLoop = () => {
-        for (let img of images) {
-            if (img.label.length <= 0) {
-                setIndex(0)
-                return
-            }
-        }
-        window.location.reload()
-    }
+	const increase = async (index) => {
+		const ICR = 1
+		if (index < images.length - ICR) {
+			setIndex((a) => a + ICR)
+		} else {
+			console.log('get new data')
 
-    const increase = async (index) => {
-        const ICR = 1
-        if (index < images.length - ICR) {
-            setIndex(a => a + ICR)
-        } else {
-            console.log('get new data');
+			if (pagination['page'] < pagination['total_page']) {
+				const page = pagination['page'] + 1
+				const { data } = await listImages(
+					projectId,
+					`&page=${page}&size=24`
+				)
+				console.log(data)
+				images = [...images, ...data.data.files]
+				pagination = data.meta
+				if (data.data.files.length)
+					setIndex((a) => a + 1) //TODO: have new data
+				else HandleEndLoop()
+			} else {
+				HandleEndLoop()
+			}
+		}
+	}
 
-            if (pagination['page'] < pagination['total_page']) {
-                const page = pagination['page'] + 1
-                const { data } = await listImages(projectId, `&page=${page}&size=24`);
-                console.log(data);
-                images = [...images, ...data.data.files]
-                pagination = data.meta
-                if (data.data.files.length)
-                    setIndex(a => a + 1) //TODO: have new data 
-                else
-                    HandleEndLoop()
-            } else {
-                HandleEndLoop()
-            }
-        }
-    }
+	const initLabelStudio = useCallback(
+		(config, index) => {
+			if (!LabelStudio) return
+			const task = getTask(index)
+			if (!task?.data) return
+			console.info('Initializing LSF preview', { config, task })
 
+			const onUpdate = async (ls, annotations) => {
+				const at = annotations.serializeAnnotation()
+				if (at.length > 0)
+					console.log('value', at[0]['value']['choices'])
+				else {
+					message.error('Please annotating', 3)
+					return
+				}
 
-    const initLabelStudio = useCallback(
-        (config, index) => {
-            if (!LabelStudio) return;
-            const task = getTask(index)
-            if (!task?.data) return;
-            console.info("Initializing LSF preview", { config, task });
+				const newLabel = at[0]['value']['choices'][0]
+				images[index].label = newLabel
+				const resultUpdate = await updateLabelTask(
+					images[index],
+					newLabel
+				)
 
-            const onUpdate = async (ls, annotations) => {
-                const at = annotations.serializeAnnotation()
-                if (at.length > 0)
-                    console.log('value', at[0]['value']['choices'])
-                else {
-                    message.error('Please annotating', 3);
-                    return
-                }
+				increase(index)
+				message.success('Successfully Updated', 3)
+			}
 
-                const newLabel = at[0]['value']['choices'][0]
-                images[index].label = newLabel
-                const resultUpdate = await updateLabelTask(images[index], newLabel)
+			const onSubmit = async (ls, annotations) => {
+				const at = annotations.serializeAnnotation()
+				tempIndex += 1
+				if (at.length > 0)
+					console.log('value', at[0]['value']['choices'])
+				else {
+					message.error('Please annotating', 3)
+					return
+				}
 
-                increase(index)
-                message.success('Successfully Updated', 3);
-            }
+				const newLabel = at[0]['value']['choices'][0]
+				images[index].label = newLabel
+				const resultUpdate = await updateLabelTask(
+					images[index],
+					newLabel
+				)
+				increase(index)
+				message.success('Successfully Submitted', 3)
+			}
 
-            const onSubmit = async (ls, annotations) => {
-                const at = annotations.serializeAnnotation()
-                tempIndex += 1
-                if (at.length > 0)
-                    console.log('value', at[0]['value']['choices'])
-                else {
-                    message.error('Please annotating', 3);
-                    return
-                }
+			const onloadAnnotation = (LS) => {
+				var c = LS.annotationStore.addAnnotation({
+					userGenerate: true,
+				})
+				LS.annotationStore.selectAnnotation(c.id)
+			}
 
-                const newLabel = at[0]['value']['choices'][0]
-                images[index].label = newLabel
-                const resultUpdate = await updateLabelTask(images[index], newLabel)
-                increase(index)
-                message.success('Successfully Submitted', 3);
-            }
+			const onSkip = (ls, annotations) => {
+				increase(index)
+			}
 
-            const onloadAnnotation = (LS) => {
-                var c = LS.annotationStore.addAnnotation({
-                    userGenerate: true
-                });
-                LS.annotationStore.selectAnnotation(c.id);
-            }
+			try {
+				const lsf = new window.LabelStudio(rootRef.current, {
+					config,
+					task,
+					interfaces: INTERFACES,
+					onUpdateAnnotation: onUpdate,
+					onSubmitAnnotation: onSubmit,
+					onSkipTask: onSkip,
+					onLabelStudioLoad: onloadAnnotation,
+				})
+				return lsf
+			} catch (err) {
+				console.error(err)
+				return null
+			}
+		},
+		[LabelStudio]
+	)
 
-            const onSkip = (ls, annotations) => {
-                increase(index)
-            }
+	useEffect(() => {
+		if (!lsf.current) {
+			lsf.current = initLabelStudio(currentConfig, currentIndex)
+		}
+		return () => {
+			if (lsf.current) {
+				console.info('Destroying LSF')
+				try {
+					lsf.current.destroy()
+				} catch (e) {}
+				lsf.current = null
+			}
+		}
+	}, [initLabelStudio, currentIndex, currentConfig])
 
-            try {
-                const lsf = new window.LabelStudio(rootRef.current, {
-                    config,
-                    task,
-                    interfaces: INTERFACES,
-                    'onUpdateAnnotation': onUpdate,
-                    'onSubmitAnnotation': onSubmit,
-                    'onSkipTask': onSkip,
-                    'onLabelStudioLoad': onloadAnnotation
-                });
-                return lsf;
-            } catch (err) {
-                console.error(err);
-                return null;
-            }
-        },
-        [LabelStudio],
-    );
+	useEffect(() => {
+		if (lsf.current?.store) {
+			const store = lsf.current.store
+			store.resetState()
+			store.assignTask(getTask(currentIndex))
+			store.initializeStore(getTask(currentIndex))
+			const c = store.annotationStore.addAnnotation({
+				userGenerate: true,
+			})
+			store.annotationStore.selectAnnotation(c.id)
+			console.log('LSF task updated')
+		}
+	}, [currentIndex])
 
-    useEffect(() => {
-        if (!lsf.current) {
-            lsf.current = initLabelStudio(currentConfig, currentIndex);
-        }
-        return () => {
-            if (lsf.current) {
-                console.info("Destroying LSF");
-                try {
-                    lsf.current.destroy();
-                } catch (e) { }
-                lsf.current = null;
-            }
-        }
+	useEffect(() => {
+		if (lsf.current?.store) {
+			lsf.current.store.assignConfig(currentConfig)
+			console.log('LSF config updated')
+		}
+	}, [currentConfig])
 
-    }, [initLabelStudio, currentIndex, currentConfig]);
+	return (
+		<div className="label-editor-container" id="label-editor-container">
+			<div id="label-studio" ref={rootRef} />
+			<div
+				className={`${
+					createLabel
+						? 'top-0 bottom-full z-[1000] opacity-100 left-0 mb-8'
+						: 'top-full bottom-0 opacity-0'
+				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
+			>
+				<h3 className="label-text text-center w-full mt-4 text-[28px] font-[500] leading-[1.16] mb-8 ">
+					Create label for your dataset
+				</h3>
+				<div className="container flex justify-around items-center mx-auto gap-2">
+					<div className="align-top">
+						<h4 className="label-text">Add label names</h4>
+						<h5 className="label-text">
+							Use new line as a separator to add multiple labels
+						</h5>
+						<textarea
+							id="edt-label"
+							name="myInput"
+							onChange={(evt) =>
+								setLabelText(evt.target.value.toString())
+							}
+						/>
 
-    useEffect(() => {
-        if (lsf.current?.store) {
-            const store = lsf.current.store;
-            store.resetState();
-            store.assignTask(getTask(currentIndex));
-            store.initializeStore(getTask(currentIndex));
-            const c = store.annotationStore.addAnnotation({
-                userGenerate: true,
-            });
-            store.annotationStore.selectAnnotation(c.id);
-            console.log("LSF task updated");
-        }
-
-    }, [currentIndex]);
-
-    useEffect(() => {
-        if (lsf.current?.store) {
-            lsf.current.store.assignConfig(currentConfig);
-            console.log("LSF config updated");
-        }
-    }, [currentConfig])
-
-    return (
-        <div className='label-editor-container' id='label-editor-container'>
-            <div id="label-studio" ref={rootRef} />
-            <div
-                className={`${createLabel
-                    ? 'top-0 bottom-full z-[1000] opacity-100 left-0 mb-8'
-                    : 'top-full bottom-0 opacity-0'
-                    } fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
-            >
-
-                <h3 className="label-text text-center w-full mt-4 text-[28px] font-[500] leading-[1.16] mb-8 ">
-                    Create label for your dataset
-                </h3>
-                <div className="container flex justify-around items-center mx-auto gap-2">
-                    <div className='align-top'>
-                        <h4 className='label-text'>
-                            Add label names
-                        </h4>
-                        <h5 className='label-text'>
-                            Use new line as a separator to add multiple labels
-                        </h5>
-                        <textarea id='edt-label' name="myInput" onChange={evt => setLabelText(evt.target.value.toString())} />
-
-                        <button onClick={handleAddLabel} className='add-label'>Add</button>
-                    </div>
-                    <div className='align-top'>
-                        <h4 className='label-text'>
-                            Labels ({labelsEditing.length})
-                        </h4>
-                        <ul>
-                            {labelsEditing.map((label, index) => {
-                                return <li className='label-li'>
-                                    <span>{label}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => deleteLabel(index)}
-                                        aria-label="delete label"
-                                    >
-                                        <svg
-                                            width="14"
-                                            height="14"
-                                            viewBox="0 0 14 14"
-                                            fill="none"
-                                            stroke="red"
-                                            strokeWidth="2"
-                                            strokeLinecap="square"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <title>Delete label</title>
-                                            <path d="M2 12L12 2" />
-                                            <path d="M12 12L2 2" />
-                                        </svg>
-                                    </button>
-                                </li>
-                            })}
-                        </ul>
-                    </div>
-                </div>
-                <div className="mb-16 relative flex rounded-md bg-blue-600 justify-between items-center text-white">
-                    <button
-                        className="hover:bg-blue-800 py-[6px] px-4 rounded-md w-fit"
-                        onClick={saveLabel}
-                    >
-                        Save
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-
+						<button onClick={handleAddLabel} className="add-label">
+							Add
+						</button>
+					</div>
+					<div className="align-top">
+						<h4 className="label-text">
+							Labels ({labelsEditing.length})
+						</h4>
+						<ul>
+							{labelsEditing.map((label, index) => {
+								return (
+									<li className="label-li">
+										<span>{label}</span>
+										<button
+											type="button"
+											onClick={() => deleteLabel(index)}
+											aria-label="delete label"
+										>
+											<svg
+												width="14"
+												height="14"
+												viewBox="0 0 14 14"
+												fill="none"
+												stroke="red"
+												strokeWidth="2"
+												strokeLinecap="square"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<title>Delete label</title>
+												<path d="M2 12L12 2" />
+												<path d="M12 12L2 2" />
+											</svg>
+										</button>
+									</li>
+								)
+							})}
+						</ul>
+					</div>
+				</div>
+				<div className="mb-16 relative flex rounded-md bg-blue-600 justify-between items-center text-white">
+					<button
+						className="hover:bg-blue-800 py-[6px] px-4 rounded-md w-fit"
+						onClick={saveLabel}
+					>
+						Save
+					</button>
+				</div>
+			</div>
+		</div>
+	)
 }
 
-
-export default Labeling;
+export default Labeling
