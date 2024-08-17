@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { listImages } from 'src/api/project'
 import { useMultistepForm } from 'src/hooks/useMultiStepForm'
 import * as projectAPI from 'src/api/project'
 import StepFour from './steps/step_four'

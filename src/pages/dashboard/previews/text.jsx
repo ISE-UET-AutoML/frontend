@@ -1,30 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 
-const TextPreview = ({ file, index, handleRemoveFile }) => {
+const TextUploadPreview = ({ file, index, handleRemoveFile }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [inputPage, setInputPage] = useState('')
-	// const itemsPerPage = 10
-	const [itemsPerPage, setItemsPerPage] = useState(5)
-	const [isPreview, setIsPreview] = useState(false)
+	const itemsPerPage = 5
 
 	useEffect(() => {
-		if (file && typeof file === 'string') {
-			Papa.parse(file, {
-				download: true,
-				complete: function (results) {
-					console.log('Parsing complete:', results)
-					setCsvData(results.data)
-					setIsPreview(true)
-					setItemsPerPage(10)
-				},
-				error: (err) => {
-					setError(err.message)
-				},
-			})
-		} else if (file && file.name.endsWith('.csv')) {
+		if (file && file.name.endsWith('.csv')) {
+			console.log('oke2')
 			const reader = new FileReader()
 
 			reader.onload = () => {
@@ -89,21 +75,15 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	return (
 		<div className="bg-white border border-gray-200 rounded-lg shadow-md p-4 mb-4">
 			<div className="flex justify-between items-center mb-2">
-				{!isPreview ? (
-					<>
-						<h3 className="text-lg font-semibold text-gray-800">
-							{file.name}
-						</h3>
-						<button
-							onClick={() => handleRemoveFile(index)}
-							className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
-						>
-							Remove
-						</button>
-					</>
-				) : (
-					<></>
-				)}
+				<h3 className="text-lg font-semibold text-gray-800">
+					{file.name}
+				</h3>
+				<button
+					onClick={() => handleRemoveFile(index)}
+					className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
+				>
+					Remove
+				</button>
 			</div>
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 			{csvData.length > 0 ? (
@@ -183,4 +163,4 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	)
 }
 
-export default TextPreview
+export default TextUploadPreview

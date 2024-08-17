@@ -11,8 +11,8 @@ import { UploadTypes } from 'src/constants/file'
 import { validateFiles } from 'src/utils/file'
 import Loading from 'src/components/Loading'
 import { TYPES } from 'src/constants/types'
-import ImagePreview from 'src/pages/dashboard/previews/image'
-import TextPreview from 'src/pages/dashboard/previews/text'
+import ImageUploadPreview from 'src/pages/dashboard/previews/image'
+import TextUploadPreview from 'src/pages/dashboard/previews/text'
 
 const LOAD_CHUNK = 12
 
@@ -29,12 +29,12 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
 	const location = useLocation()
 
-		//state
-		const [dashboardState, updateState] = useReducer((pre, next) => {
-			return { ...pre, ...next }
-		}, initialState)
+	//state
+	const [dashboardState, updateState] = useReducer((pre, next) => {
+		return { ...pre, ...next }
+	}, initialState)
 
-		let [searchParams, setSearchParams] = useSearchParams()
+	let [searchParams, setSearchParams] = useSearchParams()
 
 	// handler
 	const handleFileChange = (event) => {
@@ -92,39 +92,37 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				updateState({ isUploading: false })
 				message.error('Upload Failed', 3)
 
-					console.error(error)
-				}
-			}
-
-			// TODO: validate folder structure
-			// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
-		}
-
-		const handleLoadChunk = () => {
-			if (
-				dashboardState.loadedChunk < dashboardState.uploadFiles.length
-			) {
-				updateState({
-					loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
-				})
+				console.error(error)
 			}
 		}
 
-		// pass
-		// check label data
-		// const queryString = new URLSearchParams({
-		//     id: projectID,
-		// }).toString();
-		// const { data } = await projectAPI.uploadFiles(
-		//     projectID,
-		// );
-		// console.log('data', data)
-		// message.success('Successfully uploaded', 3);
-		// updateState({ isUploading: false });
-		// updateFields({
-		//     isDoneStepOne: true,
-		//     ...data,
-		// });
+		// TODO: validate folder structure
+		// Nêú folder chỉ có toàn ảnh không có folder con thì hiển thị lỗi
+	}
+
+	const handleLoadChunk = () => {
+		if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
+			updateState({
+				loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
+			})
+		}
+	}
+
+	// pass
+	// check label data
+	// const queryString = new URLSearchParams({
+	//     id: projectID,
+	// }).toString();
+	// const { data } = await projectAPI.uploadFiles(
+	//     projectID,
+	// );
+	// console.log('data', data)
+	// message.success('Successfully uploaded', 3);
+	// updateState({ isUploading: false });
+	// updateFields({
+	//     isDoneStepOne: true,
+	//     ...data,
+	// });
 
 	return (
 		<>
@@ -343,7 +341,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							{dashboardState.uploadFiles
 								.slice(0, dashboardState.loadedChunk)
 								.map((file, index) => (
-									<ImagePreview
+									<ImageUploadPreview
 										key={index}
 										file={file}
 										index={index}
@@ -355,7 +353,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					  projectInfo.type === 'TEXT_CLASSIFICATION' ? (
 						<div className="grid grid-cols-1">
 							{dashboardState.uploadFiles.map((file, index) => (
-								<TextPreview
+								<TextUploadPreview
 									key={index}
 									file={file}
 									index={index}
