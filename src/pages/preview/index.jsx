@@ -220,7 +220,7 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 	return (
 		<div className="container w-full mx-auto h-full">
 			{isLoading && <Loading />}
-			<div className="flex flex-col bg-white shadow-xl rounded-md h-max pl-10 pr-10 pb-10">
+			<div className="flex flex-col bg-white shadow-xl rounded-md h-max pl-10 pr-10 pb-8">
 				<div className="flex w-full pt-2 pb-5">
 					<div
 						class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50"
@@ -247,25 +247,6 @@ const Preview = ({ images, pagination, savedLabels, next, updateFields }) => {
 						>
 							Train Model
 						</button>
-						{/* <div className="group/item h-9 w-fit z-20">
-                <ChevronDownIcon
-                  className="h-10 w-6 text-violet-200 hover:text-violet-100 "
-                  aria-hidden="true"
-                />
-                <div
-                  className="absolute hidden  group-hover/item:block 
-                top-full right-0 py-4 px-3 bg-white w-[120%] rounded-md shadow-md"
-                >
-                  <button
-                    className={`bg-blue-600 hover:bg-blue-800  text-white group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                    onClick={() => {
-                      handleOpentTrainModel()
-                    }}
-                  >
-                    <span className="text-center w-full">Train with options</span>
-                  </button>
-                </div>
-              </div> */}
 					</div>
 				</div>
 				<div className="grid grid-cols-4 gap-3">

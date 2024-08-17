@@ -467,9 +467,9 @@ const StepFour = (props) => {
 												which can impact the performance
 												of the AI. These mistakes often
 												stem from limitations in the
-												data, such as biases or gaps,
-												and the inherent complexity of
-												the algorithms themselves.
+												data, such as biases, gaps, and
+												the inherent complexity of the
+												algorithms themselves.
 												Addressing these issues requires
 												continuous refinement of the
 												models and the data they are

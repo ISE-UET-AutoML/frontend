@@ -1,54 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import Papa from 'papaparse'
-import instance from 'src/api/axios'
-import axios from 'axios'
 
 const TextPreview = ({ file, index, handleRemoveFile }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [inputPage, setInputPage] = useState('')
-	const itemsPerPage = 10
+	// const itemsPerPage = 10
+	const [itemsPerPage, setItemsPerPage] = useState(5)
+	const [isPreview, setIsPreview] = useState(false)
 
 	useEffect(() => {
 		if (file && typeof file === 'string') {
-			// Fetch the CSV file from the URL
-			// const { data } = axios.get(file, {
-			// 	method: 'GET',
-			// })
-			const tmp = Papa.parse(file, {
+			Papa.parse(file, {
 				download: true,
-				// rest of config ...
-				complete: function (results, file) {
-					console.log('Parsing complete:', results, file)
+				complete: function (results) {
+					console.log('Parsing complete:', results)
+					setCsvData(results.data)
+					setIsPreview(true)
+					setItemsPerPage(10)
+				},
+				error: (err) => {
+					setError(err.message)
 				},
 			})
-			console.log(tmp)
-
-			// console.log(data)
-			// .then((response) => {
-			// 	if (!response.ok) {
-			// 		throw new Error('Network response was not ok')
-			// 	}
-			// 	console.log(response.text)
-			// 	return response.text()
-			// })
-			// .then((text) => {
-			// 	console.log(text)
-			// 	Papa.parse(text, {
-			// 		header: true,
-			// 		skipEmptyLines: true,
-			// 		complete: (result) => {
-			// 			setCsvData(result.data)
-			// 		},
-			// 		error: (err) => {
-			// 			setError(err.message)
-			// 		},
-			// 	})
-			// })
-			// .catch((err) => {
-			// 	setError(err.message)
-			// })
 		} else if (file && file.name.endsWith('.csv')) {
 			const reader = new FileReader()
 
@@ -114,27 +89,33 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 	return (
 		<div className="bg-white border border-gray-200 rounded-lg shadow-md p-4 mb-4">
 			<div className="flex justify-between items-center mb-2">
-				{/* <h3 className="text-lg font-semibold text-gray-800">
-					{file.name}
-				</h3> */}
-				<button
-					onClick={() => handleRemoveFile(index)}
-					className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
-				>
-					Remove
-				</button>
+				{!isPreview ? (
+					<>
+						<h3 className="text-lg font-semibold text-gray-800">
+							{file.name}
+						</h3>
+						<button
+							onClick={() => handleRemoveFile(index)}
+							className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
+						>
+							Remove
+						</button>
+					</>
+				) : (
+					<></>
+				)}
 			</div>
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 			{csvData.length > 0 ? (
 				<>
-					<div className="overflow-x-auto mb-4">
+					<div className="overflow-x-auto mb-6 rounded-lg border-2 border-slate-50">
 						<table className="min-w-full divide-y divide-gray-200">
-							<thead className="bg-gray-50">
+							<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 								<tr>
 									{Object.keys(csvData[0]).map((key) => (
 										<th
 											key={key}
-											className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+											className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider"
 										>
 											{key}
 										</th>
@@ -143,12 +124,15 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 							</thead>
 							<tbody className="bg-white divide-y divide-gray-200">
 								{currentItems.map((row, rowIndex) => (
-									<tr key={rowIndex}>
+									<tr
+										key={rowIndex}
+										className="hover:bg-gray-100"
+									>
 										{Object.values(row).map(
 											(value, colIndex) => (
 												<td
 													key={colIndex}
-													className="px-4 py-2 text-sm text-gray-500 whitespace-nowrap"
+													className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap"
 												>
 													{value}
 												</td>
@@ -159,34 +143,33 @@ const TextPreview = ({ file, index, handleRemoveFile }) => {
 							</tbody>
 						</table>
 					</div>
-					<div className="flex justify-between items-center">
+					<div className="flex justify-between items-center mt-4">
 						<button
 							onClick={() => handlePageChange(currentPage - 1)}
-							className="bg-gray-300 text-gray-700 rounded px-3 py-1 text-sm hover:bg-gray-400 disabled:opacity-50"
+							className="bg-gray-300 text-gray-700 rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
 							disabled={currentPage === 1}
 						>
 							Previous
 						</button>
-						<span className="text-sm text-gray-700">
+						<span className="text-sm text-gray-700 flex items-center space-x-2">
+							<span>Page</span>
 							<form className="flex items-center space-x-2">
-								<span>Page</span>
 								<input
 									type="number"
 									value={inputPage}
 									onChange={handleInputChange}
 									onKeyDown={handleKeyDown}
-									className="border border-gray-300 rounded px-3 py-1 text-sm w-14 mr-2"
+									className="border border-gray-300 rounded-md px-3 py-1 text-sm w-16"
 									placeholder={currentPage}
 									min="1"
 									max={totalPages}
-									place
 								/>
 								<span>of {totalPages}</span>
 							</form>
 						</span>
 						<button
 							onClick={() => handlePageChange(currentPage + 1)}
-							className="bg-gray-300 text-gray-700 rounded px-3 py-1 text-sm hover:bg-gray-400 disabled:opacity-50"
+							className="bg-gray-300 text-gray-700 rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
 							disabled={currentPage === totalPages}
 						>
 							Next

@@ -68,14 +68,6 @@ const StepTwo = ({
 			</div>
 		)
 	}
-	// const file = csv_data_source
-
-	// const file = fs.readFile(csv_data_source, (err, data) => {
-	// 	if (err) {
-	// 		throw err
-	// 	}
-	// 	console.log(data)
-	// })
 	const { id: projectId } = useParams()
 
 	const handleTrain = async () => {
@@ -98,20 +90,36 @@ const StepTwo = ({
 
 	return (
 		<>
-			<div>
-				<button
-					onClick={handleTrain}
-					className=" text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+			<div className="flex w-full pt-2 pb-5">
+				<div
+					class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50"
+					role="alert"
 				>
-					Train Model
-				</button>
+					<svg
+						class="flex-shrink-0 inline w-4 h-4 mr-3"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+					>
+						<path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+					</svg>
+					<div>
+						Ensure that all labels are meticulously verified prior
+						to initiating the training process.
+					</div>
+				</div>
+				<div className="ml-auto relative h-full pt-3">
+					<button
+						onClick={handleTrain}
+						className=" text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+					>
+						Train Model
+					</button>
+				</div>
 			</div>
 
-			<TextPreview
-				file={csv_data_source}
-				index={0}
-				handleRemoveFile={() => console.log('ok')}
-			></TextPreview>
+			<TextPreview file={csv_data_source}></TextPreview>
 		</>
 	)
 }
