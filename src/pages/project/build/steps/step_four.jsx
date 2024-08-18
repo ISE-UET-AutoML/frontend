@@ -730,7 +730,8 @@ const StepFour = (props) => {
 				{stepFourState.isLoading && <Loading />}
 
 				{/* uploaded */}
-				{stepFourState.uploadFiles.length > 0 && showImageModal ? (
+				{stepFourState.uploadFiles.length > 0 &&
+				stepFourState.showImageModal ? (
 					<>
 						<div className="mx-auto mt-8 w-full grid grid-cols-1 gap-6 sm:px-6 lg:max-w-[1600px] lg:grid-flow-col-dense justify-center items-center lg:grid-cols-6 h-full ">
 							<div className="col-span-4">

@@ -4,21 +4,17 @@ import TextTrainPreview from 'src/pages/preview/TextTrainPreview'
 import ImageTrainPreview from 'src/pages/preview/ImageTrainPreview'
 
 const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
-	console.log('projectInfo', projectInfo)
-
 	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
-		let isUnlabelData = false
+		let isUnlabelledData = false
 
 		for (let i = 0; i < files.length; i++) {
 			// not have filed label or filed label is empty
 			if (!files[i]?.label || files[i].label.length <= 0) {
-				isUnlabelData = true
+				isUnlabelledData = true
 				break
 			}
 		}
-		if (isUnlabelData) {
-			// const labels_value = labels.map((v, i) => v.value)
-			// console.log('label values', labels_value);
+		if (isUnlabelledData) {
 			return (
 				<div>
 					<Labeling
@@ -52,18 +48,17 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 			</div>
 		)
 	}
-	let isUnlabelData = false
+
+	let isUnlabelledData = false
 
 	for (let i = 0; i < files.length; i++) {
 		// not have filed label or filed label is empty
 		if (!files[i]?.label || files[i].label.length <= 0) {
-			isUnlabelData = true
+			isUnlabelledData = true
 			break
 		}
 	}
-	if (isUnlabelData) {
-		// const labels_value = labels.map((v, i) => v.value)
-		// console.log('label values', labels_value);
+	if (isUnlabelledData) {
 		return (
 			<div>
 				<Labeling
