@@ -111,7 +111,8 @@ const StepFour = (props) => {
 
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 
 		// handle text prediction (temporary)
 		if (files[0].name.endsWith('.csv') && files.length === 1) {
@@ -236,7 +237,8 @@ const StepFour = (props) => {
 
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('text', stepFourState.selectedSentence)
 
 		console.log('Fetching explain text')
@@ -310,7 +312,8 @@ const StepFour = (props) => {
 
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
@@ -730,7 +733,8 @@ const StepFour = (props) => {
 				{stepFourState.isLoading && <Loading />}
 
 				{/* uploaded */}
-				{stepFourState.uploadFiles.length > 0 && showImageModal ? (
+				{stepFourState.uploadFiles.length > 0 &&
+				stepFourState.showImageModal ? (
 					<>
 						<div className="mx-auto mt-8 w-full grid grid-cols-1 gap-6 sm:px-6 lg:max-w-[1600px] lg:grid-flow-col-dense justify-center items-center lg:grid-cols-6 h-full ">
 							<div className="col-span-4">

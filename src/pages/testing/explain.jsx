@@ -18,7 +18,8 @@ const Explain = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'test-automl')
 		formData.append('projectName', '4-animal')
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
@@ -61,7 +62,8 @@ const Explain = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('text', sentence)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`

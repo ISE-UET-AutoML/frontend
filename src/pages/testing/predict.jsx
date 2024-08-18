@@ -20,7 +20,8 @@ const TestPredict = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
@@ -64,7 +65,8 @@ const TestPredict = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('csv_file', selectedTextFile)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/temp_predict`
@@ -83,7 +85,7 @@ const TestPredict = (props) => {
 					confidence: item.confidence,
 					label: item.class,
 				}))
-				
+
 				setPredictions(prediction)
 				console.log('Fetch successful')
 			})
@@ -96,7 +98,6 @@ const TestPredict = (props) => {
 			})
 	}
 
-
 	const handleExplainText = async (event) => {
 		event.preventDefault()
 
@@ -104,7 +105,8 @@ const TestPredict = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', 'ISE')
+		formData.append('runName', experimentName)
+		//formData.append('runName', 'ISE')
 		formData.append('text', sentence)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
@@ -200,44 +202,54 @@ const TestPredict = (props) => {
 				</form>
 			</div>
 
-			{predictions ? (		
-			<div>
-				<table style={{maxWidth: '500px'}}>
-					<thead>
-						<tr>
-							<th>Sentence</th>
-							<th>Confidence</th>
-							<th>Label</th>
-						</tr>
-					</thead>
-					<tbody className="bg-white divide-y divide-gray-200">
-						{predictions.map(
-							(item, index) => (
-								<tr key={index} onClick={() => handleSelectedText(item)} className={`hover:bg-gray-100 cursor-pointer ${sentence === item.sentence ? 'border-2 border-blue-500' : ''}`}>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.sentence}</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.confidence}</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.label}</td>
-								</tr>
-							)
-						)}
-					</tbody>
-				</table>
+			{predictions ? (
 				<div>
-					<button onClick={handleExplainText}>Explain</button>
+					<table style={{ maxWidth: '500px' }}>
+						<thead>
+							<tr>
+								<th>Sentence</th>
+								<th>Confidence</th>
+								<th>Label</th>
+							</tr>
+						</thead>
+						<tbody className="bg-white divide-y divide-gray-200">
+							{predictions.map((item, index) => (
+								<tr
+									key={index}
+									onClick={() => handleSelectedText(item)}
+									className={`hover:bg-gray-100 cursor-pointer ${sentence === item.sentence ? 'border-2 border-blue-500' : ''}`}
+								>
+									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+										{item.sentence}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+										{item.confidence}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+										{item.label}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+					<div>
+						<button onClick={handleExplainText}>Explain</button>
+					</div>
+					<div
+						style={{
+							width: '100%',
+							maxWidth: '1000px',
+							padding: '20px',
+							backgroundColor: '#f9f9f9',
+							borderRadius: '8px',
+							overflow: 'auto',
+						}}
+						dangerouslySetInnerHTML={{ __html: explainTextHTML }}
+					></div>
 				</div>
-				<div
-					style={{
-						width: '100%',
-						maxWidth: '1000px',
-						padding: '20px',
-						backgroundColor: '#f9f9f9',
-						borderRadius: '8px',
-						overflow: 'auto',
-					}}
-					dangerouslySetInnerHTML={{ __html: explainTextHTML }}
-				></div>
-			</div>) : 
-			(<p>Error</p>)}
+			) : (
+				<p>Error</p>
+			)}
 		</>
 	)
 }
