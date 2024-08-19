@@ -268,46 +268,46 @@ const StepFour = (props) => {
 									</div>
 								</div>
 
-								<div className=" h-56 col-span-full lg:col-span-5 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200">
+								<div className=" h-56 col-span-full lg:col-span-5 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200 shadow-lg">
 									<div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
 										<div className="space-y-2">
 											<p className=" text-gray-700">
-												Training an AI is a
-												sophisticated process that
-												involves the use of complex
-												algorithms designed to analyze
-												vast amounts of data. The
-												primary aim is to enable the AI
-												to learn patterns and make
-												predictions or decisions based
-												on the information it processes.
-												To achieve this, machine
-												learning models are trained
-												using various techniques,
-												including supervised learning,
-												unsupervised learning, and
-												reinforcement learning. These
-												techniques involve iteratively
-												adjusting the algorithms to
-												improve their accuracy and
-												effectiveness.
+												<span className="font-bold">
+													Train loss (train_loss)
+												</span>{' '}
+												measures a model's prediction
+												error during training. It
+												indicates how well the model
+												fits the training data, with
+												lower values suggesting better
+												performance.
 											</p>
 											<p className=" text-gray-700">
-												Despite the advanced nature of
-												these algorithms, the training
-												process is not without its
-												challenges. Errors and
-												inaccuracies can still arise,
-												which can impact the performance
-												of the AI. These mistakes often
-												stem from limitations in the
-												data, such as biases, gaps, and
-												the inherent complexity of the
-												algorithms themselves.
-												Addressing these issues requires
-												continuous refinement of the
-												models and the data they are
-												trained on.
+												<span className="font-bold">
+													Validation loss (val_loss)
+												</span>{' '}
+												evaluates a model's performance
+												on unseen data, providing
+												insight into its generalization
+												ability. A significant gap
+												between train loss and val_loss
+												often indicates overfitting,
+												where the model performs well on
+												training data but poorly on new
+												data.
+											</p>
+											<p className=" text-gray-700">
+												<span className="font-bold">
+													Validation accuracy
+													(val_accuracy)
+												</span>{' '}
+												measures a model's ability to
+												correctly predict outcomes on
+												unseen validation data. High
+												validation accuracy indicates
+												strong generalization, while a
+												large gap with training accuracy
+												may signal overfitting.
 											</p>
 										</div>
 									</div>

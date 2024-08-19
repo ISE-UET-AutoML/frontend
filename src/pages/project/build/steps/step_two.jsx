@@ -4,7 +4,8 @@ import TextTrainPreview from 'src/pages/preview/TextTrainPreview'
 import ImageTrainPreview from 'src/pages/preview/ImageTrainPreview'
 
 const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
-	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
+	// TODO: Refix projectInfo null when reload
+	if (files && projectInfo && projectInfo.type === 'IMAGE_CLASSIFICATION') {
 		let isUnlabelledData = false
 
 		for (let i = 0; i < files.length; i++) {
@@ -49,46 +50,50 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 		)
 	}
 
-	let isUnlabelledData = false
+	if (files && projectInfo && projectInfo.type === 'TEXT_CLASSIFICATION') {
+		let isUnlabelledData = false
 
-	for (let i = 0; i < files.length; i++) {
-		// not have filed label or filed label is empty
-		if (!files[i]?.label || files[i].label.length <= 0) {
-			isUnlabelledData = true
-			break
+		for (let i = 0; i < files.length; i++) {
+			// not have filed label or filed label is empty
+			if (!files[i]?.label || files[i].label.length <= 0) {
+				isUnlabelledData = true
+				break
+			}
 		}
-	}
-	if (isUnlabelledData) {
+		if (isUnlabelledData) {
+			return (
+				<div>
+					<Labeling
+						images={files}
+						labelsWithID={labels}
+						updateFields={updateFields}
+						type={projectInfo.type}
+						next={() => {
+							updateFields({
+								isDoneStepTwo: true,
+							})
+						}}
+						pagination={pagination}
+					/>
+				</div>
+			)
+		}
+
 		return (
-			<div>
-				<Labeling
-					images={files}
-					labelsWithID={labels}
-					updateFields={updateFields}
-					type={projectInfo.type}
-					next={() => {
-						updateFields({
-							isDoneStepTwo: true,
-						})
-					}}
-					pagination={pagination}
-				/>
-			</div>
+			<TextTrainPreview
+				texts={files}
+				updateFields={updateFields}
+				next={() => {
+					updateFields({
+						isDoneStepTwo: true,
+					})
+				}}
+				pagination={pagination}
+			></TextTrainPreview>
 		)
 	}
 
-	return (
-		<TextTrainPreview
-			texts={files}
-			updateFields={updateFields}
-			next={() => {
-				updateFields({
-					isDoneStepTwo: true,
-				})
-			}}
-			pagination={pagination}
-		></TextTrainPreview>
-	)
+	return <>Error</>
 }
 
 export default memo(StepTwo)
