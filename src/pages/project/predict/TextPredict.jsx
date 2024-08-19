@@ -11,6 +11,7 @@ const TextPredict = ({
 }) => {
 	const [explainTextHTML, setExplainTextHTML] = useState('')
 	const [sentence, setSentence] = useState('')
+	const [explanation, setExplanation] = useState(null)
 
 	const handleTextChange = (event) => {
 		setSentence(event.target.value)
@@ -19,6 +20,25 @@ const TextPredict = ({
 		updateState({
 			selectedSentence: item.sentence,
 		})
+	}
+
+	const fakeData = () => {
+		const data = [
+			{
+				'class': 0,
+				'words': ['word1', 'word2', 'word3'],
+			},
+			{
+				'class': 1,
+				'words': ['word4', 'word5', 'word6'],
+			},
+			{
+				'class': 2,
+				'words': ['word7', 'word8', 'word9'],
+			}
+		]
+
+		setExplanation(data)
 	}
 
 	const handleExplainText = async (event) => {
@@ -54,33 +74,10 @@ const TextPredict = ({
 
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
-				const html = data.explain_html
-				setExplainTextHTML(html)
-				console.log(html)
-				const parsedHTML = new DOMParser().parseFromString(
-					html,
-					'text/html'
-				)
-				const scriptContent =
-					parsedHTML.querySelector('script').textContent
-				// Create a script element
-				const script = document.createElement('script')
-
-				// Set the script content to execute
-				script.textContent = scriptContent
-
-				// Append the script element to the document body or head
-				// You can choose where to append it based on your needs
-				document.body.appendChild(script)
-
-				console.log('Fetch successful')
+				setExplanation(data.explanations)
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
-				// Handle timeout or other errors here
-				if (error.message === 'Request timed out') {
-					console.log('The request took too long and was terminated.')
-				}
 			})
 			.finally(() => {
 				updateState({ isLoading: false })
@@ -143,19 +140,22 @@ const TextPredict = ({
 							Explain
 						</button>
 					</div>
-					<div
-						style={{
-							width: '100%',
-							maxWidth: '1000px',
-							padding: '20px',
-							backgroundColor: '#f9f9f9',
-							borderRadius: '8px',
-							overflow: 'auto',
-						}}
-						dangerouslySetInnerHTML={{
-							__html: explainTextHTML,
-						}}
-					></div>
+					{explanation ? (
+						<div>
+							{explanation.map((item, index) => (
+								<div key={index} className="mb-4">
+									<p>
+										<span className="font-bold">
+											Class {item.class}
+										</span>
+										: {item.words.map((word) => word + ', ')}
+									</p>
+								</div>
+							))}
+						</div>
+					) : (
+						<p>No explanation</p>
+					)}
 				</div>
 			) : (
 				<p>Error</p>

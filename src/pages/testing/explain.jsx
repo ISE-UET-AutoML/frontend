@@ -8,6 +8,27 @@ const Explain = (props) => {
 	const [explainTextHTML, setExplainTextHTML] = useState('')
 	const [selectedImageFile, setSelectedImageFile] = useState(null)
 	const [sentence, setSentence] = useState('')
+	const [explanation, setExplainText] = useState(null)
+
+
+	const fakeData = () => {
+		const data = [
+			{
+				'class': 0,
+				'words': ['word1', 'word2', 'word3'],
+			},
+			{
+				'class': 1,
+				'words': ['word4', 'word5', 'word6'],
+			},
+			{
+				'class': 2,
+				'words': ['word7', 'word8', 'word9'],
+			}
+		]
+
+		setExplainText(data)
+	}
 
 	const handleExplainSelectedImage = async (event) => {
 		event.preventDefault()
@@ -18,7 +39,7 @@ const Explain = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'test-automl')
 		formData.append('projectName', '4-animal')
-		formData.append('runName', experimentName)
+		formData.append('runName', "ISE")
 		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
@@ -61,7 +82,7 @@ const Explain = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', experimentName)
+		formData.append('runName', "ISE")
 		formData.append('text', sentence)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
@@ -73,33 +94,12 @@ const Explain = (props) => {
 
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
-				const html = data.explain_html
-				setExplainTextHTML(html)
-				console.log(html)
-				const parsedHTML = new DOMParser().parseFromString(
-					html,
-					'text/html'
-				)
-				const scriptContent =
-					parsedHTML.querySelector('script').textContent
-				// Create a script element
-				const script = document.createElement('script')
-
-				// Set the script content to execute
-				script.textContent = scriptContent
-
-				// Append the script element to the document body or head
-				// You can choose where to append it based on your needs
-				document.body.appendChild(script)
-
-				console.log('Fetch successful')
+				console.log('Fetch successful');
+				
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
-				// Handle timeout or other errors here
-				if (error.message === 'Request timed out') {
-					console.log('The request took too long and was terminated.')
-				}
+				fakeData()
 			})
 	}
 
@@ -159,6 +159,26 @@ const Explain = (props) => {
 					/>
 					<button type="submit">Submit</button>
 				</form>
+
+				{explanation ? (
+					<div>
+						<div>
+							Sentence: {sentence}
+						</div>
+						{explanation.map((item, index) => (
+							<div key={index} className="mb-4">
+								<p>
+									<span className="font-bold">
+										Class {item.class}
+									</span>
+									: {item.words.map((word) => word + ', ')}
+								</p>
+							</div>
+						))}
+					</div>
+				) : (
+					<p>No explanation</p>
+				)}
 				<div
 					style={{
 						width: '100%',
