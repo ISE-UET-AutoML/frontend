@@ -7,7 +7,7 @@ const ImageUploadPreview = ({ file, index, handleRemoveFile }) => {
 			className="rounded-md overflow-hidden relative group hover:opacity-100"
 		>
 			<button
-				className="absolute cursor-pointer right-2 top-2 bg-white flex justify-center items-center rounded-full h-[20px] w-[20px] opacity-0 group-hover:opacity-100"
+				className="absolute cursor-pointer right-2 top-2 bg-white flex justify-center items-center rounded-md h-[20px] w-[20px] opacity-0 group-hover:opacity-100 hover:bg-red-300"
 				onClick={() => handleRemoveFile(index)}
 			>
 				<svg

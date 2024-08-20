@@ -86,6 +86,7 @@ const TestPredict = (props) => {
 					label: item.class,
 				}))
 
+
 				setPredictions(prediction)
 				console.log('Fetch successful')
 			})
@@ -228,7 +229,54 @@ const TestPredict = (props) => {
 									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 										{item.label}
 									</td>
+			{predictions ? (
+				<div>
+					<table style={{ maxWidth: '500px' }}>
+						<thead>
+							<tr>
+								<th>Sentence</th>
+								<th>Confidence</th>
+								<th>Label</th>
+							</tr>
+						</thead>
+						<tbody className="bg-white divide-y divide-gray-200">
+							{predictions.map((item, index) => (
+								<tr
+									key={index}
+									onClick={() => handleSelectedText(item)}
+									className={`hover:bg-gray-100 cursor-pointer ${sentence === item.sentence ? 'border-2 border-blue-500' : ''}`}
+								>
+									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+										{item.sentence}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+										{item.confidence}
+									</td>
+									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+										{item.label}
+									</td>
 								</tr>
+							))}
+						</tbody>
+					</table>
+					<div>
+						<button onClick={handleExplainText}>Explain</button>
+					</div>
+					<div
+						style={{
+							width: '100%',
+							maxWidth: '1000px',
+							padding: '20px',
+							backgroundColor: '#f9f9f9',
+							borderRadius: '8px',
+							overflow: 'auto',
+						}}
+						dangerouslySetInnerHTML={{ __html: explainTextHTML }}
+					></div>
+				</div>
+			) : (
+				<p>Error</p>
+			)}
 							))}
 						</tbody>
 					</table>

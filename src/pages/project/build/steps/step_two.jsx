@@ -4,21 +4,18 @@ import TextTrainPreview from 'src/pages/preview/TextTrainPreview'
 import ImageTrainPreview from 'src/pages/preview/ImageTrainPreview'
 
 const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
-	console.log('projectInfo', projectInfo)
-
-	if (projectInfo.type === 'IMAGE_CLASSIFICATION') {
-		let isUnlabelData = false
+	// TODO: Refix projectInfo null when reload
+	if (files && projectInfo && projectInfo.type === 'IMAGE_CLASSIFICATION') {
+		let isUnlabelledData = false
 
 		for (let i = 0; i < files.length; i++) {
 			// not have filed label or filed label is empty
 			if (!files[i]?.label || files[i].label.length <= 0) {
-				isUnlabelData = true
+				isUnlabelledData = true
 				break
 			}
 		}
-		if (isUnlabelData) {
-			// const labels_value = labels.map((v, i) => v.value)
-			// console.log('label values', labels_value);
+		if (isUnlabelledData) {
 			return (
 				<div>
 					<Labeling
@@ -52,48 +49,51 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 			</div>
 		)
 	}
-	let isUnlabelData = false
 
-	for (let i = 0; i < files.length; i++) {
-		// not have filed label or filed label is empty
-		if (!files[i]?.label || files[i].label.length <= 0) {
-			isUnlabelData = true
-			break
+	if (files && projectInfo && projectInfo.type === 'TEXT_CLASSIFICATION') {
+		let isUnlabelledData = false
+
+		for (let i = 0; i < files.length; i++) {
+			// not have filed label or filed label is empty
+			if (!files[i]?.label || files[i].label.length <= 0) {
+				isUnlabelledData = true
+				break
+			}
 		}
-	}
-	if (isUnlabelData) {
-		// const labels_value = labels.map((v, i) => v.value)
-		// console.log('label values', labels_value);
+		if (isUnlabelledData) {
+			return (
+				<div>
+					<Labeling
+						images={files}
+						labelsWithID={labels}
+						updateFields={updateFields}
+						type={projectInfo.type}
+						next={() => {
+							updateFields({
+								isDoneStepTwo: true,
+							})
+						}}
+						pagination={pagination}
+					/>
+				</div>
+			)
+		}
+
 		return (
-			<div>
-				<Labeling
-					images={files}
-					labelsWithID={labels}
-					updateFields={updateFields}
-					type={projectInfo.type}
-					next={() => {
-						updateFields({
-							isDoneStepTwo: true,
-						})
-					}}
-					pagination={pagination}
-				/>
-			</div>
+			<TextTrainPreview
+				texts={files}
+				updateFields={updateFields}
+				next={() => {
+					updateFields({
+						isDoneStepTwo: true,
+					})
+				}}
+				pagination={pagination}
+			></TextTrainPreview>
 		)
 	}
 
-	return (
-		<TextTrainPreview
-			texts={files}
-			updateFields={updateFields}
-			next={() => {
-				updateFields({
-					isDoneStepTwo: true,
-				})
-			}}
-			pagination={pagination}
-		></TextTrainPreview>
-	)
+	return <>Error</>
 }
 
 export default memo(StepTwo)

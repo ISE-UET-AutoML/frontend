@@ -13,6 +13,8 @@ import Loading from 'src/components/Loading'
 import { TYPES } from 'src/constants/types'
 import ImageUploadPreview from 'src/pages/dashboard/previews/image'
 import TextUploadPreview from 'src/pages/dashboard/previews/text'
+import database from 'src/assets/images/background.png'
+import databaseList from 'src/assets/images/listData.png'
 
 const LOAD_CHUNK = 12
 
@@ -108,22 +110,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		}
 	}
 
-	// pass
-	// check label data
-	// const queryString = new URLSearchParams({
-	//     id: projectID,
-	// }).toString();
-	// const { data } = await projectAPI.uploadFiles(
-	//     projectID,
-	// );
-	// console.log('data', data)
-	// message.success('Successfully uploaded', 3);
-	// updateState({ isUploading: false });
-	// updateFields({
-	//     isDoneStepOne: true,
-	//     ...data,
-	// });
-
 	return (
 		<>
 			{dashboardState.isUploading ? <Loading /> : ''}
@@ -204,7 +190,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				<div className="container flex justify-around items-center mx-auto gap-4">
 					<div
 						// chuyển hướng sang phần Label Studio của anh Thanh
-						onClick={() => updateState({ showUploader: false })}
+						onClick={() => updateState({ showUploader: true })}
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
@@ -268,38 +254,41 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 					</svg>
 				</button>
-				<div className="h-[3000px] overflow-auto py-[100px] w-full left-0 px-10 ">
-					<h3 className="text-center w-full text-[24px] font-[500] leading-[1.16] mb-8 ">
-						Labelled dataset upload
-					</h3>
+				<div className=" h-full overflow-auto py-[50px] w-full left-0 px-10 ">
+					<h1 class="mb-5 text-3xl font-extrabold text-gray-900 text-center">
+						<span class="text-transparent bg-clip-text bg-gradient-to-r to-[#2c67f2] from-[#62cff4]">
+							Upload the data
+						</span>{' '}
+						to initiate the process
+					</h1>
 					<label
 						htmlFor="classification"
-						className="h-[300px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 p-5 rounded-[15px]"
+						className="h-[180px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 rounded-[15px] hover:border-[#3498db]"
 					>
-						<div className="w-full h-full bg-white p-10 rounded-md cursor-pointer">
+						<div className="w-full h-full bg-white p-5  cursor-pointer rounded-[15px]">
 							<div className="flex flex-col">
 								<img
-									src="https://dr23pab8nlq87.cloudfront.net/images/unclassified_instruction_1-t77g.png"
+									src={database}
 									alt=""
 									className="mt-5 w-[200px] h-full mx-auto"
 								/>
 
-								<p className="text-center text-[12px] font-[300]">
+								<p className="text-center text-[15px] font-[300]">
 									{(projectInfo &&
 										TYPES[projectInfo.type]?.description) ||
 										'No description available'}
 								</p>
 							</div>
 						</div>
-						<div className="w-full h-full bg-white p-10 rounded-md cursor-pointer">
+						<div className="w-full h-full bg-white p-5 cursor-pointer rounded-[15px]">
 							<div className="flex flex-col">
 								<img
-									src="https://dr23pab8nlq87.cloudfront.net/images/unclassified_instruction_2-x08W.png"
+									src={databaseList}
 									alt=""
 									className="mt-5 w-[200px] h-full mx-auto"
 								/>
 
-								<p className="text-center text-[12px] font-[300]">
+								<p className="text-center text-[15px] font-[300]">
 									Folder information will be automatically
 									tagged as metadata to each media{' '}
 								</p>
@@ -317,16 +306,14 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							}}
 						/>
 					</label>
-					<br />
-					<div className="text-center mx-auto">
-						{dashboardState.uploadFiles.length} File(s) Ready for
-						Upload
-					</div>
-					<br />
-					<div className="flex justify-between items-center ">
-						<span className="mr-auto text-start font-[100]">
-							Upload Preview
+					<div className="flex justify-between items-center mt-5">
+						<span className=" text-start  text-[23px] font-bold">
+							Preview
 						</span>
+						<div className="text-center">
+							{dashboardState.uploadFiles.length} File(s) Ready
+							for Upload
+						</div>
 						<button
 							className="bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
 							onClick={uploadFiles}

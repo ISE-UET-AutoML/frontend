@@ -45,6 +45,17 @@ const Explain = (props) => {
 			})
 	}
 
+	const handleHighlight = (selectedClass) => {
+		setHighlightedClass(selectedClass)
+	}
+
+	const shouldHighlight = (word) => {
+		const currrentClassWords = explanation.find(
+			(item) => item.class === selectedClass
+		).words
+		return currrentClassWords.includes(word)
+	}
+
 	const handleFileChange = (event) => {
 		const file = event.target.files[0]
 		setSelectedImageFile(file)
@@ -65,6 +76,10 @@ const Explain = (props) => {
 		formData.append('runName', experimentName)
 		//formData.append('runName', 'ISE')
 		formData.append('text', sentence)
+
+		const temp = sentence.split(/[\s,]+/)
+
+		console.log(temp.map((word) => word.replace(/[()]/g, '')))
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
 
@@ -98,10 +113,7 @@ const Explain = (props) => {
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
-				// Handle timeout or other errors here
-				if (error.message === 'Request timed out') {
-					console.log('The request took too long and was terminated.')
-				}
+				fakeData()
 			})
 	}
 
@@ -155,8 +167,8 @@ const Explain = (props) => {
 							boxSizing: 'border-box',
 						}}
 						type="text"
-						value={sentence}
 						name="sentence"
+						value={sentence}
 						onChange={handleTextChange}
 					/>
 					<button type="submit">Submit</button>
