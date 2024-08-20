@@ -12,6 +12,8 @@ const TextPredict = ({
 	const [explainTextHTML, setExplainTextHTML] = useState('')
 	const [sentence, setSentence] = useState('')
 	const [explanation, setExplanation] = useState(null)
+	const [selectedClass, setHighlightedClass] = useState(0);
+
 
 	const handleTextChange = (event) => {
 		setSentence(event.target.value)
@@ -22,24 +24,16 @@ const TextPredict = ({
 		})
 	}
 
-	const fakeData = () => {
-		const data = [
-			{
-				'class': 0,
-				'words': ['word1', 'word2', 'word3'],
-			},
-			{
-				'class': 1,
-				'words': ['word4', 'word5', 'word6'],
-			},
-			{
-				'class': 2,
-				'words': ['word7', 'word8', 'word9'],
-			}
-		]
+	const handleHighlight = (selectedClass) => {
+		setHighlightedClass(selectedClass);
+	};
 
-		setExplanation(data)
-	}
+	
+	const shouldHighlight = (word) => {
+		const currrentClassWords = explanation.find(item => item.class === selectedClass).words;
+		return currrentClassWords.includes(word);
+	};
+
 
 	const handleExplainText = async (event) => {
 		event.preventDefault()
@@ -75,6 +69,7 @@ const TextPredict = ({
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
 				setExplanation(data.explanations)
+				console.log(data.explanations)
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
@@ -83,6 +78,9 @@ const TextPredict = ({
 				updateState({ isLoading: false })
 			})
 	}
+
+
+
 	return (
 		<div
 			className={`${
@@ -114,7 +112,7 @@ const TextPredict = ({
 											onClick={() =>
 												handleSelectedText(item)
 											}
-											className={`hover:bg-gray-100 cursor-pointer ${stepFourState.selectedSentence === item.sentence ? 'border-2 border-blue-500' : ''}`}
+											className={`hover:bg-gray-100 cursor-pointer ${stepFourState.selectedSentence === item.sentence ? 'border-2 border-blue-500 bg-blue-100 font-bold' : ''}`}
 										>
 											<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 												{item.sentence}
@@ -141,21 +139,38 @@ const TextPredict = ({
 						</button>
 					</div>
 					{explanation ? (
+					<div>
+						<div>
+							<p>
+								{stepFourState.selectedSentence.split(/[\s,]+/).map((word, index) => (
+									<>
+									<span
+										key={index}
+										// className={shouldHighlight(word.replace(/[()]/g, '').trim()) ? 'highlight' : ''}
+										style={
+											shouldHighlight(word.replace(/[()]/g, '').trim())
+												? { backgroundColor: 'yellow' }
+												: {}
+											}
+											>
+										{word}
+									</span>
+									<span>{' '}</span>
+									</>
+								))}
+							</p>
+						</div>
 						<div>
 							{explanation.map((item, index) => (
-								<div key={index} className="mb-4">
-									<p>
-										<span className="font-bold">
-											Class {item.class}
-										</span>
-										: {item.words.map((word) => word + ', ')}
-									</p>
-								</div>
+								<button className={`px-4 py-2 m-2 border rounded ${
+									selectedClass === item.class ? 'bg-blue-500 text-white' : 'bg-gray-200'
+								}`} key={index} onClick={() => handleHighlight(item.class)}>Highlight Class {item.class}</button>
 							))}
 						</div>
-					) : (
-						<p>No explanation</p>
-					)}
+					</div>
+				) : (
+					<p>No explanation</p>
+				)}
 				</div>
 			) : (
 				<p>Error</p>

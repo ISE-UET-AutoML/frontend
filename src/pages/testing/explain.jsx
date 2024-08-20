@@ -9,7 +9,7 @@ const Explain = (props) => {
 	const [selectedImageFile, setSelectedImageFile] = useState(null)
 	const [sentence, setSentence] = useState('')
 	const [explanation, setExplainText] = useState(null)
-
+	const [selectedClass, setHighlightedClass] = useState(0);
 
 	const fakeData = () => {
 		const data = [
@@ -65,6 +65,17 @@ const Explain = (props) => {
 			})
 	}
 
+
+	const handleHighlight = (selectedClass) => {
+		setHighlightedClass(selectedClass);
+	};
+
+	
+	const shouldHighlight = (word) => {
+		const currrentClassWords = explanation.find(item => item.class === selectedClass).words;
+		return currrentClassWords.includes(word);
+	};
+
 	const handleFileChange = (event) => {
 		const file = event.target.files[0]
 		setSelectedImageFile(file)
@@ -85,6 +96,11 @@ const Explain = (props) => {
 		formData.append('runName', "ISE")
 		formData.append('text', sentence)
 
+
+		const temp = sentence.split(/[\s,]+/)
+
+		console.log(temp.map((word) => word.replace(/[()]/g, '')))
+
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
 
 		const options = {
@@ -94,8 +110,9 @@ const Explain = (props) => {
 
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
+				setExplainText(data.explanations)
+				console.log(data.explanations)
 				console.log('Fetch successful');
-				
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
@@ -153,8 +170,8 @@ const Explain = (props) => {
 							boxSizing: 'border-box',
 						}}
 						type="text"
-						value={sentence}
 						name="sentence"
+						value={sentence}
 						onChange={handleTextChange}
 					/>
 					<button type="submit">Submit</button>
@@ -163,18 +180,32 @@ const Explain = (props) => {
 				{explanation ? (
 					<div>
 						<div>
-							Sentence: {sentence}
-						</div>
-						{explanation.map((item, index) => (
-							<div key={index} className="mb-4">
-								<p>
-									<span className="font-bold">
-										Class {item.class}
+							<p>
+								{sentence.split(/[\s,]+/).map((word, index) => (
+									<>
+									<span
+										key={index}
+										// className={shouldHighlight(word.replace(/[()]/g, '').trim()) ? 'highlight' : ''}
+										style={
+											shouldHighlight(word.replace(/[()]/g, '').trim())
+												? { backgroundColor: 'yellow' }
+												: {}
+											}
+											>
+										{word}
 									</span>
-									: {item.words.map((word) => word + ', ')}
-								</p>
-							</div>
-						))}
+									<span>{' '}</span>
+									</>
+								))}
+							</p>
+						</div>
+						<div>
+							{explanation.map((item, index) => (
+								<button className={`px-4 py-2 m-2 border rounded ${
+									selectedClass === item.class ? 'bg-blue-500 text-white' : 'bg-gray-200'
+								}`} key={index} onClick={() => handleHighlight(item.class)}>Highlight Class {item.class}</button>
+							))}
+						</div>
 					</div>
 				) : (
 					<p>No explanation</p>
