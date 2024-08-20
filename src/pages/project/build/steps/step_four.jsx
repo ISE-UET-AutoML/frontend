@@ -379,7 +379,7 @@ const StepFour = (props) => {
 											</div>
 										</div>
 
-										<h3 className="text-[#666] text-[14px] font-[700] p-[15px] text-[24px]">
+										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Total Prediction:{' '}
 											<strong className="text-blue-600">
 												{
@@ -389,7 +389,7 @@ const StepFour = (props) => {
 											</strong>
 										</h3>
 
-										<h3 className="text-[#666] text-[14px] font-[700] p-[15px] text-[24px]">
+										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Correct Prediction:{' '}
 											<strong className="text-blue-600">
 												{' '}
@@ -403,7 +403,7 @@ const StepFour = (props) => {
 											</strong>
 										</h3>
 
-										<h3 className="text-[#666] text-[14px] font-[700] p-[15px] text-[24px]">
+										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Accuracy:{' '}
 											<strong className="text-blue-600">
 												{parseFloat(
