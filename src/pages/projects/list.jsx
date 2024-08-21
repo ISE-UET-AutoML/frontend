@@ -104,6 +104,7 @@ export default function ProjectList() {
 										<ProjectCard
 											key={project._id}
 											project={project}
+											getProjects={getProjects}
 										/>
 									))}
 								</div>

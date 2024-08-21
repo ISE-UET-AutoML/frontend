@@ -10,29 +10,47 @@ const TextPredict = ({
 	projectInfo,
 	stepFourState,
 	updateState,
+	handleFileChange,
 }) => {
-	const [sentence, setSentence] = useState('')
 	const [explanation, setExplanation] = useState(null)
 	const [selectedClass, setHighlightedClass] = useState(0)
 
-	const handleTextChange = (event) => {
-		setSentence(event.target.value)
-	}
 	const handleSelectedText = async (item) => {
+		const fileIndex = stepFourState.uploadSentences.findIndex(
+			(file) => file.name === item.name
+		)
+
 		updateState({
 			selectedSentence: item.sentence,
+			confidenceScore: item.confidence,
+			confidenceLabel: item.class,
 		})
+
+		setExplanation(null)
 	}
 
-	const handleHighlight = (selectedClass) => {
-		setHighlightedClass(selectedClass)
-	}
+	const handleConfirmText = (value) => {
+		const currentTextSelectedIndex =
+			stepFourState.uploadSentences.findIndex(
+				(file) => file.sentence === stepFourState.selectedSentence
+			)
 
-	const shouldHighlight = (word) => {
-		const currrentClassWords = explanation.find(
-			(item) => item.class === selectedClass
-		).words
-		return currrentClassWords.includes(word)
+		const nextIdx =
+			currentTextSelectedIndex ===
+			stepFourState.uploadSentences.length - 1
+				? currentTextSelectedIndex
+				: currentTextSelectedIndex + 1
+
+		setExplanation('')
+		updateState({
+			userConfirm: stepFourState.userConfirm.map((item, index) => {
+				if (index === currentTextSelectedIndex) {
+					return { ...item, value: value }
+				}
+				return item
+			}),
+			selectedSentence: stepFourState.uploadSentences[nextIdx],
+		})
 	}
 
 	const handleExplainText = async (event) => {
@@ -51,6 +69,10 @@ const TextPredict = ({
 		}
 		console.log(jsonObject)
 
+		updateState({
+			isLoading: true,
+		})
+
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
 		formData.append('runName', experimentName)
@@ -68,7 +90,7 @@ const TextPredict = ({
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
 				setExplanation(data.explanations)
-				console.log(data.explanations)
+				console.log('Fetch successful')
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
@@ -76,6 +98,17 @@ const TextPredict = ({
 			.finally(() => {
 				updateState({ isLoading: false })
 			})
+	}
+
+	const handleHighlight = (selectedClass) => {
+		setHighlightedClass(selectedClass)
+	}
+
+	const shouldHighlight = (word) => {
+		const currentClassWords = explanation.find(
+			(item) => item.class === selectedClass
+		).words
+		return currentClassWords.includes(word)
 	}
 
 	return (
@@ -106,7 +139,8 @@ const TextPredict = ({
 			</button>
 			{stepFourState.isLoading && <Loading />}
 
-			{stepFourState.showTextModal ? (
+			{stepFourState.uploadSentences.length > 0 &&
+			stepFourState.showTextModal ? (
 				<div className="w-full h-full">
 					{/* HEADER */}
 					<div className="flex items-center mb-5">
@@ -169,7 +203,7 @@ const TextPredict = ({
 									</thead>
 								</table>
 							</div>
-							<table className="min-w-full table-auto border-collapse rounded-lg overflow-hidden">
+							<table className="min-w-full table-auto border-collapse overflow-hidden">
 								<tbody>
 									{stepFourState.uploadSentences.map(
 										(item, index) => (
@@ -178,12 +212,26 @@ const TextPredict = ({
 												onClick={() =>
 													handleSelectedText(item)
 												}
-												className={`hover:bg-gray-100 cursor-pointer ${
-													stepFourState.selectedSentence ===
-													item.sentence
-														? ' border-blue-500 bg-blue-100 font-bold'
+												// className={`hover:bg-gray-100 cursor-pointer ${
+												// 	stepFourState.selectedSentence ===
+												// 	item.sentence
+												// 		? ' border-blue-500 bg-blue-100 font-bold border-2'
+												// 		: ''
+												// }`}
+												className={`${
+													typeof stepFourState
+														?.userConfirm[index]
+														.value === 'string'
+														? stepFourState
+																?.userConfirm[
+																index
+															].value === 'true'
+															? 'bg-green-100'
+															: 'bg-red-100'
 														: ''
-												}`}
+												}
+												  ${index < stepFourState.uploadSentences.length ? (stepFourState.selectedSentence === item.sentence ? 'bg-blue-100 cursor-pointer border-2 border-dashed border-blue-500' : '') : ''}
+												   `}
 											>
 												<td className="px-6 py-4 text-sm font-medium text-gray-900 break-words w-[60%] text-left">
 													{item.sentence}
@@ -204,7 +252,10 @@ const TextPredict = ({
 						{/* BUTTONS + DESCRIPTION */}
 						<div className="col-span-3 row-span-2 rounded-lg shadow-xl">
 							<div className="flex items-center justify-center space-x-20 mt-2">
-								<button className="border-2 border-green-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg">
+								<button
+									onClick={(e) => handleConfirmText('true')}
+									className="border-2 border-green-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										className="w-4 h-4 text-green-500"
@@ -241,7 +292,10 @@ const TextPredict = ({
 									</svg>
 								</button>
 
-								<button className="border-2 border-red-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg">
+								<button
+									onClick={(e) => handleConfirmText('false')}
+									className="border-2 border-red-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										className="w-4 h-4 text-red-500"
@@ -264,55 +318,68 @@ const TextPredict = ({
 										<div>
 											<p className="leading-loose">
 												{stepFourState.selectedSentence
-													.split(/[\s,]+/)
-													.map((word, index) => (
-														<>
-															<span
-																key={index}
-																className={
-																	shouldHighlight(
-																		word
-																			.replace(
-																				/[()]/g,
-																				''
-																			)
-																			.trim()
-																	)
-																		? 'highlight'
-																		: ''
-																}
-																style={
-																	shouldHighlight(
-																		word
-																			.replace(
-																				/[()]/g,
-																				''
-																			)
-																			.trim()
-																	)
-																		? {
-																				backgroundColor:
-																					'#4f46e5',
-																				color: 'white',
-																				paddingLeft:
-																					'0.5rem',
-																				paddingRight:
-																					'0.5rem',
-																				paddingTop:
-																					'0.25rem',
-																				paddingBottom:
-																					'0.25rem',
-																				borderRadius:
-																					'0.5rem',
+													? stepFourState.selectedSentence
+															.split(/[\s,]+/)
+															.map(
+																(
+																	word,
+																	index
+																) => (
+																	<>
+																		<span
+																			key={
+																				index
 																			}
-																		: {}
-																}
-															>
-																{word}
-															</span>
-															<span> </span>
-														</>
-													))}
+																			className={
+																				shouldHighlight(
+																					word
+																						.replace(
+																							/[()]/g,
+																							''
+																						)
+																						.trim()
+																				)
+																					? 'highlight'
+																					: ''
+																			}
+																			style={
+																				shouldHighlight(
+																					word
+																						.replace(
+																							/[()]/g,
+																							''
+																						)
+																						.trim()
+																				)
+																					? {
+																							backgroundColor:
+																								'#4f46e5',
+																							color: 'white',
+																							paddingLeft:
+																								'0.5rem',
+																							paddingRight:
+																								'0.5rem',
+																							paddingTop:
+																								'0.25rem',
+																							paddingBottom:
+																								'0.25rem',
+																							borderRadius:
+																								'0.5rem',
+																						}
+																					: {}
+																			}
+																		>
+																			{
+																				word
+																			}
+																		</span>
+																		<span>
+																			{' '}
+																		</span>
+																	</>
+																)
+															)
+													: 'Choose sentence'}
 											</p>
 										</div>
 										<div>
@@ -356,7 +423,53 @@ const TextPredict = ({
 					</div>
 				</div>
 			) : (
-				<div>Error</div>
+				<label
+					htmlFor="file"
+					onClick={() => updateState({ showPredictModal: true })}
+					// for="file"
+					className="flex flex-col w-[95%] cursor-pointer mt-24 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] h-[300px] rounded-[10px] "
+				>
+					<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="100"
+							height="100"
+							fill="none"
+							viewBox="0 0 100 100"
+						>
+							<mask
+								id="mask0_908_734"
+								style={{ maskType: 'alpha' }}
+								width="100"
+								height="100"
+								x="0"
+								y="0"
+								maskUnits="userSpaceOnUse"
+							>
+								<path fill="#D9D9D9" d="M0 0H100V100H0z"></path>
+							</mask>
+							<g mask="url(#mask0_908_734)">
+								<path
+									fill="#65A4FE"
+									d="M45.833 83.333h-18.75c-6.319 0-11.718-2.187-16.195-6.562-4.481-4.375-6.721-9.722-6.721-16.042 0-5.416 1.632-10.243 4.896-14.479 3.263-4.236 7.534-6.944 12.812-8.125 1.736-6.389 5.208-11.562 10.417-15.52 5.208-3.96 11.11-5.938 17.708-5.938 8.125 0 15.017 2.829 20.675 8.487 5.661 5.661 8.492 12.554 8.492 20.68 4.791.555 8.768 2.62 11.929 6.195 3.158 3.578 4.737 7.763 4.737 12.554 0 5.209-1.822 9.636-5.466 13.284-3.648 3.644-8.075 5.466-13.284 5.466H54.167V53.542L60.833 60l5.834-5.833L50 37.5 33.333 54.167 39.167 60l6.666-6.458v29.791z"
+								></path>
+							</g>
+						</svg>
+						<p className="text-center text-black">
+							Upload files to predict
+						</p>
+					</div>
+					<input
+						id="file"
+						type="file"
+						multiple
+						className="hidden"
+						onChange={handleFileChange}
+						onClick={(event) => {
+							event.target.value = null
+						}}
+					/>
+				</label>
 			)}
 		</div>
 	)
