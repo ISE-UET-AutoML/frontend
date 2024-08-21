@@ -7,13 +7,15 @@ import React, {
 	useState,
 } from 'react'
 import 'src/assets/css/card.css'
-import { message } from 'antd'
-import { useLibrary } from 'src/utils/LibProvider'
+
 import { ImageConfig, TextConfig } from './Config'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { listImages, trainModel, autoLabel } from 'src/api/project';
+import { message } from 'antd';
+import { useLibrary } from 'src/utils/LibProvider';
 import { createLabels } from 'src/api/dataset'
-import { useParams } from 'react-router-dom'
 import { updateLabel } from 'src/api/images'
-import { listImages } from 'src/api/project'
+import Loading from 'src/components/Loading';
 
 const INTERFACES = [
 	'panel',

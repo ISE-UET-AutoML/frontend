@@ -11,9 +11,11 @@ export const API_URL = {
     upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
     upload_file_ml_service: (projectID) => `http://localhost:8670/label_service/projects/${projectID}/upload/any`,
     get_project_dataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/datasets`,
+    get_project_fulldataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/fulldatasets`,
     update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
     explain_instance: (projectID) => `${API_BASE_URL}/projects/${projectID}/explain`,
     create_label_for_dataset: (datasetID) => `${API_BASE_URL}/datasets/${datasetID}/labels`,
-    get_model: (experimentName,projectId  ) => `${API_BASE_URL}/experiments/model/${experimentName}?project_id=${projectId}`,
+    post_autolabel: (datasetID) => `${API_BASE_URL}/projects/${datasetID}/autolabel`,
+    get_model: (experimentName) => `${API_BASE_URL}/experiments/model/${experimentName}`,
     get_training_history: (experimentName) => `${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
 }
