@@ -23,6 +23,8 @@ const ImagePredict = ({
 			confidenceScore: stepFourState.confidences[fileIndex].confidence,
 			confidenceLabel: stepFourState.confidences[fileIndex].class,
 		})
+
+		setExplainImageUrl('')
 	}
 
 	const handleConfirmImage = (value) => {
@@ -35,7 +37,7 @@ const ImagePredict = ({
 				? currentImageSeletedIndex
 				: currentImageSeletedIndex + 1
 
-		setExplainImageUrl(null)
+		setExplainImageUrl('')
 		updateState({
 			userConfirm: stepFourState.userConfirm.map((item, index) => {
 				if (index === currentImageSeletedIndex) {
@@ -282,11 +284,11 @@ const ImagePredict = ({
 										specifically on the
 										<a
 											target="_blank"
-											href="https://shap.readthedocs.io/en/latest/"
+											href="https://lime-ml.readthedocs.io/en/latest/lime.html"
 											class="hover:underline hover:decoration-indigo-500 font-semibold"
 										>
 											{' '}
-											SHAP
+											LIME
 										</a>{' '}
 										explainer methodology.
 									</article>
@@ -327,7 +329,7 @@ const ImagePredict = ({
 							</div>
 							<div className="col-span-1 row-span-1  shadow-2xl p-4 rounded-lg bg-white">
 								<h1 className="text-xl font-bold mb-2">
-									Accuracy Rate
+									Confident Score
 								</h1>
 								<p className="px-4 py-2 text-6xl text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] rounded-lg text-center">
 									{parseFloat(
