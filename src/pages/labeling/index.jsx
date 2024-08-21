@@ -286,6 +286,10 @@ const Labeling = ({ images, pagination, labelsWithID, next, updateFields }) => {
     }, [currentConfig])
 
     const checkData = () => {
+        if (!savedLabels || savedLabels.length <= 0) {
+            message.error('you must label more')
+            return false
+        }
         const currentLabeled = new Set()
         for (let index = 0; index < images.length; index++) {
             const element = images[index];
@@ -295,7 +299,7 @@ const Labeling = ({ images, pagination, labelsWithID, next, updateFields }) => {
         }
         const fullLabel = new Set(savedLabels)
         console.log(currentLabeled, fullLabel);
-        if (currentLabeled.length !== fullLabel.length) {
+        if (currentLabeled.size !== fullLabel.size) {
             message.error('you must label more')
             return false
         }
