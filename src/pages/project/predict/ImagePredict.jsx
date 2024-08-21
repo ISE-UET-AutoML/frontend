@@ -109,7 +109,8 @@ const ImagePredict = ({
 		>
 			<button
 				onClick={() => {
-					updateState(initialState)
+					// updateState(initialState)
+					console.log('close')
 				}}
 				className="absolute top-5 right-5 p-[12px] rounded-full bg-white hover:bg-gray-300 hover:text-white font-[600] w-[48px] h-[48px]"
 			>
@@ -211,7 +212,7 @@ const ImagePredict = ({
 											onClick={(e) =>
 												handleConfirmImage('true')
 											}
-											className="border-4 border-green-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+											className="border-2 border-green-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +234,7 @@ const ImagePredict = ({
 											onClick={(e) =>
 												handleExplainSelectedImage()
 											}
-											className="border-4 border-blue-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+											className="border-2 border-blue-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
@@ -255,7 +256,7 @@ const ImagePredict = ({
 											onClick={(e) =>
 												handleConfirmImage('false')
 											}
-											className="border-4 border-red-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+											className="border-2 border-red-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
@@ -299,19 +300,19 @@ const ImagePredict = ({
 													showResultModal: true,
 												})
 											}}
-											class="h-max mx-auto block w-fit relative items-center justify-center p-1 px-5 py-3 overflow-hidden font-medium text-indigo-600 rounded-lg shadow-2xl group"
+											className="h-max mx-auto block w-fit relative items-center justify-center p-1 px-5 py-3 overflow-hidden font-medium text-indigo-600 rounded-lg shadow-2xl group"
 										>
-											<span class="absolute top-0 left-0 w-40 h-40 -mt-10 -ml-3 transition-all duration-700 bg-blue-500 rounded-full blur-md ease"></span>
-											<span class="absolute inset-0 w-full h-full transition duration-700 group-hover:rotate-180 ease">
-												<span class="absolute bottom-0 left-0 w-24 h-24 -ml-10 bg-purple-500 rounded-full blur-md"></span>
-												<span class="absolute bottom-0 right-0 w-24 h-24 -mr-10 bg-pink-500 rounded-full blur-md"></span>
+											<span className="absolute top-0 left-0 w-40 h-40 -mt-10 -ml-3 transition-all duration-700 bg-blue-500 rounded-full blur-md ease"></span>
+											<span className="absolute inset-0 w-full h-full transition duration-700 group-hover:rotate-180 ease">
+												<span className="absolute bottom-0 left-0 w-24 h-24 -ml-10 bg-purple-500 rounded-full blur-md"></span>
+												<span className="absolute bottom-0 right-0 w-24 h-24 -mr-10 bg-pink-500 rounded-full blur-md"></span>
 											</span>
-											<span class="relative text-white">
+											<span className="relative text-white">
 												Effectiveness
 											</span>
 										</button>
 									)}
-									<div className="mt-4">
+									<div className="mt-2">
 										<img
 											src={
 												explainImageUrl
@@ -319,7 +320,7 @@ const ImagePredict = ({
 													: SolutionImage
 											}
 											alt="Explain"
-											className="rounded-lg shadow-lg w-full h-full object-contain"
+											className="rounded-lg shadow-lg w-full object-cover"
 										/>
 									</div>
 								</div>
