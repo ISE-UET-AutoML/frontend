@@ -23,10 +23,13 @@ const getProjectDataset = (projectID) => {
     return instance.get(API_URL.get_project_dataset(projectID));
 }
 
+const getProjectById = (projectID) => {
+    return instance.get(`${API_BASE_URL}/projects/${projectID}`);
+}
+
 const getProjectFullDataset = (projectID) => {
     return instance.get(API_URL.get_project_fulldataset(projectID));
 }
-
 
 const explainInstance = (projectID, data) => {
     const options = {
@@ -36,8 +39,13 @@ const explainInstance = (projectID, data) => {
     return instance.post(API_URL.explain_instance(projectID), data, options);
 }
 
+const deleteProject = (projectID) => {
+    return instance.post(API_URL.delete_project(projectID));
+}
+
+
 const autoLabel = (projectID) => {
     return instance.post(API_URL.post_autolabel(projectID));
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, updateData, explainInstance, getProjectFullDataset, autoLabel };
+export { listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel };

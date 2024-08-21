@@ -3,7 +3,7 @@ import { PATHS } from 'src/constants/paths';
 import Dashboard from 'src/pages/dashboard';
 import Projects from 'src/pages/projects';
 import Upload from 'src/pages/upload';
-import Preview from 'src/pages/preview';
+import ImageTrainPreview from 'src/pages/preview/ImageTrainPreview';
 import Profile from 'src/pages/profile';
 import Settings from 'src/pages/settings';
 import RequireAuth from 'src/layouts/RequireAuth';
@@ -49,7 +49,7 @@ const routes = {
                         },
                         {
                             path: 'preview',
-                            element: <Preview />,
+                            element: <ImageTrainPreview />,
                         },
                         {
                             path: 'project/:id',

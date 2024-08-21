@@ -3,6 +3,7 @@ import { API_URL } from 'src/constants/api';
 import Cookies from 'universal-cookie';
 
 const instance = axios.create({
+     baseURL: process.env.REACT_APP_API_URL,
     withCredentials: true,
 });
 

@@ -1,33 +1,25 @@
-import {
-	ArrowLongLeftIcon,
-	ArrowLongRightIcon,
-} from '@heroicons/react/24/outline';
-import { memo } from 'react';
+import { memo } from 'react'
 
 const Pagination = (props) => {
-	const { currentPage, totalPages, totalItems, onChange } = props;
+	const { currentPage, totalPages, onChange } = props
 	return (
 		<>
-			<nav className="flex mx-auto mt-10 max-w-2xl items-center justify-between border-t border-gray-200 px-4 sm:px-0 w-full">
-				<div className="flex w-0 flex-1 !select-none">
+			<nav className="flex mx-auto items-center justify-between mt-6 mb-6 px-4 sm:px-0 w-full">
+				<div className="flex w-0 flex-1 !select-none ml-6">
 					<a
 						onClick={() => {
 							if (currentPage > 1) {
-								onChange(currentPage - 1);
+								onChange(currentPage - 1)
 							}
 						}}
-						className={` ${
-							currentPage === 1 && 'hidden'
-						} inline-flex cursor-pointer items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-blue-700 hover:scale-110  !select-none`}
+						className={`${
+							currentPage === 1 ? 'hidden' : ''
+						} bg-[#f0f8ff] text-gray-600 rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#FFE4E1] transition-colors duration-300`}
 					>
-						<ArrowLongLeftIcon
-							className="mr-3 h-5 w-5 text-gray-400"
-							aria-hidden="true"
-						/>
 						Previous
 					</a>
 				</div>
-				<div className="hidden md:-mt-px md:flex select-none">
+				<div className="hidden md:flex select-none space-x-2">
 					{Array.from({ length: totalPages }).map((item, index) => {
 						if (
 							index < 3 ||
@@ -37,16 +29,16 @@ const Pagination = (props) => {
 							return (
 								<a
 									onClick={() => onChange(index + 1)}
-									key={`index${'-' + index}'}`}
+									key={`index${'-' + index}`}
 									className={`${
 										index + 1 === currentPage
-											? 'border-blue-500 text-blue-700 font-bold !text-[20px]'
+											? ' text-blue-500 font-semibold text-lg'
 											: 'border-transparent text-gray-500'
-									} cursor-pointer hover:font-bold inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium transition-all !duration-500 hover:text-blue-600  select-none ease`}
+									} cursor-pointer hover:font-semibold inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium transition-all duration-300 ease-in-out hover:text-blue-600`}
 								>
 									{index + 1}
 								</a>
-							);
+							)
 						}
 
 						if (
@@ -58,37 +50,33 @@ const Pagination = (props) => {
 						) {
 							return (
 								<span
-									key={`index${index + '-  index}'}`}
-									className="text-gray-500 inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium transition-all hover:text-blue-600  select-none"
+									key={`index${index + '-index'}`}
+									className="text-gray-400 inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium"
 								>
 									...
 								</span>
-							);
+							)
 						}
 
-						return null;
+						return null
 					})}
 				</div>
-				<div className="-mt-px flex w-0 flex-1 justify-end">
+				<div className=" flex flex-1 justify-end mr-8">
 					<a
 						onClick={() => {
 							if (currentPage < totalPages) {
-								onChange(currentPage + 1);
+								onChange(currentPage + 1)
 							}
 						}}
-						className={` ${
-							currentPage === totalPages && 'hidden'
-						} cursor-pointer inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-blue-700 hover:scale-110  select-none`}
+						className={`${
+							currentPage === totalPages ? 'hidden' : ''
+						} bg-[#f0f8ff] text-gray-600 rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#FFE4E1] transition-colors duration-300`}
 					>
 						Next
-						<ArrowLongRightIcon
-							className="ml-3 h-5 w-5 text-gray-400"
-							aria-hidden="true"
-						/>
 					</a>
 				</div>
 			</nav>
 		</>
-	);
-};
-export default memo(Pagination);
+	)
+}
+export default memo(Pagination)

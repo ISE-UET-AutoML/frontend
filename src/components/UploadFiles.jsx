@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { UploadTypes } from 'src/constants/file';
-import { uploadFiles } from 'src/api/project';
-import { validateFiles } from 'src/utils/file';
+import React, { useState } from 'react'
+import { UploadTypes } from 'src/constants/file'
+import { uploadFiles } from 'src/api/project'
+import { validateFiles } from 'src/utils/file'
 
 const UploadFiles = ({ projectID, uploadedImages }) => {
-	const [fileBlobs, setFileBlobs] = useState([]);
-	const [files, setFiles] = useState([]);
+	const [fileBlobs, setFileBlobs] = useState([])
+	const [files, setFiles] = useState([])
 
 	const handleImageChange = (e) => {
 		if (e.target.files) {
-			setFiles(e.target.files);
+			setFiles(e.target.files)
 			const filesArray = Array.from(e.target.files).map((file) =>
 				URL.createObjectURL(file)
-			);
+			)
 
 			// console.log("filesArray: ", filesArray);
 
@@ -21,33 +21,33 @@ const UploadFiles = ({ projectID, uploadedImages }) => {
 			//   (file) => URL.revokeObjectURL(file) // avoid memory leak
 			// )
 		}
-	};
+	}
 
 	const renderPhotos = (source) => {
 		return source.map((blobURL) => {
-			return <img src={blobURL} alt="" key={blobURL} />;
-		});
-	};
+			return <img src={blobURL} alt="" key={blobURL} />
+		})
+	}
 
 	const uploadImages = async (e) => {
-		e.preventDefault();
+		e.preventDefault()
 
-		const validFiles = validateFiles(files);
+		const validFiles = validateFiles(files)
 		if (validFiles !== undefined && validFiles.length > 0) {
-			const formData = new FormData();
-			formData.append('type', UploadTypes.MULTIPLE);
+			const formData = new FormData()
+			formData.append('type', UploadTypes.MULTIPLE)
 			validFiles.forEach((file) => {
-				formData.append('files', file);
-			});
+				formData.append('files', file)
+			})
 
 			try {
-				const { data } = await uploadFiles(projectID, formData);
-				uploadedImages(data.files, data.labels);
+				const { data } = await uploadFiles(projectID, formData)
+				uploadedImages(data.files, data.labels)
 			} catch (error) {
-				console.error(error);
+				console.error(error)
 			}
 		}
-	};
+	}
 
 	return (
 		<div className="app">
@@ -67,7 +67,7 @@ const UploadFiles = ({ projectID, uploadedImages }) => {
 				</button>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
-export default UploadFiles;
+export default UploadFiles
