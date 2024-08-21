@@ -4,6 +4,8 @@ import { fetchWithTimeout } from 'src/utils/timeout'
 import { API_URL } from 'src/constants/api'
 import 'src/assets/css/chart.css'
 import SolutionImage from 'src/assets/images/Solution.png'
+import Loading from 'src/components/Loading'
+
 const TextPredict = ({
 	experimentName,
 	projectInfo,
