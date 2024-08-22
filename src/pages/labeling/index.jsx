@@ -325,9 +325,9 @@ const Labeling = ({
 				setSearchParams((pre) =>
 					pre
 						.toString()
-						.concat(`&experiment_name=${data.experiment_name}`)
+						.concat(`&experiment_name=${data.task_id}`)
 				);
-			updateFields({ experiment_name: data.experiment_name });
+			updateFields({ experiment_name: data.task_id });
 			next();
 		} catch (error) {
 			console.error(error);

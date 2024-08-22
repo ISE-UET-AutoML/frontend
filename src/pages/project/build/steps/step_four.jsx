@@ -73,17 +73,30 @@ const StepFour = (props) => {
 			.get(API_URL.get_training_history(experimentName))
 			.then((res) => {
 				const data = res.data
+				console.log(data)
 
 				setGraphJSON(data)
-				readChart(
-					data.fit_history.scalars.train_loss,
-					setTrainLossGraph
-				)
-				readChart(data.fit_history.scalars.val_loss, setValLossGraph)
+				// readChart(
+				// 	data.fit_history.scalars.train_loss,
+				// 	setTrainLossGraph
+				// )
+				if (data.fit_history.scalars.train_loss) {
+					readChart(
+						data.fit_history.scalars.train_loss,
+						setTrainLossGraph
+					)
+				}
+				// readChart(data.fit_history.scalars.val_loss, setValLossGraph)
 				if (data.fit_history.scalars.val_accuracy) {
 					readChart(
 						data.fit_history.scalars.val_accuracy,
 						setValAccGraph
+					)
+				}
+				if (data.fit_history.scalars.val_loss) {
+					readChart(
+						data.fit_history.scalars.val_loss,
+						setValLossGraph
 					)
 				}
 			})

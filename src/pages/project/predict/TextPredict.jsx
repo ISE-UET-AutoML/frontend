@@ -14,7 +14,7 @@ const TextPredict = ({
 	handleFileChange,
 }) => {
 	const [explanation, setExplanation] = useState(null)
-	const [selectedClass, setHighlightedClass] = useState(0)
+	const [selectedClass, setHighlightedClass] = useState(null)
 
 	const handleSelectedText = async (item) => {
 		updateState({
@@ -86,6 +86,7 @@ const TextPredict = ({
 
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
+				console.log(data)
 				setExplanation(data.explanations)
 				console.log('Fetch successful')
 			})
@@ -102,6 +103,9 @@ const TextPredict = ({
 	}
 
 	const shouldHighlight = (word) => {
+		if (selectedClass == null) {
+			return false
+		}
 		const currentClassWords = explanation.find(
 			(item) => item.class === selectedClass
 		).words
