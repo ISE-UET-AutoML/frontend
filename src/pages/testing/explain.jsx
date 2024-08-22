@@ -18,7 +18,7 @@ const Explain = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'test-automl')
 		formData.append('projectName', '4-animal')
-		formData.append('runName', experimentName)
+		formData.append('runName', "ISE")
 		//formData.append('runName', 'ISE')
 		formData.append('image', item)
 
@@ -45,16 +45,16 @@ const Explain = (props) => {
 			})
 	}
 
-	const handleHighlight = (selectedClass) => {
-		setHighlightedClass(selectedClass)
-	}
+	// const handleHighlight = (selectedClass) => {
+	// 	setHighlightedClass(selectedClass)
+	// }
 
-	const shouldHighlight = (word) => {
-		const currrentClassWords = explanation.find(
-			(item) => item.class === selectedClass
-		).words
-		return currrentClassWords.includes(word)
-	}
+	// const shouldHighlight = (word) => {
+	// 	const currrentClassWords = explanation.find(
+	// 		(item) => item.class === selectedClass
+	// 	).words
+	// 	return currrentClassWords.includes(word)
+	// }
 
 	const handleFileChange = (event) => {
 		const file = event.target.files[0]
@@ -73,7 +73,7 @@ const Explain = (props) => {
 		const formData = new FormData()
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', experimentName)
+		formData.append('runName', "ISE")
 		//formData.append('runName', 'ISE')
 		formData.append('text', sentence)
 
@@ -113,7 +113,7 @@ const Explain = (props) => {
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
-				fakeData()
+				// fakeData()
 			})
 	}
 
