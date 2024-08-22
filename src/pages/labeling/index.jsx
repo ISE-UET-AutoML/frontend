@@ -112,6 +112,7 @@ const Labeling = ({
 	}
 
 	const getTask = (index) => {
+		
 		const image = images[index]
 		let annotations = []
 		if (image?.label && image.label.length > 0) {
@@ -131,29 +132,12 @@ const Labeling = ({
 				},
 			]
 		}
-		if (type === 'IMAGE_CLASSIFICATION') {
-			return {
-				id: index,
-				annotations: annotations,
-				data: {
-					image: image.url,
-				},
-			}
-		}
-		if (type === 'TEXT_CLASSIFICATION') {
-			return {
-				id: index,
-				annotations: annotations,
-				data: {
-					text: image.url,
-				},
-			}
-		}
+		
 		return {
 			id: index,
 			annotations: annotations,
 			data: {
-				image: images[index].url,
+				image: image.url,
 			},
 		}
 	}
