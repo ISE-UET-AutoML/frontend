@@ -9,12 +9,13 @@ function clsx(...classes) {
 	return classes.filter(Boolean).join(' ')
 }
 
-export default function ProjectCard({ project, className }) {
+export default function ProjectCard({ project, className, getProjects }) {
 	const handleDelete = (projectID) => {
 		if (window.confirm('Are you sure you want to delete this project?')) {
 			deleteProject(projectID)
 				.then(() => {
 					alert('Project deleted successfully!')
+					getProjects()
 				})
 				.catch((error) => {
 					alert('Failed to delete project. Please try again.')

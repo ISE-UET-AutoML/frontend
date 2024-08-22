@@ -112,7 +112,7 @@ const TextUploadPreview = ({ file, index, handleRemoveFile }) => {
 											(value, colIndex) => (
 												<td
 													key={colIndex}
-													className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap"
+													className="px-6 py-2.5 text-sm text-gray-700 break-words w-[90%] text-left"
 												>
 													{value}
 												</td>

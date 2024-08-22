@@ -28,19 +28,19 @@ const ImagePredict = ({
 	}
 
 	const handleConfirmImage = (value) => {
-		const currentImageSeletedIndex = stepFourState.uploadFiles.findIndex(
+		const currentImageSelectedIndex = stepFourState.uploadFiles.findIndex(
 			(file) => file.name === stepFourState.selectedImage.name
 		)
 
 		const nextIdx =
-			currentImageSeletedIndex === stepFourState.uploadFiles.length - 1
-				? currentImageSeletedIndex
-				: currentImageSeletedIndex + 1
+			currentImageSelectedIndex === stepFourState.uploadFiles.length - 1
+				? currentImageSelectedIndex
+				: currentImageSelectedIndex + 1
 
 		setExplainImageUrl('')
 		updateState({
 			userConfirm: stepFourState.userConfirm.map((item, index) => {
-				if (index === currentImageSeletedIndex) {
+				if (index === currentImageSelectedIndex) {
 					return { ...item, value: value }
 				}
 				return item
@@ -54,8 +54,6 @@ const ImagePredict = ({
 	}
 
 	const handleExplainSelectedImage = async () => {
-		const item = stepFourState.selectedImage
-
 		const formData = new FormData()
 
 		const model = await instance.get(API_URL.get_model(experimentName))
@@ -64,9 +62,7 @@ const ImagePredict = ({
 			console.error('Failed to get model info')
 		}
 		console.log(jsonObject)
-		console.log(jsonObject.userEmail)
-		console.log(jsonObject.projectName)
-		console.log(jsonObject.runID)
+
 		updateState({
 			isLoading: true,
 		})
@@ -74,7 +70,9 @@ const ImagePredict = ({
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
 		formData.append('runName', experimentName)
-		formData.append('image', item)
+		formData.append('image', stepFourState.selectedImage)
+
+		console.log('Fetching explain image')
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
 
@@ -90,13 +88,12 @@ const ImagePredict = ({
 
 				setExplainImageUrl(fetchedImageUrl)
 
-				updateState({
-					isLoading: false,
-				})
 				console.log('Fetch successful')
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
+			})
+			.finally(() => {
 				updateState({ isLoading: false })
 			})
 	}
