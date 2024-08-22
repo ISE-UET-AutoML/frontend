@@ -44,8 +44,6 @@ const StepFour = (props) => {
 		(pre, next) => ({ ...pre, ...next }),
 		initialState
 	)
-
-	const [predictTextLabel, setPredictTextLabel] = useState('')
 	const [GraphJSON, setGraphJSON] = useState({})
 	const [trainLossGraph, setTrainLossGraph] = useState([])
 	const [val_lossGraph, setValLossGraph] = useState([])
@@ -508,7 +506,7 @@ const StepFour = (props) => {
 					</div>
 				</Dialog>
 			</Transition.Root>
-			{/* EXPLAIN FOR TEXT */}
+			{/* PREDICT FOR TEXT */}
 			<TextPredict
 				experimentName={experimentName}
 				projectInfo={projectInfo}
@@ -516,7 +514,7 @@ const StepFour = (props) => {
 				updateState={updateState}
 				handleFileChange={handleFileChange}
 			/>
-			{/* EXPLAIN FOR IMAGE */}
+			{/* PREDICT FOR IMAGE */}
 			<ImagePredict
 				experimentName={experimentName}
 				projectInfo={projectInfo}
