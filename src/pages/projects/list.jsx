@@ -139,11 +139,10 @@ export default function ProjectList() {
 
 			{/* modal */}
 			<div
-				className={`${
-					dashboardState.showUploader
-						? 'top-0 !z-[1000] opacity-100'
-						: 'top-full bottom-0 opacity-0'
-				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overscroll-auto overflow-auto min-h-screen`}
+				className={`${dashboardState.showUploader
+					? 'top-0 !z-[1000] opacity-100'
+					: 'top-full bottom-0 opacity-0'
+					} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overscroll-auto overflow-auto min-h-screen`}
 			>
 				<button
 					onClick={() => updateState({ showUploader: false })}
@@ -177,6 +176,7 @@ export default function ProjectList() {
 											type="text"
 											name="name"
 											id="name"
+											defaultValue="defaultvalue"
 											required
 											minLength={10}
 											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
@@ -196,11 +196,11 @@ export default function ProjectList() {
 												id="description"
 												name="description"
 												rows={5}
+												defaultValue="Description project"
 												required
 												minLength={5}
 												className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 												placeholder="Description of the project goes here "
-												defaultValue={''}
 											/>
 										</div>
 									</div>
@@ -216,6 +216,7 @@ export default function ProjectList() {
 											type="number"
 											name="expectation_accuracy"
 											id="expectation_accuracy"
+											defaultValue={1}
 											required
 											min={0}
 											max={100}
