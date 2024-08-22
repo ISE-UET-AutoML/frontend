@@ -100,8 +100,17 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 				isUnlabelledData = true
 				break
 			}
+			if (files[i].hasOwnProperty('label_by') && files[i].label_by !== 'human') {
+				isUnlabelledData = true
+				break
+			}
 		}
 		if (isUnlabelledData) {
+			files.sort((a, b) => {
+				if (!a?.label_by || a.label_by !== 'human') return -1
+				if (!b?.label_by || b.label_by !== 'human') return 1
+				return 0
+			})
 			return (
 				<div>
 					<Labeling
