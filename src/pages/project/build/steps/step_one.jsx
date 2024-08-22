@@ -25,9 +25,8 @@ const currentStepIndex = 1
 const StepOne = ({ name, email, updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
 
-	projectAPI.getProjectDataset(projectID).then((data) => {
+	projectAPI.getProjectFullDataset(projectID).then((data) => {
 		if (data?.data && data.data.files.length) {
-			console.log(data)
 			updateFields({
 				// change to isDoneStepThree: true to bypass to predict
 				isDoneStepOne: true,
@@ -68,25 +67,23 @@ const StepOne = ({ name, email, updateFields, projectInfo }) => {
 							>
 								<div className="flex items-center flex-col gap-x-2">
 									<div
-										className={`w-8 h-8 rounded-full border-2 flex-none flex items-center justify-center ${
-											currentStepIndex > idx
-												? 'bg-blue-600 border-blue-600'
-												: '' || currentStepIndex === idx
-													? 'border-blue-600'
-													: ''
-										}`}
+										className={`w-8 h-8 rounded-full border-2 flex-none flex items-center justify-center ${currentStepIndex > idx
+											? 'bg-blue-600 border-blue-600'
+											: '' || currentStepIndex === idx
+												? 'border-blue-600'
+												: ''
+											}`}
 									>
 										<span
 											id={`step-${idx + 1}`}
-											className={`next-step ${
-												currentStepIndex > idx
-													? 'hidden'
-													: '' ||
-														  currentStepIndex ===
-																idx
-														? 'text-blue-600'
-														: ''
-											}`}
+											className={`next-step ${currentStepIndex > idx
+												? 'hidden'
+												: '' ||
+													currentStepIndex ===
+													idx
+													? 'text-blue-600'
+													: ''
+												}`}
 										>
 											{idx + 1}
 										</span>
@@ -110,13 +107,12 @@ const StepOne = ({ name, email, updateFields, projectInfo }) => {
 										)}
 									</div>
 									<hr
-										className={`h-12 border md:hidden ${
-											idx === 4
-												? 'hidden'
-												: '' || currentStepIndex > idx
-													? 'border-blue-600'
-													: ''
-										}`}
+										className={`h-12 border md:hidden ${idx === 4
+											? 'hidden'
+											: '' || currentStepIndex > idx
+												? 'border-blue-600'
+												: ''
+											}`}
 									/>
 								</div>
 								<div className="h-8 flex items-center md:h-auto">
@@ -127,13 +123,12 @@ const StepOne = ({ name, email, updateFields, projectInfo }) => {
 									</h3>
 								</div>
 								<hr
-									className={`hidden mr-2 w-full border md:block ${
-										idx === 4
-											? 'hidden'
-											: '' || currentStepIndex > idx
-												? 'border-blue-600'
-												: ''
-									}`}
+									className={`hidden mr-2 w-full border md:block ${idx === 4
+										? 'hidden'
+										: '' || currentStepIndex > idx
+											? 'border-blue-600'
+											: ''
+										}`}
 								/>
 							</li>
 						))}

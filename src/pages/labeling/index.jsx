@@ -16,6 +16,8 @@ import { useLibrary } from 'src/utils/LibProvider';
 import { createLabels } from 'src/api/dataset'
 import { updateLabel } from 'src/api/images'
 import Loading from 'src/components/Loading';
+import * as projectAPI from 'src/api/project'
+
 
 const INTERFACES = [
 	'panel',
@@ -48,6 +50,9 @@ const Labeling = ({
 }) => {
 	const currentLabelWithID = useRef(labelsWithID)
 	const savedLabels = currentLabelWithID.current.map((v, i) => v.value)
+	let [searchParams, setSearchParams] = useSearchParams();
+	const [isLoading, setIsLoading] = useState(false);
+	const location = useLocation();
 	// get info about project id
 	const { id: projectId } = useParams()
 	// for create label
@@ -183,21 +188,13 @@ const Labeling = ({
 		if (index < images.length - ICR) {
 			setIndex((a) => a + ICR)
 		} else {
-			console.log('get new data')
-
-			if (pagination['page'] < pagination['total_page']) {
-				const page = pagination['page'] + 1
-				const { data } = await listImages(
-					projectId,
-					`&page=${page}&size=24`
-				)
-				console.log(data)
-				images = [...images, ...data.data.files]
-				pagination = data.meta
-				if (data.data.files.length)
-					setIndex((a) => a + 1) //TODO: have new data
-				else HandleEndLoop()
-			} else {
+			const { data } = await projectAPI.getProjectFullDataset(projectId)
+			if (!data.files) return
+			images = data.files
+			pagination = data.meta
+			if (data.files.length && index < data.files.length - ICR)
+				setIndex((a) => a + 1) //TODO: have new data
+			else {
 				HandleEndLoop()
 			}
 		}
@@ -289,7 +286,7 @@ const Labeling = ({
 				console.info('Destroying LSF')
 				try {
 					lsf.current.destroy()
-				} catch (e) {}
+				} catch (e) { }
 				lsf.current = null
 			}
 		}
@@ -316,15 +313,90 @@ const Labeling = ({
 		}
 	}, [currentConfig])
 
+	const checkData = () => {
+		const currentLabeled = new Set()
+		if (!images) {
+			return false
+		}
+		for (let index = 0; index < images.length; index++) {
+			const element = images[index];
+			const lb_tmp = element['label']
+			if (lb_tmp && lb_tmp.length)
+				currentLabeled.add(lb_tmp)
+		}
+		const fullLabel = new Set(savedLabels)
+		if (currentLabeled.size !== fullLabel.size) {
+			message.error('you must label more')
+			return false
+		}
+		return true
+	}
+
+	const handleTrain = async () => {
+		if (!checkData()) return
+		try {
+			const { data } = await trainModel(projectId);
+			const searchParams = new URLSearchParams(location.search);
+			searchParams.get('experiment_name') ??
+				setSearchParams((pre) =>
+					pre
+						.toString()
+						.concat(`&experiment_name=${data.experiment_name}`)
+				);
+			updateFields({ experiment_name: data.experiment_name });
+			next();
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	const handleAutoLabeling = async () => {
+		if (!checkData()) return
+		setIsLoading(true)
+		const result = await autoLabel(projectId)
+		console.log(result);
+		if (result.status === 200) {
+			message.success('auto label sucessfully')
+			window.location.reload()
+		}
+		message.error("Can't auto labeling", result)
+		setIsLoading(false)
+	}
+
+
+
 	return (
 		<div className="label-editor-container" id="label-editor-container">
+
+			{isLoading && <Loading />}
+			<div
+				className="group-hover/item:block flex 
+                top-full right-0 py-4 px-3 bg-white w-[120%] rounded-md shadow-md "
+			>
+				<button
+					className={`bg-blue-500 hover:bg-blue-800  text-white group flex items-center rounded-md px-2 py-2 text-sm`}
+					onClick={() => {
+						handleTrain()
+					}}
+				>
+					<span className="text-center w-full">Train Model</span>
+
+				</button>
+				<button
+					className={`ml-1 bg-blue-500 hover:bg-blue-800  text-white group flex items-center rounded-md px-2 py-2 text-sm`}
+					onClick={() => {
+						handleAutoLabeling()
+					}}
+				>
+					<span className="text-center w-full">Auto Labeling</span>
+				</button>
+			</div>
 			<div id="label-studio" ref={rootRef} />
 			<div
-				className={`${
-					createLabel
-						? 'top-0 bottom-full z-[1000] opacity-100 left-0 mb-8'
-						: 'top-full bottom-0 opacity-0'
-				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
+				className={`${createLabel
+					? 'top-0 bottom-full z-[1000] opacity-100 left-0 mb-8'
+					: 'top-full bottom-0 opacity-0'
+					} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
 			>
 				<h3 className="label-text text-center w-full mt-4 text-[28px] font-[500] leading-[1.16] mb-8 ">
 					Create label for your dataset
@@ -391,6 +463,7 @@ const Labeling = ({
 					</button>
 				</div>
 			</div>
+
 		</div>
 	)
 }
