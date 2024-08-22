@@ -64,15 +64,21 @@ const Labeling = ({
 	const rootRef = useRef()
 	const lsf = useRef(null)
 	const [currentIndex, setIndex] = useState(0)
-	const [currentConfig, setConfig] = useState(ImageConfig(savedLabels))
-
-	useEffect(() => {
+	const getConfigView = (viewLabels) => {
 		if (type === 'IMAGE_CLASSIFICATION') {
-			setConfig(ImageConfig(savedLabels))
+			return ImageConfig(viewLabels)
 		}
 		if (type === 'TEXT_CLASSIFICATION') {
-			setConfig(TextConfig(savedLabels))
+			return TextConfig(viewLabels)
 		}
+
+	}
+
+	const [currentConfig, setConfig] = useState(getConfigView(savedLabels))
+	console.log(currentConfig);
+
+	useEffect(() => {
+		setConfig(getConfigView(savedLabels))
 	}, [])
 
 	let tempIndex = 0
@@ -92,6 +98,7 @@ const Labeling = ({
 	const deleteLabel = (index) => {
 		setLabelEdit((le) => le.filter((v, i) => i != index))
 	}
+
 	const saveLabel = async () => {
 		if (labelsEditing.length > 0) {
 			const res = await createLabels(projectId, { label: labelsEditing })
@@ -104,7 +111,7 @@ const Labeling = ({
 			console.log('assign label with id ', currentLabelWithID.current)
 			if (currentLabelWithID.current.length >= 0) {
 				setcreateLabel(false)
-				setConfig(ImageConfig(labelsEditing))
+				setConfig(getConfigView(labelsEditing))
 			}
 		} else {
 			message.error('Error: label is empty!', 2)
@@ -112,7 +119,6 @@ const Labeling = ({
 	}
 
 	const getTask = (index) => {
-		
 		const image = images[index]
 		let annotations = []
 		if (image?.label && image.label.length > 0) {
@@ -132,7 +138,7 @@ const Labeling = ({
 				},
 			]
 		}
-		
+
 		return {
 			id: index,
 			annotations: annotations,
@@ -342,6 +348,7 @@ const Labeling = ({
 		if (result.status === 200) {
 			message.success('auto label sucessfully')
 			window.location.reload()
+			return
 		}
 		message.error("Can't auto labeling", result)
 		setIsLoading(false)
