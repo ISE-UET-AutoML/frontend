@@ -1,11 +1,7 @@
+/* eslint-disable no-unused-vars */
 import { message } from 'antd'
 import React, { useReducer } from 'react'
-import {
-	useLocation,
-	useNavigate,
-	useParams,
-	useSearchParams,
-} from 'react-router-dom'
+import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import * as projectAPI from 'src/api/project'
 import { UploadTypes } from 'src/constants/file'
 import { validateFiles } from 'src/utils/file'
@@ -61,9 +57,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			const formData = new FormData()
-			if (projectInfo.type == 'IMAGE_CLASSIFICATION')
+			if (projectInfo.type === 'IMAGE_CLASSIFICATION')
 				formData.append('type', UploadTypes.FOLDER)
-			if (projectInfo.type == 'TEXT_CLASSIFICATION')
+			if (projectInfo.type === 'TEXT_CLASSIFICATION')
 				formData.append('type', 'CSV_SINGLE')
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string

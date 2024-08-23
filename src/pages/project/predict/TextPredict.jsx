@@ -194,10 +194,10 @@ const TextPredict = ({
 											<th className="px-4 py-2 text-left w-[60%]">
 												Sentence
 											</th>
-											<th className="px-4 py-2 text-center">
+											<th className="px-4 py-2 text-center w-[20%]">
 												Confidence Rate
 											</th>
-											<th className="px-4 py-2 text-center">
+											<th className="px-4 py-2 text-center w-[20%]">
 												Predict
 											</th>
 										</tr>
@@ -237,10 +237,10 @@ const TextPredict = ({
 												<td className="px-6 py-4 text-sm font-medium text-gray-900 break-words w-[60%] text-left">
 													{item.sentence}
 												</td>
-												<td className="px-6 py-4 text-sm text-gray-900 text-center">
+												<td className="px-6 py-4 text-sm text-gray-900 text-center w-[20%]">
 													{item.confidence}
 												</td>
-												<td className="px-6 py-4 text-sm text-gray-900 text-center">
+												<td className="px-6 py-4 text-sm text-gray-900 text-center w-[20%]">
 													{item.label}
 												</td>
 											</tr>
@@ -406,8 +406,8 @@ const TextPredict = ({
 									</div>
 								) : (
 									<p>
-										Please choose a specific sentences to
-										explain
+										Please choose a specific sentence and
+										click explain icon to explain
 									</p>
 								)}
 							</div>
