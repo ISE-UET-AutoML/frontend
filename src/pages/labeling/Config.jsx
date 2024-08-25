@@ -1,32 +1,32 @@
 const ImageConfig = (labels) => {
-	const labelConfig = `
+    const labelConfig = `
         <View>
         <Image name="image" value="$image"/>
         <Choices name="choice" toName="image" showInLine="true">
         ${labels
-			.map((label, index) => {
-				return '<Choice value="' + label + '"/>'
-			})
-			.join('    \n')}
+            .map((label, index) => {
+                return '<Choice value="' + label + '"/>'
+            })
+            .join('    \n')}
         </Choices>
         </View>
     `
-	return labelConfig
+    return labelConfig
 }
 const TextConfig = (labels) => {
-	const labelConfig = `
+    const labelConfig = `
         <View>
-        <Text name="text" value="$text"/>
-        <Choices name="choice" toName="text" showInLine="true">
+        <Text name="image" value="$image"/>
+        <Choices name="choice" toName="image" showInLine="true">
         ${labels
-			.map((label, index) => {
-				return '<Choice value="' + label + '"/>'
-			})
-			.join('    \n')}
+            .map((label, index) => {
+                return '<Choice value="' + label + '"/>'
+            })
+            .join('    \n')}
         </Choices>
         </View>
     `
-	return labelConfig
+    return labelConfig
 }
 
 export { ImageConfig, TextConfig }

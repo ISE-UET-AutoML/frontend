@@ -8,27 +8,6 @@ const Explain = (props) => {
 	const [explainTextHTML, setExplainTextHTML] = useState('')
 	const [selectedImageFile, setSelectedImageFile] = useState(null)
 	const [sentence, setSentence] = useState('')
-	const [explanation, setExplainText] = useState(null)
-	const [selectedClass, setHighlightedClass] = useState(0);
-
-	const fakeData = () => {
-		const data = [
-			{
-				'class': 0,
-				'words': ['word1', 'word2', 'word3'],
-			},
-			{
-				'class': 1,
-				'words': ['word4', 'word5', 'word6'],
-			},
-			{
-				'class': 2,
-				'words': ['word7', 'word8', 'word9'],
-			}
-		]
-
-		setExplainText(data)
-	}
 
 	const handleExplainSelectedImage = async (event) => {
 		event.preventDefault()
@@ -40,6 +19,7 @@ const Explain = (props) => {
 		formData.append('userEmail', 'test-automl')
 		formData.append('projectName', '4-animal')
 		formData.append('runName', "ISE")
+		//formData.append('runName', 'ISE')
 		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
@@ -65,16 +45,16 @@ const Explain = (props) => {
 			})
 	}
 
+	// const handleHighlight = (selectedClass) => {
+	// 	setHighlightedClass(selectedClass)
+	// }
 
-	const handleHighlight = (selectedClass) => {
-		setHighlightedClass(selectedClass);
-	};
-
-	
-	const shouldHighlight = (word) => {
-		const currrentClassWords = explanation.find(item => item.class === selectedClass).words;
-		return currrentClassWords.includes(word);
-	};
+	// const shouldHighlight = (word) => {
+	// 	const currrentClassWords = explanation.find(
+	// 		(item) => item.class === selectedClass
+	// 	).words
+	// 	return currrentClassWords.includes(word)
+	// }
 
 	const handleFileChange = (event) => {
 		const file = event.target.files[0]
@@ -94,8 +74,8 @@ const Explain = (props) => {
 		formData.append('userEmail', 'darklord1611')
 		formData.append('projectName', '66bdc72c8197a434278f525d')
 		formData.append('runName', "ISE")
+		//formData.append('runName', 'ISE')
 		formData.append('text', sentence)
-
 
 		const temp = sentence.split(/[\s,]+/)
 
@@ -110,13 +90,30 @@ const Explain = (props) => {
 
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
-				setExplainText(data.explanations)
-				console.log(data.explanations)
-				console.log('Fetch successful');
+				const html = data.explain_html
+				setExplainTextHTML(html)
+				console.log(html)
+				const parsedHTML = new DOMParser().parseFromString(
+					html,
+					'text/html'
+				)
+				const scriptContent =
+					parsedHTML.querySelector('script').textContent
+				// Create a script element
+				const script = document.createElement('script')
+
+				// Set the script content to execute
+				script.textContent = scriptContent
+
+				// Append the script element to the document body or head
+				// You can choose where to append it based on your needs
+				document.body.appendChild(script)
+
+				console.log('Fetch successful')
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
-				fakeData()
+				// fakeData()
 			})
 	}
 
@@ -176,40 +173,6 @@ const Explain = (props) => {
 					/>
 					<button type="submit">Submit</button>
 				</form>
-
-				{explanation ? (
-					<div>
-						<div>
-							<p>
-								{sentence.split(/[\s,]+/).map((word, index) => (
-									<>
-									<span
-										key={index}
-										// className={shouldHighlight(word.replace(/[()]/g, '').trim()) ? 'highlight' : ''}
-										style={
-											shouldHighlight(word.replace(/[()]/g, '').trim())
-												? { backgroundColor: 'yellow' }
-												: {}
-											}
-											>
-										{word}
-									</span>
-									<span>{' '}</span>
-									</>
-								))}
-							</p>
-						</div>
-						<div>
-							{explanation.map((item, index) => (
-								<button className={`px-4 py-2 m-2 border rounded ${
-									selectedClass === item.class ? 'bg-blue-500 text-white' : 'bg-gray-200'
-								}`} key={index} onClick={() => handleHighlight(item.class)}>Highlight Class {item.class}</button>
-							))}
-						</div>
-					</div>
-				) : (
-					<p>No explanation</p>
-				)}
 				<div
 					style={{
 						width: '100%',

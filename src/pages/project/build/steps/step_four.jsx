@@ -31,7 +31,7 @@ const initialState = {
 	confidenceScore: 0,
 	userConfirm: [],
 	selectedSentence: null,
-	uploadSentences: null,
+	uploadSentences: [],
 }
 
 const StepFour = (props) => {
@@ -44,30 +44,10 @@ const StepFour = (props) => {
 		(pre, next) => ({ ...pre, ...next }),
 		initialState
 	)
-
-	const [predictTextLabel, setPredictTextLabel] = useState('')
 	const [GraphJSON, setGraphJSON] = useState({})
-	const [trainlossGraph, setTrainlossGraph] = useState([])
-	const [val_lossGraph, setVallossGraph] = useState([])
-	const [val_accGraph, setValaccGraph] = useState([])
-
-	useEffect(() => {
-		instance
-			.get(API_URL.get_training_history(experimentName))
-			.then((res) => {
-				const data = res.data
-				console.log(data)
-				console.log(data.fit_history.scalars.train_loss)
-
-				setGraphJSON(data)
-				readChart(
-					data.fit_history.scalars.train_loss,
-					setTrainlossGraph
-				)
-				readChart(data.fit_history.scalars.val_loss, setVallossGraph)
-				readChart(data.fit_history.scalars.val_accuracy, setValaccGraph)
-			})
-	}, [])
+	const [trainLossGraph, setTrainLossGraph] = useState([])
+	const [val_lossGraph, setValLossGraph] = useState([])
+	const [val_accGraph, setValAccGraph] = useState([])
 
 	const readChart = (contents, setGraph) => {
 		const lines = contents.split('\n')
@@ -88,6 +68,40 @@ const StepFour = (props) => {
 
 		setGraph(parsedData)
 	}
+	useEffect(() => {
+		instance
+			.get(API_URL.get_training_history(experimentName))
+			.then((res) => {
+				const data = res.data
+				console.log(data)
+
+				setGraphJSON(data)
+				// readChart(
+				// 	data.fit_history.scalars.train_loss,
+				// 	setTrainLossGraph
+				// )
+				if (data.fit_history.scalars.train_loss) {
+					readChart(
+						data.fit_history.scalars.train_loss,
+						setTrainLossGraph
+					)
+				}
+				// readChart(data.fit_history.scalars.val_loss, setValLossGraph)
+				if (data.fit_history.scalars.val_accuracy) {
+					readChart(
+						data.fit_history.scalars.val_accuracy,
+						setValAccGraph
+					)
+				}
+				if (data.fit_history.scalars.val_loss) {
+					readChart(
+						data.fit_history.scalars.val_loss,
+						setValLossGraph
+					)
+				}
+			})
+	}, [])
+
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files)
 		const validFiles = validateFiles(files, projectInfo.type)
@@ -126,6 +140,8 @@ const StepFour = (props) => {
 						sentence: item.sentence,
 						confidence: item.confidence,
 						label: item.class,
+						value: null,
+						id: 'ID',
 					}))
 					console.log('Fetch successful')
 
@@ -133,6 +149,7 @@ const StepFour = (props) => {
 						showTextModal: true,
 						showUploadModal: false,
 						uploadSentences: sentences,
+						userConfirm: sentences,
 					})
 
 					console.log(stepFourState.showUploadModal)
@@ -160,7 +177,7 @@ const StepFour = (props) => {
 
 		console.log('Fetch start')
 		console.log(url)
-		fetchWithTimeout(url, options, 60000)
+		fetchWithTimeout(url, options, 600000)
 			.then((data) => {
 				const { predictions } = data
 				const images = predictions.map((item) => ({
@@ -246,7 +263,7 @@ const StepFour = (props) => {
 								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
 									<div className="size-fit m-auto relative flex justify-center">
 										<LineGraph
-											data={trainlossGraph}
+											data={trainLossGraph}
 											label="train_loss"
 										/>
 									</div>
@@ -379,17 +396,28 @@ const StepFour = (props) => {
 											</div>
 										</div>
 
-										<h3 className="text-[#666] text-[14px] font-[700] p-[15px] text-[24px]">
+										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Total Prediction:{' '}
 											<strong className="text-blue-600">
 												{
-													stepFourState.uploadFiles
-														?.length
+													// stepFourState.uploadFiles
+													// 	?.length
+													projectInfo.type ===
+													'IMAGE_CLASSIFICATION'
+														? stepFourState
+																.uploadFiles
+																?.length
+														: projectInfo.type ===
+															  'TEXT_CLASSIFICATION'
+															? stepFourState
+																	.uploadSentences
+																	?.length
+															: 'no'
 												}
 											</strong>
 										</h3>
 
-										<h3 className="text-[#666] text-[14px] font-[700] p-[15px] text-[24px]">
+										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Correct Prediction:{' '}
 											<strong className="text-blue-600">
 												{' '}
@@ -403,10 +431,10 @@ const StepFour = (props) => {
 											</strong>
 										</h3>
 
-										<h3 className="text-[#666] text-[14px] font-[700] p-[15px] text-[24px]">
+										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Accuracy:{' '}
 											<strong className="text-blue-600">
-												{parseFloat(
+												{/* {parseFloat(
 													stepFourState.userConfirm.filter(
 														(item) =>
 															item.value ===
@@ -414,7 +442,32 @@ const StepFour = (props) => {
 													)?.length /
 														stepFourState
 															.uploadFiles?.length
-												).toFixed(2)}
+												).toFixed(2)} */}
+												{projectInfo.type ===
+												'IMAGE_CLASSIFICATION'
+													? parseFloat(
+															stepFourState.userConfirm.filter(
+																(item) =>
+																	item.value ===
+																	'true'
+															)?.length /
+																stepFourState
+																	.uploadFiles
+																	?.length
+														).toFixed(2)
+													: projectInfo.type ===
+														  'TEXT_CLASSIFICATION'
+														? parseFloat(
+																stepFourState.userConfirm.filter(
+																	(item) =>
+																		item.value ===
+																		'true'
+																)?.length /
+																	stepFourState
+																		.uploadSentences
+																		?.length
+															).toFixed(2)
+														: 'no'}
 											</strong>
 										</h3>
 
@@ -466,14 +519,15 @@ const StepFour = (props) => {
 					</div>
 				</Dialog>
 			</Transition.Root>
-			{/* EXPLAIN FOR TEXT */}
+			{/* PREDICT FOR TEXT */}
 			<TextPredict
 				experimentName={experimentName}
 				projectInfo={projectInfo}
 				stepFourState={stepFourState}
 				updateState={updateState}
+				handleFileChange={handleFileChange}
 			/>
-			{/* EXPLAIN FOR IMAGE */}
+			{/* PREDICT FOR IMAGE */}
 			<ImagePredict
 				experimentName={experimentName}
 				projectInfo={projectInfo}

@@ -20,6 +20,8 @@ const initialState = {
     userConfirm: [],
 };
 
+// ! THIS FILE IS NOT USED -> STEP-FOUR
+
 export default function ProjectPredict(props) {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);

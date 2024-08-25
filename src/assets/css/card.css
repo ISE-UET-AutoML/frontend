@@ -1,7 +1,7 @@
 .label-editor-container {
     max-height: calc(100vh - (100px + 100px)) !important;
     overflow-x: hidden;
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
 }
 
 .lsf-object>div {
@@ -56,10 +56,6 @@ li.label-li {
     align-content: center;
 }
 
-li.label-li>span {
-    text-align: 4px;
-    margin-left: 4px;
-}
 
 li.label-li>button {
     float: right;
