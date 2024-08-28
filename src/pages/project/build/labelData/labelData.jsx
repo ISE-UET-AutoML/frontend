@@ -1,42 +1,46 @@
-import { listImages } from 'src/api/project';
-import { useLocation } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
+import { listImages } from 'src/api/project'
+import { useLocation } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import React, { memo, useEffect } from 'react'
-import Labeling from 'src/pages/labeling'
-import TextTrainPreview from 'src/pages/preview/TextTrainPreview'
-import ImageTrainPreview from 'src/pages/preview/ImageTrainPreview'
+import Labeling from 'src/pages/project/build/labelData/labeling'
+import TextTrainPreview from 'src/pages/project/build/labelData/preview/TextTrainPreview'
+import ImageTrainPreview from 'src/pages/project/build/labelData/preview/ImageTrainPreview'
 
-
-const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
-	let [searchParams, setSearchParams] = useSearchParams();
-	const location = useLocation();
+const LabelData = ({
+	files,
+	labels,
+	pagination,
+	updateFields,
+	projectInfo,
+}) => {
+	let [searchParams, setSearchParams] = useSearchParams()
+	const location = useLocation()
 	useEffect(() => {
-		const searchParams = new URLSearchParams(location.search);
+		const searchParams = new URLSearchParams(location.search)
 		searchParams.get('step') ??
-			setSearchParams((pre) => pre.toString().concat('&step=1'));
+			setSearchParams((pre) => pre.toString().concat('&step=1'))
 
 		if (files?.length || labels?.length) {
-			return;
+			return
 		}
 
-		const id = searchParams.get('id');
+		const id = searchParams.get('id')
 		async function fetchListLabelingImages(id) {
-			const { data } = await listImages(id);
-			console.log(data);
+			const { data } = await listImages(id)
+			console.log(data)
 
 			updateFields({
 				...data.data,
 				pagination: data.meta,
-			});
+			})
 		}
 
 		if (id) {
-			fetchListLabelingImages(id);
+			fetchListLabelingImages(id)
 		}
-	}, []);
+	}, [])
 
 	if (!files) return
-
 
 	if (files && projectInfo && projectInfo.type === 'IMAGE_CLASSIFICATION') {
 		let isUnlabelledData = false
@@ -46,7 +50,10 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 				isUnlabelledData = true
 				break
 			}
-			if (files[i].hasOwnProperty('label_by') && files[i].label_by !== 'human') {
+			if (
+				files[i].hasOwnProperty('label_by') &&
+				files[i].label_by !== 'human'
+			) {
 				isUnlabelledData = true
 				break
 			}
@@ -66,7 +73,7 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 						type={projectInfo.type}
 						next={() => {
 							updateFields({
-								isDoneStepTwo: true,
+								isDoneLabelData: true,
 							})
 						}}
 						pagination={pagination}
@@ -82,7 +89,7 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 					updateFields={updateFields}
 					next={() => {
 						updateFields({
-							isDoneStepTwo: true,
+							isDoneLabelData: true,
 						})
 					}}
 					pagination={pagination}
@@ -100,7 +107,10 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 				isUnlabelledData = true
 				break
 			}
-			if (files[i].hasOwnProperty('label_by') && files[i].label_by !== 'human') {
+			if (
+				files[i].hasOwnProperty('label_by') &&
+				files[i].label_by !== 'human'
+			) {
 				isUnlabelledData = true
 				break
 			}
@@ -120,7 +130,7 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 						type={projectInfo.type}
 						next={() => {
 							updateFields({
-								isDoneStepTwo: true,
+								isDoneLabelData: true,
 							})
 						}}
 						pagination={pagination}
@@ -135,7 +145,7 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 				updateFields={updateFields}
 				next={() => {
 					updateFields({
-						isDoneStepTwo: true,
+						isDoneLabelData: true,
 					})
 				}}
 				pagination={pagination}
@@ -146,4 +156,4 @@ const StepTwo = ({ files, labels, pagination, updateFields, projectInfo }) => {
 	return <>Error</>
 }
 
-export default memo(StepTwo)
+export default memo(LabelData)

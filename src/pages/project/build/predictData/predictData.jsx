@@ -12,8 +12,9 @@ import { API_URL } from 'src/constants/api'
 import LineGraph from 'src/components/LineGraph'
 import researchImage from 'src/assets/images/research.png'
 import 'src/assets/css/chart.css'
-import ImagePredict from 'src/pages/project/predict/ImagePredict'
-import TextPredict from 'src/pages/project/predict/TextPredict'
+import ImagePredict from 'src/pages/project/build/predictData/ImagePredict'
+import TextPredict from 'src/pages/project/build/predictData/TextPredict'
+import config from '../config'
 
 const initialState = {
 	showUploadModal: false,
@@ -34,13 +35,13 @@ const initialState = {
 	uploadSentences: [],
 }
 
-const StepFour = (props) => {
+const PredictData = (props) => {
 	const { projectInfo } = props
 	const location = useLocation()
 	const navigate = useNavigate()
 	const searchParams = new URLSearchParams(location.search)
 	const experimentName = searchParams.get('experiment_name')
-	const [stepFourState, updateState] = useReducer(
+	const [predictDataState, updateState] = useReducer(
 		(pre, next) => ({ ...pre, ...next }),
 		initialState
 	)
@@ -152,7 +153,7 @@ const StepFour = (props) => {
 						userConfirm: sentences,
 					})
 
-					console.log(stepFourState.showUploadModal)
+					console.log(predictDataState.showUploadModal)
 				})
 				.catch((error) => {
 					console.error('Fetch error:', error.message)
@@ -339,8 +340,12 @@ const StepFour = (props) => {
 					</div>
 				</div>
 			</section>
+
 			{/* BẢNG KẾT QUẢ SAU KHI CORRECT/ INCORRECT*/}
-			<Transition.Root show={stepFourState.showResultModal} as={Fragment}>
+			<Transition.Root
+				show={predictDataState.showResultModal}
+				as={Fragment}
+			>
 				<Dialog
 					as="div"
 					className="relative z-[999999]"
@@ -400,16 +405,16 @@ const StepFour = (props) => {
 											Total Prediction:{' '}
 											<strong className="text-blue-600">
 												{
-													// stepFourState.uploadFiles
+													// predictDataState.uploadFiles
 													// 	?.length
 													projectInfo.type ===
 													'IMAGE_CLASSIFICATION'
-														? stepFourState
+														? predictDataState
 																.uploadFiles
 																?.length
 														: projectInfo.type ===
 															  'TEXT_CLASSIFICATION'
-															? stepFourState
+															? predictDataState
 																	.uploadSentences
 																	?.length
 															: 'no'
@@ -422,7 +427,7 @@ const StepFour = (props) => {
 											<strong className="text-blue-600">
 												{' '}
 												{
-													stepFourState.userConfirm.filter(
+													predictDataState.userConfirm.filter(
 														(item) =>
 															item.value ===
 															'true'
@@ -435,35 +440,35 @@ const StepFour = (props) => {
 											Accuracy:{' '}
 											<strong className="text-blue-600">
 												{/* {parseFloat(
-													stepFourState.userConfirm.filter(
+													predictDataState.userConfirm.filter(
 														(item) =>
 															item.value ===
 															'true'
 													)?.length /
-														stepFourState
+														predictDataState
 															.uploadFiles?.length
 												).toFixed(2)} */}
 												{projectInfo.type ===
 												'IMAGE_CLASSIFICATION'
 													? parseFloat(
-															stepFourState.userConfirm.filter(
+															predictDataState.userConfirm.filter(
 																(item) =>
 																	item.value ===
 																	'true'
 															)?.length /
-																stepFourState
+																predictDataState
 																	.uploadFiles
 																	?.length
 														).toFixed(2)
 													: projectInfo.type ===
 														  'TEXT_CLASSIFICATION'
 														? parseFloat(
-																stepFourState.userConfirm.filter(
+																predictDataState.userConfirm.filter(
 																	(item) =>
 																		item.value ===
 																		'true'
 																)?.length /
-																	stepFourState
+																	predictDataState
 																		.uploadSentences
 																		?.length
 															).toFixed(2)
@@ -519,24 +524,26 @@ const StepFour = (props) => {
 					</div>
 				</Dialog>
 			</Transition.Root>
-			{/* PREDICT FOR TEXT */}
-			<TextPredict
-				experimentName={experimentName}
-				projectInfo={projectInfo}
-				stepFourState={stepFourState}
-				updateState={updateState}
-				handleFileChange={handleFileChange}
-			/>
-			{/* PREDICT FOR IMAGE */}
-			<ImagePredict
-				experimentName={experimentName}
-				projectInfo={projectInfo}
-				stepFourState={stepFourState}
-				updateState={updateState}
-				handleFileChange={handleFileChange}
-			/>
+
+			{projectInfo &&
+				(() => {
+					const object = config[projectInfo.type]
+					if (object) {
+						const PredictComponent = object.predictView
+						return (
+							<PredictComponent
+								experimentName={experimentName}
+								projectInfo={projectInfo}
+								predictDataState={predictDataState}
+								updateState={updateState}
+								handleFileChange={handleFileChange}
+							/>
+						)
+					}
+					return null
+				})()}
 		</>
 	)
 }
 
-export default StepFour
+export default PredictData

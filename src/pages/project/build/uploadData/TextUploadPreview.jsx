@@ -31,18 +31,18 @@ const TextUploadPreview = ({ file, index, handleRemoveFile }) => {
 		return
 	}, [file])
 
-	// Tính toán các hàng cần hiển thị cho trang hiện tại
+	// Calculate the number of rows in a page
 	const indexOfLastItem = currentPage * itemsPerPage
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage
 	const currentItems = csvData.slice(indexOfFirstItem, indexOfLastItem)
 
-	// Tính toán số trang
+	// Calculate the number of pages
 	const totalPages = Math.ceil(csvData.length / itemsPerPage)
 
 	const handlePageChange = (pageNumber) => {
 		if (pageNumber >= 1 && pageNumber <= totalPages) {
 			setCurrentPage(pageNumber)
-			setInputPage('') // Clear input when page is changed
+			setInputPage('')
 		}
 	}
 

@@ -60,6 +60,7 @@ const Labeling = ({
 	const rootRef = useRef()
 	const lsf = useRef(null)
 	const [currentIndex, setIndex] = useState(0)
+
 	const getConfigView = (viewLabels) => {
 		if (type === 'IMAGE_CLASSIFICATION') {
 			return ImageConfig(viewLabels)

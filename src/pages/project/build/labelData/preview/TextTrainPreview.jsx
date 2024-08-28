@@ -24,7 +24,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 					pre.toString().concat(`&experiment_name=${data.task_id}`)
 				)
 			updateFields({
-				isDoneStepTwo: true,
+				isDoneLabelData: true,
 				experiment_name: data.task_id,
 			})
 			// next()
@@ -72,7 +72,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 		const searchParams = new URLSearchParams(location.search)
 		const experimentName = searchParams.get('experiment_name')
 		if (experimentName) {
-			updateFields({ isDoneStepTwo: true })
+			updateFields({ isDoneLabelData: true })
 		}
 	}, [])
 
