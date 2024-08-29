@@ -4,7 +4,7 @@ import { listImages, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
-const ImageTrainPreview = ({ images, pagination, next, updateFields }) => {
+const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
 	const { id: projectId } = useParams()
@@ -105,8 +105,8 @@ const ImageTrainPreview = ({ images, pagination, next, updateFields }) => {
 					</div>
 				</div>
 				<div className="grid grid-cols-4 gap-3">
-					{images ? (
-						images.map((image, index) => (
+					{datas ? (
+						datas.map((image, index) => (
 							<div
 								key={index}
 								className="rounded-md overflow-hidden relative group hover:opacity-100"
@@ -128,7 +128,7 @@ const ImageTrainPreview = ({ images, pagination, next, updateFields }) => {
 					)}
 				</div>
 
-				{images && (
+				{datas && (
 					<Pagination
 						currentPage={paginationStep2.currentPage}
 						totalPages={paginationStep2.totalPages}
