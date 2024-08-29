@@ -24,7 +24,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 					pre.toString().concat(`&experiment_name=${data.task_id}`)
 				)
 			updateFields({
-				isDoneStepTwo: true,
+				isDoneLabelData: true,
 				experiment_name: data.task_id,
 			})
 			// next()
@@ -72,11 +72,11 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 		const searchParams = new URLSearchParams(location.search)
 		const experimentName = searchParams.get('experiment_name')
 		if (experimentName) {
-			updateFields({ isDoneStepTwo: true })
+			updateFields({ isDoneLabelData: true })
 		}
 	}, [])
 
-	console.log('texts', texts, 'trainPreview')
+	console.log('texts', texts)
 
 	return (
 		<>
@@ -128,10 +128,10 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 							<table className="min-w-full divide-y divide-gray-200">
 								<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 									<tr>
-										<th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+										<th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider w-[90%]">
 											SENTENCES
 										</th>
-										<th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">
+										<th className="px-6 py-3 text-center text-xs font-bold text-black uppercase tracking-wider">
 											LABEL
 										</th>
 									</tr>
@@ -142,10 +142,10 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 											key={row._id}
 											className="hover:bg-gray-100"
 										>
-											<td className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap">
+											<td className="px-6 py-2.5 text-sm text-gray-700 w-[90%] break-words">
 												{row.url}
 											</td>
-											<td className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap">
+											<td className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap text-center">
 												{row.label}
 											</td>
 										</tr>

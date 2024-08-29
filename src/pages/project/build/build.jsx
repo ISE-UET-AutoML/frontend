@@ -1,24 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { useMultistepForm } from 'src/hooks/useMultiStepForm'
+import useMultiStepForm from 'src/hooks/useMultiStepForm'
 import * as projectAPI from 'src/api/project'
-import StepFour from './steps/step_four'
-import StepOne from './steps/step_one'
-import StepThree from './steps/step_three'
-import StepTwo from './steps/step_two'
+import PredictData from './predictData/predictData'
+import UploadData from './uploadData/uploadData'
+import TrainModel from './trainModel/trainModel'
+import LabelData from './labelData/labelData'
 
 export default function ProjectBuild(props) {
 	function updateFields(fields) {
-		if (fields.isDoneStepOne) {
+		if (fields.isDoneUploadData) {
 			goTo(1)
 		}
-		if (fields.isDoneStepTwo) {
+		if (fields.isDoneLabelData) {
 			goTo(2)
 		}
-		if (fields.isDoneStepThree) {
+		if (fields.isDoneTrainModel) {
 			goTo(3)
 		}
-		if (fields.isDoneStepFour) {
+		if (fields.isDonePredictData) {
 			goTo(4)
 		}
 		setData((prev) => {
@@ -62,23 +62,23 @@ export default function ProjectBuild(props) {
 		back,
 		next,
 		goTo,
-	} = useMultistepForm([
-		<StepOne
+	} = useMultiStepForm([
+		<UploadData
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
-		<StepTwo
+		<LabelData
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
-		<StepThree
+		<TrainModel
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
-		<StepFour
+		<PredictData
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}

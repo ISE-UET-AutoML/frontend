@@ -56,10 +56,6 @@ li.label-li {
     align-content: center;
 }
 
-li.label-li>span {
-    text-align: 4px;
-    margin-left: 4px;
-}
 
 li.label-li>button {
     float: right;

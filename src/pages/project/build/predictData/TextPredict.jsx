@@ -9,31 +9,45 @@ import SolutionImage from 'src/assets/images/Solution.png'
 const TextPredict = ({
 	experimentName,
 	projectInfo,
-	stepFourState,
+	predictDataState,
 	updateState,
+	handleFileChange,
 }) => {
-	const [sentence, setSentence] = useState('')
 	const [explanation, setExplanation] = useState(null)
-	const [selectedClass, setHighlightedClass] = useState(0)
+	const [selectedClass, setHighlightedClass] = useState(null)
 
-	const handleTextChange = (event) => {
-		setSentence(event.target.value)
-	}
 	const handleSelectedText = async (item) => {
 		updateState({
 			selectedSentence: item.sentence,
+			confidenceScore: item.confidence,
+			confidenceLabel: item.class,
 		})
+
+		setExplanation(null)
 	}
 
-	const handleHighlight = (selectedClass) => {
-		setHighlightedClass(selectedClass)
-	}
+	const handleConfirmText = (value) => {
+		const currentTextSelectedIndex =
+			predictDataState.uploadSentences.findIndex(
+				(file) => file.sentence === predictDataState.selectedSentence
+			)
 
-	const shouldHighlight = (word) => {
-		const currrentClassWords = explanation.find(
-			(item) => item.class === selectedClass
-		).words
-		return currrentClassWords.includes(word)
+		const nextIdx =
+			currentTextSelectedIndex ===
+			predictDataState.uploadSentences.length - 1
+				? currentTextSelectedIndex
+				: currentTextSelectedIndex + 1
+
+		setExplanation('')
+		updateState({
+			userConfirm: predictDataState.userConfirm.map((item, index) => {
+				if (index === currentTextSelectedIndex) {
+					return { ...item, value: value }
+				}
+				return item
+			}),
+			selectedSentence: predictDataState.uploadSentences[nextIdx],
+		})
 	}
 
 	const handleExplainText = async (event) => {
@@ -52,10 +66,14 @@ const TextPredict = ({
 		}
 		console.log(jsonObject)
 
+		updateState({
+			isLoading: true,
+		})
+
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
 		formData.append('runName', experimentName)
-		formData.append('text', stepFourState.selectedSentence)
+		formData.append('text', predictDataState.selectedSentence)
 
 		console.log('Fetching explain text')
 
@@ -68,8 +86,9 @@ const TextPredict = ({
 
 		fetchWithTimeout(url, options, 60000)
 			.then((data) => {
+				console.log(data)
 				setExplanation(data.explanations)
-				console.log(data.explanations)
+				console.log('Fetch successful')
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
@@ -79,10 +98,24 @@ const TextPredict = ({
 			})
 	}
 
+	const handleHighlight = (selectedClass) => {
+		setHighlightedClass(selectedClass)
+	}
+
+	const shouldHighlight = (word) => {
+		if (selectedClass == null) {
+			return false
+		}
+		const currentClassWords = explanation.find(
+			(item) => item.class === selectedClass
+		).words
+		return currentClassWords.includes(word)
+	}
+
 	return (
 		<div
 			className={`${
-				stepFourState.showTextModal
+				predictDataState.showTextModal
 					? 'top-0 left-0 bottom-full z-[1000] opacity-100'
 					: 'left-0 top-full bottom-0 opacity-0'
 			} fixed h-full w-full px-[30px]  bg-white  transition-all duration-500 ease overflow-auto pb-[30px]`}
@@ -100,14 +133,15 @@ const TextPredict = ({
 					viewBox="0 0 24 24"
 					color="#69717A"
 					aria-hidden="true"
-					data-testid="close-upload-media-dialog-btn"
+					data-testId="close-upload-media-dialog-btn"
 				>
 					<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 				</svg>
 			</button>
-			{stepFourState.isLoading && <Loading />}
+			{predictDataState.isLoading && <Loading />}
 
-			{stepFourState.showTextModal ? (
+			{predictDataState.uploadSentences.length > 0 &&
+			predictDataState.showTextModal ? (
 				<div className="w-full h-full">
 					{/* HEADER */}
 					<div className="flex items-center mb-5">
@@ -160,39 +194,53 @@ const TextPredict = ({
 											<th className="px-4 py-2 text-left w-[60%]">
 												Sentence
 											</th>
-											<th className="px-4 py-2 text-center">
+											<th className="px-4 py-2 text-center w-[20%]">
 												Confidence Rate
 											</th>
-											<th className="px-4 py-2 text-center">
+											<th className="px-4 py-2 text-center w-[20%]">
 												Predict
 											</th>
 										</tr>
 									</thead>
 								</table>
 							</div>
-							<table className="min-w-full table-auto border-collapse rounded-lg overflow-hidden">
+							<table className="min-w-full table-auto border-collapse overflow-hidden">
 								<tbody>
-									{stepFourState.uploadSentences.map(
+									{predictDataState.uploadSentences.map(
 										(item, index) => (
 											<tr
 												key={index}
 												onClick={() =>
 													handleSelectedText(item)
 												}
-												className={`hover:bg-gray-100 cursor-pointer ${
-													stepFourState.selectedSentence ===
-													item.sentence
-														? ' border-blue-500 bg-blue-100 font-bold'
+												// className={`hover:bg-gray-100 cursor-pointer ${
+												// 	predictDataState.selectedSentence ===
+												// 	item.sentence
+												// 		? ' border-blue-500 bg-blue-100 font-bold border-2'
+												// 		: ''
+												// }`}
+												className={`${
+													typeof predictDataState
+														?.userConfirm[index]
+														.value === 'string'
+														? predictDataState
+																?.userConfirm[
+																index
+															].value === 'true'
+															? 'bg-green-100'
+															: 'bg-red-100'
 														: ''
-												}`}
+												}
+												  ${index < predictDataState.uploadSentences.length ? (predictDataState.selectedSentence === item.sentence ? 'bg-blue-100 cursor-pointer border-2 border-dashed border-blue-500' : '') : ''}
+												   `}
 											>
 												<td className="px-6 py-4 text-sm font-medium text-gray-900 break-words w-[60%] text-left">
 													{item.sentence}
 												</td>
-												<td className="px-6 py-4 text-sm text-gray-900 text-center">
+												<td className="px-6 py-4 text-sm text-gray-900 text-center w-[20%]">
 													{item.confidence}
 												</td>
-												<td className="px-6 py-4 text-sm text-gray-900 text-center">
+												<td className="px-6 py-4 text-sm text-gray-900 text-center w-[20%]">
 													{item.label}
 												</td>
 											</tr>
@@ -205,7 +253,10 @@ const TextPredict = ({
 						{/* BUTTONS + DESCRIPTION */}
 						<div className="col-span-3 row-span-2 rounded-lg shadow-xl">
 							<div className="flex items-center justify-center space-x-20 mt-2">
-								<button className="border-2 border-green-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg">
+								<button
+									onClick={(e) => handleConfirmText('true')}
+									className="border-2 border-green-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										className="w-4 h-4 text-green-500"
@@ -242,7 +293,10 @@ const TextPredict = ({
 									</svg>
 								</button>
 
-								<button className="border-2 border-red-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg">
+								<button
+									onClick={(e) => handleConfirmText('false')}
+									className="border-2 border-red-500 bg-white p-3 shadow-xl hover:bg-gray-100 active:bg-gray-200 transition ease-in-out duration-300 rounded-lg"
+								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
 										className="w-4 h-4 text-red-500"
@@ -264,56 +318,69 @@ const TextPredict = ({
 									<div>
 										<div>
 											<p className="leading-loose">
-												{stepFourState.selectedSentence
-													.split(/[\s,]+/)
-													.map((word, index) => (
-														<>
-															<span
-																key={index}
-																className={
-																	shouldHighlight(
-																		word
-																			.replace(
-																				/[()]/g,
-																				''
-																			)
-																			.trim()
-																	)
-																		? 'highlight'
-																		: ''
-																}
-																style={
-																	shouldHighlight(
-																		word
-																			.replace(
-																				/[()]/g,
-																				''
-																			)
-																			.trim()
-																	)
-																		? {
-																				backgroundColor:
-																					'#4f46e5',
-																				color: 'white',
-																				paddingLeft:
-																					'0.5rem',
-																				paddingRight:
-																					'0.5rem',
-																				paddingTop:
-																					'0.25rem',
-																				paddingBottom:
-																					'0.25rem',
-																				borderRadius:
-																					'0.5rem',
+												{predictDataState.selectedSentence
+													? predictDataState.selectedSentence
+															.split(/[\s,]+/)
+															.map(
+																(
+																	word,
+																	index
+																) => (
+																	<>
+																		<span
+																			key={
+																				index
 																			}
-																		: {}
-																}
-															>
-																{word}
-															</span>
-															<span> </span>
-														</>
-													))}
+																			className={
+																				shouldHighlight(
+																					word
+																						.replace(
+																							/[()]/g,
+																							''
+																						)
+																						.trim()
+																				)
+																					? 'highlight'
+																					: ''
+																			}
+																			style={
+																				shouldHighlight(
+																					word
+																						.replace(
+																							/[()]/g,
+																							''
+																						)
+																						.trim()
+																				)
+																					? {
+																							backgroundColor:
+																								'#4f46e5',
+																							color: 'white',
+																							paddingLeft:
+																								'0.5rem',
+																							paddingRight:
+																								'0.5rem',
+																							paddingTop:
+																								'0.25rem',
+																							paddingBottom:
+																								'0.25rem',
+																							borderRadius:
+																								'0.5rem',
+																						}
+																					: {}
+																			}
+																		>
+																			{
+																				word
+																			}
+																		</span>
+																		<span>
+																			{' '}
+																		</span>
+																	</>
+																)
+															)
+													: 'Choose sentence'}
 											</p>
 										</div>
 										<div>
@@ -339,8 +406,8 @@ const TextPredict = ({
 									</div>
 								) : (
 									<p>
-										Please choose a specific sentences to
-										explain
+										Please choose a specific sentence and
+										click explain icon to explain
 									</p>
 								)}
 							</div>
@@ -357,7 +424,53 @@ const TextPredict = ({
 					</div>
 				</div>
 			) : (
-				<div>Error</div>
+				<label
+					htmlFor="file"
+					onClick={() => updateState({ showPredictModal: true })}
+					// for="file"
+					className="flex flex-col w-[95%] cursor-pointer mt-24 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] h-[300px] rounded-[10px] "
+				>
+					<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="100"
+							height="100"
+							fill="none"
+							viewBox="0 0 100 100"
+						>
+							<mask
+								id="mask0_908_734"
+								style={{ maskType: 'alpha' }}
+								width="100"
+								height="100"
+								x="0"
+								y="0"
+								maskUnits="userSpaceOnUse"
+							>
+								<path fill="#D9D9D9" d="M0 0H100V100H0z"></path>
+							</mask>
+							<g mask="url(#mask0_908_734)">
+								<path
+									fill="#65A4FE"
+									d="M45.833 83.333h-18.75c-6.319 0-11.718-2.187-16.195-6.562-4.481-4.375-6.721-9.722-6.721-16.042 0-5.416 1.632-10.243 4.896-14.479 3.263-4.236 7.534-6.944 12.812-8.125 1.736-6.389 5.208-11.562 10.417-15.52 5.208-3.96 11.11-5.938 17.708-5.938 8.125 0 15.017 2.829 20.675 8.487 5.661 5.661 8.492 12.554 8.492 20.68 4.791.555 8.768 2.62 11.929 6.195 3.158 3.578 4.737 7.763 4.737 12.554 0 5.209-1.822 9.636-5.466 13.284-3.648 3.644-8.075 5.466-13.284 5.466H54.167V53.542L60.833 60l5.834-5.833L50 37.5 33.333 54.167 39.167 60l6.666-6.458v29.791z"
+								></path>
+							</g>
+						</svg>
+						<p className="text-center text-black">
+							Upload files to predict
+						</p>
+					</div>
+					<input
+						id="file"
+						type="file"
+						multiple
+						className="hidden"
+						onChange={handleFileChange}
+						onClick={(event) => {
+							event.target.value = null
+						}}
+					/>
+				</label>
 			)}
 		</div>
 	)

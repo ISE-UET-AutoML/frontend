@@ -8,54 +8,54 @@ import SolutionImage from 'src/assets/images/Solution.png'
 const ImagePredict = ({
 	experimentName,
 	projectInfo,
-	stepFourState,
+	predictDataState,
 	updateState,
 	handleFileChange,
 }) => {
 	const [explainImageUrl, setExplainImageUrl] = useState('')
 
 	const handleSelectedImage = async (item) => {
-		const fileIndex = stepFourState.uploadFiles.findIndex(
+		const fileIndex = predictDataState.uploadFiles.findIndex(
 			(file) => file.name === item.name
 		)
 		updateState({
 			selectedImage: item,
-			confidenceScore: stepFourState.confidences[fileIndex].confidence,
-			confidenceLabel: stepFourState.confidences[fileIndex].class,
+			confidenceScore: predictDataState.confidences[fileIndex].confidence,
+			confidenceLabel: predictDataState.confidences[fileIndex].class,
 		})
 
 		setExplainImageUrl('')
 	}
 
 	const handleConfirmImage = (value) => {
-		const currentImageSeletedIndex = stepFourState.uploadFiles.findIndex(
-			(file) => file.name === stepFourState.selectedImage.name
-		)
+		const currentImageSelectedIndex =
+			predictDataState.uploadFiles.findIndex(
+				(file) => file.name === predictDataState.selectedImage.name
+			)
 
 		const nextIdx =
-			currentImageSeletedIndex === stepFourState.uploadFiles.length - 1
-				? currentImageSeletedIndex
-				: currentImageSeletedIndex + 1
+			currentImageSelectedIndex ===
+			predictDataState.uploadFiles.length - 1
+				? currentImageSelectedIndex
+				: currentImageSelectedIndex + 1
 
 		setExplainImageUrl('')
 		updateState({
-			userConfirm: stepFourState.userConfirm.map((item, index) => {
-				if (index === currentImageSeletedIndex) {
+			userConfirm: predictDataState.userConfirm.map((item, index) => {
+				if (index === currentImageSelectedIndex) {
 					return { ...item, value: value }
 				}
 				return item
 			}),
-			selectedImage: stepFourState.uploadFiles[nextIdx],
+			selectedImage: predictDataState.uploadFiles[nextIdx],
 			confidenceScore: parseFloat(
-				stepFourState.confidences[nextIdx].confidence
+				predictDataState.confidences[nextIdx].confidence
 			),
-			confidenceLabel: stepFourState.confidences[nextIdx].class,
+			confidenceLabel: predictDataState.confidences[nextIdx].class,
 		})
 	}
 
 	const handleExplainSelectedImage = async () => {
-		const item = stepFourState.selectedImage
-
 		const formData = new FormData()
 
 		const model = await instance.get(API_URL.get_model(experimentName))
@@ -64,9 +64,7 @@ const ImagePredict = ({
 			console.error('Failed to get model info')
 		}
 		console.log(jsonObject)
-		console.log(jsonObject.userEmail)
-		console.log(jsonObject.projectName)
-		console.log(jsonObject.runID)
+
 		updateState({
 			isLoading: true,
 		})
@@ -74,7 +72,9 @@ const ImagePredict = ({
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
 		formData.append('runName', experimentName)
-		formData.append('image', item)
+		formData.append('image', predictDataState.selectedImage)
+
+		console.log('Fetching explain image')
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
 
@@ -90,13 +90,12 @@ const ImagePredict = ({
 
 				setExplainImageUrl(fetchedImageUrl)
 
-				updateState({
-					isLoading: false,
-				})
 				console.log('Fetch successful')
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
+			})
+			.finally(() => {
 				updateState({ isLoading: false })
 			})
 	}
@@ -104,7 +103,7 @@ const ImagePredict = ({
 	return (
 		<div
 			className={`${
-				stepFourState.showUploadModal
+				predictDataState.showUploadModal
 					? 'top-0 left-0 bottom-full z-[1000] opacity-100'
 					: 'left-0 top-full bottom-0 opacity-0'
 			} fixed h-screen w-full px-[30px]  bg-white  transition-all duration-500 ease overflow-auto pb-12`}
@@ -127,10 +126,10 @@ const ImagePredict = ({
 					<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 				</svg>
 			</button>
-			{stepFourState.isLoading && <Loading />}
+			{predictDataState.isLoading && <Loading />}
 			{/* uploaded */}
-			{stepFourState.uploadFiles.length > 0 &&
-			stepFourState.showImageModal ? (
+			{predictDataState.uploadFiles.length > 0 &&
+			predictDataState.showImageModal ? (
 				<>
 					<h1 class="mb-5 text-4xl font-extrabold text-gray-900 text-left mt-10 flex">
 						<span class="text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] mr-2">
@@ -153,19 +152,21 @@ const ImagePredict = ({
 					</h1>
 					<div className="flex h-[90%]">
 						<div className="h-full  w-1/6 mr-5 overflow-y-auto">
-							{stepFourState.uploadFiles.map((item, index) => (
+							{predictDataState.uploadFiles.map((item, index) => (
 								<div
 									key={item.name + index}
 									class={`${
-										typeof stepFourState?.userConfirm[index]
-											.value === 'string'
-											? stepFourState?.userConfirm[index]
-													.value === 'true'
+										typeof predictDataState?.userConfirm[
+											index
+										].value === 'string'
+											? predictDataState?.userConfirm[
+													index
+												].value === 'true'
 												? 'border-2 border-green-500 border-solid'
 												: 'border-2 border-red-600 border-solid'
 											: ''
 									}
-				          ${index < stepFourState.uploadFiles.length - 1 ? (stepFourState.selectedImage.name === item.name ? 'border-2 !border-[#CCCCFF] border-solid' : '') : ''}
+				          ${index < predictDataState.uploadFiles.length - 1 ? (predictDataState.selectedImage.name === item.name ? 'border-2 !border-[#CCCCFF] border-solid' : '') : ''}
 				           rounded-[5px] h-[130px] min-w-[200px] p-2 flex bg-gray-100 justify-center my-2`}
 									onClick={() => handleSelectedImage(item)}
 								>
@@ -179,17 +180,17 @@ const ImagePredict = ({
 						</div>
 						<div className=" grid grid-cols-3 grid-rows-4 gap-4 w-5/6 ">
 							<div className="col-span-2 row-span-4 shadow-xl p-4 rounded-lg">
-								{stepFourState.selectedImage && (
+								{predictDataState.selectedImage && (
 									<img
 										src={URL.createObjectURL(
-											stepFourState.selectedImage
+											predictDataState.selectedImage
 										)}
 										alt=""
 										className="object-cover w-full h-[75%] rounded-md"
 									/>
 								)}
 								<p className="text-left text-[#1904e5] font-semibold text-4xl text-transform: uppercase mt-4 mb-3">
-									{stepFourState.confidenceLabel}
+									{predictDataState.confidenceLabel}
 								</p>
 								<article className="text-balance">
 									Predicting data is susceptible to errors for
@@ -292,7 +293,7 @@ const ImagePredict = ({
 										</a>{' '}
 										explainer methodology.
 									</article>
-									{!stepFourState.userConfirm.some(
+									{!predictDataState.userConfirm.some(
 										(item) => item.value === null
 									) && (
 										<button
@@ -333,7 +334,7 @@ const ImagePredict = ({
 								</h1>
 								<p className="px-4 py-2 text-6xl text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] rounded-lg text-center">
 									{parseFloat(
-										stepFourState.confidenceScore
+										predictDataState.confidenceScore
 									).toFixed(2)}
 								</p>
 							</div>
