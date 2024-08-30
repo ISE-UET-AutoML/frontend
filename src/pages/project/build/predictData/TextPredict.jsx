@@ -9,7 +9,7 @@ import SolutionImage from 'src/assets/images/Solution.png'
 const TextPredict = ({
 	experimentName,
 	projectInfo,
-	stepFourState,
+	predictDataState,
 	updateState,
 	handleFileChange,
 }) => {
@@ -28,25 +28,25 @@ const TextPredict = ({
 
 	const handleConfirmText = (value) => {
 		const currentTextSelectedIndex =
-			stepFourState.uploadSentences.findIndex(
-				(file) => file.sentence === stepFourState.selectedSentence
+			predictDataState.uploadSentences.findIndex(
+				(file) => file.sentence === predictDataState.selectedSentence
 			)
 
 		const nextIdx =
 			currentTextSelectedIndex ===
-			stepFourState.uploadSentences.length - 1
+			predictDataState.uploadSentences.length - 1
 				? currentTextSelectedIndex
 				: currentTextSelectedIndex + 1
 
 		setExplanation('')
 		updateState({
-			userConfirm: stepFourState.userConfirm.map((item, index) => {
+			userConfirm: predictDataState.userConfirm.map((item, index) => {
 				if (index === currentTextSelectedIndex) {
 					return { ...item, value: value }
 				}
 				return item
 			}),
-			selectedSentence: stepFourState.uploadSentences[nextIdx],
+			selectedSentence: predictDataState.uploadSentences[nextIdx],
 		})
 	}
 
@@ -73,7 +73,7 @@ const TextPredict = ({
 		formData.append('userEmail', jsonObject.userEmail)
 		formData.append('projectName', jsonObject.projectName)
 		formData.append('runName', experimentName)
-		formData.append('text', stepFourState.selectedSentence)
+		formData.append('text', predictDataState.selectedSentence)
 
 		console.log('Fetching explain text')
 
@@ -115,7 +115,7 @@ const TextPredict = ({
 	return (
 		<div
 			className={`${
-				stepFourState.showTextModal
+				predictDataState.showTextModal
 					? 'top-0 left-0 bottom-full z-[1000] opacity-100'
 					: 'left-0 top-full bottom-0 opacity-0'
 			} fixed h-full w-full px-[30px]  bg-white  transition-all duration-500 ease overflow-auto pb-[30px]`}
@@ -138,10 +138,10 @@ const TextPredict = ({
 					<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 				</svg>
 			</button>
-			{stepFourState.isLoading && <Loading />}
+			{predictDataState.isLoading && <Loading />}
 
-			{stepFourState.uploadSentences.length > 0 &&
-			stepFourState.showTextModal ? (
+			{predictDataState.uploadSentences.length > 0 &&
+			predictDataState.showTextModal ? (
 				<div className="w-full h-full">
 					{/* HEADER */}
 					<div className="flex items-center mb-5">
@@ -206,7 +206,7 @@ const TextPredict = ({
 							</div>
 							<table className="min-w-full table-auto border-collapse overflow-hidden">
 								<tbody>
-									{stepFourState.uploadSentences.map(
+									{predictDataState.uploadSentences.map(
 										(item, index) => (
 											<tr
 												key={index}
@@ -214,16 +214,16 @@ const TextPredict = ({
 													handleSelectedText(item)
 												}
 												// className={`hover:bg-gray-100 cursor-pointer ${
-												// 	stepFourState.selectedSentence ===
+												// 	predictDataState.selectedSentence ===
 												// 	item.sentence
 												// 		? ' border-blue-500 bg-blue-100 font-bold border-2'
 												// 		: ''
 												// }`}
 												className={`${
-													typeof stepFourState
+													typeof predictDataState
 														?.userConfirm[index]
 														.value === 'string'
-														? stepFourState
+														? predictDataState
 																?.userConfirm[
 																index
 															].value === 'true'
@@ -231,7 +231,7 @@ const TextPredict = ({
 															: 'bg-red-100'
 														: ''
 												}
-												  ${index < stepFourState.uploadSentences.length ? (stepFourState.selectedSentence === item.sentence ? 'bg-blue-100 cursor-pointer border-2 border-dashed border-blue-500' : '') : ''}
+												  ${index < predictDataState.uploadSentences.length ? (predictDataState.selectedSentence === item.sentence ? 'bg-blue-100 cursor-pointer border-2 border-dashed border-blue-500' : '') : ''}
 												   `}
 											>
 												<td className="px-6 py-4 text-sm font-medium text-gray-900 break-words w-[60%] text-left">
@@ -318,8 +318,8 @@ const TextPredict = ({
 									<div>
 										<div>
 											<p className="leading-loose">
-												{stepFourState.selectedSentence
-													? stepFourState.selectedSentence
+												{predictDataState.selectedSentence
+													? predictDataState.selectedSentence
 															.split(/[\s,]+/)
 															.map(
 																(

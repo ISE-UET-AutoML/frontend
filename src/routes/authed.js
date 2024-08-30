@@ -1,9 +1,6 @@
 import { PATHS } from 'src/constants/paths';
 
-import Dashboard from 'src/pages/dashboard';
 import Projects from 'src/pages/projects';
-import Upload from 'src/pages/upload';
-import ImageTrainPreview from 'src/pages/preview/ImageTrainPreview';
 import Profile from 'src/pages/profile';
 import Settings from 'src/pages/settings';
 import RequireAuth from 'src/layouts/RequireAuth';
@@ -12,9 +9,8 @@ import ProjectLayout from 'src/layouts/ProjectLayout';
 import ProjectTasks from 'src/pages/project/tasks';
 import { ProjectDeploy } from 'src/pages/project/deploy';
 import ProjectModels from 'src/pages/project/models';
-import ProjectBuild from 'src/pages/project/build';
+import ProjectBuild from 'src/pages/project/build/build';
 import ProjectSettings from 'src/pages/project/settings';
-import ProjectPredict from 'src/pages/project/predict';
 
 const routes = {
     element: <DefaultLayout />,
@@ -32,25 +28,12 @@ const routes = {
             element: <RequireAuth />,
             children: [
                 {
-                    index: true,
-                    path: PATHS.DASHBOARD,
-                    element: <Dashboard />,
-                },
-                {
                     path: PATHS.PROJECTS,
                     element: <Projects />,
                 },
                 {
                     path: '/app/',
                     children: [
-                        {
-                            path: 'upload',
-                            element: <Upload />,
-                        },
-                        {
-                            path: 'preview',
-                            element: <ImageTrainPreview />,
-                        },
                         {
                             path: 'project/:id',
                             element: <ProjectLayout />,
@@ -67,10 +50,7 @@ const routes = {
                                     path: 'deploy',
                                     element: <ProjectDeploy />,
                                 },
-                                {
-                                    path: 'predict',
-                                    element: <ProjectPredict />,
-                                },
+                          
                                 {
                                     path: 'tasks',
                                     element: <ProjectTasks />,

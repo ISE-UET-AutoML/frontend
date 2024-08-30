@@ -68,7 +68,7 @@ const ImageTrainPreview = ({ images, pagination, next, updateFields }) => {
 		const searchParams = new URLSearchParams(location.search)
 		const experimentName = searchParams.get('experiment_name')
 		if (experimentName) {
-			updateFields({ isDoneStepTwo: true })
+			updateFields({ isDoneLabelData: true })
 		}
 	}, [])
 

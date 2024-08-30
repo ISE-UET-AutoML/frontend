@@ -1,25 +1,25 @@
-import { message } from 'antd';
-import { Dialog, Transition } from '@headlessui/react';
-import React, { useEffect, useState, Fragment } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
-import { TrainingChart } from 'src/components/TrainingChart';
-import { getTrainingHistory } from 'src/api/experiment';
+import { message } from 'antd'
+import { Dialog, Transition } from '@headlessui/react'
+import React, { useEffect, useState, Fragment } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { TrainingChart } from 'src/components/TrainingChart'
+import { getTrainingHistory } from 'src/api/experiment'
 
-const StepThree = (props) => {
-	const location = useLocation();
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [trainingAccuracyHistory, setTrainingAccuracyHistory] = useState([]);
-	const [trainingLossHistory, setTrainingLossHistory] = useState([]);
-	const searchParams = new URLSearchParams(location.search);
-	const experimentName = searchParams.get('experiment_name');
+const TrainModel = (props) => {
+	const location = useLocation()
+	const [isModalOpen, setIsModalOpen] = useState(false)
+	const [trainingAccuracyHistory, setTrainingAccuracyHistory] = useState([])
+	const [trainingLossHistory, setTrainingLossHistory] = useState([])
+	const searchParams = new URLSearchParams(location.search)
+	const experimentName = searchParams.get('experiment_name')
 
 	const next = () => {
 		props.updateFields({
-			isDoneStepThree: true,
-		});
-	};
+			isDoneTrainModel: true,
+		})
+	}
 
-	const [processValue, setProcessValue] = useState(0);
+	const [processValue, setProcessValue] = useState(0)
 
 	const stopTrainModel = async () => {
 		fetch(
@@ -27,11 +27,11 @@ const StepThree = (props) => {
 		)
 			.then((res) => res.json())
 			.then((data) => {
-				message.success(data.message, 3);
-				next();
+				message.success(data.message, 3)
+				next()
 			})
-			.catch((err) => console.error(err));
-	};
+			.catch((err) => console.error(err))
+	}
 	const getTrainingProgress = async (experimentName) => {
 		// if (!experimentName) {
 		//     return;
@@ -48,51 +48,52 @@ const StepThree = (props) => {
 
 		const res = await fetch(
 			`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/status/${experimentName}`
-		);
+		)
 
-		const data = await res.json();
+		const data = await res.json()
 
 		if (res.status === 422) {
 		}
 
 		if (res.status === 200) {
-			setProcessValue((acc) => acc + 1);
-			document.getElementById('message').innerHTML = 'Progress';
-			document.getElementById('description').innerHTML = '';
+			setProcessValue((acc) => acc + 1)
+			document.getElementById('message').innerHTML = 'Progress'
+			document.getElementById('description').innerHTML = ''
 			// setProcessValue(data.accuracy)
 			if (data.status === 'SUCCESS') {
-				setProcessValue(100);
-				document.getElementById('message').innerHTML = 'Training Completed';
-				document.getElementById('description').innerHTML = '';
+				setProcessValue(100)
+				document.getElementById('message').innerHTML =
+					'Training Completed'
+				document.getElementById('description').innerHTML = ''
 				// const timer = setTimeout(() => {
 				// 	showTrainingGraph();
 				// 	clearTimeout(timer);
 				// }, 1000);
-				next();
+				next()
 			}
 		}
 
-		return res.data;
-	};
+		return res.data
+	}
 
 	const showTrainingGraph = async () => {
-		const { data } = await getTrainingHistory(experimentName);
-		setTrainingAccuracyHistory(data.val_acc_history);
-		setTrainingLossHistory(data.val_loss_history);
+		const { data } = await getTrainingHistory(experimentName)
+		setTrainingAccuracyHistory(data.val_acc_history)
+		setTrainingLossHistory(data.val_loss_history)
 		const timer = setTimeout(() => {
-			setIsModalOpen(true);
-			clearTimeout(timer);
-		}, 100);
-	};
+			setIsModalOpen(true)
+			clearTimeout(timer)
+		}, 100)
+	}
 
 	useEffect(() => {
-		getTrainingProgress(experimentName);
+		getTrainingProgress(experimentName)
 		const interval = setInterval(() => {
-			getTrainingProgress(experimentName);
-		}, 20000);
+			getTrainingProgress(experimentName)
+		}, 20000)
 
-		return () => clearInterval(interval);
-	}, [experimentName]);
+		return () => clearInterval(interval)
+	}, [experimentName])
 
 	return (
 		<div className="flex items-center justify-center w-full">
@@ -249,7 +250,7 @@ const StepThree = (props) => {
 				</Dialog>
 			</Transition.Root>
 		</div>
-	);
-};
+	)
+}
 
-export default StepThree;
+export default TrainModel
