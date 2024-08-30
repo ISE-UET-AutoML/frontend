@@ -16,10 +16,9 @@ const Explain = (props) => {
 
 		// TODO: fix hardcorded values
 		const formData = new FormData()
-		formData.append('userEmail', 'test-automl')
-		formData.append('projectName', '4-animal')
-		formData.append('runName', "ISE")
-		//formData.append('runName', 'ISE')
+		formData.append('userEmail', process.env.USER_EMAIL)
+		formData.append('projectName', process.env.PROJECT_NAME)
+		formData.append('runName', process.env.RUN_NAME)
 		formData.append('image', item)
 
 		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
@@ -71,10 +70,9 @@ const Explain = (props) => {
 
 		// TODO: fix hardcorded values
 		const formData = new FormData()
-		formData.append('userEmail', 'darklord1611')
-		formData.append('projectName', '66bdc72c8197a434278f525d')
-		formData.append('runName', "ISE")
-		//formData.append('runName', 'ISE')
+		formData.append('userEmail', process.env.USER_EMAIL)
+		formData.append('projectName', process.env.PROJECT_NAME)
+		formData.append('runName', process.env.RUN_NAME)
 		formData.append('text', sentence)
 
 		const temp = sentence.split(/[\s,]+/)
@@ -113,8 +111,35 @@ const Explain = (props) => {
 			})
 			.catch((error) => {
 				console.error('Fetch error:', error.message)
-				// fakeData()
 			})
+	}
+
+	const handleDeploy = async (event) => {
+		event.preventDefault()
+		const formData = new FormData()
+
+		formData.append('userEmail', process.env.USER_EMAIL)
+		formData.append('projectName', process.env.PROJECT_NAME)
+		formData.append('runName', process.env.RUN_NAME)
+		formData.append('task', "IMAGE_CLASSIFICATION")
+
+
+		const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
+
+		const options = {
+			method: 'POST',
+			body: formData,
+		}
+
+		fetchWithTimeout(url, options, 60000)
+			.then((data) => {
+				console.log(data);
+				console.log('Model deploy successfully')
+			})
+			.catch((error) => {
+				console.error('Fetch error:', error.message)
+			})
+			
 	}
 
 	return (
@@ -173,6 +198,9 @@ const Explain = (props) => {
 					/>
 					<button type="submit">Submit</button>
 				</form>
+				<div>
+				<button onClick={handleDeploy}>Deploy</button>
+				</div>
 				<div
 					style={{
 						width: '100%',

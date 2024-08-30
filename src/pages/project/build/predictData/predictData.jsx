@@ -206,14 +206,38 @@ const PredictData = (props) => {
 			})
 	}
 
-	// const handleDeploy = async () => {
-	//     fetch(
-	//         `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
-	//     )
-	//         .then((res) => res.json())
-	//         .then((data) => console.log(data))
-	//         .catch((err) => console.log(err));
-	// };
+	const handleDeploy = async () => {
+	    const formData = new FormData()
+
+		const model = await instance.get(API_URL.get_model(experimentName))
+		const jsonObject = model.data
+		if (!jsonObject) {
+			console.error('Failed to get model info')
+		}
+
+		formData.append('userEmail', jsonObject.userEmail)
+		formData.append('projectName', jsonObject.projectName)
+		formData.append('runName', experimentName)
+		formData.append('task', projectInfo.type)
+
+		const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
+
+		const options = {
+			method: 'POST',
+			body: formData,
+		}
+
+		fetchWithTimeout(url, options, 60000)
+			.then((data) => {
+				console.log(data);
+				console.log('Fetch successful')
+			})
+			.catch((error) => {
+				console.error('Fetch error:', error.message)
+			})
+
+	};
+	
 	// const saveBestModel = async () => {
 	//     try {
 	//         await instance.get(
@@ -249,7 +273,7 @@ const PredictData = (props) => {
 					<button
 						onClick={() => {
 							updateState({ showUploadModal: true })
-							// handleDeploy();
+							handleDeploy();
 						}}
 						className="items-center ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
 						// hidden
