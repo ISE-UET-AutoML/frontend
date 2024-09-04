@@ -1,9 +1,9 @@
-import ImageUploadPreview from './uploadData/ImageUploadPreview'
-import TextUploadPreview from './uploadData/TextUploadPreview'
-import ImageTrainPreview from './labelData/preview/ImageTrainPreview'
-import TextTrainPreview from './labelData/preview/TextTrainPreview'
-import ImagePredict from './predictData/ImagePredict'
-import TextPredict from './predictData/TextPredict'
+import ImageUploadPreview from '../../../components/UploadPreview/ImageUploadPreview'
+import TextUploadPreview from '../../../components/UploadPreview/TextUploadPreview'
+import ImageTrainPreview from '../../../components/TrainPreview/ImageTrainPreview'
+import TextTrainPreview from '../../../components/TrainPreview/TextTrainPreview'
+import ImagePredict from '../../../components/Predict/ImagePredict'
+import TextPredict from '../../../components/Predict/TextPredict'
 
 const config = {
 	IMAGE_CLASSIFICATION: {

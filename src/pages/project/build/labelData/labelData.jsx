@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 import React, { memo, useEffect } from 'react'
 import Labeling from 'src/pages/project/build/labelData/labeling'
-import TextTrainPreview from 'src/pages/project/build/labelData/preview/TextTrainPreview'
-import ImageTrainPreview from 'src/pages/project/build/labelData/preview/ImageTrainPreview'
+import TextTrainPreview from 'src/components/TrainPreview/TextTrainPreview'
+import ImageTrainPreview from 'src/components/TrainPreview/ImageTrainPreview'
 
 const LabelData = ({
 	files,

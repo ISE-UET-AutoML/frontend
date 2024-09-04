@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import Dashboard from 'src/pages/project/build/uploadData/Dashboard'
+import Dashboard from 'src/pages/project/build/Dashboard'
 import * as projectAPI from 'src/api/project'
 import { useParams } from 'react-router-dom'
 

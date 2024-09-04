@@ -11,6 +11,9 @@ import { ProjectDeploy } from 'src/pages/project/deploy';
 import ProjectModels from 'src/pages/project/models';
 import ProjectBuild from 'src/pages/project/build/build';
 import ProjectSettings from 'src/pages/project/settings';
+import UploadData from 'src/pages/project/build/uploadData';
+import TrainModel from 'src/pages/project/build/trainModel';
+import PredictData from 'src/pages/project/build/predictData';
 
 const routes = {
     element: <DefaultLayout />,
@@ -41,6 +44,23 @@ const routes = {
                                 {
                                     path: 'build',
                                     element: <ProjectBuild />,
+                                    children: [{
+                                        path: 'upload',
+                                        element: <UploadData />
+                                    },
+                                    {
+                                        path: 'train',
+                                        element: <TrainModel />
+                                    },
+                                    {
+                                        path: 'predict',
+                                        element: <PredictData />
+                                    },
+                                    // {
+                                    //     path: 'upload',
+                                    //     element: <UploadData />
+                                    // }
+                                ]
                                 },
                                 {
                                     path: 'model',

@@ -9,7 +9,7 @@ import Loading from 'src/components/Loading'
 import { TYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
-import config from '../config'
+import config from './config'
 
 const LOAD_CHUNK = 12
 
@@ -49,7 +49,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 
 	const uploadFiles = async (e) => {
 		e.preventDefault()
-		console.log('upload images')
+
 		if (dashboardState.uploadFiles.length === 0) return
 		if (
 			dashboardState.uploadFiles !== undefined &&
