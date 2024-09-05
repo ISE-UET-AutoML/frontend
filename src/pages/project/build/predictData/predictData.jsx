@@ -15,6 +15,7 @@ import 'src/assets/css/chart.css'
 import ImagePredict from 'src/pages/project/build/predictData/ImagePredict'
 import TextPredict from 'src/pages/project/build/predictData/TextPredict'
 import config from '../config'
+import { SERVICE_URLS } from 'src/constants/services'
 
 const initialState = {
 	showUploadModal: false,
@@ -220,7 +221,7 @@ const PredictData = (props) => {
 		formData.append('runName', experimentName)
 		formData.append('task', projectInfo.type)
 
-		const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
+		const url = `${SERVICE_URLS[projectInfo.type]}/deploy`
 
 		const options = {
 			method: 'POST',
