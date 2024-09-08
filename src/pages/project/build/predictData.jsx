@@ -13,6 +13,7 @@ import LineGraph from 'src/components/LineGraph'
 import researchImage from 'src/assets/images/research.png'
 import 'src/assets/css/chart.css'
 import config from './config'
+import * as experimentAPI from 'src/api/experiment'
 
 const initialState = {
 	showUploadModal: false,
@@ -75,17 +76,14 @@ const PredictData = (props) => {
 				console.log(data)
 
 				setGraphJSON(data)
-				// readChart(
-				// 	data.fit_history.scalars.train_loss,
-				// 	setTrainLossGraph
-				// )
+
 				if (data.fit_history.scalars.train_loss) {
 					readChart(
 						data.fit_history.scalars.train_loss,
 						setTrainLossGraph
 					)
 				}
-				// readChart(data.fit_history.scalars.val_loss, setValLossGraph)
+
 				if (data.fit_history.scalars.val_accuracy) {
 					readChart(
 						data.fit_history.scalars.val_accuracy,
@@ -133,8 +131,6 @@ const PredictData = (props) => {
 
 			fetchWithTimeout(url, options, 120000)
 				.then((data) => {
-					// setPredictTextLabel(data.predictions)
-					console.log(data)
 					const sentences = data.predictions.map((item) => ({
 						sentence: item.sentence,
 						confidence: item.confidence,
@@ -142,7 +138,6 @@ const PredictData = (props) => {
 						value: null,
 						id: 'ID',
 					}))
-					console.log('Fetch successful')
 
 					updateState({
 						showTextModal: true,
@@ -151,13 +146,14 @@ const PredictData = (props) => {
 						userConfirm: sentences,
 					})
 
-					console.log(predictDataState.showUploadModal)
+					console.log('Fetch successful')
 				})
 				.catch((error) => {
 					console.error('Fetch error:', error.message)
 				})
 				.finally(() => {
 					updateState({ isLoading: false })
+					console.log('Fetch completed')
 				})
 
 			return
@@ -167,73 +163,86 @@ const PredictData = (props) => {
 			formData.append('files', validFiles[i])
 		}
 
-		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
+		// const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
 
-		const options = {
-			method: 'POST',
-			body: formData,
-		}
+		// const options = {
+		// 	method: 'POST',
+		// 	body: formData,
+		// }
 
 		console.log('Fetch start')
-		console.log(url)
-		fetchWithTimeout(url, options, 600000)
-			.then((data) => {
-				const { predictions } = data
-				const images = predictions.map((item) => ({
-					id: item.key,
-					value: null,
-					label: item.class,
-				}))
-				updateState({
-					uploadFiles: validFiles,
-					selectedImage: validFiles[0],
-					confidences: predictions,
-					confidenceScore: parseFloat(predictions[0].confidence),
-					confidenceLabel: predictions[0].class,
-					userConfirm: images,
-					showImageModal: true,
-				})
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-			})
-			.finally(() => {
-				updateState({ isLoading: false })
-				console.log('Fetch completed')
-			})
-	}
+		// console.log(url)
 
-	const handleDeploy = async () => {
-		const formData = new FormData()
+		try {
+			const { data } = await experimentAPI.predictImages(
+				experimentName,
+				formData
+			)
 
-		const model = await instance.get(API_URL.get_model(experimentName))
-		const jsonObject = model.data
-		if (!jsonObject) {
-			console.error('Failed to get model info')
+			console.log('dataOK', data)
+			message.success('Success Predict', 3)
+		} catch (error) {
+			message.error('Predict Fail', 3)
 		}
 
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', experimentName)
-		formData.append('task', projectInfo.type)
-
-		const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
-
-		const options = {
-			method: 'POST',
-			body: formData,
-		}
-
-		fetchWithTimeout(url, options, 60000)
-			.then((data) => {
-				console.log(data)
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-			})
+		// fetchWithTimeout(url, options, 600000)
+		// 	.then((data) => {
+		// 		const { predictions } = data
+		// 		const images = predictions.map((item) => ({
+		// 			id: item.key,
+		// 			value: null,
+		// 			label: item.class,
+		// 		}))
+		// 		updateState({
+		// 			uploadFiles: validFiles,
+		// 			selectedImage: validFiles[0],
+		// 			confidences: predictions,
+		// 			confidenceScore: parseFloat(predictions[0].confidence),
+		// 			confidenceLabel: predictions[0].class,
+		// 			userConfirm: images,
+		// 			showImageModal: true,
+		// 		})
+		// 		console.log('Fetch successful')
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error('Fetch error:', error.message)
+		// 	})
+		// 	.finally(() => {
+		// 		updateState({ isLoading: false })
+		// 		console.log('Fetch completed')
+		// 	})
 	}
+
+	// const handleDeploy = async () => {
+	// 	const formData = new FormData()
+
+	// 	const model = await instance.get(API_URL.get_model(experimentName))
+	// 	const jsonObject = model.data
+	// 	if (!jsonObject) {
+	// 		console.error('Failed to get model info')
+	// 	}
+
+	// 	formData.append('userEmail', jsonObject.userEmail)
+	// 	formData.append('projectName', jsonObject.projectName)
+	// 	formData.append('runName', experimentName)
+	// 	formData.append('task', projectInfo.type)
+
+	// 	const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
+
+	// 	const options = {
+	// 		method: 'POST',
+	// 		body: formData,
+	// 	}
+
+	// 	fetchWithTimeout(url, options, 60000)
+	// 		.then((data) => {
+	// 			console.log(data)
+	// 			console.log('Fetch successful')
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error('Fetch error:', error.message)
+	// 		})
+	// }
 
 	// const saveBestModel = async () => {
 	//     try {
@@ -270,7 +279,7 @@ const PredictData = (props) => {
 					<button
 						onClick={() => {
 							updateState({ showUploadModal: true })
-							handleDeploy()
+							// handleDeploy()
 						}}
 						className="items-center ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
 						// hidden

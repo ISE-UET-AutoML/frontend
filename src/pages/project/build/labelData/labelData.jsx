@@ -1,4 +1,4 @@
-import { listImages } from 'src/api/project'
+import { listData } from 'src/api/project'
 import { useLocation } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 import React, { memo, useEffect } from 'react'
@@ -26,7 +26,7 @@ const LabelData = ({
 
 		const id = searchParams.get('id')
 		async function fetchListLabelingImages(id) {
-			const { data } = await listImages(id)
+			const { data } = await listData(id)
 			console.log(data)
 
 			updateFields({

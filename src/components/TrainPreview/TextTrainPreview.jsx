@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { listImages, trainModel } from 'src/api/project'
+import { listData, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
@@ -38,7 +38,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 		const id = searchParams.get('id')
 		if (id) {
 			setIsLoading(true)
-			const { data } = await listImages(id, `&page=${page}&size=10`)
+			const { data } = await listData(id, `&page=${page}&size=10`)
 			setPaginationStep2({ ...paginationStep2, currentPage: page })
 			updateFields({
 				...data.data,
@@ -47,10 +47,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 			setIsLoading(false)
 		} else if (projectId) {
 			setIsLoading(true)
-			const { data } = await listImages(
-				projectId,
-				`&page=${page}&size=10`
-			)
+			const { data } = await listData(projectId, `&page=${page}&size=10`)
 			setPaginationStep2({ ...paginationStep2, currentPage: page })
 			updateFields({
 				...data.data,
