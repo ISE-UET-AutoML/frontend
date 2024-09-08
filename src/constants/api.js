@@ -9,7 +9,6 @@ export const API_URL = {
     delete_project: (projectID) => `${API_BASE_URL}/projects/${projectID}/delete`,
     all_modelsById: (projectId) => `${API_BASE_URL}/projects/models?project_id=${projectId}`,
     upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
-    upload_file_ml_service: (projectID) => `http://localhost:8670/label_service/projects/${projectID}/upload/any`,
     get_project_dataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/datasets`,
     get_project_fulldataset: (projectID) => `${API_BASE_URL}/projects/${projectID}/fulldatasets`,
     update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
@@ -18,4 +17,5 @@ export const API_URL = {
     post_autolabel: (datasetID) => `${API_BASE_URL}/projects/${datasetID}/autolabel`,
     get_model: (experimentName) => `${API_BASE_URL}/experiments/model/${experimentName}`,
     get_training_history: (experimentName) => `${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
+    predict_images: (experimentName) => `${API_BASE_URL}/experiments/predict/?experiment_name=${experimentName}`,
 }

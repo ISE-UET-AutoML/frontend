@@ -8,7 +8,7 @@ const uploadFiles = (projectID, files) => {
     return instance.post(API_URL.upload_file(projectID), files, options);
 };
 
-const listImages = (projectID, queryString = '&page=1&size=24') => {
+const listData = (projectID, queryString = '&page=1&size=24') => {
     return instance.get(`${API_BASE_URL}/images?project_id=${projectID}${queryString}`);
 };
 
@@ -48,4 +48,4 @@ const autoLabel = (projectID) => {
     return instance.post(API_URL.post_autolabel(projectID));
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel };
+export { listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel };
