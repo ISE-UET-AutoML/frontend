@@ -115,9 +115,9 @@ const PredictData = (props) => {
 			console.error('Failed to get model info')
 		}
 
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', experimentName)
+		// formData.append('userEmail', jsonObject.userEmail)
+		// formData.append('projectName', jsonObject.projectName)
+		// formData.append('runName', experimentName)
 
 		// handle text prediction (temporary)
 		if (files[0].name.endsWith('.csv') && files.length === 1) {
@@ -178,8 +178,26 @@ const PredictData = (props) => {
 				experimentName,
 				formData
 			)
+			const { predictions } = data
 
-			console.log('dataOK', data)
+			const images = predictions.map((item) => ({
+				id: item.key,
+				value: null,
+				label: item.class,
+			}))
+			updateState({
+				uploadFiles: validFiles,
+				selectedImage: validFiles[0],
+				confidences: predictions,
+				confidenceScore: parseFloat(predictions[0].confidence),
+				confidenceLabel: predictions[0].class,
+				userConfirm: images,
+				showImageModal: true,
+			})
+
+			console.log('Fetch successful')
+
+			updateState({ isLoading: false })
 			message.success('Success Predict', 3)
 		} catch (error) {
 			message.error('Predict Fail', 3)
