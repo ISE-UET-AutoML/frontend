@@ -12,8 +12,9 @@ import { API_URL } from 'src/constants/api'
 import LineGraph from 'src/components/LineGraph'
 import researchImage from 'src/assets/images/research.png'
 import 'src/assets/css/chart.css'
-import config from './config'
-import * as experimentAPI from 'src/api/experiment'
+
+import config from '../config'
+import { SERVICE_URLS } from 'src/constants/services'
 
 const initialState = {
 	showUploadModal: false,
@@ -227,7 +228,7 @@ const PredictData = (props) => {
 	// 	formData.append('runName', experimentName)
 	// 	formData.append('task', projectInfo.type)
 
-	// 	const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
+	const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
 
 	// 	const options = {
 	// 		method: 'POST',
