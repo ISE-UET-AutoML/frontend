@@ -1,0 +1,30 @@
+{
+    "project_info": {
+        "project_type": "IMAGE_CLASSIFICATION",
+        "label_config": {
+            "label_choices": [
+                "cat",
+                "dog"
+            ]
+        }
+    },
+    "meta": {
+        "batch_size": 50
+    },
+    "tasks": [
+        {
+            "id": 208,
+            "predictions": [],
+            "data": {
+                "data-IMG-image": "http://localhost:8675/media/upload/66df20c20898996772bcb2e4/bkeqpkygizse863qethk.jpg"
+            }
+        },
+        {
+            "id": 209,
+            "predictions": [],
+            "data": {
+                "data-IMG-image": "http://localhost:8675/media/upload/66df20c20898996772bcb2e4/h0ciu1vlhxpn5a4234dr.jpg"
+            }
+        }
+    ]
+}
