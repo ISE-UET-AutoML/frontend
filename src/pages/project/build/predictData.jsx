@@ -13,8 +13,9 @@ import LineGraph from 'src/components/LineGraph'
 import researchImage from 'src/assets/images/research.png'
 import 'src/assets/css/chart.css'
 
-import config from '../config'
+import config from './config'
 import { SERVICE_URLS } from 'src/constants/services'
+import * as experimentAPI from 'src/api/experiment'
 
 const initialState = {
 	showUploadModal: false,
@@ -166,10 +167,10 @@ const PredictData = (props) => {
 
 		// const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
 
-		// const options = {
-		// 	method: 'POST',
-		// 	body: formData,
-		// }
+		const options = {
+			method: 'POST',
+			body: formData,
+		}
 
 		console.log('Fetch start')
 		// console.log(url)
@@ -186,32 +187,32 @@ const PredictData = (props) => {
 			message.error('Predict Fail', 3)
 		}
 
-		// fetchWithTimeout(url, options, 600000)
-		// 	.then((data) => {
-		// 		const { predictions } = data
-		// 		const images = predictions.map((item) => ({
-		// 			id: item.key,
-		// 			value: null,
-		// 			label: item.class,
-		// 		}))
-		// 		updateState({
-		// 			uploadFiles: validFiles,
-		// 			selectedImage: validFiles[0],
-		// 			confidences: predictions,
-		// 			confidenceScore: parseFloat(predictions[0].confidence),
-		// 			confidenceLabel: predictions[0].class,
-		// 			userConfirm: images,
-		// 			showImageModal: true,
-		// 		})
-		// 		console.log('Fetch successful')
-		// 	})
-		// 	.catch((error) => {
-		// 		console.error('Fetch error:', error.message)
-		// 	})
-		// 	.finally(() => {
-		// 		updateState({ isLoading: false })
-		// 		console.log('Fetch completed')
-		// 	})
+		fetchWithTimeout(url, options, 600000)
+			.then((data) => {
+				const { predictions } = data
+				const images = predictions.map((item) => ({
+					id: item.key,
+					value: null,
+					label: item.class,
+				}))
+				updateState({
+					uploadFiles: validFiles,
+					selectedImage: validFiles[0],
+					confidences: predictions,
+					confidenceScore: parseFloat(predictions[0].confidence),
+					confidenceLabel: predictions[0].class,
+					userConfirm: images,
+					showImageModal: true,
+				})
+				console.log('Fetch successful')
+			})
+			.catch((error) => {
+				console.error('Fetch error:', error.message)
+			})
+			.finally(() => {
+				updateState({ isLoading: false })
+				console.log('Fetch completed')
+			})
 	}
 
 	// const handleDeploy = async () => {
