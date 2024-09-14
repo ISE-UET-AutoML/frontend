@@ -9,7 +9,8 @@
                     "dog"
                 ]
             },
-            "has_unannotated_tasks": true
+            "has_unannotated_tasks": true,
+            "uploaded": true
         },
         "meta": {
             "page": 1,

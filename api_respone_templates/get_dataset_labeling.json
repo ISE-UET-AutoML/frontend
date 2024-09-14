@@ -6,7 +6,8 @@
                 "cat",
                 "dog"
             ]
-        }
+        },
+        "uploaded": true
     },
     "meta": {
         "batch_size": 50
