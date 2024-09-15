@@ -88,7 +88,7 @@ const LabelData = ({
 		return (
 			<div>
 				<PreviewComponent
-					datas={files}
+					datas={tasks}
 					updateFields={updateFields}
 					next={() => {
 						updateFields({

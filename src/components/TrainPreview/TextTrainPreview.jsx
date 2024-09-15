@@ -4,7 +4,7 @@ import { getPreviewDataByPage, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
-const TextTrainPreview = ({ texts, pagination, next, updateFields, meta }) => {
+const TextTrainPreview = ({ datas, pagination, next, updateFields, meta }) => {
 	const total_pages = Math.ceil(meta.total / meta.page_size)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()

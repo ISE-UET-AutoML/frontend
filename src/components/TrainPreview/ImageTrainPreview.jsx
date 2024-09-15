@@ -4,13 +4,7 @@ import { getPreviewDataByPage, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
-const ImageTrainPreview = ({
-	images,
-	pagination,
-	next,
-	updateFields,
-	meta,
-}) => {
+const ImageTrainPreview = ({ datas, pagination, next, updateFields, meta }) => {
 	const total_pages = Math.ceil(meta.total / meta.page_size)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
@@ -108,7 +102,7 @@ const ImageTrainPreview = ({
 				</div>
 				<div className="grid grid-cols-4 gap-3">
 					{datas ? (
-						datas.map((image, index) => (
+						datas.map((image) => (
 							<div
 								key={image.id}
 								className="rounded-md overflow-hidden relative group hover:opacity-100"
