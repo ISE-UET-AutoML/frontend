@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { listData, trainModel } from 'src/api/project'
+import { getPreviewDataByPage, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
-const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
+const TextTrainPreview = ({ texts, pagination, next, updateFields, meta }) => {
+	const total_pages = Math.ceil(meta.total / meta.page_size)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
 	const [error, setError] = useState(null)
 	const { id: projectId } = useParams()
 	const [isLoading, setIsLoading] = useState(false)
 	const [paginationStep2, setPaginationStep2] = useState({
-		currentPage: pagination?.page ?? 1,
-		totalPages: pagination?.total_page ?? 10,
+		currentPage: meta?.page ?? 1,
+		totalPages: total_pages ?? 10,
 	})
 
 	const handleTrain = async () => {
@@ -34,36 +35,34 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 	}
 
 	const handlePageChange = async (page) => {
-		const searchParams = new URLSearchParams(location.search)
-		const id = searchParams.get('id')
-		if (id) {
+		if (projectId) {
 			setIsLoading(true)
-			const { data } = await listData(id, `&page=${page}&size=10`)
-			setPaginationStep2({ ...paginationStep2, currentPage: page })
-			updateFields({
-				...data.data,
-				pagination: data.meta,
-			})
-			setIsLoading(false)
-		} else if (projectId) {
-			setIsLoading(true)
-			const { data } = await listData(projectId, `&page=${page}&size=10`)
-			setPaginationStep2({ ...paginationStep2, currentPage: page })
-			updateFields({
-				...data.data,
-				pagination: data.meta,
-			})
-			setIsLoading(false)
+			try {
+				const { data } = await getPreviewDataByPage(projectId, page, 10) // pageSize = 10
+				setPaginationStep2((prevState) => ({
+					...prevState,
+					currentPage: data.meta.page,
+				}))
+				updateFields({
+					...data,
+					meta: data.meta,
+				})
+			} catch (error) {
+				console.error('Error fetching page data:', error)
+			} finally {
+				setIsLoading(false)
+			}
 		}
 	}
-	useEffect(() => {
-		if (pagination) {
-			setPaginationStep2({
-				currentPage: pagination?.page ?? 1,
-				totalPages: pagination?.total_page ?? 10,
-			})
-		}
-	}, [pagination])
+
+	// useEffect(() => {
+	// 	if (pagination) {
+	// 		setPaginationStep2({
+	// 			currentPage: pagination?.page ?? 1,
+	// 			totalPages: pagination?.total_page ?? 10,
+	// 		})
+	// 	}
+	// }, [pagination])
 
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search)
@@ -72,8 +71,6 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 			updateFields({ isDoneLabelData: true })
 		}
 	}, [])
-
-	console.log('texts', texts)
 
 	return (
 		<>
@@ -107,17 +104,6 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 				</div>
 			</div>
 			<div className="bg-white border border-gray-200 rounded-lg shadow-md p-4 mb-4">
-				{/* <div className="flex justify-between items-center mb-2">
-						<h3 className="text-lg font-semibold text-gray-800">
-							{texts.name}
-						</h3>
-						<button
-							onClick={() => handleRemoveFile(index)}
-							className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
-						>
-							Remove
-						</button>
-					</div> */}
 				{error && <p className="text-red-500 text-sm">{error}</p>}
 				<>
 					<div className="overflow-x-auto mb-6 rounded-lg border-2 border-slate-50">
@@ -136,14 +122,14 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields }) => {
 								<tbody className="bg-white divide-y divide-gray-200">
 									{texts.map((row) => (
 										<tr
-											key={row._id}
+											key={row.id}
 											className="hover:bg-gray-100"
 										>
 											<td className="px-6 py-2.5 text-sm text-gray-700 w-[90%] break-words">
-												{row.url}
+												{row.data['data-TXT-text']}
 											</td>
 											<td className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap text-center">
-												{row.label}
+												{row.data.label}
 											</td>
 										</tr>
 									))}

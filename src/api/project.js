@@ -48,4 +48,8 @@ const autoLabel = (projectID) => {
     return instance.post(API_URL.post_autolabel(projectID));
 }
 
-export { listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel };
+const getPreviewDataByPage = (projectID,page,pageSize) => {
+    return instance.get(API_URL.get_dataset_preview(projectID,page,pageSize));
+}
+
+export { listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel, getPreviewDataByPage };

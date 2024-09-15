@@ -18,4 +18,5 @@ export const API_URL = {
     get_model: (experimentName) => `${API_BASE_URL}/experiments/model/${experimentName}`,
     get_training_history: (experimentName) => `${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
     predict_images: (experimentName) => `${API_BASE_URL}/experiments/predict/?experiment_name=${experimentName}`,
+    get_dataset_preview: (projectID,page,pageSize) => `${API_BASE_URL}/projects/${projectID}/dataset_preview?&page=${page}&page_size=${pageSize}`,
 }
