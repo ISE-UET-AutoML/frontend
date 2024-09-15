@@ -31,6 +31,13 @@ const getProjectFullDataset = (projectID) => {
     return instance.get(API_URL.get_project_fulldataset(projectID));
 }
 
+const getProjectPreviewDataset = (projectID) => {
+    return instance.get(API_URL.get_project_previewdataset(projectID));
+}
+const getProjectLabelingDataset = (projectID) => {
+    return instance.get(API_URL.get_project_labelingdataset(projectID));
+}
+
 const explainInstance = (projectID, data) => {
     const options = {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -52,4 +59,4 @@ const getPreviewDataByPage = (projectID,page,pageSize) => {
     return instance.get(API_URL.get_dataset_preview(projectID,page,pageSize));
 }
 
-export { listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel, getPreviewDataByPage };
+export { getProjectPreviewDataset, getProjectLabelingDataset ,listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel, getPreviewDataByPage };

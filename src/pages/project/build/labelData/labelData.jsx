@@ -13,57 +13,23 @@ const LabelData = ({
 	updateFields,
 	projectInfo,
 }) => {
-	// let [searchParams, setSearchParams] = useSearchParams()
-	// const location = useLocation()
-	// useEffect(() => {
-	// 	const searchParams = new URLSearchParams(location.search)
-	// 	searchParams.get('step') ??
-	// 		setSearchParams((pre) => pre.toString().concat('&step=1'))
-
-	// 	if (files?.length || labels?.length) {
-	// 		return
-	// 	}
-
-	// 	const id = searchParams.get('id')
-	// 	async function fetchListLabelingImages(id) {
-	// 		const { data } = await listData(id)
-	// 		console.log(data)
-
-	// 		updateFields({
-	// 			...data.data,
-	// 			pagination: data.meta,
-	// 		})
-	// 	}
-
-	// 	if (id) {
-	// 		fetchListLabelingImages(id)
-	// 	}
-	// }, [])
-
+	let [searchParams, setSearchParams] = useSearchParams()
+	const location = useLocation()
+	useEffect(() => {
+		const searchParams = new URLSearchParams(location.search)
+		searchParams.get('step') ??
+			setSearchParams((pre) => pre.toString().concat('&step=1'))
+	}, [])
+	
 	if (files && projectInfo) {
 		let isUnlabelledData = false
 		for (let i = 0; i < files.length; i++) {
-			if (!files[i]?.label || files[i].label.length <= 0) {
-				isUnlabelledData = true
-				break
-			}
-			if (
-				files[i].hasOwnProperty('label_by') &&
-				files[i].label_by !== 'human'
-			) {
+			if (!files[i]?.data || files[i].data.label.length <= 0) {
 				isUnlabelledData = true
 				break
 			}
 		}
 		if (isUnlabelledData) {
-			files.sort((a, b) => {
-				let result = 0
-				if (!a?.label_by || a.label_by !== 'human') result = 1
-				if (!b?.label_by || b.label_by !== 'human') result = -1
-				if (a?.label && a.label.length > 0) result = 1
-				if (b?.label && b.label.length > 0) result = -1
-				return result
-			})
 			const LabelComponent = config[projectInfo.type].labelingView
 			return (
 				<div>
