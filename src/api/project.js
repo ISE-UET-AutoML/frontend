@@ -31,6 +31,13 @@ const getProjectFullDataset = (projectID) => {
     return instance.get(API_URL.get_project_fulldataset(projectID));
 }
 
+const getProjectPreviewDataset = (projectID) => {
+    return instance.get(API_URL.get_project_previewdataset(projectID));
+}
+const getProjectLabelingDataset = (projectID) => {
+    return instance.get(API_URL.get_project_labelingdataset(projectID));
+}
+
 const explainInstance = (projectID, data) => {
     const options = {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -48,4 +55,4 @@ const autoLabel = (projectID) => {
     return instance.post(API_URL.post_autolabel(projectID));
 }
 
-export { listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel };
+export { getProjectPreviewDataset, getProjectLabelingDataset ,listImages, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel };
