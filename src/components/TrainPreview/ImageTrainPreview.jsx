@@ -107,8 +107,8 @@ const ImageTrainPreview = ({
 					</div>
 				</div>
 				<div className="grid grid-cols-4 gap-3">
-					{images ? (
-						images.map((image, index) => (
+					{datas ? (
+						datas.map((image, index) => (
 							<div
 								key={image.id}
 								className="rounded-md overflow-hidden relative group hover:opacity-100"
@@ -130,7 +130,7 @@ const ImageTrainPreview = ({
 					)}
 				</div>
 
-				{images && (
+				{datas && (
 					<Pagination
 						currentPage={paginationStep2.currentPage}
 						totalPages={paginationStep2.totalPages}

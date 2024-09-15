@@ -107,7 +107,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields, meta }) => {
 				{error && <p className="text-red-500 text-sm">{error}</p>}
 				<>
 					<div className="overflow-x-auto mb-6 rounded-lg border-2 border-slate-50">
-						{texts ? (
+						{datas ? (
 							<table className="min-w-full divide-y divide-gray-200">
 								<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 									<tr>
@@ -120,7 +120,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields, meta }) => {
 									</tr>
 								</thead>
 								<tbody className="bg-white divide-y divide-gray-200">
-									{texts.map((row) => (
+									{datas.map((row) => (
 										<tr
 											key={row.id}
 											className="hover:bg-gray-100"
@@ -140,7 +140,7 @@ const TextTrainPreview = ({ texts, pagination, next, updateFields, meta }) => {
 								<Loading />
 							</div>
 						)}
-						{texts && (
+						{datas && (
 							<Pagination
 								currentPage={paginationStep2.currentPage}
 								totalPages={paginationStep2.totalPages}

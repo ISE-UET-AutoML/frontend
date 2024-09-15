@@ -2,9 +2,7 @@ import { listData } from 'src/api/project'
 import { useLocation } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 import React, { memo, useEffect } from 'react'
-import Labeling from 'src/pages/project/build/labelData/labeling'
-import TextTrainPreview from 'src/components/TrainPreview/TextTrainPreview'
-import ImageTrainPreview from 'src/components/TrainPreview/ImageTrainPreview'
+import config from '../config'
 
 const LabelData = ({
 	tasks,
@@ -42,52 +40,55 @@ const LabelData = ({
 	// 	}
 	// }, [])
 
-	// if (!files) return
+	if (files && projectInfo) {
+		let isUnlabelledData = false
+		for (let i = 0; i < files.length; i++) {
+			if (!files[i]?.label || files[i].label.length <= 0) {
+				isUnlabelledData = true
+				break
+			}
+			if (
+				files[i].hasOwnProperty('label_by') &&
+				files[i].label_by !== 'human'
+			) {
+				isUnlabelledData = true
+				break
+			}
+		}
+		if (isUnlabelledData) {
+			files.sort((a, b) => {
+				let result = 0
+				if (!a?.label_by || a.label_by !== 'human') result = 1
+				if (!b?.label_by || b.label_by !== 'human') result = -1
+				if (a?.label && a.label.length > 0) result = 1
+				if (b?.label && b.label.length > 0) result = -1
+				return result
+			})
+			const LabelComponent = config[projectInfo.type].labelingView
+			return (
+				<div>
+					<LabelComponent
+						datas={files}
+						labelsWithID={labels}
+						updateFields={updateFields}
+						type={projectInfo.type}
+						next={() => {
+							updateFields({
+								isDoneLabelData: true,
+							})
+						}}
+						pagination={pagination}
+					/>
+				</div>
+			)
+		}
 
-	if (tasks && projectInfo && projectInfo.type === 'IMAGE_CLASSIFICATION') {
-		// let isUnlabelledData = false
-		// for (let i = 0; i < files.length; i++) {
-		// 	// not have filed label or filed label is empty
-		// 	if (!files[i]?.label || files[i].label.length <= 0) {
-		// 		isUnlabelledData = true
-		// 		break
-		// 	}
-		// 	if (
-		// 		files[i].hasOwnProperty('label_by') &&
-		// 		files[i].label_by !== 'human'
-		// 	) {
-		// 		isUnlabelledData = true
-		// 		break
-		// 	}
-		// }
-		// if (isUnlabelledData) {
-		// 	files.sort((a, b) => {
-		// 		if (!a?.label_by || a.label_by !== 'human') return -1
-		// 		if (!b?.label_by || b.label_by !== 'human') return 1
-		// 		return 0
-		// 	})
-		// 	return (
-		// 		<div>
-		// 			<Labeling
-		// 				images={files}
-		// 				labelsWithID={labels}
-		// 				updateFields={updateFields}
-		// 				type={projectInfo.type}
-		// 				next={() => {
-		// 					updateFields({
-		// 						isDoneLabelData: true,
-		// 					})
-		// 				}}
-		// 				pagination={pagination}
-		// 			/>
-		// 		</div>
-		// 	)
-		// }
+		const PreviewComponent = config[projectInfo.type].trainPreview
 
 		return (
 			<div>
-				<ImageTrainPreview
-					images={tasks}
+				<PreviewComponent
+					datas={files}
 					updateFields={updateFields}
 					next={() => {
 						updateFields({
@@ -99,62 +100,6 @@ const LabelData = ({
 			</div>
 		)
 	}
-
-	if (tasks && projectInfo && projectInfo.type === 'TEXT_CLASSIFICATION') {
-		// let isUnlabelledData = false
-
-		// for (let i = 0; i < files.length; i++) {
-		// 	// not have filed label or filed label is empty
-		// 	if (!files[i]?.label || files[i].label.length <= 0) {
-		// 		isUnlabelledData = true
-		// 		break
-		// 	}
-		// 	if (
-		// 		files[i].hasOwnProperty('label_by') &&
-		// 		files[i].label_by !== 'human'
-		// 	) {
-		// 		isUnlabelledData = true
-		// 		break
-		// 	}
-		// }
-		// if (isUnlabelledData) {
-		// 	files.sort((a, b) => {
-		// 		if (!a?.label_by || a.label_by !== 'human') return -1
-		// 		if (!b?.label_by || b.label_by !== 'human') return 1
-		// 		return 0
-		// 	})
-		// 	return (
-		// 		<div>
-		// 			<Labeling
-		// 				images={files}
-		// 				labelsWithID={labels}
-		// 				updateFields={updateFields}
-		// 				type={projectInfo.type}
-		// 				next={() => {
-		// 					updateFields({
-		// 						isDoneLabelData: true,
-		// 					})
-		// 				}}
-		// 				pagination={pagination}
-		// 			/>
-		// 		</div>
-		// 	)
-		// }
-
-		return (
-			<TextTrainPreview
-				texts={tasks}
-				updateFields={updateFields}
-				next={() => {
-					updateFields({
-						isDoneLabelData: true,
-					})
-				}}
-				meta={meta}
-			></TextTrainPreview>
-		)
-	}
-
 	return <>Error</>
 }
 
