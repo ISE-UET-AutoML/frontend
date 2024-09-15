@@ -33,22 +33,7 @@ const TrainModel = (props) => {
 			.catch((err) => console.error(err))
 	}
 	const getTrainingProgress = async (experimentName) => {
-		// if (!experimentName) {
-		//     return;
-		// }
-		// const res = await fetch(
-		//     `${process.env.REACT_APP_ML_SERVICE_ADDR}/accuracy/best?experiment_name=${experimentName}`,
-		//     {
-		//         method: 'GET',
-		//         headers: {
-		//             'Content-Type': 'application/json',
-		//         },
-		//     }
-		// );
-
-		const res = await fetch(
-			`${process.env.REACT_APP_ML_SERVICE_ADDR}/model_service/status/${experimentName}`
-		)
+		const res = await getExperiment(experimentName)
 
 		const data = await res.json()
 
@@ -60,7 +45,7 @@ const TrainModel = (props) => {
 			document.getElementById('message').innerHTML = 'Progress'
 			document.getElementById('description').innerHTML = ''
 			// setProcessValue(data.accuracy)
-			if (data.status === 'SUCCESS') {
+			if (data.status === 'DONE' || data.status === 'SUCCESS') {
 				setProcessValue(100)
 				document.getElementById('message').innerHTML =
 					'Training Completed'
@@ -69,6 +54,11 @@ const TrainModel = (props) => {
 				// 	showTrainingGraph();
 				// 	clearTimeout(timer);
 				// }, 1000);
+				next()
+			}
+			if (data.status === 'FAILED') {
+				document.getElementById('message').innerHTML = 'Training Failed'
+				document.getElementById('description').innerHTML = ''
 				next()
 			}
 		}

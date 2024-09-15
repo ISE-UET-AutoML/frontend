@@ -7,6 +7,10 @@ const getTrainingHistory = (experimentName) => {
 	);
 };
 
+const getExperiment = (experimentName) => {
+	return instance.get(`${API_BASE_URL}/experiments?name=${experimentName}`);
+}
+
 const predictImages = (experimentName, files) => {
 	console.log("vao duoc API")
 	    const options = {
@@ -15,4 +19,4 @@ const predictImages = (experimentName, files) => {
 	return instance.post(API_URL.predict_images(experimentName), files, options)
 }
 
-export { getTrainingHistory, predictImages };
+export { getTrainingHistory, predictImages ,getExperiment};
