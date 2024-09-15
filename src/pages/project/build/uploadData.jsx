@@ -7,8 +7,8 @@ const UploadData = ({ updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
 
 	projectAPI.getProjectPreviewDataset(projectID).then((data) => {
-		console.log(data);
-		
+		console.log(data)
+
 		if (data?.data && data.data?.project_info) {
 			// get data success
 			const project_info = data.data?.project_info
@@ -16,36 +16,40 @@ const UploadData = ({ updateFields, projectInfo }) => {
 				// TODO: code error in data service, has_unannotated_tasks always true =)
 				if (project_info.has_unannotated_tasks && false) {
 					// labeling
-					console.log('labeling');
-					projectAPI.getProjectLabelingDataset(projectID).then((unlabeled_data) => {
-						const label_config = unlabeled_data.data.project_info.label_config
-						// console.log(label_config);
-						// TODO: FIX label_config => list labels
-						const props = {
-							files: unlabeled_data.data.tasks,
-							labels: unlabeled_data.data.project_info.label_config,
-							pagination: unlabeled_data.data.meta,
-							updateFields: updateFields,
-							projectInfo: unlabeled_data.data.project_info
-						}
-						console.log(props);
-						updateFields({
-							isDoneUploadData: true,
-							...props,
+					console.log('labeling')
+					projectAPI
+						.getProjectLabelingDataset(projectID)
+						.then((unlabeled_data) => {
+							const label_config =
+								unlabeled_data.data.project_info.label_config
+							// console.log(label_config);
+							// TODO: FIX label_config => list labels
+							const props = {
+								files: unlabeled_data.data.tasks,
+								labels: unlabeled_data.data.project_info
+									.label_config,
+								pagination: unlabeled_data.data.meta,
+								updateFields: updateFields,
+								projectInfo: unlabeled_data.data.project_info,
+							}
+							console.log(props)
+							updateFields({
+								isDoneUploadData: true,
+								...props,
+							})
 						})
-					})
-
-				} else{
+				} else {
 					// preview
-					console.log('preview');
-					const label_config = data.data.project_info.label_config.label_choices
+					console.log('preview')
+					const label_config =
+						data.data.project_info.label_config.label_choices
 					// TODO: FIX label_config => list labels
 					const props = {
 						files: data.data.tasks,
 						labels: data.data.project_info.label_config,
 						pagination: data.data.meta,
 						updateFields: updateFields,
-						projectInfo: data.data.project_info
+						projectInfo: data.data.project_info,
 					}
 					updateFields({
 						isDoneUploadData: true,
@@ -53,7 +57,7 @@ const UploadData = ({ updateFields, projectInfo }) => {
 					})
 				}
 			}
-		} 
+		}
 	})
 	return (
 		<>

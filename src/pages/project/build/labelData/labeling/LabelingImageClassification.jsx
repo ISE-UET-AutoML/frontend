@@ -13,9 +13,6 @@ import * as projectAPI from 'src/api/project'
 import 'src/assets/css/card.css'
 import CreateLabel from 'src/pages/project/build/labelData/createLabel/index'
 
-
-
-
 const LabelingImageClassification = ({
 	datas,
 	pagination,
@@ -39,7 +36,6 @@ const LabelingImageClassification = ({
 	const rootRef = useRef()
 	const lsf = useRef(null)
 	const [currentIndex, setIndex] = useState(0)
-
 
 	const updateData = (labelWithID) => {
 		currentLabelWithID.current = labelWithID
@@ -152,7 +148,7 @@ const LabelingImageClassification = ({
 					datas[index],
 					newLabel
 				)
-				console.log('result update', resultUpdate);
+				console.log('result update', resultUpdate)
 				increase(index)
 				message.success('Successfully Updated', 3)
 			}
@@ -169,12 +165,12 @@ const LabelingImageClassification = ({
 
 				const newLabel = at[0]['value']['choices'][0]
 				datas[index].label = newLabel
-				console.log(datas[index]);
+				console.log(datas[index])
 				const resultUpdate = await updateLabelTask(
 					datas[index],
 					newLabel
 				)
-				console.log('result update', resultUpdate);
+				console.log('result update', resultUpdate)
 				increase(index)
 				message.success('Successfully Submitted', 3)
 			}
@@ -218,7 +214,7 @@ const LabelingImageClassification = ({
 				console.info('Destroying LSF')
 				try {
 					lsf.current.destroy()
-				} catch (e) { }
+				} catch (e) {}
 				lsf.current = null
 			}
 		}
@@ -293,8 +289,6 @@ const LabelingImageClassification = ({
 		setIsLoading(false)
 	}
 
-
-
 	return (
 		<div className="label-editor-container" id="label-editor-container">
 			{isLoading && <Loading />}
@@ -302,7 +296,6 @@ const LabelingImageClassification = ({
 				className="group-hover/item:block flex 
                 top-full right-0 py-4 px-3 bg-white w-[100%] rounded-md shadow-md "
 			>
-
 				<div className="relative h-full pt-4">
 					<button
 						onClick={() => {
@@ -341,11 +334,12 @@ const LabelingImageClassification = ({
 			<div id="label-studio" ref={rootRef} />
 
 			{/* ADD LABELS */}
-			{createLabel &&
+			{createLabel && (
 				<CreateLabel
 					updateData={updateData}
 					setCreateLabel={setCreateLabel}
-				/>}
+				/>
+			)}
 		</div>
 	)
 }

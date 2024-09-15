@@ -5,11 +5,9 @@ import React, { memo, useEffect } from 'react'
 import config from '../config'
 
 const LabelData = ({
-	tasks,
-	meta,
-	files, // is replaced by tasks
+	files,
 	labels,
-	pagination, // is replaced by meta
+	pagination,
 	updateFields,
 	projectInfo,
 }) => {
@@ -20,7 +18,7 @@ const LabelData = ({
 		searchParams.get('step') ??
 			setSearchParams((pre) => pre.toString().concat('&step=1'))
 	}, [])
-	
+
 	if (files && projectInfo) {
 		let isUnlabelledData = false
 		for (let i = 0; i < files.length; i++) {
@@ -54,14 +52,14 @@ const LabelData = ({
 		return (
 			<div>
 				<PreviewComponent
-					datas={tasks}
+					datas={files}
 					updateFields={updateFields}
 					next={() => {
 						updateFields({
 							isDoneLabelData: true,
 						})
 					}}
-					meta={meta}
+					pagination={pagination}
 				/>
 			</div>
 		)

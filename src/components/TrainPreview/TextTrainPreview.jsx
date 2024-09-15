@@ -4,15 +4,15 @@ import { getPreviewDataByPage, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
-const TextTrainPreview = ({ datas, pagination, next, updateFields, meta }) => {
-	const total_pages = Math.ceil(meta.total / meta.page_size)
+const TextTrainPreview = ({ datas, pagination, next, updateFields }) => {
+	const total_pages = Math.ceil(pagination.total / pagination.page_size)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
 	const [error, setError] = useState(null)
 	const { id: projectId } = useParams()
 	const [isLoading, setIsLoading] = useState(false)
 	const [paginationStep2, setPaginationStep2] = useState({
-		currentPage: meta?.page ?? 1,
+		currentPage: pagination?.page ?? 1,
 		totalPages: total_pages ?? 10,
 	})
 
@@ -39,13 +39,16 @@ const TextTrainPreview = ({ datas, pagination, next, updateFields, meta }) => {
 			setIsLoading(true)
 			try {
 				const { data } = await getPreviewDataByPage(projectId, page, 10) // pageSize = 10
+				const props = {
+					files: data.tasks,
+					pagination: data.meta,
+				}
 				setPaginationStep2((prevState) => ({
 					...prevState,
 					currentPage: data.meta.page,
 				}))
 				updateFields({
-					...data,
-					meta: data.meta,
+					...props,
 				})
 			} catch (error) {
 				console.error('Error fetching page data:', error)
@@ -55,14 +58,14 @@ const TextTrainPreview = ({ datas, pagination, next, updateFields, meta }) => {
 		}
 	}
 
-	// useEffect(() => {
-	// 	if (pagination) {
-	// 		setPaginationStep2({
-	// 			currentPage: pagination?.page ?? 1,
-	// 			totalPages: pagination?.total_page ?? 10,
-	// 		})
-	// 	}
-	// }, [pagination])
+	useEffect(() => {
+		if (pagination) {
+			setPaginationStep2({
+				currentPage: pagination?.page ?? 1,
+				totalPages: pagination?.total_page ?? 10,
+			})
+		}
+	}, [pagination])
 
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search)
