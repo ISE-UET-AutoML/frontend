@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import React, { useEffect, useState, Fragment } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { TrainingChart } from 'src/components/TrainingChart'
-import { getTrainingHistory } from 'src/api/experiment'
+import { getTrainingHistory, getExperiment } from 'src/api/experiment'
 
 const TrainModel = (props) => {
 	const location = useLocation()

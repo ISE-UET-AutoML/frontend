@@ -4,7 +4,7 @@
 import React, { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { message } from 'antd'
-import { createLabels } from 'src/api/dataset'
+import { createLabels } from 'src/api/project'
 import Logo from 'src/assets/images/logoIcon.png'
 import Labelling from 'src/assets/images/Labeling.png'
 import 'src/assets/css/card.css'
@@ -37,11 +37,14 @@ const CreateLabel = ({
 
     const saveLabel = async () => {
         if (labelsEditing.length > 0) {
-            const res = await createLabels(projectId, { label: labelsEditing })
-            currentLabelWithID.current = res.data.map((v, i) => {
+            const body = {
+                "label_choices": labelsEditing
+            }
+            const res = await createLabels(projectId, body)
+            currentLabelWithID.current = labelsEditing.map((v, i) => {
                 return {
-                    id: v._id,
-                    value: v.name,
+                    id: i,
+                    value: v,
                 }
             })
             console.log('assign label with id ', currentLabelWithID.current)

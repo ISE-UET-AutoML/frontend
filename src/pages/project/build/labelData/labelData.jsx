@@ -22,7 +22,7 @@ const LabelData = ({
 	if (files && projectInfo) {
 		let isUnlabelledData = false
 		for (let i = 0; i < files.length; i++) {
-			if (!files[i]?.data || files[i].data.label.length <= 0) {
+			if (!files[i]?.data || !files[i].data?.label || files[i].data.label.length <= 0) {
 				isUnlabelledData = true
 				break
 			}

@@ -59,4 +59,13 @@ const getPreviewDataByPage = (projectID,page,pageSize) => {
     return instance.get(API_URL.get_dataset_preview(projectID,page,pageSize));
 }
 
-export { getProjectPreviewDataset, getProjectLabelingDataset ,listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel, getPreviewDataByPage };
+const createLabels = (projectID, data) => {
+    return instance.post(API_URL.create_label_for_dataset(projectID), data);
+}
+
+const updateAnnotation = (projectID,task_id,data) => {
+    // /:id/set_label /: task_id
+    return instance.post(API_URL.update_annotation(projectID, task_id), data);
+}
+
+export { updateAnnotation, createLabels, getProjectPreviewDataset, getProjectLabelingDataset ,listData, trainModel, uploadFiles, getProjectDataset, getProjectById, updateData, explainInstance, deleteProject, getProjectFullDataset, autoLabel, getPreviewDataByPage };
