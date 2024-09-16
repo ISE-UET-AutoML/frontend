@@ -15,6 +15,10 @@ export const API_URL = {
 		`${API_BASE_URL}/projects/${projectID}/datasets`,
 	get_project_fulldataset: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/fulldatasets`,
+	get_project_previewdataset: (projectID) =>
+		`${API_BASE_URL}/projects/${projectID}/dataset_preview`,
+	get_project_labelingdataset: (projectID) =>
+		`${API_BASE_URL}/projects/${projectID}/dataset_labeling`,
 	update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
 	explain_instance: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/explain`,
@@ -30,4 +34,6 @@ export const API_URL = {
 		`${API_BASE_URL}/experiments/predict/?experiment_name=${experimentName}`,
 	explain_images: (experimentName) =>
 		`${API_BASE_URL}/experiments/explain/?experiment_name=${experimentName}`,
+	get_dataset_preview: (projectID, page, pageSize) =>
+		`${API_BASE_URL}/projects/${projectID}/dataset_preview?&page=${page}&page_size=${pageSize}`,
 }
