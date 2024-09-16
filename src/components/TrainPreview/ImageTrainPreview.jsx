@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { listImages, trainModel } from 'src/api/project'
+import { getPreviewDataByPage, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
 const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
+	const total_pages = Math.ceil(pagination.total / pagination.page_size)
+	console.log('pagination', pagination)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
 	const { id: projectId } = useParams()
 	const [isLoading, setIsLoading] = useState(false)
 	const [paginationStep2, setPaginationStep2] = useState({
 		currentPage: pagination?.page ?? 1,
-		totalPages: pagination?.total_page ?? 10,
+		totalPages: total_pages ?? 10,
 	})
 
 	const handleTrain = async () => {
@@ -30,39 +32,28 @@ const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
 	}
 
 	const handlePageChange = async (page) => {
-		const searchParams = new URLSearchParams(location.search)
-		const id = searchParams.get('id')
-		if (id) {
+		if (projectId) {
 			setIsLoading(true)
-			const { data } = await listImages(id, `&page=${page}&size=12`)
-			setPaginationStep2({ ...paginationStep2, currentPage: page })
-			updateFields({
-				...data.data,
-				pagination: data.meta,
-			})
-			setIsLoading(false)
-		} else if (projectId) {
-			setIsLoading(true)
-			const { data } = await listImages(
-				projectId,
-				`&page=${page}&size=12`
-			)
-			setPaginationStep2({ ...paginationStep2, currentPage: page })
-			updateFields({
-				...data.data,
-				pagination: data.meta,
-			})
-			setIsLoading(false)
+			try {
+				const { data } = await getPreviewDataByPage(projectId, page, 12) // pageSize = 12
+				const props = {
+					files: data.tasks,
+					pagination: data.meta,
+				}
+				setPaginationStep2((prevState) => ({
+					...prevState,
+					currentPage: data.meta.page,
+				}))
+				updateFields({
+					...props,
+				})
+			} catch (error) {
+				console.error('Error fetching page data:', error)
+			} finally {
+				setIsLoading(false)
+			}
 		}
 	}
-	useEffect(() => {
-		if (pagination) {
-			setPaginationStep2({
-				currentPage: pagination?.page ?? 1,
-				totalPages: pagination?.total_page ?? 10,
-			})
-		}
-	}, [pagination])
 
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search)
@@ -106,18 +97,18 @@ const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
 				</div>
 				<div className="grid grid-cols-4 gap-3">
 					{datas ? (
-						datas.map((image, index) => (
+						datas.map((image) => (
 							<div
-								key={index}
+								key={image.id}
 								className="rounded-md overflow-hidden relative group hover:opacity-100"
 							>
 								<img
-									src={image.url}
+									src={image.data['data-IMG-image']}
 									alt=""
 									className="h-[149px] w-full m-0 object-cover rounded-md"
 								/>
 								<h1 className="text-xs font-bold text-white absolute bottom-2 left-2 bg-black bg-opacity-50 p-2 rounded-md">
-									{image.label}
+									{image.data.label}
 								</h1>
 							</div>
 						))

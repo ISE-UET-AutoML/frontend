@@ -2,8 +2,8 @@ import { Dialog, Transition } from '@headlessui/react'
 import { message } from 'antd'
 import React, { Fragment, useReducer, useState, useEffect } from 'react'
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom'
-import { UploadTypes } from 'src/constants/file'
-import Loading from 'src/components/Loading'
+// import { UploadTypes } from 'src/constants/file'
+// import Loading from 'src/components/Loading'
 import { validateFiles } from 'src/utils/file'
 import instance from 'src/api/axios'
 import { PATHS } from 'src/constants/paths'
@@ -12,9 +12,10 @@ import { API_URL } from 'src/constants/api'
 import LineGraph from 'src/components/LineGraph'
 import researchImage from 'src/assets/images/research.png'
 import 'src/assets/css/chart.css'
-import ImagePredict from 'src/pages/project/build/predictData/ImagePredict'
-import TextPredict from 'src/pages/project/build/predictData/TextPredict'
-import config from '../config'
+
+import config from './config'
+import { SERVICE_URLS } from 'src/constants/services'
+import * as experimentAPI from 'src/api/experiment'
 
 const initialState = {
 	showUploadModal: false,
@@ -77,17 +78,14 @@ const PredictData = (props) => {
 				console.log(data)
 
 				setGraphJSON(data)
-				// readChart(
-				// 	data.fit_history.scalars.train_loss,
-				// 	setTrainLossGraph
-				// )
+
 				if (data.fit_history.scalars.train_loss) {
 					readChart(
 						data.fit_history.scalars.train_loss,
 						setTrainLossGraph
 					)
 				}
-				// readChart(data.fit_history.scalars.val_loss, setValLossGraph)
+
 				if (data.fit_history.scalars.val_accuracy) {
 					readChart(
 						data.fit_history.scalars.val_accuracy,
@@ -135,8 +133,6 @@ const PredictData = (props) => {
 
 			fetchWithTimeout(url, options, 120000)
 				.then((data) => {
-					// setPredictTextLabel(data.predictions)
-					console.log(data)
 					const sentences = data.predictions.map((item) => ({
 						sentence: item.sentence,
 						confidence: item.confidence,
@@ -144,7 +140,6 @@ const PredictData = (props) => {
 						value: null,
 						id: 'ID',
 					}))
-					console.log('Fetch successful')
 
 					updateState({
 						showTextModal: true,
@@ -153,13 +148,14 @@ const PredictData = (props) => {
 						userConfirm: sentences,
 					})
 
-					console.log(predictDataState.showUploadModal)
+					console.log('Fetch successful')
 				})
 				.catch((error) => {
 					console.error('Fetch error:', error.message)
 				})
 				.finally(() => {
 					updateState({ isLoading: false })
+					console.log('Fetch completed')
 				})
 
 			return
@@ -169,7 +165,7 @@ const PredictData = (props) => {
 			formData.append('files', validFiles[i])
 		}
 
-		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
+		// const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
 
 		const options = {
 			method: 'POST',
@@ -177,7 +173,20 @@ const PredictData = (props) => {
 		}
 
 		console.log('Fetch start')
-		console.log(url)
+		// console.log(url)
+
+		try {
+			const { data } = await experimentAPI.predictImages(
+				experimentName,
+				formData
+			)
+
+			console.log('dataOK', data)
+			message.success('Success Predict', 3)
+		} catch (error) {
+			message.error('Predict Fail', 3)
+		}
+
 		fetchWithTimeout(url, options, 600000)
 			.then((data) => {
 				const { predictions } = data
@@ -207,13 +216,36 @@ const PredictData = (props) => {
 	}
 
 	// const handleDeploy = async () => {
-	//     fetch(
-	//         `${process.env.REACT_APP_API_URL}/experiments/deploy?experiment_name=${experimentName}`
-	//     )
-	//         .then((res) => res.json())
-	//         .then((data) => console.log(data))
-	//         .catch((err) => console.log(err));
-	// };
+	// 	const formData = new FormData()
+
+	// 	const model = await instance.get(API_URL.get_model(experimentName))
+	// 	const jsonObject = model.data
+	// 	if (!jsonObject) {
+	// 		console.error('Failed to get model info')
+	// 	}
+
+	// 	formData.append('userEmail', jsonObject.userEmail)
+	// 	formData.append('projectName', jsonObject.projectName)
+	// 	formData.append('runName', experimentName)
+	// 	formData.append('task', projectInfo.type)
+
+	const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
+
+	// 	const options = {
+	// 		method: 'POST',
+	// 		body: formData,
+	// 	}
+
+	// 	fetchWithTimeout(url, options, 60000)
+	// 		.then((data) => {
+	// 			console.log(data)
+	// 			console.log('Fetch successful')
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error('Fetch error:', error.message)
+	// 		})
+	// }
+
 	// const saveBestModel = async () => {
 	//     try {
 	//         await instance.get(
@@ -249,7 +281,7 @@ const PredictData = (props) => {
 					<button
 						onClick={() => {
 							updateState({ showUploadModal: true })
-							// handleDeploy();
+							// handleDeploy()
 						}}
 						className="items-center ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
 						// hidden

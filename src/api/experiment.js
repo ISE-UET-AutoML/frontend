@@ -1,4 +1,4 @@
-import { API_BASE_URL } from 'src/constants/api';
+import { API_URL, API_BASE_URL } from 'src/constants/api';
 import instance from './axios';
 
 const getTrainingHistory = (experimentName) => {
@@ -7,4 +7,16 @@ const getTrainingHistory = (experimentName) => {
 	);
 };
 
-export { getTrainingHistory };
+const getExperiment = (experimentName) => {
+	return instance.get(`${API_BASE_URL}/experiments?name=${experimentName}`);
+}
+
+const predictImages = (experimentName, files) => {
+	console.log("vao duoc API")
+	    const options = {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    };
+	return instance.post(API_URL.predict_images(experimentName), files, options)
+}
+
+export { getTrainingHistory, predictImages ,getExperiment};

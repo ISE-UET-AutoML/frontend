@@ -2,12 +2,17 @@ import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import useMultiStepForm from 'src/hooks/useMultiStepForm'
 import * as projectAPI from 'src/api/project'
-import PredictData from './predictData/predictData'
-import UploadData from './uploadData/uploadData'
-import TrainModel from './trainModel/trainModel'
+import PredictData from './predictData'
+import UploadData from './uploadData.jsx'
+import TrainModel from './trainModel'
 import LabelData from './labelData/labelData'
 
 export default function ProjectBuild(props) {
+	const location = useLocation()
+	const [data, setData] = useState({})
+	const { id: projectID } = useParams()
+	const [projectInfo, setProjectInfo] = useState(null)
+
 	function updateFields(fields) {
 		if (fields.isDoneUploadData) {
 			goTo(1)
@@ -26,10 +31,6 @@ export default function ProjectBuild(props) {
 		})
 	}
 
-	const { id: projectID } = useParams()
-
-	const [projectInfo, setProjectInfo] = useState(null)
-
 	useEffect(() => {
 		const fetchProjectInfo = async () => {
 			try {
@@ -42,9 +43,7 @@ export default function ProjectBuild(props) {
 
 		fetchProjectInfo()
 	}, [projectID])
-	const location = useLocation()
 
-	const [data, setData] = useState({})
 	useEffect(() => {
 		const searchParams = new URLSearchParams(location.search)
 		const step = searchParams.get('step')

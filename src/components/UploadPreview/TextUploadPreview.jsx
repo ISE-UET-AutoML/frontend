@@ -10,7 +10,6 @@ const TextUploadPreview = ({ file, index, handleRemoveFile }) => {
 
 	useEffect(() => {
 		if (file && file.name.endsWith('.csv')) {
-			console.log('oke2')
 			const reader = new FileReader()
 
 			reader.onload = () => {

@@ -1,4 +1,4 @@
-import { listImages } from 'src/api/project'
+import { listData } from 'src/api/project'
 import { useLocation } from 'react-router-dom'
 import { useSearchParams } from 'react-router-dom'
 import React, { memo, useEffect } from 'react'
@@ -18,7 +18,7 @@ const LabelData = ({
 		searchParams.get('step') ??
 			setSearchParams((pre) => pre.toString().concat('&step=1'))
 	}, [])
-	
+
 	if (files && projectInfo) {
 		let isUnlabelledData = false
 		for (let i = 0; i < files.length; i++) {

@@ -1,9 +1,9 @@
-import ImageUploadPreview from './uploadData/ImageUploadPreview'
-import TextUploadPreview from './uploadData/TextUploadPreview'
-import ImageTrainPreview from './labelData/preview/ImageTrainPreview'
-import TextTrainPreview from './labelData/preview/TextTrainPreview'
-import ImagePredict from './predictData/ImagePredict'
-import TextPredict from './predictData/TextPredict'
+import ImageUploadPreview from '../../../components/UploadPreview/ImageUploadPreview'
+import TextUploadPreview from '../../../components/UploadPreview/TextUploadPreview'
+import ImageTrainPreview from '../../../components/TrainPreview/ImageTrainPreview'
+import TextTrainPreview from '../../../components/TrainPreview/TextTrainPreview'
+import ImagePredict from '../../../components/Predict/ImagePredict'
+import TextPredict from '../../../components/Predict/TextPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 
@@ -13,14 +13,14 @@ const config = {
 		uploadPreview: ImageUploadPreview,
 		trainPreview: ImageTrainPreview,
 		predictView: ImagePredict,
-		labelingView: LabelingImageClassification
+		labelingView: LabelingImageClassification,
 	},
 	TEXT_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',
 		uploadPreview: TextUploadPreview,
 		trainPreview: TextTrainPreview,
 		predictView: TextPredict,
-		labelingView: LabelingTextClassification
+		labelingView: LabelingTextClassification,
 	},
 
 	// Add more types here as needed
