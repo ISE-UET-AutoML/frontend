@@ -4,6 +4,7 @@ import instance from 'src/api/axios'
 import { fetchWithTimeout } from 'src/utils/timeout'
 import { API_URL } from 'src/constants/api'
 import SolutionImage from 'src/assets/images/Solution.png'
+import * as experimentAPI from 'src/api/experiment'
 
 const ImagePredict = ({
 	experimentName,
@@ -58,46 +59,57 @@ const ImagePredict = ({
 	const handleExplainSelectedImage = async () => {
 		const formData = new FormData()
 
-		const model = await instance.get(API_URL.get_model(experimentName))
-		const jsonObject = model.data
-		if (!jsonObject) {
-			console.error('Failed to get model info')
-		}
-		console.log(jsonObject)
+		// const model = await instance.get(API_URL.get_model(experimentName))
+		// const jsonObject = model.data
+		// if (!jsonObject) {
+		// 	console.error('Failed to get model info')
+		// }
+		// console.log(jsonObject)
+		// const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
+		// const options = {
+		// 	method: 'POST',
+		// 	body: formData,
+		// }
 
 		updateState({
 			isLoading: true,
 		})
 
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', experimentName)
-		formData.append('image', predictDataState.selectedImage)
+		formData.append('file', predictDataState.selectedImage)
 
-		console.log('Fetching explain image')
+		try {
+			const { data } = await experimentAPI.explainImages(
+				experimentName,
+				formData
+			)
+			const base64ImageString = data.explain_image
+			const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`
 
-		const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
+			setExplainImageUrl(fetchedImageUrl)
 
-		const options = {
-			method: 'POST',
-			body: formData,
+			console.log('Fetch successful')
+
+			updateState({ isLoading: false })
+		} catch (error) {
+			console.error('Fetch error:', error.message)
+			updateState({ isLoading: false })
 		}
 
-		fetchWithTimeout(url, options, 60000)
-			.then((data) => {
-				const base64ImageString = data.explain_image
-				const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`
+		// fetchWithTimeout(url, options, 60000)
+		// 	.then((data) => {
+		// 		const base64ImageString = data.explain_image
+		// 		const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`
 
-				setExplainImageUrl(fetchedImageUrl)
+		// 		setExplainImageUrl(fetchedImageUrl)
 
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-			})
-			.finally(() => {
-				updateState({ isLoading: false })
-			})
+		// 		console.log('Fetch successful')
+		// 	})
+		// 	.catch((error) => {
+		// 		console.error('Fetch error:', error.message)
+		// 	})
+		// 	.finally(() => {
+		// 		updateState({ isLoading: false })
+		// 	})
 	}
 
 	return (

@@ -15,4 +15,11 @@ const predictImages = (experimentName, files) => {
 	return instance.post(API_URL.predict_images(experimentName), files)
 }
 
-export { getTrainingHistory, predictImages }
+const explainImages = (experimentName, file) => {
+	// const options = {
+	// 	headers: { 'Content-Type': 'multipart/form-data' },
+	// }
+	return instance.post(API_URL.explain_images(experimentName), file)
+}
+
+export { getTrainingHistory, predictImages, explainImages }
