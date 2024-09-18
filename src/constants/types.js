@@ -9,6 +9,11 @@ const TYPES = {
         description: 'We accept CSV text format',
         allowedExtensions: ['csv']
     },
+     TABULAR_CLASSIFICATION: {
+        type: 'Tabular Classification',
+        description: 'We accept CSV text format',
+        allowedExtensions: ['csv']
+    },
     OBJECT_DETECTION: {
         type: 'Object Detection',
         description: 'We accept JPEG, PNG image format',
