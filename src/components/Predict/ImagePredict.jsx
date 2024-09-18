@@ -59,30 +59,18 @@ const ImagePredict = ({
 	const handleExplainSelectedImage = async () => {
 		const formData = new FormData()
 
-		// const model = await instance.get(API_URL.get_model(experimentName))
-		// const jsonObject = model.data
-		// if (!jsonObject) {
-		// 	console.error('Failed to get model info')
-		// }
-		// console.log(jsonObject)
-		// const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/explain`
-		// const options = {
-		// 	method: 'POST',
-		// 	body: formData,
-		// }
-
 		updateState({
 			isLoading: true,
 		})
 
 		formData.append('file', predictDataState.selectedImage)
-
+		formData.append("task", projectInfo.type)
 		try {
 			const { data } = await experimentAPI.explainImages(
 				experimentName,
 				formData
 			)
-			const base64ImageString = data.explain_image
+			const base64ImageString = data.explanation
 			const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`
 
 			setExplainImageUrl(fetchedImageUrl)

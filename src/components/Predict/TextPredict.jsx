@@ -5,6 +5,7 @@ import { API_URL } from 'src/constants/api'
 import Loading from 'src/components/Loading'
 import 'src/assets/css/chart.css'
 import SolutionImage from 'src/assets/images/Solution.png'
+import * as experimentAPI from 'src/api/experiment'
 
 const TextPredict = ({
 	experimentName,
@@ -59,43 +60,27 @@ const TextPredict = ({
 			isLoading: true,
 		})
 
-		const model = await instance.get(API_URL.get_model(experimentName))
-		const jsonObject = model.data
-		if (!jsonObject) {
-			console.error('Failed to get model info')
-		}
-		console.log(jsonObject)
-
-		updateState({
-			isLoading: true,
-		})
-
-		formData.append('userEmail', jsonObject.userEmail)
-		formData.append('projectName', jsonObject.projectName)
-		formData.append('runName', experimentName)
 		formData.append('text', predictDataState.selectedSentence)
+		formData.append("task", projectInfo.type)
 
 		console.log('Fetching explain text')
 
-		const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/explain`
+		
+		try {
+			const { data } = await experimentAPI.explainImages(
+				experimentName,
+				formData
+			)
+			setExplanation(data.explanations)
 
-		const options = {
-			method: 'POST',
-			body: formData,
+			console.log('Fetch successful')
+
+			updateState({ isLoading: false })
+
+		} catch (error) {
+			console.error('Fetch error:', error.message)
+			updateState({ isLoading: false })
 		}
-
-		fetchWithTimeout(url, options, 60000)
-			.then((data) => {
-				console.log(data)
-				setExplanation(data.explanations)
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-			})
-			.finally(() => {
-				updateState({ isLoading: false })
-			})
 	}
 
 	const handleHighlight = (selectedClass) => {

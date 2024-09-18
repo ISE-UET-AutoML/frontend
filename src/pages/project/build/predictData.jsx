@@ -109,29 +109,42 @@ const PredictData = (props) => {
 
 		const formData = new FormData()
 
-		const model = await instance.get(API_URL.get_model(experimentName))
-		const jsonObject = model.data
-		if (!jsonObject) {
-			console.error('Failed to get model info')
+		formData.append("task", projectInfo.type)
+
+		for (let i = 0; i < validFiles.length; i++) {
+			formData.append('files', validFiles[i])
 		}
 
-		// formData.append('userEmail', jsonObject.userEmail)
-		// formData.append('projectName', jsonObject.projectName)
-		// formData.append('runName', experimentName)
 
-		// handle text prediction (temporary)
-		if (files[0].name.endsWith('.csv') && files.length === 1) {
-			formData.append('csv_file', validFiles[0])
-			const url = `${process.env.REACT_APP_EXPLAIN_URL}/text_prediction/temp_predict`
+		console.log('Fetch start')
+		// console.log(url)
 
-			const options = {
-				method: 'POST',
-				body: formData,
-			}
+		try {
+			const { data } = await experimentAPI.predictImages(
+				experimentName,
+				formData
+			)
+			const { predictions } = data
 
-			fetchWithTimeout(url, options, 120000)
-				.then((data) => {
-					const sentences = data.predictions.map((item) => ({
+
+			switch(projectInfo.type) {
+				case 'IMAGE_CLASSIFICATION':
+					const images = predictions.map((item) => ({
+						id: item.key,
+						value: null,
+						label: item.class,
+					}))
+					updateState({
+						uploadFiles: validFiles,
+						selectedImage: validFiles[0],
+						confidences: predictions,
+						confidenceScore: parseFloat(predictions[0].confidence),
+						confidenceLabel: predictions[0].class,
+						userConfirm: images,
+						showImageModal: true,
+					})
+				case 'TEXT_CLASSIFICATION':
+					const sentences = predictions.map((item) => ({
 						sentence: item.sentence,
 						confidence: item.confidence,
 						label: item.class,
@@ -145,55 +158,7 @@ const PredictData = (props) => {
 						uploadSentences: sentences,
 						userConfirm: sentences,
 					})
-
-					console.log('Fetch successful')
-				})
-				.catch((error) => {
-					console.error('Fetch error:', error.message)
-				})
-				.finally(() => {
-					updateState({ isLoading: false })
-					console.log('Fetch completed')
-				})
-
-			return
-		}
-
-		for (let i = 0; i < validFiles.length; i++) {
-			formData.append('files', validFiles[i])
-		}
-
-		// const url = `${process.env.REACT_APP_EXPLAIN_URL}/image_classification/temp_predict`
-
-		const options = {
-			method: 'POST',
-			body: formData,
-		}
-
-		console.log('Fetch start')
-		// console.log(url)
-
-		try {
-			const { data } = await experimentAPI.predictImages(
-				experimentName,
-				formData
-			)
-			const { predictions } = data
-
-			const images = predictions.map((item) => ({
-				id: item.key,
-				value: null,
-				label: item.class,
-			}))
-			updateState({
-				uploadFiles: validFiles,
-				selectedImage: validFiles[0],
-				confidences: predictions,
-				confidenceScore: parseFloat(predictions[0].confidence),
-				confidenceLabel: predictions[0].class,
-				userConfirm: images,
-				showImageModal: true,
-			})
+			}
 
 			console.log('Fetch successful')
 
@@ -201,34 +166,9 @@ const PredictData = (props) => {
 			message.success('Success Predict', 3)
 		} catch (error) {
 			message.error('Predict Fail', 3)
+			updateState({ isLoading: false })
 		}
 
-		fetchWithTimeout(url, options, 600000)
-			.then((data) => {
-				const { predictions } = data
-				const images = predictions.map((item) => ({
-					id: item.key,
-					value: null,
-					label: item.class,
-				}))
-				updateState({
-					uploadFiles: validFiles,
-					selectedImage: validFiles[0],
-					confidences: predictions,
-					confidenceScore: parseFloat(predictions[0].confidence),
-					confidenceLabel: predictions[0].class,
-					userConfirm: images,
-					showImageModal: true,
-				})
-				console.log('Fetch successful')
-			})
-			.catch((error) => {
-				console.error('Fetch error:', error.message)
-			})
-			.finally(() => {
-				updateState({ isLoading: false })
-				console.log('Fetch completed')
-			})
 	}
 
 	// const handleDeploy = async () => {
