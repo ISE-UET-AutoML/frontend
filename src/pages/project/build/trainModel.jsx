@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import React, { useEffect, useState, Fragment } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { TrainingChart } from 'src/components/TrainingChart'
-import { getTrainingHistory } from 'src/api/experiment'
+import { getTrainingHistory, getExperiment } from 'src/api/experiment'
 
 const TrainModel = (props) => {
 	const location = useLocation()
@@ -35,7 +35,7 @@ const TrainModel = (props) => {
 	const getTrainingProgress = async (experimentName) => {
 		const res = await getExperiment(experimentName)
 
-		const data = await res.json()
+		console.log(res)
 
 		if (res.status === 422) {
 		}
@@ -45,7 +45,7 @@ const TrainModel = (props) => {
 			document.getElementById('message').innerHTML = 'Progress'
 			document.getElementById('description').innerHTML = ''
 			// setProcessValue(data.accuracy)
-			if (data.status === 'DONE' || data.status === 'SUCCESS') {
+			if (res.data.status === 'DONE' || res.data.status === 'SUCCESS') {
 				setProcessValue(100)
 				document.getElementById('message').innerHTML =
 					'Training Completed'
@@ -56,7 +56,7 @@ const TrainModel = (props) => {
 				// }, 1000);
 				next()
 			}
-			if (data.status === 'FAILED') {
+			if (res.data.status === 'FAILED') {
 				document.getElementById('message').innerHTML = 'Training Failed'
 				document.getElementById('description').innerHTML = ''
 				next()

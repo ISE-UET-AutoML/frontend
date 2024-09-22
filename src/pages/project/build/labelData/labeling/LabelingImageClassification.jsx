@@ -78,25 +78,16 @@ const LabelingImageClassification = ({
 			id: index,
 			annotations: annotations,
 			data: {
-				image: image.url,
+				image: image.data['data-IMG-image'],
 			},
 		}
 	}
 
 	const updateLabelTask = async (image, newLabel) => {
-		let newLabelID = ''
-		for (let lb of currentLabelWithID.current) {
-			if (lb.value === newLabel) {
-				newLabelID = lb.id
-				break
-			}
-		}
-		console.log('id', image._id, newLabelID)
-
-		if (image._id.length <= 0 || newLabelID.length <= 0) {
+		if (image.id.length <= 0 ) {
 			return
 		}
-		return await updateLabel(image._id, newLabelID)
+		return await projectAPI.updateAnnotation(projectId, image.id, { 'choice': newLabel })
 	}
 
 	const HandleEndLoop = () => {

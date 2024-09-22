@@ -82,25 +82,16 @@ const LabelingTextClassification = ({
 			id: index,
 			annotations: annotations,
 			data: {
-				text: text.url,
+				text: text.data['data-TXT-text'],
 			},
 		}
 	}
 
 	const updateLabelTask = async (text, newLabel) => {
-		let newLabelID = ''
-		for (let lb of currentLabelWithID.current) {
-			if (lb.value === newLabel) {
-				newLabelID = lb.id
-				break
-			}
-		}
-		console.log('id', text._id, newLabelID)
-
-		if (text._id.length <= 0 || newLabelID.length <= 0) {
+		if (text.id.length <= 0) {
 			return
 		}
-		return await updateLabel(text._id, newLabelID)
+		return await projectAPI.updateAnnotation(projectId, text.id, { 'choice': newLabel })
 	}
 
 	const HandleEndLoop = () => {

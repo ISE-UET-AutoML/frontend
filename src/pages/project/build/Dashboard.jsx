@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { message } from 'antd'
-import React, { useReducer } from 'react'
+import React, { useReducer, useState } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import * as projectAPI from 'src/api/project'
 import { UploadTypes } from 'src/constants/file'
@@ -25,6 +25,7 @@ const initialState = {
 const Dashboard = ({ updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
 	const location = useLocation()
+	const [previewData, setPreviewData] = useState({})
 
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
@@ -55,11 +56,16 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles !== undefined &&
 			dashboardState.uploadFiles.length > 0
 		) {
+			// TODO: Change previewData -> import_args ( in Body not FormData)
 			const formData = new FormData()
-			if (projectInfo.type === 'IMAGE_CLASSIFICATION')
-				formData.append('type', UploadTypes.FOLDER)
-			if (projectInfo.type === 'TEXT_CLASSIFICATION')
-				formData.append('type', 'CSV_SINGLE')
+			const object = config[projectInfo.type]
+			if (object) {
+				formData.append('type', object.folder)
+			}
+
+			if (previewData.label_column) {
+				formData.append('import_args', JSON.stringify(previewData))
+			}
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string
 				const fileNameBase64 = window.btoa(
@@ -75,7 +81,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			try {
 				updateState({ isUploading: true })
 				projectAPI.uploadFiles(projectID, formData).then((data) => {
-					console.log('dataoday', data)
 					const props = {
 						files: data.data.tasks,
 						labels: data.data.project_info.label_config,
@@ -289,9 +294,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							id="classification"
 							className="hidden"
 							onChange={handleFileChange}
-							onClick={(event) => {
-								event.target.value = null
-							}}
 						/>
 					</label>
 					<div className="flex justify-between items-center mt-5">
@@ -333,6 +335,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													index={index}
 													handleRemoveFile={
 														handleRemoveFile
+													}
+													setPreviewData={
+														setPreviewData
 													}
 												/>
 											))}

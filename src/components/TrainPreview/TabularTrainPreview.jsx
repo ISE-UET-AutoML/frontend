@@ -4,7 +4,7 @@ import { getPreviewDataByPage, trainModel } from 'src/api/project'
 import Loading from 'src/components/Loading'
 import Pagination from 'src/components/Pagination'
 
-const TextTrainPreview = ({ datas, pagination, next, updateFields }) => {
+const TabularTrainPreview = ({ datas, pagination, next, updateFields }) => {
 	const total_pages = Math.ceil(pagination.total / pagination.page_size)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
@@ -15,6 +15,9 @@ const TextTrainPreview = ({ datas, pagination, next, updateFields }) => {
 		currentPage: pagination?.page ?? 1,
 		totalPages: total_pages ?? 10,
 	})
+
+	const keys = Object.keys(datas[0].data)
+	const colsName = keys.map((key) => key.replace('data-VAL-', ''))
 
 	const handleTrain = async () => {
 		try {
@@ -105,12 +108,11 @@ const TextTrainPreview = ({ datas, pagination, next, updateFields }) => {
 							<table className="min-w-full divide-y divide-gray-200">
 								<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 									<tr>
-										<th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider w-[90%]">
-											SENTENCES
-										</th>
-										<th className="px-6 py-3 text-center text-xs font-bold text-black uppercase tracking-wider">
-											LABEL
-										</th>
+										{colsName.map((col) => (
+											<th className="px-6 py-3 text-center text-xs font-bold text-black uppercase tracking-wider">
+												{col}
+											</th>
+										))}
 									</tr>
 								</thead>
 								<tbody className="bg-white divide-y divide-gray-200">
@@ -119,9 +121,18 @@ const TextTrainPreview = ({ datas, pagination, next, updateFields }) => {
 											key={row.id}
 											className="hover:bg-gray-100"
 										>
-											<td className="px-6 py-2.5 text-sm text-gray-700 w-[90%] break-words">
-												{row.data['data-TXT-text']}
-											</td>
+											{Object.keys(row.data)
+												.filter((key) =>
+													key.startsWith('data-VAL-')
+												)
+												.map((key) => (
+													<td
+														key={key}
+														className="px-6 py-2.5 text-sm text-gray-700 break-words text-center"
+													>
+														{row.data[key]}
+													</td>
+												))}
 											<td className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap text-center">
 												{row.data.label}
 											</td>
@@ -148,4 +159,4 @@ const TextTrainPreview = ({ datas, pagination, next, updateFields }) => {
 	)
 }
 
-export default TextTrainPreview
+export default TabularTrainPreview

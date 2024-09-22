@@ -22,8 +22,10 @@ export const API_URL = {
 	update_label: (imageId) => `${API_BASE_URL}/images/${imageId}`,
 	explain_instance: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/explain`,
-	create_label_for_dataset: (datasetID) =>
-		`${API_BASE_URL}/datasets/${datasetID}/labels`,
+	create_label_for_dataset: (projectId) =>
+		`${API_BASE_URL}/projects/${projectId}/label_config`,
+	update_annotation: (projectId, taskId) =>
+		`${API_BASE_URL}/projects/${projectId}/set_label/${taskId}`,
 	post_autolabel: (datasetID) =>
 		`${API_BASE_URL}/projects/${datasetID}/autolabel`,
 	get_model: (experimentName) =>
