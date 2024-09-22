@@ -11,19 +11,19 @@ const getExperiment = (experimentName) => {
 	return instance.get(`${API_BASE_URL}/experiments?name=${experimentName}`)
 }
 
-const predictImages = (experimentName, files) => {
+const predictData = (experimentName, files) => {
 	console.log('vao duoc API')
 	// const options = {
 	// 	headers: { 'Content-Type': 'multipart/form-data' },
 	// }
-	return instance.post(API_URL.predict_images(experimentName), files)
+	return instance.post(API_URL.predict_data(experimentName), files)
 }
 
-const explainImages = (experimentName, file) => {
+const explainData = (experimentName, file) => {
 	// const options = {
 	// 	headers: { 'Content-Type': 'multipart/form-data' },
 	// }
-	return instance.post(API_URL.explain_images(experimentName), file)
+	return instance.post(API_URL.explain_data(experimentName), file)
 }
 
-export { getTrainingHistory, predictImages, explainImages, getExperiment }
+export { getTrainingHistory, predictData, explainData, getExperiment }

@@ -63,10 +63,10 @@ const ImagePredict = ({
 			isLoading: true,
 		})
 
-		formData.append('file', predictDataState.selectedImage)
-		formData.append("task", projectInfo.type)
+		formData.append('files', predictDataState.selectedImage)
+		formData.append('task', projectInfo.type)
 		try {
-			const { data } = await experimentAPI.explainImages(
+			const { data } = await experimentAPI.explainData(
 				experimentName,
 				formData
 			)

@@ -61,22 +61,20 @@ const TextPredict = ({
 		})
 
 		formData.append('text', predictDataState.selectedSentence)
-		formData.append("task", projectInfo.type)
+		formData.append('task', projectInfo.type)
 
 		console.log('Fetching explain text')
 
-		
 		try {
-			const { data } = await experimentAPI.explainImages(
+			const { data } = await experimentAPI.explainData(
 				experimentName,
 				formData
 			)
-			setExplanation(data.explanations)
+			setExplanation(data.explanation)
 
 			console.log('Fetch successful')
 
 			updateState({ isLoading: false })
-
 		} catch (error) {
 			console.error('Fetch error:', error.message)
 			updateState({ isLoading: false })

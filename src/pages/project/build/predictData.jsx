@@ -109,25 +109,23 @@ const PredictData = (props) => {
 
 		const formData = new FormData()
 
-		formData.append("task", projectInfo.type)
+		formData.append('task', projectInfo.type)
 
 		for (let i = 0; i < validFiles.length; i++) {
 			formData.append('files', validFiles[i])
 		}
 
-
 		console.log('Fetch start')
 		// console.log(url)
 
 		try {
-			const { data } = await experimentAPI.predictImages(
+			const { data } = await experimentAPI.predictData(
 				experimentName,
 				formData
 			)
 			const { predictions } = data
 
-
-			switch(projectInfo.type) {
+			switch (projectInfo.type) {
 				case 'IMAGE_CLASSIFICATION':
 					const images = predictions.map((item) => ({
 						id: item.key,
@@ -168,7 +166,6 @@ const PredictData = (props) => {
 			message.error('Predict Fail', 3)
 			updateState({ isLoading: false })
 		}
-
 	}
 
 	// const handleDeploy = async () => {

@@ -2,6 +2,7 @@ import React, { Fragment, useReducer, useState } from 'react'
 import { fetchWithTimeout } from 'src/utils/timeout'
 // import { explainInstance } from 'src/api/project'
 // import parse from 'html-react-parser'
+import * as experimentAPI from 'src/api/experiment'
 
 const Explain = (props) => {
 	const [explainImageUrl, setExplainImageUrl] = useState('')
@@ -16,6 +17,17 @@ const Explain = (props) => {
 
 		// TODO: fix hardcorded values
 		const formData = new FormData()
+		formData.append('files', item)
+
+		const experimentName = 'temp'
+		const { data } = await experimentAPI.predictImages(
+			experimentName,
+			formData
+		)
+
+		console.log(data)
+		return
+
 		formData.append('userEmail', process.env.USER_EMAIL)
 		formData.append('projectName', process.env.PROJECT_NAME)
 		formData.append('runName', process.env.RUN_NAME)
