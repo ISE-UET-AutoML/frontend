@@ -27,9 +27,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const location = useLocation()
 	const [previewData, setPreviewData] = useState({})
 
-	console.log('dataPre', previewData)
-	console.log('preview', previewData.label_column)
-
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
@@ -59,6 +56,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles !== undefined &&
 			dashboardState.uploadFiles.length > 0
 		) {
+			// TODO: Change previewData -> import_args ( in Body not FormData)
 			const formData = new FormData()
 			const object = config[projectInfo.type]
 			if (object) {
@@ -66,8 +64,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			}
 
 			if (previewData.label_column) {
-				console.log('yes')
-				formData.append('label_column', previewData.label_column)
+				formData.append('import_args', JSON.stringify(previewData))
 			}
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string

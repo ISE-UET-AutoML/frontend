@@ -3,6 +3,7 @@ import TextUploadPreview from '../../../components/UploadPreview/TextUploadPrevi
 import TabularUploadPreview from '../../../components/UploadPreview/TabularUploadPreview'
 import ImageTrainPreview from '../../../components/TrainPreview/ImageTrainPreview'
 import TextTrainPreview from '../../../components/TrainPreview/TextTrainPreview'
+import TabularTrainPreview from '../../../components/TrainPreview/TabularTrainPreview'
 import ImagePredict from '../../../components/Predict/ImagePredict'
 import TextPredict from '../../../components/Predict/TextPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
@@ -30,7 +31,7 @@ const config = {
 		gridClasses: 'grid-cols-1',
 		folder: UploadTypes.CSV_SINGLE,
 		uploadPreview: TabularUploadPreview,
-		trainPreview: TextTrainPreview,
+		trainPreview: TabularTrainPreview,
 		predictView: TextPredict,
 		labelingView: LabelingTextClassification,
 	},

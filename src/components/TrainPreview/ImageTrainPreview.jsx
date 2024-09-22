@@ -6,7 +6,6 @@ import Pagination from 'src/components/Pagination'
 
 const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
 	const total_pages = Math.ceil(pagination.total / pagination.page_size)
-	console.log('pagination', pagination)
 	const location = useLocation()
 	let [searchParams, setSearchParams] = useSearchParams()
 	const { id: projectId } = useParams()
@@ -24,7 +23,10 @@ const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
 				setSearchParams((pre) =>
 					pre.toString().concat(`&experiment_name=${data.task_id}`)
 				)
-			updateFields({ experiment_name: data.task_id })
+			updateFields({
+				isDoneLabelData: true,
+				experiment_name: data.task_id,
+			})
 			next()
 		} catch (error) {
 			console.error(error)

@@ -12,7 +12,6 @@ const getExperiment = (experimentName) => {
 }
 
 const predictImages = (experimentName, files) => {
-	console.log("vao duoc API")
 	    const options = {
         headers: { 'Content-Type': 'multipart/form-data' },
     };
