@@ -24,13 +24,15 @@ const UploadData = ({ updateFields, projectInfo }) => {
 								unlabeled_data.data.project_info.label_config
 							let labels = []
 							if (label_config?.label_choices) {
-									labels = label_config.label_choices.map((v,i) => {
+								labels = label_config.label_choices.map(
+									(v, i) => {
 										return {
 											id: i,
 											value: v,
 										}
-									})
-							} 
+									}
+								)
+							}
 
 							const props = {
 								files: unlabeled_data.data.tasks,
@@ -46,9 +48,6 @@ const UploadData = ({ updateFields, projectInfo }) => {
 							})
 						})
 				} else {
-					// preview
-					console.log('preview')
-					
 					const props = {
 						files: data.data.tasks,
 						labels: data.data.project_info.label_config,

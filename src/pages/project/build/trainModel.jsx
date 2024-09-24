@@ -21,17 +21,6 @@ const TrainModel = (props) => {
 
 	const [processValue, setProcessValue] = useState(0)
 
-	const stopTrainModel = async () => {
-		fetch(
-			`${process.env.REACT_APP_ML_SERVICE_ADDR}/clf/stop?experiment_name=${experimentName}`
-		)
-			.then((res) => res.json())
-			.then((data) => {
-				message.success(data.message, 3)
-				next()
-			})
-			.catch((err) => console.error(err))
-	}
 	const getTrainingProgress = async (experimentName) => {
 		const res = await getExperiment(experimentName)
 
