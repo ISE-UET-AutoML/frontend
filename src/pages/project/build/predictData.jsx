@@ -17,10 +17,9 @@ import * as experimentAPI from 'src/api/experiment'
 import Loading from 'src/components/Loading'
 
 const initialState = {
-	showUploadModal: false,
-	showPredictModal: false,
-	showResultModal: false,
+	showUploadPanel: false,
 	showPredictLayout: false,
+	showResultModal: false,
 	predictFile: { url: '', label: '' },
 	uploadFiles: [],
 	selectedImage: null,
@@ -68,36 +67,37 @@ const PredictData = (props) => {
 
 		setGraph(parsedData)
 	}
-	useEffect(() => {
-		instance
-			.get(API_URL.get_training_history(experimentName))
-			.then((res) => {
-				const data = res.data
-				console.log(data)
+	// TODO: Render training garph for Tabular
+	// useEffect(() => {
+	// 	instance
+	// 		.get(API_URL.get_training_history(experimentName))
+	// 		.then((res) => {
+	// 			const data = res.data
+	// 			console.log(data)
 
-				setGraphJSON(data)
+	// 			setGraphJSON(data)
 
-				if (data.fit_history.scalars.train_loss) {
-					readChart(
-						data.fit_history.scalars.train_loss,
-						setTrainLossGraph
-					)
-				}
+	// 			if (data.fit_history.scalars.train_loss) {
+	// 				readChart(
+	// 					data.fit_history.scalars.train_loss,
+	// 					setTrainLossGraph
+	// 				)
+	// 			}
 
-				if (data.fit_history.scalars.val_accuracy) {
-					readChart(
-						data.fit_history.scalars.val_accuracy,
-						setValAccGraph
-					)
-				}
-				if (data.fit_history.scalars.val_loss) {
-					readChart(
-						data.fit_history.scalars.val_loss,
-						setValLossGraph
-					)
-				}
-			})
-	}, [])
+	// 			if (data.fit_history.scalars.val_accuracy) {
+	// 				readChart(
+	// 					data.fit_history.scalars.val_accuracy,
+	// 					setValAccGraph
+	// 				)
+	// 			}
+	// 			if (data.fit_history.scalars.val_loss) {
+	// 				readChart(
+	// 					data.fit_history.scalars.val_loss,
+	// 					setValLossGraph
+	// 				)
+	// 			}
+	// 		})
+	// }, [])
 
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files)
@@ -118,12 +118,14 @@ const PredictData = (props) => {
 		console.log('Fetch start')
 
 		try {
-			const { res } = await experimentAPI.predictData(
+			const { data } = await experimentAPI.predictData(
 				experimentName,
 				formData
 			)
-			const { predictions } = res
-			const data = predictions.map((item) => ({
+			console.log('data', data)
+			const { predictions } = data
+
+			const tmp = predictions.map((item) => ({
 				id: item.key,
 				value: null,
 				label: item.class,
@@ -132,9 +134,10 @@ const PredictData = (props) => {
 			}))
 
 			updateState({
-				userConfirm: data,
+				userConfirm: tmp,
+				showUploadPanel: false,
 				showPredictLayout: true,
-				showUploadModal: false,
+				uploadFiles: validFiles,
 			})
 
 			switch (projectInfo.type) {
@@ -150,14 +153,12 @@ const PredictData = (props) => {
 				}
 				case 'TEXT_CLASSIFICATION': {
 					updateState({
-						uploadSentences: data,
+						uploadSentences: tmp,
 					})
 					break
 				}
 				case 'TABULAR_CLASSIFICATION': {
-					updateState({
-						uploadSentences: data,
-					})
+					updateState({})
 					break
 				}
 				default:
@@ -241,7 +242,7 @@ const PredictData = (props) => {
 
 					<button
 						onClick={() => {
-							updateState({ showUploadModal: true })
+							updateState({ showUploadPanel: true })
 							// handleDeploy()
 						}}
 						className="items-center ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
@@ -250,108 +251,177 @@ const PredictData = (props) => {
 						Predict
 					</button>
 				</div>
-				<div className="py-2.5">
+				{/* <div className="py-2.5">
 					<div className=" max-w-full text-gray-500">
-						<div className="relative">
-							<div className="relative z-10 grid gap-3 grid-cols-6">
-								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-									<div className="size-fit m-auto relative flex justify-center">
-										<LineGraph
-											data={trainLossGraph}
-											label="train_loss"
-										/>
-									</div>
+						<div className="relative z-10 grid gap-3 grid-cols-6">
+							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+								<div className="size-fit m-auto relative flex justify-center">
+									<LineGraph
+										data={trainLossGraph}
+										label="train_loss"
+									/>
 								</div>
-								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-									<div className="size-fit m-auto relative flex justify-center">
-										<LineGraph
-											data={val_lossGraph}
-											label="val_loss"
-										/>
-									</div>
+							</div>
+							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+								<div className="size-fit m-auto relative flex justify-center">
+									<LineGraph
+										data={val_lossGraph}
+										label="val_loss"
+									/>
 								</div>
-								<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-									<div className="size-fit m-auto relative flex justify-center">
-										<LineGraph
-											data={val_accGraph}
-											label="val_accuracy"
-										/>
-									</div>
+							</div>
+							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+								<div className="size-fit m-auto relative flex justify-center">
+									<LineGraph
+										data={val_accGraph}
+										label="val_accuracy"
+									/>
 								</div>
+							</div>
 
-								<div className=" h-56 col-span-full lg:col-span-5 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200 shadow-lg">
-									<div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
-										<div className="space-y-2">
-											<p className=" text-gray-700">
-												<span className="font-bold">
-													Train loss (train_loss)
-												</span>{' '}
-												measures a model's prediction
-												error during training. It
-												indicates how well the model
-												fits the training data, with
-												lower values suggesting better
-												performance.
-											</p>
-											<p className=" text-gray-700">
-												<span className="font-bold">
-													Validation loss (val_loss)
-												</span>{' '}
-												evaluates a model's performance
-												on unseen data, providing
-												insight into its generalization
-												ability. A significant gap
-												between train loss and val_loss
-												often indicates overfitting,
-												where the model performs well on
-												training data but poorly on new
-												data.
-											</p>
-											<p className=" text-gray-700">
-												<span className="font-bold">
-													Validation accuracy
-													(val_accuracy)
-												</span>{' '}
-												measures a model's ability to
-												correctly predict outcomes on
-												unseen validation data. High
-												validation accuracy indicates
-												strong generalization, while a
-												large gap with training accuracy
-												may signal overfitting.
-											</p>
-										</div>
+							<div className=" h-56 col-span-full lg:col-span-5 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200 shadow-lg">
+								<div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
+									<div className="space-y-2">
+										<p className=" text-gray-700">
+											<span className="font-bold">
+												Train loss (train_loss)
+											</span>{' '}
+											measures a model's prediction error
+											during training. It indicates how
+											well the model fits the training
+											data, with lower values suggesting
+											better performance.
+										</p>
+										<p className=" text-gray-700">
+											<span className="font-bold">
+												Validation loss (val_loss)
+											</span>{' '}
+											evaluates a model's performance on
+											unseen data, providing insight into
+											its generalization ability. A
+											significant gap between train loss
+											and val_loss often indicates
+											overfitting, where the model
+											performs well on training data but
+											poorly on new data.
+										</p>
+										<p className=" text-gray-700">
+											<span className="font-bold">
+												Validation accuracy
+												(val_accuracy)
+											</span>{' '}
+											measures a model's ability to
+											correctly predict outcomes on unseen
+											validation data. High validation
+											accuracy indicates strong
+											generalization, while a large gap
+											with training accuracy may signal
+											overfitting.
+										</p>
 									</div>
 								</div>
-								<div className="h-56 col-span-full lg:col-span-1 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-									<div className="size-fit m-auto relative flex justify-center">
-										<img src={researchImage} />
-									</div>
+							</div>
+							<div className="h-56 col-span-full lg:col-span-1 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
+								<div className="size-fit m-auto relative flex justify-center">
+									<img src={researchImage} />
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> */}
 			</section>
 
-			{/* UPLOAD FILES TO PREDICT AND MAIN UI AFTER PREDICT */}
-			{projectInfo &&
+			{predictDataState.isLoading && <Loading />}
+
+			{/* UPLOAD VIEW */}
+			<div
+				className={`${
+					predictDataState.showUploadPanel
+						? 'top-0 left-0 bottom-full z-[1000] opacity-100'
+						: 'left-0 top-full bottom-0 opacity-0'
+				} fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]`}
+			>
+				<button
+					onClick={() => {
+						console.log('close')
+						// updateState(initialState)
+					}}
+					className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+				>
+					<svg
+						className="hover:scale-125 hover:fill-red-500"
+						focusable="false"
+						viewBox="0 0 24 24"
+						color="#69717A"
+						aria-hidden="true"
+						data-testId="close-upload-media-dialog-btn"
+					>
+						<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
+					</svg>
+				</button>
+				<label
+					htmlFor="file"
+					className="flex flex-col w-[95%] cursor-pointer mt-24 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] h-[300px] rounded-[10px]"
+				>
+					<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="100"
+							height="100"
+							fill="none"
+							viewBox="0 0 100 100"
+						>
+							<mask
+								id="mask0_908_734"
+								style={{
+									maskType: 'alpha',
+								}}
+								width="100"
+								height="100"
+								x="0"
+								y="0"
+								maskUnits="userSpaceOnUse"
+							>
+								<path fill="#D9D9D9" d="M0 0H100V100H0z"></path>
+							</mask>
+							<g mask="url(#mask0_908_734)">
+								<path
+									fill="#65A4FE"
+									d="M45.833 83.333h-18.75c-6.319 0-11.718-2.187-16.195-6.562-4.481-4.375-6.721-9.722-6.721-16.042 0-5.416 1.632-10.243 4.896-14.479 3.263-4.236 7.534-6.944 12.812-8.125 1.736-6.389 5.208-11.562 10.417-15.52 5.208-3.96 11.11-5.938 17.708-5.938 8.125 0 15.017 2.829 20.675 8.487 5.661 5.661 8.492 12.554 8.492 20.68 4.791.555 8.768 2.62 11.929 6.195 3.158 3.578 4.737 7.763 4.737 12.554 0 5.209-1.822 9.636-5.466 13.284-3.648 3.644-8.075 5.466-13.284 5.466H54.167V53.542L60.833 60l5.834-5.833L50 37.5 33.333 54.167 39.167 60l6.666-6.458v29.791z"
+								></path>
+							</g>
+						</svg>
+						<p className="text-center text-black">
+							Upload files to predict
+						</p>
+					</div>
+					<input
+						id="file"
+						type="file"
+						multiple
+						className="hidden"
+						onChange={handleFileChange}
+						onClick={(event) => {
+							event.target.value = null
+						}}
+					/>
+				</label>
+			</div>
+
+			{/* PREDICT VIEW */}
+			{predictDataState.uploadFiles.length > 0 &&
+			predictDataState.showPredictLayout ? (
+				projectInfo &&
 				(() => {
 					const object = config[projectInfo.type]
 					if (object) {
 						const PredictComponent = object.predictView
 						return (
-							<div
-								className={`${
-									predictDataState.showUploadModal
-										? 'top-0 left-0 bottom-full z-[1000] opacity-100'
-										: 'left-0 top-full bottom-0 opacity-0'
-								} fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]`}
-							>
+							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
 								<button
 									onClick={() => {
-										// updateState(initialState)
 										console.log('close')
+										// updateState(initialState)
 									}}
 									className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 								>
@@ -366,81 +436,23 @@ const PredictData = (props) => {
 										<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 									</svg>
 								</button>
-								{predictDataState.isLoading && <Loading />}
-								//! Thong nhat lai cai nay
-								{(predictDataState.uploadSentences.length > 0 ||
-									predictDataState.uploadFiles > 0) &&
-								predictDataState.showPredictLayout ? (
-									<PredictComponent
-										experimentName={experimentName}
-										projectInfo={projectInfo}
-										predictDataState={predictDataState}
-										updateState={updateState}
-									/>
-								) : (
-									<label
-										htmlFor="file"
-										onClick={() =>
-											updateState({
-												showPredictModal: true,
-											})
-										}
-										className="flex flex-col w-[95%] cursor-pointer mt-24 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] h-[300px] rounded-[10px]"
-									>
-										<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="100"
-												height="100"
-												fill="none"
-												viewBox="0 0 100 100"
-											>
-												<mask
-													id="mask0_908_734"
-													style={{
-														maskType: 'alpha',
-													}}
-													width="100"
-													height="100"
-													x="0"
-													y="0"
-													maskUnits="userSpaceOnUse"
-												>
-													<path
-														fill="#D9D9D9"
-														d="M0 0H100V100H0z"
-													></path>
-												</mask>
-												<g mask="url(#mask0_908_734)">
-													<path
-														fill="#65A4FE"
-														d="M45.833 83.333h-18.75c-6.319 0-11.718-2.187-16.195-6.562-4.481-4.375-6.721-9.722-6.721-16.042 0-5.416 1.632-10.243 4.896-14.479 3.263-4.236 7.534-6.944 12.812-8.125 1.736-6.389 5.208-11.562 10.417-15.52 5.208-3.96 11.11-5.938 17.708-5.938 8.125 0 15.017 2.829 20.675 8.487 5.661 5.661 8.492 12.554 8.492 20.68 4.791.555 8.768 2.62 11.929 6.195 3.158 3.578 4.737 7.763 4.737 12.554 0 5.209-1.822 9.636-5.466 13.284-3.648 3.644-8.075 5.466-13.284 5.466H54.167V53.542L60.833 60l5.834-5.833L50 37.5 33.333 54.167 39.167 60l6.666-6.458v29.791z"
-													></path>
-												</g>
-											</svg>
-											<p className="text-center text-black">
-												Upload files to predict
-											</p>
-										</div>
-										<input
-											id="file"
-											type="file"
-											multiple
-											className="hidden"
-											onChange={handleFileChange}
-											onClick={(event) => {
-												event.target.value = null
-											}}
-										/>
-									</label>
-								)}
+								<PredictComponent
+									experimentName={experimentName}
+									projectInfo={projectInfo}
+									predictDataState={predictDataState}
+									updateState={updateState}
+								/>
 							</div>
 						)
 					}
 					return null
-				})()}
+				})()
+			) : (
+				<></>
+			)}
+
 			{/* BẢNG KẾT QUẢ SAU KHI CORRECT/ INCORRECT*/}
-			<Transition.Root
+			{/* <Transition.Root
 				show={predictDataState.showResultModal}
 				as={Fragment}
 			>
@@ -475,7 +487,6 @@ const PredictData = (props) => {
 								leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 							>
 								<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-									{/* title */}
 									<div className="bg-white p-[10px] divide-y-2 divide-solid divide-slate-50">
 										<div className="flex justify-between items-center mb-5">
 											<div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -502,21 +513,16 @@ const PredictData = (props) => {
 										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Total Prediction:{' '}
 											<strong className="text-blue-600">
-												{
-													// predictDataState.uploadFiles
-													// 	?.length
-													projectInfo.type ===
-													'IMAGE_CLASSIFICATION'
+												{projectInfo.type ===
+												'IMAGE_CLASSIFICATION'
+													? predictDataState
+															.uploadFiles?.length
+													: projectInfo.type ===
+														  'TEXT_CLASSIFICATION'
 														? predictDataState
-																.uploadFiles
+																.uploadSentences
 																?.length
-														: projectInfo.type ===
-															  'TEXT_CLASSIFICATION'
-															? predictDataState
-																	.uploadSentences
-																	?.length
-															: 'no'
-												}
+														: 'no'}
 											</strong>
 										</h3>
 
@@ -537,15 +543,6 @@ const PredictData = (props) => {
 										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
 											Accuracy:{' '}
 											<strong className="text-blue-600">
-												{/* {parseFloat(
-													predictDataState.userConfirm.filter(
-														(item) =>
-															item.value ===
-															'true'
-													)?.length /
-														predictDataState
-															.uploadFiles?.length
-												).toFixed(2)} */}
 												{projectInfo.type ===
 												'IMAGE_CLASSIFICATION'
 													? parseFloat(
@@ -576,7 +573,7 @@ const PredictData = (props) => {
 
 										<div className="images-container flex flex-wrap gap-y-4 justify-center"></div>
 									</div>
-									{/* button */}
+
 									<div className="bg-gray-50 px-4 py-3 sm:flex sm:px-6 justify-start">
 										<button
 											type="button"
@@ -597,7 +594,7 @@ const PredictData = (props) => {
 													showResultModal: false,
 													isLoading: true,
 												})
-												// saveBestModel();
+
 												const timer = setTimeout(() => {
 													updateState({
 														isLoading: false,
@@ -621,7 +618,7 @@ const PredictData = (props) => {
 						</div>
 					</div>
 				</Dialog>
-			</Transition.Root>
+			</Transition.Root> */}
 		</>
 	)
 }

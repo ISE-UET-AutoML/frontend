@@ -14,6 +14,8 @@ const ImagePredict = ({
 }) => {
 	const [explainImageUrl, setExplainImageUrl] = useState('')
 
+	console.log(predictDataState.uploadFiles, 'cai file day ne')
+
 	const handleSelectedImage = async (item) => {
 		const fileIndex = predictDataState.uploadFiles.findIndex(
 			(file) => file.name === item.name

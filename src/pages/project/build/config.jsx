@@ -6,6 +6,7 @@ import TextTrainPreview from '../../../components/TrainPreview/TextTrainPreview'
 import TabularTrainPreview from '../../../components/TrainPreview/TabularTrainPreview'
 import ImagePredict from '../../../components/Predict/ImagePredict'
 import TextPredict from '../../../components/Predict/TextPredict'
+import TabularPredict from '../../../components/Predict/TabularPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import { UploadTypes } from 'src/constants/file'
@@ -32,7 +33,7 @@ const config = {
 		folder: UploadTypes.CSV_SINGLE,
 		uploadPreview: TabularUploadPreview,
 		trainPreview: TabularTrainPreview,
-		predictView: TextPredict,
+		predictView: TabularPredict,
 		labelingView: LabelingTextClassification,
 	},
 

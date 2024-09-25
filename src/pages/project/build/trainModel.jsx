@@ -24,8 +24,6 @@ const TrainModel = (props) => {
 	const getTrainingProgress = async (experimentName) => {
 		const res = await getExperiment(experimentName)
 
-		console.log(res)
-
 		if (res.status === 422) {
 		}
 

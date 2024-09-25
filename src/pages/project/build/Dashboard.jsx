@@ -57,6 +57,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			// TODO: Change previewData -> import_args ( in Body not FormData)
+			// DONE: Body = FormData thi phai
 			const formData = new FormData()
 			const object = config[projectInfo.type]
 			if (object) {
