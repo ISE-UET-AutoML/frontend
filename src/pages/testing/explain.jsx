@@ -20,12 +20,12 @@ const Explain = (props) => {
 		formData.append('files', item)
 
 		const experimentName = 'temp'
-		const { data } = await experimentAPI.predictImages(
-			experimentName,
-			formData
-		)
+		// const { data } = await experimentAPI.predictImages(
+		// 	experimentName,
+		// 	formData
+		// )
 
-		console.log(data)
+		// console.log(data)
 		return
 
 		formData.append('userEmail', process.env.USER_EMAIL)

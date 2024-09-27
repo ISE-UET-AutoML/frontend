@@ -242,7 +242,7 @@ const PredictData = (props) => {
 						Predict
 					</button>
 				</div>
-				<div className="py-2.5">
+				{/* <div className="py-2.5">
 					<div className=" max-w-full text-gray-500">
 						<div className="relative">
 							<div className="relative z-10 grid gap-3 grid-cols-6">
@@ -323,7 +323,7 @@ const PredictData = (props) => {
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> */}
 			</section>
 
 			{/* BẢNG KẾT QUẢ SAU KHI CORRECT/ INCORRECT*/}

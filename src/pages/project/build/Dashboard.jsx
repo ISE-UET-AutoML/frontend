@@ -48,6 +48,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		updateState({ uploadFiles: newState })
 	}
 
+	// hàm upload 1 files.. ở đây
 	const uploadFiles = async (e) => {
 		e.preventDefault()
 
@@ -56,7 +57,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles !== undefined &&
 			dashboardState.uploadFiles.length > 0
 		) {
-			// TODO: Change previewData -> import_args ( in Body not FormData)
+			// TODO: Change previewData -> import_args (in Body not FormData)
 			const formData = new FormData()
 			const object = config[projectInfo.type]
 			if (object) {
@@ -77,6 +78,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					fileNameBase64
 				)
 			}
+			
 
 			try {
 				updateState({ isUploading: true })
@@ -88,6 +90,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						updateFields: updateFields,
 						projectInfo: data.data.project_info,
 					}
+					
 					message.success('Successfully uploaded', 3)
 					updateState({ isUploading: false })
 					updateFields({
