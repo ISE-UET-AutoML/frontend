@@ -69,6 +69,7 @@ const TabularPredict = ({
 			isLoading: true,
 		})
 
+		formData.append('data_path', predictDataState.predictFile.url)
 		formData.append('row_indexes', selectedIndexes)
 		formData.append('task', projectInfo.type)
 
