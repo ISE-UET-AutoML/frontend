@@ -31,6 +31,7 @@ const initialState = {
 	userConfirm: [],
 	selectedSentence: null,
 	uploadSentences: [],
+	predictResult: {},
 }
 
 const PredictData = (props) => {
@@ -133,11 +134,13 @@ const PredictData = (props) => {
 				sentence: item.sentence,
 			}))
 
+			//TODO: tách bạch userConfirm và predictResult
 			updateState({
 				userConfirm: tmp,
 				showUploadPanel: false,
 				showPredictLayout: true,
 				uploadFiles: validFiles,
+				predictResult: predictions,
 			})
 
 			switch (projectInfo.type) {
@@ -418,7 +421,7 @@ const PredictData = (props) => {
 						const PredictComponent = object.predictView
 						return (
 							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
-								<button
+								{/* <button
 									onClick={() => {
 										console.log('close')
 										// updateState(initialState)
@@ -435,7 +438,7 @@ const PredictData = (props) => {
 									>
 										<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 									</svg>
-								</button>
+								</button> */}
 								<PredictComponent
 									experimentName={experimentName}
 									projectInfo={projectInfo}
