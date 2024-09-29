@@ -15,6 +15,7 @@ const TabularPredict = ({
 	const [error, setError] = useState(null)
 	const [selectedIndexes, setSelectedIndexes] = useState([0])
 	const [explanation, setExplanation] = useState(null)
+	const [confirmStatus, setConfirmStatus] = useState([]) // New state for confirm status
 
 	useEffect(() => {
 		if (
@@ -32,6 +33,8 @@ const TabularPredict = ({
 
 						if (data.length > 0) {
 							setFeatures(Object.keys(data[0]))
+							// Set default confirm status to true for all rows
+							setConfirmStatus(new Array(data.length).fill(true))
 						}
 					},
 					error: (err) => setError(err.message),
@@ -49,6 +52,12 @@ const TabularPredict = ({
 				return [...prev, index] // Add index to selected
 			}
 		})
+	}
+
+	const handleConfirmChange = (index) => {
+		setConfirmStatus(
+			(prev) => prev.map((status, i) => (i === index ? !status : status)) // Toggle confirm status for the selected row
+		)
 	}
 
 	const handleExplain = async (event) => {
@@ -132,17 +141,19 @@ const TabularPredict = ({
 									features.map((key) => (
 										<th
 											key={key}
-											className="px-4 py-2 text-center"
+											className="px-2 py-2 text-center"
 										>
 											{key}
 										</th>
 									))}
-
-								<th className="px-4 py-2 text-center">Label</th>
-								<th className="px-4 py-2 text-center">
+								<th className="px-2 py-2 text-center">Label</th>
+								<th className="px-2 py-2 text-center">
 									Confidence
 								</th>
-								<th className="px-4 py-2 text-center">
+								<th className="px-2 py-2 text-center">
+									Confirm
+								</th>
+								<th className="px-2 py-2 text-center">
 									Explain
 								</th>
 							</tr>
@@ -152,9 +163,11 @@ const TabularPredict = ({
 								<tr
 									key={index}
 									className={`hover:bg-gray-100 ${
-										selectedIndexes.includes(index)
-											? 'bg-blue-100 cursor-pointer border-2 border-solid border-blue-500'
-											: ''
+										!confirmStatus[index]
+											? 'bg-red-100' // Row turns red when "false" is selected
+											: selectedIndexes.includes(index)
+												? 'bg-blue-100 cursor-pointer border-2 border-solid border-blue-500'
+												: ''
 									}`}
 									onClick={() => handleCheckboxChange(index)}
 								>
@@ -181,6 +194,30 @@ const TabularPredict = ({
 											?.confidence || 'N/A'}
 									</td>
 									<td className="px-6 py-4 text-center">
+										<select
+											value={
+												confirmStatus[index]
+													? 'true'
+													: 'false'
+											}
+											onChange={() =>
+												handleConfirmChange(index)
+											}
+											className={`hover:bg-gray-100 ${
+												!confirmStatus[index]
+													? 'bg-red-100' // Row turns red when "false" is selected
+													: selectedIndexes.includes(
+																index
+														  )
+														? 'bg-blue-100 '
+														: ''
+											}`}
+										>
+											<option value="true">True</option>
+											<option value="false">False</option>
+										</select>
+									</td>
+									<td className="px-6 py-4 text-center">
 										<input
 											type="checkbox"
 											onChange={() =>
@@ -195,31 +232,6 @@ const TabularPredict = ({
 							))}
 						</tbody>
 					</table>
-				</div>
-
-				{/* BUTTONS + DESCRIPTION */}
-				<div className="col-span-3 row-span-2 rounded-lg shadow-xl p-6">
-					<article className=" text-left h-max mb-2 text-lg">
-						<a
-							target="_blank"
-							href="https://lime-ml.readthedocs.io/en/latest/lime.html"
-							class=" font-semibold text-indigo-700"
-							rel="noopener noreferrer"
-						>
-							{' '}
-							LIME
-						</a>{' '}
-						explainer
-					</article>
-				</div>
-
-				{/* IMAGE */}
-				<div className="col-span-1 row-span-2 rounded-lg shadow-xl">
-					<img
-						src={SolutionImage}
-						alt="Explain"
-						className="rounded-lg w-full h-full object-cover"
-					/>
 				</div>
 			</div>
 		</div>
