@@ -9,8 +9,13 @@ const TYPES = {
         description: 'We accept CSV text format',
         allowedExtensions: ['csv']
     },
-     TABULAR_CLASSIFICATION: {
+    TABULAR_CLASSIFICATION: {
         type: 'Tabular Classification',
+        description: 'We accept CSV text format',
+        allowedExtensions: ['csv']
+    },
+    MULTIMODAL_CLASSIFICATION: {
+        type: 'Multimodal Classification',
         description: 'We accept CSV text format',
         allowedExtensions: ['csv']
     },

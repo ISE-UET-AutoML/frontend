@@ -204,15 +204,7 @@ const TabularPredict = ({
 											onChange={() =>
 												handleConfirmChange(index)
 											}
-											className={`hover:bg-gray-100 ${
-												!confirmStatus[index]
-													? 'bg-red-100' // Row turns red when "false" is selected
-													: selectedIndexes.includes(
-																index
-														  )
-														? 'bg-blue-100 '
-														: ''
-											}`}
+											className={`border-none focus:border-none ${!confirmStatus[index] ? 'bg-red-100' : selectedIndexes.includes(index) ? 'bg-blue-100' : ''}`}
 										>
 											<option value="true">True</option>
 											<option value="false">False</option>
