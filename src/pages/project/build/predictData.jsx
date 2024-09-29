@@ -160,8 +160,14 @@ const PredictData = (props) => {
 					})
 					break
 				}
+				// save path cua file csv o BE
 				case 'TABULAR_CLASSIFICATION': {
-					updateState({})
+					updateState({
+						predictFile: {
+							url: data.data_path,
+							label: '',
+						},
+					})
 					break
 				}
 				default:
