@@ -17,7 +17,8 @@ const MultimodalUploadPreview = ({
 	const [inputPage, setInputPage] = useState('')
 	const [isDropdownRadioOpen, setIsDropdownRadioOpen] = useState(false)
 	const [isDropdownCheckboxOpen, setIsDropdownCheckboxOpen] = useState(false)
-	const [selectedRadio, setSelectedRadio] = useState('Target Column')
+	const [targetColumn, setTargetColumn] = useState('Target Column')
+	const [imgColumn, setImgColumn] = useState('Image Column')
 	const itemsPerPage = 5
 
 	const [dataFeature, setDataFeature] = useState([])
@@ -111,11 +112,21 @@ const MultimodalUploadPreview = ({
 
 	const handleRadioChange = (event) => {
 		const value = event.target.value
-		setSelectedRadio(value)
+		setTargetColumn(value)
 		setPreviewData((prevData) => ({
 			...prevData,
 			label_column: value,
+
+			//! FAKE DATA UPLOAD
+			image_columns: ['url'],
+			text_columns: [
+				'product_name',
+				'original_brand',
+				'cleaned_brand',
+				'report_name',
+			],
 		}))
+
 		setIsDropdownRadioOpen(false)
 	}
 
@@ -169,7 +180,7 @@ const MultimodalUploadPreview = ({
 							className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center "
 							type="button"
 						>
-							{selectedRadio}{' '}
+							{targetColumn}{' '}
 							<svg
 								className={`w-2.5 h-2.5 ms-3 transform transition-transform duration-500 ${
 									isDropdownOpen('radio')
@@ -243,23 +254,47 @@ const MultimodalUploadPreview = ({
 					</div>
 				</div>  */}
 
+				{/* TARGET COLUMN */}
 				<DropDown
 					csvData={csvData}
 					dataFeature={dataFeature}
 					toggleDropdown={toggleDropdown}
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
-					selectedRadio={selectedRadio}
+					targetColumn={targetColumn}
 					type="radio"
 				/>
 
+				{/* IMAGE COLUMN */}
+				{/* <DropDown
+					csvData={csvData}
+					dataFeature={dataFeature}
+					toggleDropdown={toggleDropdown}
+					isDropdownOpen={isDropdownOpen}
+					handleChange={handleChange}
+					targetColumn={targetColumn}
+					type="radio"
+				/> */}
+
+				{/* TEXT COLUMNS */}
+				{/* <DropDown
+					csvData={csvData}
+					dataFeature={dataFeature}
+					toggleDropdown={toggleDropdown}
+					isDropdownOpen={isDropdownOpen}
+					handleChange={handleChange}
+					targetColumn={targetColumn}
+					type={'checkbox'}
+				/> */}
+
+				{/* ACTIVATE FEATURES */}
 				<DropDown
 					csvData={csvData}
 					dataFeature={dataFeature}
 					toggleDropdown={toggleDropdown}
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
-					selectedRadio={selectedRadio}
+					targetColumn={targetColumn}
 					type={'checkbox'}
 				/>
 

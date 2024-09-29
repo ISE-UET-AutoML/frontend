@@ -65,6 +65,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			}
 
 			if (previewData.label_column) {
+				console.log('sau khi them fake data', previewData)
 				formData.append('import_args', JSON.stringify(previewData))
 			}
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {

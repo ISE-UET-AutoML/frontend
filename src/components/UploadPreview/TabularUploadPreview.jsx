@@ -17,7 +17,7 @@ const TabularUploadPreview = ({
 	const [inputPage, setInputPage] = useState('')
 	const [isDropdownRadioOpen, setIsDropdownRadioOpen] = useState(false)
 	const [isDropdownCheckboxOpen, setIsDropdownCheckboxOpen] = useState(false)
-	const [selectedRadio, setSelectedRadio] = useState('Target Column')
+	const [targetColumn, setTargetColumn] = useState('Target Column')
 	const itemsPerPage = 5
 
 	const [dataFeature, setDataFeature] = useState([])
@@ -111,7 +111,7 @@ const TabularUploadPreview = ({
 
 	const handleRadioChange = (event) => {
 		const value = event.target.value
-		setSelectedRadio(value)
+		setTargetColumn(value)
 		setPreviewData((prevData) => ({
 			...prevData,
 			label_column: value,
@@ -169,7 +169,7 @@ const TabularUploadPreview = ({
 							className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center "
 							type="button"
 						>
-							{selectedRadio}{' '}
+							{targetColumn}{' '}
 							<svg
 								className={`w-2.5 h-2.5 ms-3 transform transition-transform duration-500 ${
 									isDropdownOpen('radio')
@@ -249,7 +249,7 @@ const TabularUploadPreview = ({
 					toggleDropdown={toggleDropdown}
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
-					selectedRadio={selectedRadio}
+					targetColumn={targetColumn}
 					type="radio"
 				/>
 
@@ -259,7 +259,7 @@ const TabularUploadPreview = ({
 					toggleDropdown={toggleDropdown}
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
-					selectedRadio={selectedRadio}
+					targetColumn={targetColumn}
 					type={'checkbox'}
 				/>
 

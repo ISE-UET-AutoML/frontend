@@ -69,36 +69,36 @@ const PredictData = (props) => {
 		setGraph(parsedData)
 	}
 	// TODO: Render training garph for Tabular
-	// useEffect(() => {
-	// 	instance
-	// 		.get(API_URL.get_training_history(experimentName))
-	// 		.then((res) => {
-	// 			const data = res.data
-	// 			console.log(data)
+	useEffect(() => {
+		instance
+			.get(API_URL.get_training_history(experimentName))
+			.then((res) => {
+				const data = res.data
+				console.log(data, 'data nhan ve sau khi train')
 
-	// 			setGraphJSON(data)
+				setGraphJSON(data)
 
-	// 			if (data.fit_history.scalars.train_loss) {
-	// 				readChart(
-	// 					data.fit_history.scalars.train_loss,
-	// 					setTrainLossGraph
-	// 				)
-	// 			}
+				if (data.fit_history.scalars.train_loss) {
+					readChart(
+						data.fit_history.scalars.train_loss,
+						setTrainLossGraph
+					)
+				}
 
-	// 			if (data.fit_history.scalars.val_accuracy) {
-	// 				readChart(
-	// 					data.fit_history.scalars.val_accuracy,
-	// 					setValAccGraph
-	// 				)
-	// 			}
-	// 			if (data.fit_history.scalars.val_loss) {
-	// 				readChart(
-	// 					data.fit_history.scalars.val_loss,
-	// 					setValLossGraph
-	// 				)
-	// 			}
-	// 		})
-	// }, [])
+				if (data.fit_history.scalars.val_accuracy) {
+					readChart(
+						data.fit_history.scalars.val_accuracy,
+						setValAccGraph
+					)
+				}
+				if (data.fit_history.scalars.val_loss) {
+					readChart(
+						data.fit_history.scalars.val_loss,
+						setValLossGraph
+					)
+				}
+			})
+	}, [])
 
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files)
@@ -260,7 +260,10 @@ const PredictData = (props) => {
 						Predict
 					</button>
 				</div>
-				{/* <div className="py-2.5">
+				<div className="py-2.5">
+					{console.log('trainLossGraph', trainLossGraph)}
+					{console.log('val_lossGraph', val_lossGraph)}
+					{console.log('val_accGraph', val_accGraph)}
 					<div className=" max-w-full text-gray-500">
 						<div className="relative z-10 grid gap-3 grid-cols-6">
 							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
@@ -337,7 +340,7 @@ const PredictData = (props) => {
 							</div>
 						</div>
 					</div>
-				</div> */}
+				</div>
 			</section>
 
 			{predictDataState.isLoading && <Loading />}

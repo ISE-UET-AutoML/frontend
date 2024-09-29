@@ -6,7 +6,7 @@ const DropDown = ({
 	toggleDropdown,
 	isDropdownOpen,
 	handleChange,
-	selectedRadio,
+	targetColumn,
 	type,
 }) => {
 	return (
@@ -18,7 +18,7 @@ const DropDown = ({
 					className={`text-white ${type === 'radio' ? 'bg-blue-700 hover:bg-blue-800' : 'bg-green-700 hover:bg-green-800'} font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center `}
 					type="button"
 				>
-					{type === 'radio' ? selectedRadio : 'Activated Features'}{' '}
+					{type === 'radio' ? targetColumn : 'Activated Features'}{' '}
 					<svg
 						className={`w-2.5 h-2.5 ms-3 transform transition-transform duration-500 ${
 							isDropdownOpen(type) ? 'rotate-180' : 'rotate-0'
