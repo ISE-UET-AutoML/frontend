@@ -15,10 +15,24 @@ const DropDown = ({
 			<div>
 				<button
 					onClick={() => toggleDropdown(type)}
-					className={`text-white ${type === 'radio' ? 'bg-blue-700 hover:bg-blue-800' : 'bg-green-700 hover:bg-green-800'} font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center `}
+					className={`text-white ${
+						type === 'radio'
+							? 'bg-blue-600 hover:bg-blue-700'
+							: type === 'imageCheckbox'
+								? 'bg-emerald-600 hover:bg-emerald-700'
+								: type === 'textCheckbox'
+									? 'bg-emerald-600 hover:bg-emerald-700'
+									: 'bg-yellow-500 hover:bg-yellow-600'
+					} font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center `}
 					type="button"
 				>
-					{type === 'radio' ? targetColumn : 'Activated Features'}{' '}
+					{type === 'radio'
+						? targetColumn
+						: type === 'imageCheckbox'
+							? 'Image Features'
+							: type === 'textCheckbox'
+								? 'Text Features'
+								: 'Activated Features'}{' '}
 					<svg
 						className={`w-2.5 h-2.5 ms-3 transform transition-transform duration-500 ${
 							isDropdownOpen(type) ? 'rotate-180' : 'rotate-0'
@@ -74,10 +88,17 @@ const DropDown = ({
 											) : (
 												<input
 													id={type + el.value}
-													type={type}
+													type="checkbox"
 													value={el.value}
 													name="target-column"
-													checked={el.isActived}
+													checked={
+														type === 'checkbox'
+															? el.isActived
+															: type ===
+																  'imageCheckbox'
+																? el.isImage
+																: el.isText
+													}
 													onChange={(event) =>
 														handleChange(
 															event,

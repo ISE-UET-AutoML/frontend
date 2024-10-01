@@ -41,6 +41,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const handleFileChange = (event) => {
 		if (projectInfo) {
 			const files = Array.from(event.target.files)
+			
 			const validatedFiles = validateFiles(files, projectInfo.type)
 			updateState({ uploadFiles: validatedFiles })
 		}
@@ -72,15 +73,18 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		const blob = new Blob([csvData], { type: 'text/csv' })
 		const file = new File([blob], 'train.csv', { type: 'text/csv' })
 
-		const tmpUploadFiles = dashboardState.uploadFiles
-		tmpUploadFiles[0] = file
-
-		// updateState({ uploadFiles: tmpUploadFiles })
+		console.log(file)
+		if (dashboardState.uploadFiles.length >= 0) {
+			dashboardState.uploadFiles[0] = file
+			console.log("i've done bro")
+		} else {
+			console.log('Failed: Upload files failed')
+		}
 	}
 
 	// test read file
-	const testReadFileCsv = () => {
-		const file = dashboardState.uploadFiles[0]
+	const testReadFileCsv = (file) => {
+		// const file = dashboardState.uploadFiles[0]
 		const reader = new FileReader()
 
 		reader.onload = () => {
@@ -88,7 +92,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				header: true,
 				skipEmptyLines: true,
 				complete: (result) => {
-					const resultData = result.data.map((el, index) => {
+					const resultData = result.data.map((el) => {
 						return { ...el }
 					})
 					console.log(resultData)
@@ -108,22 +112,17 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			// TODO: Change previewData -> import_args (in Body not FormData)
-			console.log('aaaaaa')
-			console.log(dashboardState.uploadFiles)
 
 			const formData = new FormData()
 
 			// convert tabular preview to file to upload to backend
 			const object = config[projectInfo.type]
 
-			// if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
-			// 	console.log('bbbbbbb')
-			// 	convertPreviewToFile(tabularData)
-			// 	console.log('-----')
-			// 	testReadFileCsv()
-			// }
-			console.log('cccccc')
-			// console.log(Object.keys(previewData))
+			if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+				convertPreviewToFile(tabularData)
+				testReadFileCsv(dashboardState.uploadFiles[0])
+			}
+
 			//	end function above
 
 			if (object) {
@@ -134,11 +133,18 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				console.log('sau khi them fake data', previewData)
 				formData.append('import_args', JSON.stringify(previewData))
 			}
+
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string
-				const fileNameBase64 = window.btoa(
+				let fileNameBase64 = window.btoa(
 					dashboardState.uploadFiles[i].webkitRelativePath
 				)
+				if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+					fileNameBase64 = window.btoa(
+						dashboardState.uploadFiles.name
+					)
+				}
+
 				formData.append(
 					'files',
 					dashboardState.uploadFiles[i],
