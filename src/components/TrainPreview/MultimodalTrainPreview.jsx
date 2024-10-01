@@ -15,7 +15,7 @@ const MultimodalTrainPreview = ({ datas, pagination, next, updateFields }) => {
 		currentPage: pagination?.page ?? 1,
 		totalPages: total_pages ?? 10,
 	})
-
+	console.log(datas)
 	const keys = Object.keys(datas[0].data)
 	const colsName = keys.map((key) => key.replace('data-VAL-', ''))
 

@@ -10,7 +10,7 @@ const TabularUploadPreview = ({
 	index,
 	handleRemoveFile,
 	setPreviewData,
-	setTabularData,
+	setEditedData,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -38,9 +38,7 @@ const TabularUploadPreview = ({
 						})
 						setCsvData(resultData)
 
-						setTabularData(
-							resultData.map(({ id, ...rest }) => rest)
-						)
+						setEditedData(resultData.map(({ id, ...rest }) => rest))
 
 						setDataFeature(
 							Object.keys(resultData[0]).map((el) => {
@@ -155,7 +153,7 @@ const TabularUploadPreview = ({
 
 		if (!isLocked) {
 			console.log('Data is locked')
-			setTabularData(csvData.map(({ id, ...rest }) => rest))
+			setEditedData(csvData.map(({ id, ...rest }) => rest))
 		} else {
 			console.log('Data is unlocked')
 		}

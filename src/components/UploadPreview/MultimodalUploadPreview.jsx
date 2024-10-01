@@ -10,6 +10,7 @@ const MultimodalUploadPreview = ({
 	index,
 	handleRemoveFile,
 	setPreviewData,
+	setEditedData,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -39,6 +40,8 @@ const MultimodalUploadPreview = ({
 							return { id: index, ...el }
 						})
 						setCsvData(resultData)
+
+						setEditedData(resultData.map(({ id, ...rest }) => rest))
 
 						setDataFeature(
 							Object.keys(resultData[0]).map((el) => {
@@ -170,9 +173,9 @@ const MultimodalUploadPreview = ({
 		const textFeatures = dataFeature
 			.filter((feature) => feature.isText)
 			.map((feature) => feature.value)
-		console.log(imageFeatures)
-		console.log(textFeatures)
+
 		setPreviewData((prevData) => ({
+			...prevData,
 			image_columns: imageFeatures,
 			text_columns: textFeatures,
 		}))
@@ -193,7 +196,6 @@ const MultimodalUploadPreview = ({
 		const newCsvData = csvData.map((item) =>
 			item.id === id ? { ...item, [field]: value } : item
 		)
-		console.log(newCsvData)
 		setCsvData(newCsvData)
 	}
 
@@ -202,6 +204,7 @@ const MultimodalUploadPreview = ({
 
 		if (!isLocked) {
 			console.log('Data is locked')
+			setEditedData(csvData.map(({ id, ...rest }) => rest))
 		} else {
 			console.log('Data is unlocked')
 		}

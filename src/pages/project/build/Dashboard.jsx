@@ -28,7 +28,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const location = useLocation()
 	const [previewData, setPreviewData] = useState({})
 
-	const [tabularData, setTabularData] = useState([])
+	const [editedData, setEditedData] = useState([])
 
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
@@ -41,7 +41,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const handleFileChange = (event) => {
 		if (projectInfo) {
 			const files = Array.from(event.target.files)
-			
+
 			const validatedFiles = validateFiles(files, projectInfo.type)
 			updateState({ uploadFiles: validatedFiles })
 		}
@@ -114,21 +114,22 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			// TODO: Change previewData -> import_args (in Body not FormData)
 
 			const formData = new FormData()
-
-			// convert tabular preview to file to upload to backend
 			const object = config[projectInfo.type]
 
-			if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
-				convertPreviewToFile(tabularData)
+			// convert tabular preview to file to upload to backend
+			if (
+				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
+				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
+			) {
+				convertPreviewToFile(editedData)
 				testReadFileCsv(dashboardState.uploadFiles[0])
 			}
-
-			//	end function above
 
 			if (object) {
 				formData.append('type', object.folder)
 			}
-
+			console.log('preview data here')
+			console.log(previewData)
 			if (previewData.label_column) {
 				console.log('sau khi them fake data', previewData)
 				formData.append('import_args', JSON.stringify(previewData))
@@ -139,7 +140,10 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				let fileNameBase64 = window.btoa(
 					dashboardState.uploadFiles[i].webkitRelativePath
 				)
-				if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+				if (
+					projectInfo.type === 'TABULAR_CLASSIFICATION' ||
+					projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
+				) {
 					fileNameBase64 = window.btoa(
 						dashboardState.uploadFiles.name
 					)
@@ -414,8 +418,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													setPreviewData={
 														setPreviewData
 													}
-													setTabularData={
-														setTabularData
+													setEditedData={
+														setEditedData
 													}
 												/>
 											))}
