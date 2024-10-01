@@ -12,6 +12,8 @@ import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
+import ImageTrainingGraph from '../../../components/TrainingGraph/ImageTrainingGraph'
+import MultimodalTrainingGraph from '../../../components/TrainingGraph/MultimodalTrainingGraph'
 import { UploadTypes } from 'src/constants/file'
 
 const config = {
@@ -21,6 +23,7 @@ const config = {
 		uploadPreview: ImageUploadPreview,
 		trainPreview: ImageTrainPreview,
 		predictView: ImagePredict,
+		trainingGraph: ImageTrainingGraph,
 		labelingView: LabelingImageClassification,
 	},
 	TEXT_CLASSIFICATION: {
@@ -45,6 +48,7 @@ const config = {
 		uploadPreview: MultimodalUploadPreview,
 		trainPreview: MultimodalTrainPreview,
 		predictView: MultimodalPredict,
+		trainingGraph: MultimodalTrainingGraph,
 		labelingView: LabelingTextClassification,
 	},
 	// Add more types here as needed

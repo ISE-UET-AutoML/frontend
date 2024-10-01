@@ -99,3 +99,37 @@ body {
 	max-width: 100%;
 	max-height: 100%;
 }
+
+@keyframes drawUnderline {
+	0% {
+		transform: scaleX(0);
+	}
+
+	100% {
+		transform: scaleX(1);
+	}
+}
+
+.underline-draw {
+	position: relative;
+	display: inline-block;
+}
+
+.underline-draw::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -15px;
+	/* Khoảng cách giữa chữ và underline */
+	height: 13px;
+	/* Độ dày của underline */
+	background-color: #3b82f6;
+	/* Màu của underline (blue-400) */
+	width: 100%;
+	transform: scaleX(0);
+	/* Bắt đầu từ 0 */
+	transform-origin: bottom left;
+	/* Vị trí bắt đầu vẽ */
+	animation: drawUnderline 1s forwards;
+	
+}

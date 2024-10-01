@@ -6,8 +6,6 @@ import {
 	CartesianGrid,
 	Tooltip,
 	Legend,
-	BarChart,
-	Bar,
 } from 'recharts'
 
 const LineGraph = ({ data, label }) => (
@@ -31,7 +29,6 @@ const LineGraph = ({ data, label }) => (
 						<XAxis dataKey="step" />
 						<YAxis />
 						<Tooltip />
-						<Legend />
 						<Line
 							type="monotone"
 							dataKey="value"
