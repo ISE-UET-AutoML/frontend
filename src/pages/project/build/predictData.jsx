@@ -48,6 +48,7 @@ const PredictData = (props) => {
 	const [trainLossGraph, setTrainLossGraph] = useState([])
 	const [val_lossGraph, setValLossGraph] = useState([])
 	const [val_accGraph, setValAccGraph] = useState([])
+	const [isHasGraph, setIsHasGraph] = useState(false)
 
 	const readChart = (contents, setGraph) => {
 		const lines = contents.split('\n')
@@ -74,8 +75,8 @@ const PredictData = (props) => {
 			.get(API_URL.get_training_history(experimentName))
 			.then((res) => {
 				const data = res.data
-				console.log(data, 'data nhan ve sau khi train')
 
+				console.log('history', data)
 				setGraphJSON(data)
 
 				if (data.fit_history.scalars.train_loss) {
@@ -83,6 +84,7 @@ const PredictData = (props) => {
 						data.fit_history.scalars.train_loss,
 						setTrainLossGraph
 					)
+					setIsHasGraph(true)
 				}
 
 				if (data.fit_history.scalars.val_accuracy) {
@@ -90,12 +92,14 @@ const PredictData = (props) => {
 						data.fit_history.scalars.val_accuracy,
 						setValAccGraph
 					)
+					setIsHasGraph(true)
 				}
 				if (data.fit_history.scalars.val_loss) {
 					readChart(
 						data.fit_history.scalars.val_loss,
 						setValLossGraph
 					)
+					setIsHasGraph(true)
 				}
 			})
 	}, [])
@@ -186,162 +190,24 @@ const PredictData = (props) => {
 		}
 	}
 
-	// const handleDeploy = async () => {
-	// 	const formData = new FormData()
-
-	// 	const model = await instance.get(API_URL.get_model(experimentName))
-	// 	const jsonObject = model.data
-	// 	if (!jsonObject) {
-	// 		console.error('Failed to get model info')
-	// 	}
-
-	// 	formData.append('userEmail', jsonObject.userEmail)
-	// 	formData.append('projectName', jsonObject.projectName)
-	// 	formData.append('runName', experimentName)
-	// 	formData.append('task', projectInfo.type)
-
-	// 	const url = `${process.env.REACT_APP_SERVING_URL}/deploy`
-
-	// 	const options = {
-	// 		method: 'POST',
-	// 		body: formData,
-	// 	}
-
-	// 	fetchWithTimeout(url, options, 60000)
-	// 		.then((data) => {
-	// 			console.log(data)
-	// 			console.log('Fetch successful')
-	// 		})
-	// 		.catch((error) => {
-	// 			console.error('Fetch error:', error.message)
-	// 		})
-	// }
-
-	// const saveBestModel = async () => {
-	//     try {
-	//         await instance.get(
-	//             `${process.env.REACT_APP_API_URL}/experiments/save-model?experiment_name=${experimentName}`
-	//         );
-	//     } catch (error) {
-	//         console.error(error);
-	//     }
-	// };
-
 	return (
-		<>
-			{/* BIỂU ĐỒ SAU KHI TRAIN XONG */}
-			<section>
-				<div className="flex">
-					<h1 className="text-3xl font-bold text-center mb-6">
-						Outcomes of the training procedure
-					</h1>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="currentColor"
-						width="24"
-						height="24"
-					>
-						<path
-							fillRule="evenodd"
-							d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
-							clipRule="evenodd"
-						/>
-					</svg>
-
-					<button
-						onClick={() => {
-							updateState({ showUploadPanel: true })
-							// handleDeploy()
-						}}
-						className="items-center ml-auto text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-						// hidden
-					>
-						Predict
-					</button>
-				</div>
-				<div className="py-2.5">
-					{console.log('trainLossGraph', trainLossGraph)}
-					{console.log('val_lossGraph', val_lossGraph)}
-					{console.log('val_accGraph', val_accGraph)}
-					<div className=" max-w-full text-gray-500">
-						<div className="relative z-10 grid gap-3 grid-cols-6">
-							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-								<div className="size-fit m-auto relative flex justify-center">
-									<LineGraph
-										data={trainLossGraph}
-										label="train_loss"
-									/>
-								</div>
-							</div>
-							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-								<div className="size-fit m-auto relative flex justify-center">
-									<LineGraph
-										data={val_lossGraph}
-										label="val_loss"
-									/>
-								</div>
-							</div>
-							<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-								<div className="size-fit m-auto relative flex justify-center">
-									<LineGraph
-										data={val_accGraph}
-										label="val_accuracy"
-									/>
-								</div>
-							</div>
-
-							<div className=" h-56 col-span-full lg:col-span-5 overflow-hidden relative p-8 rounded-xl bg-white border border-gray-200 shadow-lg">
-								<div className="flex flex-col justify-between relative z-10 space-y-12 lg:space-y-6">
-									<div className="space-y-2">
-										<p className=" text-gray-700">
-											<span className="font-bold">
-												Train loss (train_loss)
-											</span>{' '}
-											measures a model's prediction error
-											during training. It indicates how
-											well the model fits the training
-											data, with lower values suggesting
-											better performance.
-										</p>
-										<p className=" text-gray-700">
-											<span className="font-bold">
-												Validation loss (val_loss)
-											</span>{' '}
-											evaluates a model's performance on
-											unseen data, providing insight into
-											its generalization ability. A
-											significant gap between train loss
-											and val_loss often indicates
-											overfitting, where the model
-											performs well on training data but
-											poorly on new data.
-										</p>
-										<p className=" text-gray-700">
-											<span className="font-bold">
-												Validation accuracy
-												(val_accuracy)
-											</span>{' '}
-											measures a model's ability to
-											correctly predict outcomes on unseen
-											validation data. High validation
-											accuracy indicates strong
-											generalization, while a large gap
-											with training accuracy may signal
-											overfitting.
-										</p>
-									</div>
-								</div>
-							</div>
-							<div className="h-56 col-span-full lg:col-span-1 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">
-								<div className="size-fit m-auto relative flex justify-center">
-									<img src={researchImage} />
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
+		<div div className="max-h-full">
+			{isHasGraph &&
+				(() => {
+					const object = config[projectInfo.type]
+					if (object) {
+						const GraphComponent = object.trainingGraph
+						return (
+							<GraphComponent
+								trainLossGraph={trainLossGraph}
+								val_lossGraph={val_lossGraph}
+								val_accGraph={val_accGraph}
+								updateState={updateState}
+							/>
+						)
+					}
+					return null
+				})()}
 
 			{predictDataState.isLoading && <Loading />}
 
@@ -355,8 +221,7 @@ const PredictData = (props) => {
 			>
 				<button
 					onClick={() => {
-						console.log('close')
-						// updateState(initialState)
+						updateState({ showUploadPanel: false })
 					}}
 					className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 				>
@@ -421,7 +286,7 @@ const PredictData = (props) => {
 			</div>
 
 			{/* PREDICT VIEW */}
-			{predictDataState.uploadFiles.length > 0 &&
+			{/* {predictDataState.uploadFiles.length > 0 &&
 			predictDataState.showPredictLayout ? (
 				projectInfo &&
 				(() => {
@@ -430,7 +295,7 @@ const PredictData = (props) => {
 						const PredictComponent = object.predictView
 						return (
 							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
-								{/* <button
+								<button
 									onClick={() => {
 										console.log('close')
 										// updateState(initialState)
@@ -447,7 +312,7 @@ const PredictData = (props) => {
 									>
 										<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
 									</svg>
-								</button> */}
+								</button>
 								<PredictComponent
 									experimentName={experimentName}
 									projectInfo={projectInfo}
@@ -461,7 +326,7 @@ const PredictData = (props) => {
 				})()
 			) : (
 				<></>
-			)}
+			)} */}
 
 			{/* BẢNG KẾT QUẢ SAU KHI CORRECT/ INCORRECT*/}
 			{/* <Transition.Root
@@ -631,7 +496,7 @@ const PredictData = (props) => {
 					</div>
 				</Dialog>
 			</Transition.Root> */}
-		</>
+		</div>
 	)
 }
 

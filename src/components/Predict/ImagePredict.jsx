@@ -87,8 +87,8 @@ const ImagePredict = ({
 
 	return (
 		<>
-			<h1 class="mb-5 text-4xl font-extrabold text-gray-900 text-left mt-10 flex">
-				<span class="text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] mr-2">
+			<h1 className="mb-5 text-4xl font-extrabold text-gray-900 text-left mt-10 flex">
+				<span className="text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] mr-2">
 					Prediction
 				</span>{' '}
 				result

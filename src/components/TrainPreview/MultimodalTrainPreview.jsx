@@ -15,9 +15,6 @@ const MultimodalTrainPreview = ({ datas, pagination, next, updateFields }) => {
 		currentPage: pagination?.page ?? 1,
 		totalPages: total_pages ?? 10,
 	})
-	console.log(datas)
-	const keys = Object.keys(datas[0].data)
-	const colsName = keys.map((key) => key.replace('data-VAL-', ''))
 
 	const handleTrain = async () => {
 		try {
@@ -41,7 +38,7 @@ const MultimodalTrainPreview = ({ datas, pagination, next, updateFields }) => {
 		if (projectId) {
 			setIsLoading(true)
 			try {
-				const { data } = await getPreviewDataByPage(projectId, page, 10) // pageSize = 10
+				const { data } = await getPreviewDataByPage(projectId, page, 2) // pageSize = 2
 				const props = {
 					files: data.tasks,
 					pagination: data.meta,
@@ -68,6 +65,10 @@ const MultimodalTrainPreview = ({ datas, pagination, next, updateFields }) => {
 			updateFields({ isDoneLabelData: true })
 		}
 	}, [])
+
+	const capitalizeFirstLetter = (string) => {
+		return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
+	}
 
 	return (
 		<>
@@ -108,36 +109,75 @@ const MultimodalTrainPreview = ({ datas, pagination, next, updateFields }) => {
 							<table className="min-w-full divide-y divide-gray-200">
 								<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 									<tr>
-										{colsName.map((col) => (
-											<th className="px-6 py-3 text-center text-xs font-bold text-black uppercase tracking-wider">
-												{col}
-											</th>
-										))}
+										<td className="px-6 py-3 text-center text-sm  font-bold text-black uppercase tracking-wider w-[30%]">
+											Product Image
+										</td>
+										<td className="px-6 py-3 text-center text-sm font-bold text-black uppercase tracking-wider">
+											Product Information
+										</td>
 									</tr>
 								</thead>
 								<tbody className="bg-white divide-y divide-gray-200">
-									{datas.map((row) => (
-										<tr
-											key={row.id}
-											className="hover:bg-gray-100"
-										>
-											{Object.keys(row.data)
-												.filter((key) =>
-													key.startsWith('data-VAL-')
-												)
-												.map((key) => (
-													<td
-														key={key}
-														className="px-6 py-2.5 text-sm text-gray-700 break-words text-center"
-													>
-														{row.data[key]}
-													</td>
-												))}
-											<td className="px-6 py-2.5 text-sm text-gray-700 whitespace-nowrap text-center">
-												{row.data.label}
-											</td>
-										</tr>
-									))}
+									{datas.map((row) => {
+										let newData = {}
+										for (let key in row.data) {
+											let newKey = key
+												.replace('data-TXT-', '')
+												.replace('data-VAL-', '')
+											newData[newKey] = row.data[key]
+										}
+
+										return (
+											<tr
+												key={row.id}
+												className="hover:bg-gray-100"
+											>
+												<td className="p-2">
+													<img
+														src={
+															newData[
+																'url_thumbnail'
+															]
+														}
+														alt=""
+														className="h-[250px] w-full m-0 object-cover rounded-md"
+													/>
+												</td>
+												<td className="pl-4 text-left text-sm">
+													<div>
+														{Object.keys(newData)
+															.filter(
+																(key) =>
+																	key !==
+																		'url_thumbnail' &&
+																	key !==
+																		'is_valid_report' &&
+																	key !==
+																		'data-IMG-url'
+															)
+															.map((key) => (
+																<p key={key}>
+																	<span className="font-bold">
+																		{capitalizeFirstLetter(
+																			key.replace(
+																				/_/g,
+																				' '
+																			)
+																		)}
+																	</span>
+																	:{' '}
+																	{
+																		newData[
+																			key
+																		]
+																	}
+																</p>
+															))}
+													</div>
+												</td>
+											</tr>
+										)
+									})}
 								</tbody>
 							</table>
 						) : (
