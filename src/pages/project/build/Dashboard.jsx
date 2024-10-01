@@ -30,6 +30,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 
 	const [editedData, setEditedData] = useState([])
 
+	const [isLocked, setIsLocked] = useState(false)
+
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
@@ -102,7 +104,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		reader.readAsText(file)
 	}
 
-	// hàm upload 1 files.. ở đây
+	// functioon upload 1 files here
 	const uploadFiles = async (e) => {
 		e.preventDefault()
 
@@ -112,7 +114,16 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			// TODO: Change previewData -> import_args (in Body not FormData)
-
+			if (previewData.label_column == null && !isLocked) {
+				window.alert('Please select target column and lock table')
+				return
+			} else if (previewData.label_column == null) {
+				window.alert('Please select target column')
+				return
+			} else if (!isLocked) {
+				window.alert('Please lock table')
+				return
+			}
 			const formData = new FormData()
 			const object = config[projectInfo.type]
 
@@ -421,6 +432,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													setEditedData={
 														setEditedData
 													}
+													isLocked={isLocked}
+													setIsLocked={setIsLocked}
 												/>
 											))}
 									</div>

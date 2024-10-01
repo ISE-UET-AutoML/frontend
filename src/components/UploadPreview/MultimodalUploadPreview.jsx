@@ -11,6 +11,8 @@ const MultimodalUploadPreview = ({
 	handleRemoveFile,
 	setPreviewData,
 	setEditedData,
+	isLocked,
+	setIsLocked,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -25,7 +27,6 @@ const MultimodalUploadPreview = ({
 	const itemsPerPage = 5
 
 	const [dataFeature, setDataFeature] = useState([])
-	const [isLocked, setIsLocked] = useState(false)
 
 	useEffect(() => {
 		if (file && file.name.endsWith('.csv')) {
@@ -201,7 +202,6 @@ const MultimodalUploadPreview = ({
 
 	const handleLockToggle = () => {
 		setIsLocked(!isLocked)
-
 		if (!isLocked) {
 			console.log('Data is locked')
 			setEditedData(csvData.map(({ id, ...rest }) => rest))

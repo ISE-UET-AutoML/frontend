@@ -11,6 +11,8 @@ const TabularUploadPreview = ({
 	handleRemoveFile,
 	setPreviewData,
 	setEditedData,
+	isLocked,
+	setIsLocked,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -22,7 +24,6 @@ const TabularUploadPreview = ({
 	const itemsPerPage = 5
 
 	const [dataFeature, setDataFeature] = useState([])
-	const [isLocked, setIsLocked] = useState(false)
 
 	useEffect(() => {
 		if (file && file.name.endsWith('.csv')) {
