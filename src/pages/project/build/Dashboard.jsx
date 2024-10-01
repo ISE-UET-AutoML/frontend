@@ -10,6 +10,7 @@ import { TYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
 import config from './config'
+import Papa from 'papaparse'
 
 const LOAD_CHUNK = 12
 
@@ -26,6 +27,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const { id: projectID } = useParams()
 	const location = useLocation()
 	const [previewData, setPreviewData] = useState({})
+
+	const [tabularData, setTabularData] = useState([])
 
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
@@ -48,6 +51,53 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		updateState({ uploadFiles: newState })
 	}
 
+	const convertToCSV = (jsonData) => {
+		const csvRows = []
+		const headers = Object.keys(jsonData[0])
+		csvRows.push(headers.join(','))
+
+		jsonData.forEach((row) => {
+			const values = headers.map((header) => {
+				const escaped = ('' + row[header]).replace(/"/g, '\\"')
+				return `"${escaped}"`
+			})
+			csvRows.push(values.join(','))
+		})
+
+		return csvRows.join('\n')
+	}
+
+	const convertPreviewToFile = (data) => {
+		const csvData = convertToCSV(data)
+		const blob = new Blob([csvData], { type: 'text/csv' })
+		const file = new File([blob], 'train.csv', { type: 'text/csv' })
+
+		const tmpUploadFiles = dashboardState.uploadFiles
+		tmpUploadFiles[0] = file
+
+		// updateState({ uploadFiles: tmpUploadFiles })
+	}
+
+	// test read file
+	const testReadFileCsv = () => {
+		const file = dashboardState.uploadFiles[0]
+		const reader = new FileReader()
+
+		reader.onload = () => {
+			Papa.parse(reader.result, {
+				header: true,
+				skipEmptyLines: true,
+				complete: (result) => {
+					const resultData = result.data.map((el, index) => {
+						return { ...el }
+					})
+					console.log(resultData)
+				},
+			})
+		}
+		reader.readAsText(file)
+	}
+
 	// hàm upload 1 files.. ở đây
 	const uploadFiles = async (e) => {
 		e.preventDefault()
@@ -58,8 +108,24 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			// TODO: Change previewData -> import_args (in Body not FormData)
+			console.log('aaaaaa')
+			console.log(dashboardState.uploadFiles)
+
 			const formData = new FormData()
+
+			// convert tabular preview to file to upload to backend
 			const object = config[projectInfo.type]
+
+			// if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+			// 	console.log('bbbbbbb')
+			// 	convertPreviewToFile(tabularData)
+			// 	console.log('-----')
+			// 	testReadFileCsv()
+			// }
+			console.log('cccccc')
+			// console.log(Object.keys(previewData))
+			//	end function above
+
 			if (object) {
 				formData.append('type', object.folder)
 			}
@@ -341,6 +407,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													}
 													setPreviewData={
 														setPreviewData
+													}
+													setTabularData={
+														setTabularData
 													}
 												/>
 											))}
