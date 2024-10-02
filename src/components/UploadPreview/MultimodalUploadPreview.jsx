@@ -10,6 +10,9 @@ const MultimodalUploadPreview = ({
 	index,
 	handleRemoveFile,
 	setPreviewData,
+	setEditedData,
+	isLocked,
+	setIsLocked,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -17,12 +20,13 @@ const MultimodalUploadPreview = ({
 	const [inputPage, setInputPage] = useState('')
 	const [isDropdownRadioOpen, setIsDropdownRadioOpen] = useState(false)
 	const [isDropdownCheckboxOpen, setIsDropdownCheckboxOpen] = useState(false)
+	const [isDropdownImageOpen, setIsDropdownImageOpen] = useState(false)
+	const [isDropdownTextOpen, setIsDropdownTextOpen] = useState(false)
 	const [targetColumn, setTargetColumn] = useState('Target Column')
 	const [imgColumn, setImgColumn] = useState('Image Column')
 	const itemsPerPage = 5
 
 	const [dataFeature, setDataFeature] = useState([])
-	const [isLocked, setIsLocked] = useState(false)
 
 	useEffect(() => {
 		if (file && file.name.endsWith('.csv')) {
@@ -38,9 +42,16 @@ const MultimodalUploadPreview = ({
 						})
 						setCsvData(resultData)
 
+						setEditedData(resultData.map(({ id, ...rest }) => rest))
+
 						setDataFeature(
 							Object.keys(resultData[0]).map((el) => {
-								return { value: el, isActived: true }
+								return {
+									value: el,
+									isActived: true,
+									isImage: false,
+									isText: false,
+								}
 							})
 						)
 					},
@@ -101,50 +112,84 @@ const MultimodalUploadPreview = ({
 			setIsDropdownRadioOpen(!isDropdownRadioOpen)
 		} else if (type === 'checkbox') {
 			setIsDropdownCheckboxOpen(!isDropdownCheckboxOpen)
+		} else if (type === 'imageCheckbox') {
+			setIsDropdownImageOpen(!isDropdownImageOpen)
+		} else if (type === 'textCheckbox') {
+			setIsDropdownTextOpen(!isDropdownTextOpen)
 		}
 	}
 
 	const isDropdownOpen = (type) => {
 		if (type === 'radio') return isDropdownRadioOpen
 		if (type === 'checkbox') return isDropdownCheckboxOpen
+		if (type === 'imageCheckbox') return isDropdownImageOpen
+		if (type === 'textCheckbox') return isDropdownTextOpen
 		return false
 	}
 
 	const handleRadioChange = (event) => {
 		const value = event.target.value
 		setTargetColumn(value)
+
 		setPreviewData((prevData) => ({
 			...prevData,
 			label_column: value,
-
-			//! FAKE DATA UPLOAD
-			image_columns: ['url'],
-			text_columns: [
-				'product_name',
-				'original_brand',
-				'cleaned_brand',
-				'report_name',
-			],
 		}))
+
+		// //! FAKE DATA UPLOAD
+		// image_columns: ['url'],
+		// text_columns: [
+		// 	'product_name',
+		// 	'original_brand',
+		// 	'cleaned_brand',
+		// 	'report_name',
+		// ],
 
 		setIsDropdownRadioOpen(false)
 	}
 
-	const handleCheckboxChange = (el) => {
+	const handleCheckboxChange = (el, type) => {
 		setDataFeature(
 			dataFeature.map((feature) => {
 				if (feature.value === el.value)
-					feature.isActived = !el.isActived
+					switch (type) {
+						case 'imageCheckbox':
+							feature.isImage = !el.isImage
+							feature.isText = false
+							break
+						case 'textCheckbox':
+							feature.isText = !el.isText
+							feature.isImage = false
+							break
+						default:
+							feature.isActived = !el.isActived
+					}
 				return feature
 			})
 		)
-		console.log(el)
-		console.log(dataFeature)
+
+		const imageFeatures = dataFeature
+			.filter((feature) => feature.isImage)
+			.map((feature) => feature.value)
+		const textFeatures = dataFeature
+			.filter((feature) => feature.isText)
+			.map((feature) => feature.value)
+
+		setPreviewData((prevData) => ({
+			...prevData,
+			image_columns: imageFeatures,
+			text_columns: textFeatures,
+		}))
 	}
 
 	const handleChange = (event, el, type) => {
 		if (type === 'radio') handleRadioChange(event)
-		if (type === 'checkbox') handleCheckboxChange(el)
+		if (
+			type === 'checkbox' ||
+			type === 'imageCheckbox' ||
+			type === 'textCheckbox'
+		)
+			handleCheckboxChange(el, type)
 	}
 
 	const handleEdit = (id, field, value) => {
@@ -152,15 +197,14 @@ const MultimodalUploadPreview = ({
 		const newCsvData = csvData.map((item) =>
 			item.id === id ? { ...item, [field]: value } : item
 		)
-		console.log(newCsvData)
 		setCsvData(newCsvData)
 	}
 
 	const handleLockToggle = () => {
 		setIsLocked(!isLocked)
-
 		if (!isLocked) {
 			console.log('Data is locked')
+			setEditedData(csvData.map(({ id, ...rest }) => rest))
 		} else {
 			console.log('Data is unlocked')
 		}
@@ -172,87 +216,6 @@ const MultimodalUploadPreview = ({
 				<h3 className="text-lg font-semibold text-gray-800">
 					{file.name}
 				</h3>
-				{/* <div className="relative flex items-center">
-					<h1 className="mr-4">Target Column</h1>
-					<div>
-						<button
-							onClick={() => toggleDropdown('radio')}
-							className="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center "
-							type="button"
-						>
-							{targetColumn}{' '}
-							<svg
-								className={`w-2.5 h-2.5 ms-3 transform transition-transform duration-500 ${
-									isDropdownOpen('radio')
-										? 'rotate-180'
-										: 'rotate-0'
-								}`}
-								aria-hidden="true"
-								xmlns="http://www.w3.org/2000/svg"
-								fill="none"
-								viewBox="0 0 10 6"
-							>
-								<path
-									stroke="currentColor"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="m1 1 4 4 4-4"
-								/>
-							</svg>
-						</button>
-
-						<div
-							id="dropdownRadioBgHover"
-							className={`z-10 ${
-								isDropdownOpen('radio') ? '' : 'hidden'
-							} absolute z-10 w-48 bg-white divide-y divide-gray-100 rounded-lg shadow mt-2`}
-						>
-							<ul
-								className="p-3 space-y-1 text-sm text-blue-700 "
-								aria-labelledby="dropdownRadioBgHoverButton"
-							>
-								{csvData.length > 0 &&
-									dataFeature.map((el) => {
-										if (el.isActived)
-											return (
-												<li key={el.value}>
-													<div className="flex items-center p-2 rounded hover:bg-gray-100">
-														<input
-															id={
-																'radio' +
-																el.value
-															}
-															type="radio"
-															value={el.value}
-															name="target-column"
-															onChange={(event) =>
-																handleChange(
-																	event,
-																	el,
-																	'radio'
-																)
-															}
-															className="w-4 h-4 text-blue-600 bg-blue-100 border-blue-300"
-														/>
-														<label
-															htmlFor={
-																'radio' +
-																el.value
-															}
-															className="w-full ms-2 text-sm font-medium text-gray-900 rounded"
-														>
-															{el.value}
-														</label>
-													</div>
-												</li>
-											)
-										return <></>
-									})}
-							</ul>
-						</div>
-					</div>
-				</div>  */}
 
 				{/* TARGET COLUMN */}
 				<DropDown
@@ -265,29 +228,7 @@ const MultimodalUploadPreview = ({
 					type="radio"
 				/>
 
-				{/* IMAGE COLUMN */}
-				{/* <DropDown
-					csvData={csvData}
-					dataFeature={dataFeature}
-					toggleDropdown={toggleDropdown}
-					isDropdownOpen={isDropdownOpen}
-					handleChange={handleChange}
-					targetColumn={targetColumn}
-					type="radio"
-				/> */}
-
-				{/* TEXT COLUMNS */}
-				{/* <DropDown
-					csvData={csvData}
-					dataFeature={dataFeature}
-					toggleDropdown={toggleDropdown}
-					isDropdownOpen={isDropdownOpen}
-					handleChange={handleChange}
-					targetColumn={targetColumn}
-					type={'checkbox'}
-				/> */}
-
-				{/* ACTIVATE FEATURES */}
+				{/* IMAGE COLUMNS */}
 				<DropDown
 					csvData={csvData}
 					dataFeature={dataFeature}
@@ -295,8 +236,30 @@ const MultimodalUploadPreview = ({
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
 					targetColumn={targetColumn}
-					type={'checkbox'}
+					type="imageCheckbox"
 				/>
+
+				{/* TEXT COLUMNS */}
+				<DropDown
+					csvData={csvData}
+					dataFeature={dataFeature}
+					toggleDropdown={toggleDropdown}
+					isDropdownOpen={isDropdownOpen}
+					handleChange={handleChange}
+					targetColumn={targetColumn}
+					type={'textCheckbox'}
+				/>
+
+				{/* ACTIVATE FEATURES */}
+				{/* <DropDown
+					csvData={csvData}
+					dataFeature={dataFeature}
+					toggleDropdown={toggleDropdown}
+					isDropdownOpen={isDropdownOpen}
+					handleChange={handleChange}
+					targetColumn={targetColumn}
+					type={'checkbox'}
+				/> */}
 
 				<Button
 					type="primary"
@@ -370,7 +333,7 @@ const MultimodalUploadPreview = ({
 																value={value}
 																onChange={(e) =>
 																	handleEdit(
-																		rowIndex,
+																		row.id,
 																		dataFeature[
 																			colIndex
 																		].value,

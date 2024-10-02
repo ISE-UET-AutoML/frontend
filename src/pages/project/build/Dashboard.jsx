@@ -10,6 +10,7 @@ import { TYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
 import config from './config'
+import Papa from 'papaparse'
 
 const LOAD_CHUNK = 12
 
@@ -27,6 +28,10 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const location = useLocation()
 	const [previewData, setPreviewData] = useState({})
 
+	const [editedData, setEditedData] = useState([])
+
+	const [isLocked, setIsLocked] = useState(false)
+
 	//state
 	const [dashboardState, updateState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
@@ -38,6 +43,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const handleFileChange = (event) => {
 		if (projectInfo) {
 			const files = Array.from(event.target.files)
+
 			const validatedFiles = validateFiles(files, projectInfo.type)
 			updateState({ uploadFiles: validatedFiles })
 		}
@@ -48,7 +54,57 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		updateState({ uploadFiles: newState })
 	}
 
-	// hàm upload 1 files.. ở đây
+	const convertToCSV = (jsonData) => {
+		const csvRows = []
+		const headers = Object.keys(jsonData[0])
+		csvRows.push(headers.join(','))
+
+		jsonData.forEach((row) => {
+			const values = headers.map((header) => {
+				const escaped = ('' + row[header]).replace(/"/g, '\\"')
+				return `"${escaped}"`
+			})
+			csvRows.push(values.join(','))
+		})
+
+		return csvRows.join('\n')
+	}
+
+	const convertPreviewToFile = (data) => {
+		const csvData = convertToCSV(data)
+		const blob = new Blob([csvData], { type: 'text/csv' })
+		const file = new File([blob], 'train.csv', { type: 'text/csv' })
+
+		console.log(file)
+		if (dashboardState.uploadFiles.length >= 0) {
+			dashboardState.uploadFiles[0] = file
+			console.log("i've done bro")
+		} else {
+			console.log('Failed: Upload files failed')
+		}
+	}
+
+	// test read file
+	const testReadFileCsv = (file) => {
+		// const file = dashboardState.uploadFiles[0]
+		const reader = new FileReader()
+
+		reader.onload = () => {
+			Papa.parse(reader.result, {
+				header: true,
+				skipEmptyLines: true,
+				complete: (result) => {
+					const resultData = result.data.map((el) => {
+						return { ...el }
+					})
+					console.log(resultData)
+				},
+			})
+		}
+		reader.readAsText(file)
+	}
+
+	// functioon upload 1 files here
 	const uploadFiles = async (e) => {
 		e.preventDefault()
 
@@ -58,21 +114,52 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			// TODO: Change previewData -> import_args (in Body not FormData)
+			if (previewData.label_column == null && !isLocked) {
+				window.alert('Please select target column and lock table')
+				return
+			} else if (previewData.label_column == null) {
+				window.alert('Please select target column')
+				return
+			} else if (!isLocked) {
+				window.alert('Please lock table')
+				return
+			}
 			const formData = new FormData()
 			const object = config[projectInfo.type]
+
+			// convert tabular preview to file to upload to backend
+			if (
+				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
+				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
+			) {
+				convertPreviewToFile(editedData)
+				testReadFileCsv(dashboardState.uploadFiles[0])
+			}
+
 			if (object) {
 				formData.append('type', object.folder)
 			}
-
+			console.log('preview data here')
+			console.log(previewData)
 			if (previewData.label_column) {
 				console.log('sau khi them fake data', previewData)
 				formData.append('import_args', JSON.stringify(previewData))
 			}
+
 			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string
-				const fileNameBase64 = window.btoa(
+				let fileNameBase64 = window.btoa(
 					dashboardState.uploadFiles[i].webkitRelativePath
 				)
+				if (
+					projectInfo.type === 'TABULAR_CLASSIFICATION' ||
+					projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
+				) {
+					fileNameBase64 = window.btoa(
+						dashboardState.uploadFiles.name
+					)
+				}
+
 				formData.append(
 					'files',
 					dashboardState.uploadFiles[i],
@@ -342,6 +429,11 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													setPreviewData={
 														setPreviewData
 													}
+													setEditedData={
+														setEditedData
+													}
+													isLocked={isLocked}
+													setIsLocked={setIsLocked}
 												/>
 											))}
 									</div>
