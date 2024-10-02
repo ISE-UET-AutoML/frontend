@@ -286,7 +286,7 @@ const PredictData = (props) => {
 			</div>
 
 			{/* PREDICT VIEW */}
-			{/* {predictDataState.uploadFiles.length > 0 &&
+			{predictDataState.uploadFiles.length > 0 &&
 			predictDataState.showPredictLayout ? (
 				projectInfo &&
 				(() => {
@@ -297,8 +297,9 @@ const PredictData = (props) => {
 							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
 								<button
 									onClick={() => {
-										console.log('close')
-										// updateState(initialState)
+										updateState({
+											showPredictLayout: false,
+										})
 									}}
 									className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 								>
@@ -326,7 +327,7 @@ const PredictData = (props) => {
 				})()
 			) : (
 				<></>
-			)} */}
+			)}
 
 			{/* BẢNG KẾT QUẢ SAU KHI CORRECT/ INCORRECT*/}
 			{/* <Transition.Root

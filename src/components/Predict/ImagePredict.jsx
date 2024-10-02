@@ -1,8 +1,4 @@
 import React, { useState } from 'react'
-import Loading from 'src/components/Loading'
-// import instance from 'src/api/axios'
-// import { fetchWithTimeout } from 'src/utils/timeout'
-// import { API_URL } from 'src/constants/api'
 import SolutionImage from 'src/assets/images/Solution.png'
 import * as experimentAPI from 'src/api/experiment'
 
@@ -13,8 +9,6 @@ const ImagePredict = ({
 	updateState,
 }) => {
 	const [explainImageUrl, setExplainImageUrl] = useState('')
-
-	console.log(predictDataState.uploadFiles, 'cai file day ne')
 
 	const handleSelectedImage = async (item) => {
 		const fileIndex = predictDataState.uploadFiles.findIndex(

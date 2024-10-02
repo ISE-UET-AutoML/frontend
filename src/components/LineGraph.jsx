@@ -12,11 +12,10 @@ const LineGraph = ({ data, label }) => (
 	<>
 		{data.length > 0 && (
 			<div className="charts-container mx-auto relative flex items-center">
-				<h3 className="text-center">{label}</h3>
 				<div className="chart flex justify-center">
 					<LineChart
 						width={400}
-						height={300}
+						height={270}
 						data={data}
 						margin={{
 							top: 5,
@@ -37,6 +36,7 @@ const LineGraph = ({ data, label }) => (
 						/>
 					</LineChart>
 				</div>
+				<h3 className="text-center">{label}</h3>
 			</div>
 		)}
 	</>
