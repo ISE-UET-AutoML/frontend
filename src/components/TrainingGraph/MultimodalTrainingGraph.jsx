@@ -4,13 +4,13 @@ import researchImage from 'src/assets/images/research.png'
 const MultimodalTrainingGraph = (props) => {
 	const { trainLossGraph, val_lossGraph, val_accGraph, updateState } = props
 	return (
-		<div className="w-full">
+		<div className="w-full h-max">
 			<div className="relative grid gap-3 grid-cols-4 grid-rows-1 max-w-full text-gray-500 py-2.5">
-				<div className="relative  col-span-2 overflow-hidden  p-2 m-auto w-full h-full">
+				<div className="relative col-span-2 overflow-hidden  p-2 m-auto w-full h-full">
 					<h1 class="mb-2 text-[7.5rem] font-extrabold leading-none tracking-tight text-gray-900">
 						Training{' '}
 					</h1>
-					<h1 class="ml-5 mb-4 text-6xl font-extrabold leading-none tracking-tight text-gray-900 underline-draw">
+					<h1 class="right-0 ml-5 mb-4 text-6xl font-extrabold leading-none tracking-tight text-gray-900 underline-draw">
 						outcomes
 					</h1>
 				</div>
@@ -37,20 +37,27 @@ const MultimodalTrainingGraph = (props) => {
 				</div>
 			</div>
 
-			<div className="justify-center w-full">
-				<div className=" absolute mt-4 bottom-3">
-					<a
-						onClick={() => {
-							updateState({ showUploadPanel: true })
-						}}
-						href="#_"
-						class="relative px-6 py-3 font-bold text-black group"
+			<div className="justify-center flex w-full items-center mt-5">
+				<button
+					class="btn"
+					onClick={() => {
+						updateState({ showUploadPanel: true })
+					}}
+				>
+					<svg
+						height="24"
+						width="24"
+						fill="#FFFFFF"
+						viewBox="0 0 24 24"
+						data-name="Layer 1"
+						id="Layer_1"
+						class="sparkle"
 					>
-						<span class="absolute inset-0 w-full h-full transition  rounded-md duration-300 ease-out transform -translate-x-2 -translate-y-2 bg-blue-200 group-hover:translate-x-0 group-hover:translate-y-0"></span>
-						<span class="absolute inset-0 w-full h-full border-4  rounded-md  border-black"></span>
-						<span class="relative">Predict New Data</span>
-					</a>
-				</div>
+						<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+					</svg>
+
+					<span class="text">Predict New Data</span>
+				</button>
 			</div>
 		</div>
 	)

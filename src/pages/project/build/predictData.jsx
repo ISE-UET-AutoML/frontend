@@ -2,15 +2,9 @@ import { Dialog, Transition } from '@headlessui/react'
 import { message } from 'antd'
 import React, { Fragment, useReducer, useState, useEffect } from 'react'
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom'
-// import { UploadTypes } from 'src/constants/file'
-// import Loading from 'src/components/Loading'
 import { validateFiles } from 'src/utils/file'
 import instance from 'src/api/axios'
-import { PATHS } from 'src/constants/paths'
-import { fetchWithTimeout } from 'src/utils/timeout'
 import { API_URL } from 'src/constants/api'
-import LineGraph from 'src/components/LineGraph'
-import researchImage from 'src/assets/images/research.png'
 import 'src/assets/css/chart.css'
 import config from './config'
 import * as experimentAPI from 'src/api/experiment'
@@ -294,14 +288,14 @@ const PredictData = (props) => {
 					if (object) {
 						const PredictComponent = object.predictView
 						return (
-							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
+							<div className="glassMorphism top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
 								<button
 									onClick={() => {
 										updateState({
 											showPredictLayout: false,
 										})
 									}}
-									className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+									className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 								>
 									<svg
 										className="hover:scale-125 hover:fill-red-500"

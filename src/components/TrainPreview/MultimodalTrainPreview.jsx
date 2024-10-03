@@ -124,6 +124,7 @@ const MultimodalTrainPreview = ({ datas, pagination, next, updateFields }) => {
 											let newKey = key
 												.replace('data-TXT-', '')
 												.replace('data-VAL-', '')
+												.replace('data-IMG-', '')
 											newData[newKey] = row.data[key]
 										}
 

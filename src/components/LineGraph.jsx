@@ -15,7 +15,7 @@ const LineGraph = ({ data, label }) => (
 				<div className="chart flex justify-center">
 					<LineChart
 						width={400}
-						height={270}
+						height={260}
 						data={data}
 						margin={{
 							top: 5,

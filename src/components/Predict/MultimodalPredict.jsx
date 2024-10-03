@@ -64,33 +64,6 @@ const MultimodalPredict = (props) => {
 			</h1>
 
 			<div className="flex h-[90%]">
-				{/* LIST IMAGE */}
-				<div className="h-full  w-1/6 mr-5 overflow-y-auto">
-					{csvData.map((item, index) => (
-						<div
-							key={index}
-							// 	className={`${
-							// 		typeof predictDataState?.userConfirm[index]
-							// 			.value === 'string'
-							// 			? predictDataState?.userConfirm[index]
-							// 					.value === 'true'
-							// 				? 'border-2 border-green-500 border-solid'
-							// 				: 'border-2 border-red-600 border-solid'
-							// 			: ''
-							// 	}
-							//    ${index < csvData.length - 1 ? (predictDataState.selectedData.name === item.name ? 'border-2 !border-[#CCCCFF] border-solid' : '') : ''}
-							//    rounded-[5px] flex my-2`}
-							// onClick={() => handleSelectedImage(item)}
-						>
-							<img
-								src={item.url_thumbnail}
-								alt=""
-								className="object-cover rounded-[8px]"
-							/>
-						</div>
-					))}
-				</div>
-
 				{/* MAIN IMAGE */}
 				<div className=" grid grid-cols-3 grid-rows-4 gap-4 w-5/6 ">
 					<div className="col-span-2 row-span-4 shadow-xl p-4 rounded-lg">

@@ -9,7 +9,7 @@ import MultimodalTrainPreview from '../../../components/TrainPreview/MultimodalT
 import ImagePredict from '../../../components/Predict/ImagePredict'
 import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
-import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
+import MultimodalPredict1 from '../../../components/Predict/MultimodalPredict1'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import ImageTrainingGraph from '../../../components/TrainingGraph/ImageTrainingGraph'
@@ -47,7 +47,7 @@ const config = {
 		folder: UploadTypes.CSV_SINGLE,
 		uploadPreview: MultimodalUploadPreview,
 		trainPreview: MultimodalTrainPreview,
-		predictView: MultimodalPredict,
+		predictView: MultimodalPredict1,
 		trainingGraph: MultimodalTrainingGraph,
 		labelingView: LabelingTextClassification,
 	},
