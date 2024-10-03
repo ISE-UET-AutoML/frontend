@@ -188,7 +188,7 @@ export default function ProjectList() {
 
 									<div className="">
 										<label
-											htmlFor="about"
+											htmlFor="description"
 											className="block text-sm font-medium text-gray-700"
 										>
 											Description

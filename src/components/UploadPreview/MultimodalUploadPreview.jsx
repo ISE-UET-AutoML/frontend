@@ -11,8 +11,7 @@ const MultimodalUploadPreview = ({
 	handleRemoveFile,
 	setPreviewData,
 	setEditedData,
-	isLocked,
-	setIsLocked,
+	setIsLockedFlag,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -20,13 +19,16 @@ const MultimodalUploadPreview = ({
 	const [inputPage, setInputPage] = useState('')
 	const [isDropdownRadioOpen, setIsDropdownRadioOpen] = useState(false)
 	const [isDropdownCheckboxOpen, setIsDropdownCheckboxOpen] = useState(false)
-	const [isDropdownImageOpen, setIsDropdownImageOpen] = useState(false)
-	const [isDropdownTextOpen, setIsDropdownTextOpen] = useState(false)
-	const [targetColumn, setTargetColumn] = useState('Target Column')
+
+	const [targetColumn, setTargetColumn] = useState('Label Feature')
 	const [imgColumn, setImgColumn] = useState('Image Column')
 	const itemsPerPage = 5
 
 	const [dataFeature, setDataFeature] = useState([])
+
+	const [featureTypes, setFeatureTypes] = useState(['string', 'image url'])
+
+	const [isLocked, setIsLocked] = useState(false)
 
 	useEffect(() => {
 		if (file && file.name.endsWith('.csv')) {
@@ -46,11 +48,18 @@ const MultimodalUploadPreview = ({
 
 						setDataFeature(
 							Object.keys(resultData[0]).map((el) => {
+								let featureType = 'string'
+								if (
+									typeof resultData[0][el] === 'string' &&
+									(resultData[0][el].match('https://') ||
+										resultData[0][el].match('http://'))
+								)
+									featureType = 'image url'
 								return {
 									value: el,
-									isActived: true,
-									isImage: false,
-									isText: false,
+									isActivated: true,
+									isLabel: false,
+									type: featureType,
 								}
 							})
 						)
@@ -112,29 +121,61 @@ const MultimodalUploadPreview = ({
 			setIsDropdownRadioOpen(!isDropdownRadioOpen)
 		} else if (type === 'checkbox') {
 			setIsDropdownCheckboxOpen(!isDropdownCheckboxOpen)
-		} else if (type === 'imageCheckbox') {
-			setIsDropdownImageOpen(!isDropdownImageOpen)
-		} else if (type === 'textCheckbox') {
-			setIsDropdownTextOpen(!isDropdownTextOpen)
 		}
 	}
 
 	const isDropdownOpen = (type) => {
 		if (type === 'radio') return isDropdownRadioOpen
 		if (type === 'checkbox') return isDropdownCheckboxOpen
-		if (type === 'imageCheckbox') return isDropdownImageOpen
-		if (type === 'textCheckbox') return isDropdownTextOpen
+
 		return false
+	}
+
+	const updatePreviewData = () => {
+		const imageFeatures = dataFeature
+			.filter(
+				(feature) =>
+					feature.isActivated &&
+					feature.value !== 'id' &&
+					feature.type === 'image url'
+			)
+			.map((feature) => feature.value)
+		const textFeatures = dataFeature
+			.filter(
+				(feature) =>
+					feature.isActivated &&
+					feature.value !== 'id' &&
+					feature.type === 'string'
+			)
+			.map((feature) => feature.value)
+
+		const labelColumn = dataFeature
+			.filter((feature) => feature.isLabel)
+			.map((feature) => feature.value)[0]
+
+		setPreviewData((prevData) => ({
+			...prevData,
+			image_columns: imageFeatures,
+			text_columns: textFeatures,
+			label_column: labelColumn,
+		}))
 	}
 
 	const handleRadioChange = (event) => {
 		const value = event.target.value
 		setTargetColumn(value)
 
-		setPreviewData((prevData) => ({
-			...prevData,
-			label_column: value,
-		}))
+		dataFeature.forEach((item) => {
+			if (item.value === value) {
+				item.isLabel = true
+				item.isActivated = false
+			} else {
+				item.isLabel = false
+				item.isActivated = true
+			}
+		})
+
+		updatePreviewData()
 
 		// //! FAKE DATA UPLOAD
 		// image_columns: ['url'],
@@ -152,44 +193,26 @@ const MultimodalUploadPreview = ({
 		setDataFeature(
 			dataFeature.map((feature) => {
 				if (feature.value === el.value)
-					switch (type) {
-						case 'imageCheckbox':
-							feature.isImage = !el.isImage
-							feature.isText = false
-							break
-						case 'textCheckbox':
-							feature.isText = !el.isText
-							feature.isImage = false
-							break
-						default:
-							feature.isActived = !el.isActived
-					}
+					feature.isActivated = !el.isActivated
 				return feature
 			})
 		)
-
-		const imageFeatures = dataFeature
-			.filter((feature) => feature.isImage)
-			.map((feature) => feature.value)
-		const textFeatures = dataFeature
-			.filter((feature) => feature.isText)
-			.map((feature) => feature.value)
-
-		setPreviewData((prevData) => ({
-			...prevData,
-			image_columns: imageFeatures,
-			text_columns: textFeatures,
-		}))
+		updatePreviewData()
 	}
 
 	const handleChange = (event, el, type) => {
 		if (type === 'radio') handleRadioChange(event)
-		if (
-			type === 'checkbox' ||
-			type === 'imageCheckbox' ||
-			type === 'textCheckbox'
-		)
-			handleCheckboxChange(el, type)
+		if (type === 'checkbox') {
+			if (typeof event === 'string') {
+				const type = event
+				dataFeature.forEach((item) => {
+					if (item.value === el.value) {
+						item.type = type
+					}
+				})
+				updatePreviewData()
+			} else handleCheckboxChange(el, type)
+		}
 	}
 
 	const handleEdit = (id, field, value) => {
@@ -201,7 +224,9 @@ const MultimodalUploadPreview = ({
 	}
 
 	const handleLockToggle = () => {
-		setIsLocked(!isLocked)
+		const lockFlag = isLocked
+		setIsLocked(!lockFlag)
+		setIsLockedFlag(!lockFlag)
 		if (!isLocked) {
 			console.log('Data is locked')
 			setEditedData(csvData.map(({ id, ...rest }) => rest))
@@ -216,6 +241,9 @@ const MultimodalUploadPreview = ({
 				<h3 className="text-lg font-semibold text-gray-800">
 					{file.name}
 				</h3>
+				<div></div>
+				<div></div>
+				<div></div>
 
 				{/* TARGET COLUMN */}
 				<DropDown
@@ -228,53 +256,35 @@ const MultimodalUploadPreview = ({
 					type="radio"
 				/>
 
-				{/* IMAGE COLUMNS */}
-				<DropDown
-					csvData={csvData}
-					dataFeature={dataFeature}
-					toggleDropdown={toggleDropdown}
-					isDropdownOpen={isDropdownOpen}
-					handleChange={handleChange}
-					targetColumn={targetColumn}
-					type="imageCheckbox"
-				/>
-
-				{/* TEXT COLUMNS */}
-				<DropDown
-					csvData={csvData}
-					dataFeature={dataFeature}
-					toggleDropdown={toggleDropdown}
-					isDropdownOpen={isDropdownOpen}
-					handleChange={handleChange}
-					targetColumn={targetColumn}
-					type={'textCheckbox'}
-				/>
-
 				{/* ACTIVATE FEATURES */}
-				{/* <DropDown
+				<DropDown
 					csvData={csvData}
 					dataFeature={dataFeature}
 					toggleDropdown={toggleDropdown}
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
 					targetColumn={targetColumn}
-					type={'checkbox'}
-				/> */}
+					type="checkbox"
+					featureTypes={featureTypes}
+				/>
+				<div></div>
+				<div></div>
+				<div className="flex gap-3">
+					<Button
+						type="primary"
+						icon={isLocked ? <LockOutlined /> : <UnlockOutlined />}
+						onClick={handleLockToggle}
+					>
+						{isLocked ? 'Unlock' : 'Lock'}
+					</Button>
 
-				<Button
-					type="primary"
-					icon={isLocked ? <LockOutlined /> : <UnlockOutlined />}
-					onClick={handleLockToggle}
-				>
-					{isLocked ? 'Unlock' : 'Lock'}
-				</Button>
-
-				<button
-					onClick={() => handleRemoveFile(index)}
-					className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
-				>
-					Remove
-				</button>
+					<button
+						onClick={() => handleRemoveFile(index)}
+						className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
+					>
+						Remove
+					</button>
+				</div>
 			</div>
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 			{csvData.length > 0 ? (
@@ -284,13 +294,18 @@ const MultimodalUploadPreview = ({
 							<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 								<tr>
 									{dataFeature.map((el) => {
-										if (!el.isActived) return <></>
+										if (!el.isActivated) return <></>
 										return (
 											<th
 												key={el.value}
 												className="px-7 py-3 text-center text-xs font-bold text-black uppercase tracking-wider"
 											>
-												{el.value}
+												<div>{el.value}</div>
+												<div className="font-normal lowercase">
+													{el.value === 'id'
+														? ''
+														: el.type}
+												</div>
 											</th>
 										)
 									})}
@@ -306,7 +321,7 @@ const MultimodalUploadPreview = ({
 											(value, colIndex) => {
 												if (
 													!dataFeature[colIndex]
-														.isActived
+														.isActivated
 												)
 													return <></>
 												return (
