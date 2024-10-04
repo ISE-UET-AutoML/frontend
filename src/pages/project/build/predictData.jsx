@@ -288,7 +288,7 @@ const PredictData = (props) => {
 					if (object) {
 						const PredictComponent = object.predictView
 						return (
-							<div className="glassMorphism top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
+							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
 								<button
 									onClick={() => {
 										updateState({
@@ -315,6 +315,11 @@ const PredictData = (props) => {
 									updateState={updateState}
 								/>
 							</div>
+							// <div className="overlay">
+							// 	<div className="modal">
+							// 		Tuan Anh da o day roi nhe
+							// 	</div>
+							// </div>
 						)
 					}
 					return null

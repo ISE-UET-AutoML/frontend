@@ -11,6 +11,7 @@ const MultimodalPredict1 = (props) => {
 	const [showAllRows, setShowAllRows] = useState(false)
 	const [falsePredict, setFalsePredict] = useState([])
 	const [pieData, setPieData] = useState([])
+	const [isShowEff, setIsShowEff] = useState(false)
 
 	useEffect(() => {
 		const falseValue =
@@ -20,8 +21,8 @@ const MultimodalPredict1 = (props) => {
 		const trueValue = (100 - parseFloat(falseValue)).toFixed(2)
 
 		setPieData([
-			{ name: 'True', value: parseFloat(trueValue) },
-			{ name: 'False', value: parseFloat(falseValue) },
+			{ name: 'Correct', value: parseFloat(trueValue) },
+			{ name: 'Incorrect', value: parseFloat(falseValue) },
 		])
 	}, [falsePredict, csvData])
 
@@ -195,10 +196,10 @@ const MultimodalPredict1 = (props) => {
 													<table className="min-w-full divide-y divide-gray-200 rounded-lg break-words">
 														<thead className="bg-gradient-to-r bg-blue-600 font-bold rounded-lg">
 															<tr>
-																<td className="px-6 py-2 text-center text-sm font-bold text-white uppercase tracking-wider w-[15%]">
+																<td className="px-6 py-1 text-center text-sm font-bold text-white uppercase tracking-wider w-[15%]">
 																	Fields
 																</td>
-																<td className="px-6 py-2 text-center text-sm font-bold text-white uppercase tracking-wider w-[50%]">
+																<td className="px-6 py-1 text-center text-sm font-bold text-white uppercase tracking-wider w-[50%]">
 																	Information
 																</td>
 															</tr>
@@ -207,13 +208,13 @@ const MultimodalPredict1 = (props) => {
 															<tr className="hover:bg-gray-100 break-words">
 																<td className="pl-4 text-left text-sm font-bold">
 																	{capitalizeFirstLetter(
-																		'product base id'
+																		'name'
 																	)}
 																</td>
 																<td>
 																	{
 																		data[
-																			'product_base_id'
+																			'name'
 																		]
 																	}
 																</td>
@@ -221,27 +222,13 @@ const MultimodalPredict1 = (props) => {
 															<tr className="hover:bg-gray-100 break-words">
 																<td className="pl-4 text-left text-sm font-bold">
 																	{capitalizeFirstLetter(
-																		'product name'
+																		'original brand'
 																	)}
 																</td>
 																<td>
 																	{
 																		data[
-																			'product_name'
-																		]
-																	}
-																</td>
-															</tr>
-															<tr className="hover:bg-gray-100 break-words">
-																<td className="pl-4 text-left text-sm font-bold">
-																	{capitalizeFirstLetter(
-																		'report name'
-																	)}
-																</td>
-																<td>
-																	{
-																		data[
-																			'report_name'
+																			'original_brand'
 																		]
 																	}
 																</td>
@@ -258,11 +245,9 @@ const MultimodalPredict1 = (props) => {
 																				key
 																			) =>
 																				key !==
-																					'product_name' &&
+																					'name' &&
 																				key !==
-																					'product_base_id' &&
-																				key !==
-																					'report_name'
+																					'original_brand'
 																		)
 																		.map(
 																			(
@@ -360,23 +345,22 @@ const MultimodalPredict1 = (props) => {
 													{falsePredict.includes(
 														selectedData.index
 													)
-														? 'True'
-														: 'False'}
+														? 'Correct'
+														: 'Incorrect'}
 												</button>
 											</div>
 										</div>
-										<div className="absolute w-[50px] h-[50px] right-4 bottom-4">
-											<button className="tooltip ">
-												<img
-													src={logoIcon}
-													alt="Effectiveness"
-												/>
-												<span class="tooltiptext">
-													Effectiveness
-												</span>
+										<div className="absolute w-[50px] h-[50px] right-10 bottom-0">
+											<button
+												type="button"
+												onClick={() => {
+													setIsShowEff(true)
+												}}
+												className=" bg-blue-600 rounded-md px-2 py-1 font-medium  text-white w-fit transition-all shadow-[3px_3px_0px_black] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]"
+											>
+												Accuracy
 											</button>
 										</div>
-										<PieGraph data={pieData} />
 									</div>
 								</div>
 							))}
@@ -427,6 +411,34 @@ const MultimodalPredict1 = (props) => {
 					/>
 				))}
 			</div>
+
+			{isShowEff && (
+				<div className="overlay">
+					<div className="modal w-[50%] h-[75%] rounded-xl relative">
+						<h1 className=" mt-6 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
+							Accuracy
+						</h1>
+						<button
+							onClick={() => {
+								setIsShowEff(false)
+							}}
+							className="absolute top-[0.55rem] right-5 p-[6px] rounded-lg bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+						>
+							<svg
+								className="hover:scale-125 hover:fill-red-500"
+								focusable="false"
+								viewBox="0 0 24 24"
+								color="#69717A"
+								aria-hidden="true"
+								data-testId="close-upload-media-dialog-btn"
+							>
+								<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
+							</svg>
+						</button>
+						<PieGraph data={pieData} />
+					</div>
+				</div>
+			)}
 		</>
 	)
 }
