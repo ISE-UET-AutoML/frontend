@@ -306,7 +306,7 @@ const MultimodalUploadPreview = ({
 												<div className="font-normal lowercase">
 													{el.value === 'id'
 														? ''
-														: el.type}
+														: '#' + el.type}
 												</div>
 											</th>
 										)
