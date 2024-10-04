@@ -1,14 +1,25 @@
 import ProjectCard from './card'
 import { RectangleStackIcon } from '@heroicons/react/20/solid'
 import { PlusIcon } from '@heroicons/react/24/solid'
-import { useReducer, useEffect } from 'react'
+import { useReducer, useEffect, useState } from 'react'
 import instance from 'src/api/axios'
 import { message } from 'antd'
 import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
 import { TYPES } from 'src/constants/types'
+import class_img from 'src/assets/images/classification_img.jpg'
+import object_detection from 'src/assets/images/object-detection.png'
 
 const projType = Object.keys(TYPES)
+
+const imgArray = [
+	class_img,
+	class_img,
+	class_img,
+	class_img,
+	object_detection,
+	class_img,
+]
 
 const initialState = {
 	showUploader: false,
@@ -19,12 +30,23 @@ export default function ProjectList() {
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
+	const [isSelected, setIsSelected] = useState(projType.map((el) => false))
+
+	const selectType = (e, idx) => {
+		const tmpArr = isSelected.map((el, index) => {
+			if (index === idx) el = true
+			else el = false
+			return el
+		})
+		setIsSelected(tmpArr)
+	}
 
 	const handleCreateProject = async (event) => {
 		event.preventDefault()
 
 		const formData = new FormData(event.target)
 		const data = Object.fromEntries(formData)
+		console.log(data)
 		try {
 			const response = await instance.post(API_URL.all_projects, data, {
 				headers: {
@@ -162,11 +184,12 @@ export default function ProjectList() {
 					</svg>
 				</button>
 
-				<div className="mt-10 sm:mt-0 w-full max-w-xl">
+				<div className="mt-10 sm:mt-0 w-full max-w-6xl">
+					{/* need attention */}
 					<form action="#" onSubmit={handleCreateProject}>
 						<div className="overflow-hidden shadow sm:rounded-md">
-							<div className="bg-white sm:rounded-md px-4 py-5 sm:p-6 w-full max-w-xl  border border-gray-100">
-								<div className="flex flex-col gap-6">
+							<div className="flex sm:rounded-md px-4 py-5 sm:p-6 w-full max-w-6xl border border-gray-100">
+								<div className="flex flex-1 flex-col gap-6">
 									<div className="">
 										<label
 											htmlFor="name"
@@ -247,7 +270,40 @@ export default function ProjectList() {
 										</select>
 									</div>
 								</div>
+								<div className="flex-1 text-center">
+									<h2 className="font-bold text-xl ">
+										Project Type
+									</h2>
+									<div
+										className="inline-grid grid-cols-2 ml-10 overflow-scroll gap-6 rounded-lg border-4 p-2"
+										style={{ height: 600 }}
+									>
+										{projType.map((type, idx) => (
+											<div
+												onClick={(e) =>
+													selectType(e, idx)
+												}
+												className={`${isSelected[idx] ? 'border-purple-500 shadow-purple-500 shadow-md' : 'border-gray-300 hover:border-gray-400 hover:shadow-xl '} w-full h-full rounded-lg text-center border-2 cursor-pointer`}
+											>
+												<img
+													className="aspect-[5/3]"
+													alt={imgArray[idx]}
+													src={imgArray[idx]}
+												/>
+												<div className="m-2">
+													<h3 className="font-semibold text-lg">
+														{TYPES[type].type}
+													</h3>
+													<p className="text-sm">
+														{TYPES[type].type}
+													</p>
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
 							</div>
+
 							<div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
 								<button
 									type="submit"
