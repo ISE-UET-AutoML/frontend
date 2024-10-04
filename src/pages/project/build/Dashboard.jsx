@@ -30,6 +30,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 
 	const [editedData, setEditedData] = useState([])
 
+	const [dataFeature, setDataFeature] = useState([])
+
 	const [isLocked, setIsLocked] = useState(false)
 
 	//state
@@ -141,7 +143,15 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
 				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
 			) {
-				convertPreviewToFile(editedData)
+				console.log(dataFeature)
+				const result = editedData.map((obj) => {
+					dataFeature.forEach((el) => {
+						if (!el.isLabel && !el.isActivated) delete obj[el.value]
+					})
+					return obj
+				})
+
+				convertPreviewToFile(result)
 				testReadFileCsv(dashboardState.uploadFiles[0])
 			}
 
@@ -448,6 +458,10 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													isLockedFlag={isLocked}
 													setIsLockedFlag={
 														setIsLocked
+													}
+													dataFeature={dataFeature}
+													setDataFeature={
+														setDataFeature
 													}
 												/>
 											))}

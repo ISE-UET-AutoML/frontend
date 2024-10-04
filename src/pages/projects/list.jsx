@@ -46,7 +46,11 @@ export default function ProjectList() {
 
 		const formData = new FormData(event.target)
 		const data = Object.fromEntries(formData)
+		isSelected.forEach((el, idx) => {
+			if (el) data.type = projType[idx]
+		})
 		console.log(data)
+
 		try {
 			const response = await instance.post(API_URL.all_projects, data, {
 				headers: {
@@ -188,12 +192,12 @@ export default function ProjectList() {
 					{/* need attention */}
 					<form action="#" onSubmit={handleCreateProject}>
 						<div className="overflow-hidden shadow sm:rounded-md">
-							<div className="flex sm:rounded-md px-4 py-5 sm:p-6 w-full max-w-6xl border border-gray-100">
+							<div className="flex sm:rounded-md px-4 py-5 sm:p-6 w-full max-w-6xl border border-gray-200">
 								<div className="flex flex-1 flex-col gap-6">
 									<div className="">
 										<label
 											htmlFor="name"
-											className="block text-sm font-medium text-gray-700"
+											className="ml-1 block font-medium text-xl text-gray-700"
 										>
 											Name
 										</label>
@@ -212,7 +216,7 @@ export default function ProjectList() {
 									<div className="">
 										<label
 											htmlFor="description"
-											className="block text-sm font-medium text-gray-700"
+											className="ml-1 block font-medium text-xl text-gray-700"
 										>
 											Description
 										</label>
@@ -233,7 +237,7 @@ export default function ProjectList() {
 									<div className="">
 										<label
 											htmlFor="expectation_accuracy"
-											className="block text-sm font-medium text-gray-700"
+											className="ml-1 block font-medium text-xl text-gray-700"
 										>
 											Expectation Accuracy
 										</label>
@@ -250,7 +254,7 @@ export default function ProjectList() {
 										/>
 									</div>
 
-									<div className="">
+									{/* <div className="">
 										<label
 											htmlFor="country"
 											className="block text-sm font-medium text-gray-700"
@@ -268,14 +272,14 @@ export default function ProjectList() {
 												</option>
 											))}
 										</select>
-									</div>
+									</div> */}
 								</div>
 								<div className="flex-1 text-center">
-									<h2 className="font-bold text-xl ">
+									<h2 className="font-bold text-xl">
 										Project Type
 									</h2>
 									<div
-										className="inline-grid grid-cols-2 ml-10 overflow-scroll gap-6 rounded-lg border-4 p-2"
+										className="inline-grid grid-cols-2 ml-10 overflow-scroll gap-6 rounded-lg border-2 px-3 py-4"
 										style={{ height: 600 }}
 									>
 										{projType.map((type, idx) => (
@@ -307,7 +311,7 @@ export default function ProjectList() {
 							<div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
 								<button
 									type="submit"
-									className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+									className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-5 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 								>
 									Save
 								</button>

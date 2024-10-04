@@ -12,6 +12,8 @@ const MultimodalUploadPreview = ({
 	setPreviewData,
 	setEditedData,
 	setIsLockedFlag,
+	dataFeature,
+	setDataFeature,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -24,7 +26,7 @@ const MultimodalUploadPreview = ({
 	const [imgColumn, setImgColumn] = useState('Image Column')
 	const itemsPerPage = 5
 
-	const [dataFeature, setDataFeature] = useState([])
+	// const [dataFeature, setDataFeature] = useState([])
 
 	const [featureTypes, setFeatureTypes] = useState(['string', 'image url'])
 
