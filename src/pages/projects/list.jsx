@@ -9,16 +9,29 @@ import { PATHS } from 'src/constants/paths'
 import { TYPES } from 'src/constants/types'
 import class_img from 'src/assets/images/classification_img.jpg'
 import object_detection from 'src/assets/images/object-detection.png'
+import segmentaion_img from 'src/assets/images/segmentation_img.jpg'
+import tabular_img from 'src/assets/images/tabular_img.jpg'
+import text_classification from 'src/assets/images/text_classification.jpg'
+import multimodal_classification from 'src/assets/images/multimodal_classification.png'
 
 const projType = Object.keys(TYPES)
 
 const imgArray = [
 	class_img,
-	class_img,
-	class_img,
-	class_img,
+	text_classification,
+	tabular_img,
+	multimodal_classification,
 	object_detection,
-	class_img,
+	segmentaion_img,
+]
+
+const typeDescription = [
+	'Identify and categorize objects in images.',
+	'Categorize text data based on content.',
+	'Classify tabular data rows.',
+	'Combine data sources for accurate classification.',
+	'Identify objects with bounding boxes.',
+	'Segment images to locate objects or regions.',
 ]
 
 const initialState = {
@@ -290,16 +303,16 @@ export default function ProjectList() {
 												className={`${isSelected[idx] ? 'border-purple-500 shadow-purple-500 shadow-md' : 'border-gray-300 hover:border-gray-400 hover:shadow-xl '} w-full h-full rounded-lg text-center border-2 cursor-pointer`}
 											>
 												<img
-													className="aspect-[5/3]"
+													className="aspect-[5/3] rounded border border-gray-300"
 													alt={imgArray[idx]}
 													src={imgArray[idx]}
 												/>
 												<div className="m-2">
-													<h3 className="font-semibold text-lg">
+													<h3 className="font-semibold text-xl mb-2 leading-6">
 														{TYPES[type].type}
 													</h3>
 													<p className="text-sm">
-														{TYPES[type].type}
+														{typeDescription[idx]}
 													</p>
 												</div>
 											</div>
