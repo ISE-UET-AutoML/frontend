@@ -1,12 +1,38 @@
 import LineGraph from 'src/components/LineGraph'
 import researchImage from 'src/assets/images/research.png'
 
-const ImageTrainingGraph = (trainLossGraph, val_lossGraph, val_accGraph) => {
+const ImageTrainingGraph = (props) => {
+	const { trainLossGraph, val_lossGraph, val_accGraph, updateState } = props
 	return (
 		<div className="py-2.5">
-			{console.log('trainLossGraph', trainLossGraph)}
-			{console.log('val_lossGraph', val_lossGraph)}
-			{console.log('val_accGraph', val_accGraph)}
+			<div className="flex m-auto w-full h-full mb-6 relative">
+				<h1 class=" text-6xl font-extrabold leading-none tracking-tight text-gray-900">
+					Training{' '}
+				</h1>
+				<h1 class=" ml-5 mb-4 text-6xl font-extrabold leading-none tracking-tight text-gray-900 underline-draw">
+					outcomes
+				</h1>
+				<button
+					className="btn absolute right-0 mt-[20px]"
+					onClick={() => {
+						updateState({ showUploadPanel: true })
+					}}
+				>
+					<svg
+						height="24"
+						width="24"
+						fill="#FFFFFF"
+						viewBox="0 0 24 24"
+						data-name="Layer 1"
+						id="Layer_1"
+						className="sparkle"
+					>
+						<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+					</svg>
+
+					<span className="text">Predict New Data</span>
+				</button>
+			</div>
 			<div className=" max-w-full text-gray-500">
 				<div className="relative z-10 grid gap-3 grid-cols-6">
 					<div className="col-span-full lg:col-span-2 overflow-hidden flex relative p-2 rounded-xl bg-white border border-gray-200 shadow-lg">

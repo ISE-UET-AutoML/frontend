@@ -81,7 +81,7 @@ const ImagePredict = ({
 
 	return (
 		<>
-			<h1 className="mb-5 text-4xl font-extrabold text-gray-900 text-left mt-10 flex">
+			{/* <h1 className="mb-5 text-4xl font-extrabold text-gray-900 text-left mt-10 flex">
 				<span className="text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] mr-2">
 					Prediction
 				</span>{' '}
@@ -99,6 +99,13 @@ const ImagePredict = ({
 						clipRule="evenodd"
 					/>
 				</svg>
+			</h1> */}
+			<h1 className=" mt-6 mb-6 text-5xl font-extrabold leading-none tracking-tight text-gray-900">
+				Model{' '}
+				<mark className="px-2 text-white bg-blue-600 rounded ">
+					Prediction
+				</mark>{' '}
+				results
 			</h1>
 			<div className="flex h-[90%]">
 				<div className="h-full  w-1/6 mr-5 overflow-y-auto">
@@ -137,25 +144,9 @@ const ImagePredict = ({
 								className="object-cover w-full h-[75%] rounded-md"
 							/>
 						)}
-						<p className="text-left text-[#1904e5] font-semibold text-4xl text-transform: uppercase mt-4 mb-3">
+						<p className="text-center font-semibold text-6xl uppercase mt-10 mb-2">
 							{predictDataState.confidenceLabel}
 						</p>
-						<article className="text-balance">
-							Predicting data is susceptible to errors for several
-							reasons, including{' '}
-							<a
-								href="/#"
-								class="underline decoration-indigo-500"
-							>
-								incomplete or noisy datasets, biases in the
-								training data, and limitations in the model’s
-								algorithms.
-							</a>{' '}
-							These issues can cause inaccurate predictions, which
-							underscores the importance of thorough data
-							preprocessing, and continuous evaluation to reduce
-							potential errors and improve prediction accuracy.
-						</article>
 					</div>
 					<div className="col-span-1 row-span-3 grid grid-cols-1 grid-rows-4 gap-4">
 						<div className="row-span-1 flex items-center justify-center space-x-4">

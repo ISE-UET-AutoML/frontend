@@ -209,30 +209,13 @@ const PredictData = (props) => {
 			<div
 				className={`${
 					predictDataState.showUploadPanel
-						? 'top-0 left-0 bottom-full z-[1000] opacity-100'
+						? 'top-[375px] left-0 bottom-full z-[1000] opacity-100'
 						: 'left-0 top-full bottom-0 opacity-0'
-				} fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]`}
+				} fixed h-full w-full bg-white transition-all duration-500 ease overflow-auto pb-[30px]`}
 			>
-				<button
-					onClick={() => {
-						updateState({ showUploadPanel: false })
-					}}
-					className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
-				>
-					<svg
-						className="hover:scale-125 hover:fill-red-500"
-						focusable="false"
-						viewBox="0 0 24 24"
-						color="#69717A"
-						aria-hidden="true"
-						data-testId="close-upload-media-dialog-btn"
-					>
-						<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
-					</svg>
-				</button>
 				<label
 					htmlFor="file"
-					className="flex flex-col w-[95%] cursor-pointer mt-24 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] h-[300px] rounded-[10px]"
+					className="flex flex-col w-[85%] cursor-pointer mt-4 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] h-[300px] rounded-[10px]"
 				>
 					<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
 						<svg
@@ -277,6 +260,25 @@ const PredictData = (props) => {
 						}}
 					/>
 				</label>
+				<button
+					onClick={() => {
+						updateState({ showUploadPanel: false })
+					}}
+					className="absolute ml-[700px] mt-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="currentColor"
+						className="size-6"
+					>
+						<path
+							fillRule="evenodd"
+							d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z"
+							clipRule="evenodd"
+						/>
+					</svg>
+				</button>
 			</div>
 
 			{/* PREDICT VIEW */}
@@ -288,20 +290,20 @@ const PredictData = (props) => {
 					if (object) {
 						const PredictComponent = object.predictView
 						return (
-							<div className="top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
+							<div className=" top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
 								<button
 									onClick={() => {
 										updateState({
 											showPredictLayout: false,
 										})
 									}}
-									className="absolute top-[0.25rem] right-5 p-[6px] rounded-lg bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+									className="absolute top-[0.25rem] right-5 p-[6px] text-white rounded-lg hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 								>
 									<svg
-										className="hover:scale-125 hover:fill-red-500"
+										className="hover:scale-125"
 										focusable="false"
 										viewBox="0 0 24 24"
-										color="#69717A"
+										color="#FFFFFF"
 										aria-hidden="true"
 										data-testId="close-upload-media-dialog-btn"
 									>
