@@ -30,6 +30,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 
 	const [editedData, setEditedData] = useState([])
 
+	const [dataFeature, setDataFeature] = useState([])
+
 	const [isLocked, setIsLocked] = useState(false)
 
 	//state
@@ -72,6 +74,10 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 
 	const convertPreviewToFile = (data) => {
 		const csvData = convertToCSV(data)
+		let fileName = 'train.csv'
+		if (dashboardState.uploadFiles.length >= 0) {
+			fileName = dashboardState.uploadFiles[0].name
+		}
 		const blob = new Blob([csvData], { type: 'text/csv' })
 		const file = new File([blob], 'train.csv', { type: 'text/csv' })
 
@@ -114,15 +120,20 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles.length > 0
 		) {
 			// TODO: Change previewData -> import_args (in Body not FormData)
-			if (previewData.label_column == null && !isLocked) {
-				window.alert('Please select target column and lock table')
-				return
-			} else if (previewData.label_column == null) {
-				window.alert('Please select target column')
-				return
-			} else if (!isLocked) {
-				window.alert('Please lock table')
-				return
+			if (
+				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
+				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
+			) {
+				if (previewData.label_column == null && !isLocked) {
+					window.alert('Please select target column and lock table')
+					return
+				} else if (previewData.label_column == null) {
+					window.alert('Please select target column')
+					return
+				} else if (!isLocked) {
+					window.alert('Please lock table')
+					return
+				}
 			}
 			const formData = new FormData()
 			const object = config[projectInfo.type]
@@ -132,7 +143,15 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
 				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
 			) {
-				convertPreviewToFile(editedData)
+				console.log(dataFeature)
+				const result = editedData.map((obj) => {
+					dataFeature.forEach((el) => {
+						if (!el.isLabel && !el.isActivated) delete obj[el.value]
+					})
+					return obj
+				})
+
+				convertPreviewToFile(result)
 				testReadFileCsv(dashboardState.uploadFiles[0])
 			}
 
@@ -140,7 +159,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				formData.append('type', object.folder)
 			}
 			console.log('preview data here')
-			console.log(previewData)
 			if (previewData.label_column) {
 				console.log('sau khi them fake data', previewData)
 				formData.append('import_args', JSON.stringify(previewData))
@@ -151,6 +169,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				let fileNameBase64 = window.btoa(
 					dashboardState.uploadFiles[i].webkitRelativePath
 				)
+
 				if (
 					projectInfo.type === 'TABULAR_CLASSIFICATION' ||
 					projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
@@ -158,6 +177,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					fileNameBase64 = window.btoa(
 						dashboardState.uploadFiles.name
 					)
+					console.log(dashboardState.uploadFiles.name)
+					console.log(fileNameBase64)
+					// fileNameBase64 = window.btoa('')
 				}
 
 				formData.append(
@@ -177,6 +199,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						updateFields: updateFields,
 						projectInfo: data.data.project_info,
 					}
+					console.log(props)
 
 					message.success('Successfully uploaded', 3)
 					updateState({ isUploading: false })
@@ -338,8 +361,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					</svg>
 				</button>
 				<div className="h-max overflow-auto w-full px-10">
-					<h1 class="mb-5 text-3xl font-extrabold text-gray-900 text-center">
-						<span class="text-transparent bg-clip-text bg-gradient-to-r to-[#2c67f2] from-[#62cff4]">
+					<h1 className="mb-5 text-3xl font-extrabold text-gray-900 text-center">
+						<span className="text-transparent bg-clip-text bg-gradient-to-r to-[#2c67f2] from-[#62cff4]">
 							Upload the data
 						</span>{' '}
 						to initiate the process
@@ -432,8 +455,14 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 													setEditedData={
 														setEditedData
 													}
-													isLocked={isLocked}
-													setIsLocked={setIsLocked}
+													isLockedFlag={isLocked}
+													setIsLockedFlag={
+														setIsLocked
+													}
+													dataFeature={dataFeature}
+													setDataFeature={
+														setDataFeature
+													}
 												/>
 											))}
 									</div>
