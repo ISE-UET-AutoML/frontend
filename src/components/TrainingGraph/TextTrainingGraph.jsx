@@ -1,7 +1,10 @@
 import LineGraph from 'src/components/LineGraph'
 
-const MultimodalTrainingGraph = (props) => {
-	const { trainLossGraph, val_lossGraph, val_accGraph, updateState } = props
+const TextTrainingGraph = (props) => {
+	const { trainLossGraph, val_lossGraph, val_roc_aucGraph, updateState } =
+		props
+	console.log('toi da toi day')
+	console.log('val_roc_aucGraph', val_roc_aucGraph)
 	return (
 		<div className="w-full h-max">
 			<div className="relative grid gap-3 grid-cols-4 grid-rows-1 max-w-full text-gray-500 py-2.5">
@@ -29,8 +32,8 @@ const MultimodalTrainingGraph = (props) => {
 				<div className="col-span-2 overflow-hidden flex relative p-2 rounded-md bg-white border border-gray-200 shadow-lg">
 					<div className="size-fit m-auto relative flex justify-center">
 						<LineGraph
-							data={val_accGraph}
-							label="Validation accuracy"
+							data={val_roc_aucGraph}
+							label="Validation ROC AUC"
 						/>
 					</div>
 				</div>
@@ -62,4 +65,4 @@ const MultimodalTrainingGraph = (props) => {
 	)
 }
 
-export default MultimodalTrainingGraph
+export default TextTrainingGraph

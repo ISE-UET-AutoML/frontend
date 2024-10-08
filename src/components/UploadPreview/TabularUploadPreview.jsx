@@ -23,6 +23,7 @@ const TabularUploadPreview = ({
 	const [targetColumn, setTargetColumn] = useState('Target Column')
 	const itemsPerPage = 5
 
+	const [featureTypes, setFeatureTypes] = useState(['string', 'image url'])
 	const [dataFeature, setDataFeature] = useState([])
 
 	useEffect(() => {

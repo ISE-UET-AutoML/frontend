@@ -423,13 +423,13 @@ const MultimodalPredict = (props) => {
 							onClick={() => {
 								setIsShowEff(false)
 							}}
-							className="absolute top-[0.55rem] right-5 p-[6px] rounded-lg bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+							className="absolute top-[0.55rem] right-5 p-[6px] rounded-full bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 						>
 							<svg
-								className="hover:scale-125 hover:fill-red-500"
+								className=""
 								focusable="false"
 								viewBox="0 0 24 24"
-								color="#69717A"
+								color="#FFFFFF"
 								aria-hidden="true"
 								data-testId="close-upload-media-dialog-btn"
 							>

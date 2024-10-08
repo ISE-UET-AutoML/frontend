@@ -42,6 +42,7 @@ const PredictData = (props) => {
 	const [trainLossGraph, setTrainLossGraph] = useState([])
 	const [val_lossGraph, setValLossGraph] = useState([])
 	const [val_accGraph, setValAccGraph] = useState([])
+	const [val_roc_aucGraph, setRocAucGraph] = useState([])
 	const [isHasGraph, setIsHasGraph] = useState(false)
 
 	const readChart = (contents, setGraph) => {
@@ -63,7 +64,7 @@ const PredictData = (props) => {
 
 		setGraph(parsedData)
 	}
-	// TODO: Render training garph for Tabular
+	// TODO: Render training graph for Tabular/Text
 	useEffect(() => {
 		instance
 			.get(API_URL.get_training_history(experimentName))
@@ -92,6 +93,13 @@ const PredictData = (props) => {
 					readChart(
 						data.fit_history.scalars.val_loss,
 						setValLossGraph
+					)
+					setIsHasGraph(true)
+				}
+				if (data.fit_history.scalars.val_roc_auc) {
+					readChart(
+						data.fit_history.scalars.val_roc_auc,
+						setRocAucGraph
 					)
 					setIsHasGraph(true)
 				}
@@ -186,6 +194,7 @@ const PredictData = (props) => {
 
 	return (
 		<div div className="max-h-full">
+			{/* TRAINING GRAPH */}
 			{isHasGraph &&
 				(() => {
 					const object = config[projectInfo.type]
@@ -196,6 +205,7 @@ const PredictData = (props) => {
 								trainLossGraph={trainLossGraph}
 								val_lossGraph={val_lossGraph}
 								val_accGraph={val_accGraph}
+								val_roc_aucGraph={val_roc_aucGraph}
 								updateState={updateState}
 							/>
 						)
@@ -297,10 +307,10 @@ const PredictData = (props) => {
 											showPredictLayout: false,
 										})
 									}}
-									className="absolute top-[0.25rem] right-5 p-[6px] text-white rounded-lg hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+									className="absolute top-[0.6rem] right-5 p-[6px] text-white rounded-full hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 								>
 									<svg
-										className="hover:scale-125"
+										className=""
 										focusable="false"
 										viewBox="0 0 24 24"
 										color="#FFFFFF"
@@ -317,11 +327,6 @@ const PredictData = (props) => {
 									updateState={updateState}
 								/>
 							</div>
-							// <div className="overlay">
-							// 	<div className="modal">
-							// 		Tuan Anh da o day roi nhe
-							// 	</div>
-							// </div>
 						)
 					}
 					return null

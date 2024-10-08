@@ -12,8 +12,8 @@ import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
-import ImageTrainingGraph from '../../../components/TrainingGraph/ImageTrainingGraph'
 import MultimodalTrainingGraph from '../../../components/TrainingGraph/MultimodalTrainingGraph'
+import TextTrainingGraph from '../../../components/TrainingGraph/TextTrainingGraph'
 import { UploadTypes } from 'src/constants/file'
 
 const config = {
@@ -21,35 +21,36 @@ const config = {
 		gridClasses: 'grid-cols-6 gap-3',
 		folder: UploadTypes.FOLDER,
 		uploadPreview: ImageUploadPreview,
-		trainPreview: ImageTrainPreview,
-		predictView: ImagePredict,
-		trainingGraph: ImageTrainingGraph,
 		labelingView: LabelingImageClassification,
+		trainPreview: ImageTrainPreview,
+		trainingGraph: MultimodalTrainingGraph,
+		predictView: ImagePredict,
 	},
 	TEXT_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',
 		folder: UploadTypes.CSV_SINGLE,
 		uploadPreview: TextUploadPreview,
-		trainPreview: TextTrainPreview,
-		predictView: TextPredict,
 		labelingView: LabelingTextClassification,
+		trainPreview: TextTrainPreview,
+		trainingGraph: TextTrainingGraph,
+		predictView: TextPredict,
 	},
 	TABULAR_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',
 		folder: UploadTypes.CSV_SINGLE,
 		uploadPreview: TabularUploadPreview,
+		labelingView: LabelingTextClassification,
 		trainPreview: TabularTrainPreview,
 		predictView: TabularPredict,
-		labelingView: LabelingTextClassification,
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',
 		folder: UploadTypes.CSV_SINGLE,
 		uploadPreview: MultimodalUploadPreview,
+		labelingView: LabelingTextClassification,
 		trainPreview: MultimodalTrainPreview,
 		predictView: MultimodalPredict,
 		trainingGraph: MultimodalTrainingGraph,
-		labelingView: LabelingTextClassification,
 	},
 	// Add more types here as needed
 }

@@ -190,7 +190,7 @@ export default function ProjectList() {
 					className="absolute top-5 right-5 p-[12px] rounded-full bg-transparent hover:bg-gray-300 hover:text-white font-[600] w-[48px] h-[48px]"
 				>
 					<svg
-						className="hover:scale-125 hover:fill-red-500"
+						className=""
 						focusable="false"
 						viewBox="0 0 24 24"
 						color="#69717A"
@@ -218,7 +218,6 @@ export default function ProjectList() {
 											type="text"
 											name="name"
 											id="name"
-											// defaultValue="Project name"
 											required
 											minLength={10}
 											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
@@ -238,7 +237,6 @@ export default function ProjectList() {
 												id="description"
 												name="description"
 												rows={5}
-												// defaultValue="Description project"
 												required
 												minLength={5}
 												className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
@@ -266,33 +264,13 @@ export default function ProjectList() {
 											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 										/>
 									</div>
-
-									{/* <div className="">
-										<label
-											htmlFor="country"
-											className="block text-sm font-medium text-gray-700"
-										>
-											Project Type
-										</label>
-										<select
-											id="type"
-											name="type"
-											className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-										>
-											{projType.map((type) => (
-												<option key={type} value={type}>
-													{TYPES[type].type}
-												</option>
-											))}
-										</select>
-									</div> */}
 								</div>
 								<div className="flex-1 text-center">
 									<h2 className="font-bold text-xl">
 										Project Type
 									</h2>
 									<div
-										className="inline-grid grid-cols-2 ml-10 overflow-scroll gap-6 rounded-lg border-2 px-3 py-4"
+										className="inline-grid grid-cols-2 ml-10 overflow-scroll overflow-x-hidden gap-6 rounded-lg border-2 px-3 py-4"
 										style={{ height: 600 }}
 									>
 										{projType.map((type, idx) => (

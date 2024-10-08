@@ -119,7 +119,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			dashboardState.uploadFiles !== undefined &&
 			dashboardState.uploadFiles.length > 0
 		) {
-			// TODO: Change previewData -> import_args (in Body not FormData)
 			if (
 				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
 				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'

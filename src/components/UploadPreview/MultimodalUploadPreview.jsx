@@ -179,15 +179,6 @@ const MultimodalUploadPreview = ({
 
 		updatePreviewData()
 
-		// //! FAKE DATA UPLOAD
-		// image_columns: ['url'],
-		// text_columns: [
-		// 	'product_name',
-		// 	'original_brand',
-		// 	'cleaned_brand',
-		// 	'report_name',
-		// ],
-
 		setIsDropdownRadioOpen(false)
 	}
 
