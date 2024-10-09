@@ -11,7 +11,7 @@ const PieGraph = ({ data }) => {
 					data={data}
 					cx={200}
 					cy={200}
-					outerRadius={80}
+					outerRadius={120}
 					fill="#8884d8"
 					paddingAngle={1}
 					dataKey="value"
