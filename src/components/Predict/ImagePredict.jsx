@@ -109,7 +109,7 @@ const ImagePredict = ({
 							<img
 								src={URL.createObjectURL(item)}
 								alt=""
-								className="object-cover  rounded-[8px]"
+								className="object-cover rounded-[8px]"
 							/>
 						</div>
 					))}

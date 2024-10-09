@@ -15,7 +15,7 @@ const initialState = {
 	showPredictLayout: false,
 	showResultModal: false,
 	predictFile: { url: '', label: '' },
-	uploadFiles: [],
+	uploadedFiles: [],
 	selectedImage: null,
 	isDeploying: false,
 	isLoading: false,
@@ -121,7 +121,6 @@ const PredictData = (props) => {
 		for (let i = 0; i < validFiles.length; i++) {
 			formData.append('files', validFiles[i])
 		}
-		console.log(validFiles, 'vaFile')
 		console.log('Fetch start')
 
 		try {
@@ -129,43 +128,23 @@ const PredictData = (props) => {
 				experimentName,
 				formData
 			)
-			console.log('data', data)
 			const { predictions } = data
 
-			const tmp = predictions.map((item) => ({
-				id: item.key,
-				value: null,
-				label: item.class,
-				confidence: item.confidence,
-				sentence: item.sentence,
-			}))
-
-			//TODO: tách bạch userConfirm và predictResult
+			//TODO: xóa userConfirm và predictResult
 			updateState({
-				userConfirm: tmp,
 				showUploadPanel: false,
 				showPredictLayout: true,
-				uploadFiles: validFiles,
+				uploadedFiles: validFiles,
 				predictResult: predictions,
 			})
 
 			switch (projectInfo.type) {
-				case 'IMAGE_CLASSIFICATION': {
-					updateState({
-						uploadFiles: validFiles,
-						selectedImage: validFiles[0],
-						confidences: predictions,
-						confidenceScore: parseFloat(predictions[0].confidence),
-						confidenceLabel: predictions[0].class,
-					})
-					break
-				}
-				case 'TEXT_CLASSIFICATION': {
-					updateState({
-						uploadSentences: tmp,
-					})
-					break
-				}
+				// case 'TEXT_CLASSIFICATION': {
+				// 	updateState({
+				// 		uploadSentences: tmp,
+				// 	})
+				// 	break
+				// }
 				// save path cua file csv o BE
 				case 'TABULAR_CLASSIFICATION': {
 					updateState({
@@ -292,7 +271,7 @@ const PredictData = (props) => {
 			</div>
 
 			{/* PREDICT VIEW */}
-			{predictDataState.uploadFiles.length > 0 &&
+			{predictDataState.uploadedFiles.length > 0 &&
 			predictDataState.showPredictLayout ? (
 				projectInfo &&
 				(() => {
@@ -400,7 +379,7 @@ const PredictData = (props) => {
 												{projectInfo.type ===
 												'IMAGE_CLASSIFICATION'
 													? predictDataState
-															.uploadFiles?.length
+															.uploadedFiles?.length
 													: projectInfo.type ===
 														  'TEXT_CLASSIFICATION'
 														? predictDataState
@@ -436,7 +415,7 @@ const PredictData = (props) => {
 																	'true'
 															)?.length /
 																predictDataState
-																	.uploadFiles
+																	.uploadedFiles
 																	?.length
 														).toFixed(2)
 													: projectInfo.type ===

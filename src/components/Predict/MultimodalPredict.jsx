@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import Papa from 'papaparse'
-import logoIcon from 'src/assets/images/logoIcon.png'
 import PieGraph from 'src/components/PieGraph'
 
 const MultimodalPredict = (props) => {
@@ -28,8 +27,8 @@ const MultimodalPredict = (props) => {
 
 	useEffect(() => {
 		if (
-			predictDataState.uploadFiles &&
-			predictDataState.uploadFiles[0].name.endsWith('.csv')
+			predictDataState.uploadedFiles &&
+			predictDataState.uploadedFiles[0].name.endsWith('.csv')
 		) {
 			const reader = new FileReader()
 
@@ -55,9 +54,9 @@ const MultimodalPredict = (props) => {
 				})
 			}
 
-			reader.readAsText(predictDataState.uploadFiles[0])
+			reader.readAsText(predictDataState.uploadedFiles[0])
 		}
-	}, [predictDataState.uploadFiles])
+	}, [predictDataState.uploadedFiles])
 
 	const capitalizeFirstLetter = (string) => {
 		return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
@@ -83,9 +82,6 @@ const MultimodalPredict = (props) => {
 		return `translateX(-${selectedData.index * 100}%)`
 	}
 
-	console.log('csvData', csvData)
-	console.log('predictConfi', predictDataState.predictResult)
-	console.log('false', falsePredict)
 	return (
 		<>
 			{/* TITLE */}
@@ -308,7 +304,7 @@ const MultimodalPredict = (props) => {
 												</div>
 											</div>
 
-											{/* BUTTON */}
+											{/* BUTTON CONFIRM */}
 											<div className="justify-center items-center text-center pt-[20px] h-max">
 												<h1 className="text-xl font-bold mb-4">
 													Is the prediction accurate?
