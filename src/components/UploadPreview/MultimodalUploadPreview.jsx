@@ -129,7 +129,6 @@ const MultimodalUploadPreview = ({
 	const isDropdownOpen = (type) => {
 		if (type === 'radio') return isDropdownRadioOpen
 		if (type === 'checkbox') return isDropdownCheckboxOpen
-
 		return false
 	}
 
@@ -182,7 +181,7 @@ const MultimodalUploadPreview = ({
 		setIsDropdownRadioOpen(false)
 	}
 
-	const handleCheckboxChange = (el, type) => {
+	const handleCheckboxChange = (el) => {
 		setDataFeature(
 			dataFeature.map((feature) => {
 				if (feature.value === el.value)
@@ -287,11 +286,16 @@ const MultimodalUploadPreview = ({
 							<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 								<tr>
 									{dataFeature.map((el) => {
-										if (!el.isActivated) return <></>
+										if (!el.isLabel && !el.isActivated)
+											return <></>
 										return (
 											<th
 												key={el.value}
-												className="px-7 py-3 text-center text-xs font-bold text-black uppercase tracking-wider"
+												className={
+													el.isLabel
+														? 'text-red-500 px-7 py-3 text-center text-xs font-bold uppercase tracking-wider'
+														: 'px-7 py-3 text-center text-xs font-bold text-black uppercase tracking-wider'
+												}
 											>
 												<div>{el.value}</div>
 												<div className="font-normal lowercase">
@@ -314,9 +318,12 @@ const MultimodalUploadPreview = ({
 											(value, colIndex) => {
 												if (
 													!dataFeature[colIndex]
+														.isLabel &&
+													!dataFeature[colIndex]
 														.isActivated
-												)
+												) {
 													return <></>
+												}
 												return (
 													<td
 														key={colIndex}
