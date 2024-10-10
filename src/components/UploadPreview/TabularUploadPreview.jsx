@@ -11,8 +11,9 @@ const TabularUploadPreview = ({
 	handleRemoveFile,
 	setPreviewData,
 	setEditedData,
-	isLocked,
-	setIsLocked,
+	setIsLockedFlag,
+	dataFeature,
+	setDataFeature,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [error, setError] = useState(null)
@@ -23,7 +24,9 @@ const TabularUploadPreview = ({
 	const [targetColumn, setTargetColumn] = useState('Target Column')
 	const itemsPerPage = 5
 
-	const [dataFeature, setDataFeature] = useState([])
+	const [featureTypes, setFeatureTypes] = useState(['string', 'image url'])
+
+	const [isLocked, setIsLocked] = useState(false)
 
 	useEffect(() => {
 		if (file && file.name.endsWith('.csv')) {
@@ -43,7 +46,19 @@ const TabularUploadPreview = ({
 
 						setDataFeature(
 							Object.keys(resultData[0]).map((el) => {
-								return { value: el, isActived: true }
+								let featureType = 'string'
+								if (
+									typeof resultData[0][el] === 'string' &&
+									(resultData[0][el].match('https://') ||
+										resultData[0][el].match('http://'))
+								)
+									featureType = 'image url'
+								return {
+									value: el,
+									isActivated: true,
+									isLabel: false,
+									type: featureType,
+								}
 							})
 						)
 					},
@@ -113,13 +128,30 @@ const TabularUploadPreview = ({
 		return false
 	}
 
+	const updatePreviewData = () => {
+		const labelColumn = dataFeature
+			.filter((feature) => feature.isLabel)
+			.map((feature) => feature.value)[0]
+
+		setPreviewData((prevData) => ({
+			...prevData,
+			label_column: labelColumn,
+		}))
+	}
+
 	const handleRadioChange = (event) => {
 		const value = event.target.value
 		setTargetColumn(value)
-		setPreviewData((prevData) => ({
-			...prevData,
-			label_column: value,
-		}))
+		dataFeature.forEach((item) => {
+			if (item.value === value) {
+				item.isLabel = true
+				item.isActivated = false
+			} else {
+				item.isLabel = false
+				item.isActivated = true
+			}
+		})
+		updatePreviewData()
 		setIsDropdownRadioOpen(false)
 	}
 
@@ -127,17 +159,26 @@ const TabularUploadPreview = ({
 		setDataFeature(
 			dataFeature.map((feature) => {
 				if (feature.value === el.value)
-					feature.isActived = !el.isActived
+					feature.isActivated = !el.isActivated
 				return feature
 			})
 		)
-		console.log(el)
-		console.log(dataFeature)
+		updatePreviewData()
 	}
 
 	const handleChange = (event, el, type) => {
 		if (type === 'radio') handleRadioChange(event)
-		if (type === 'checkbox') handleCheckboxChange(el)
+		if (type === 'checkbox') {
+			if (typeof event === 'string') {
+				const type = event
+				dataFeature.forEach((item) => {
+					if (item.value === el.value) {
+						item.type = type
+					}
+				})
+				updatePreviewData()
+			} else handleCheckboxChange(el, type)
+		}
 	}
 
 	const handleEdit = (id, field, value) => {
@@ -145,13 +186,13 @@ const TabularUploadPreview = ({
 		const newCsvData = csvData.map((item) =>
 			item.id === id ? { ...item, [field]: value } : item
 		)
-		console.log(newCsvData)
 		setCsvData(newCsvData)
 	}
 
 	const handleLockToggle = () => {
-		setIsLocked(!isLocked)
-
+		const lockFlag = isLocked
+		setIsLocked(!lockFlag)
+		setIsLockedFlag(!lockFlag)
 		if (!isLocked) {
 			console.log('Data is locked')
 			setEditedData(csvData.map(({ id, ...rest }) => rest))
@@ -166,6 +207,10 @@ const TabularUploadPreview = ({
 				<h3 className="text-lg font-semibold text-gray-800">
 					{file.name}
 				</h3>
+
+				<div></div>
+				<div></div>
+				<div></div>
 
 				<DropDown
 					csvData={csvData}
@@ -184,23 +229,29 @@ const TabularUploadPreview = ({
 					isDropdownOpen={isDropdownOpen}
 					handleChange={handleChange}
 					targetColumn={targetColumn}
-					type={'checkbox'}
+					type="checkbox"
+					featureTypes={featureTypes}
 				/>
 
-				<Button
-					type="primary"
-					icon={isLocked ? <LockOutlined /> : <UnlockOutlined />}
-					onClick={handleLockToggle}
-				>
-					{isLocked ? 'Unlock' : 'Lock'}
-				</Button>
+				<div></div>
+				<div></div>
 
-				<button
-					onClick={() => handleRemoveFile(index)}
-					className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
-				>
-					Remove
-				</button>
+				<div className="flex gap-3">
+					<Button
+						type="primary"
+						icon={isLocked ? <LockOutlined /> : <UnlockOutlined />}
+						onClick={handleLockToggle}
+					>
+						{isLocked ? 'Unlock' : 'Lock'}
+					</Button>
+
+					<button
+						onClick={() => handleRemoveFile(index)}
+						className="bg-red-500 text-white rounded px-2 py-1 text-sm hover:bg-red-600"
+					>
+						Remove
+					</button>
+				</div>
 			</div>
 			{error && <p className="text-red-500 text-sm">{error}</p>}
 			{csvData.length > 0 ? (
@@ -210,13 +261,23 @@ const TabularUploadPreview = ({
 							<thead className="bg-gradient-to-r bg-[#f0f8ff] font-bold">
 								<tr>
 									{dataFeature.map((el) => {
-										if (!el.isActived) return <></>
+										if (!el.isLabel && !el.isActivated)
+											return <></>
 										return (
 											<th
 												key={el.value}
-												className="px-7 py-3 text-center text-xs font-bold text-black uppercase tracking-wider"
+												className={
+													el.isLabel
+														? 'text-red-500 px-7 py-3 text-center text-xs font-bold uppercase tracking-wider'
+														: 'px-7 py-3 text-center text-xs font-bold text-black uppercase tracking-wider'
+												}
 											>
-												{el.value}
+												<div>{el.value}</div>
+												<div className="font-normal lowercase">
+													{el.value === 'id'
+														? ''
+														: '#' + el.type}
+												</div>
 											</th>
 										)
 									})}
@@ -232,9 +293,12 @@ const TabularUploadPreview = ({
 											(value, colIndex) => {
 												if (
 													!dataFeature[colIndex]
-														.isActived
-												)
+														.isLabel &&
+													!dataFeature[colIndex]
+														.isActivated
+												) {
 													return <></>
+												}
 												return (
 													<td
 														key={colIndex}

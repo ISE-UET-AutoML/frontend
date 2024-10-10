@@ -123,7 +123,7 @@ const DropDown = ({
 															type
 														)
 													}
-													options={featureTypes.map(
+													options={featureTypes?.map(
 														(item) => ({
 															value: item,
 															label: item,
