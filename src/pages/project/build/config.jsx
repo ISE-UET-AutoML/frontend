@@ -7,13 +7,14 @@ import TextTrainPreview from '../../../components/TrainPreview/TextTrainPreview'
 import TabularTrainPreview from '../../../components/TrainPreview/TabularTrainPreview'
 import MultimodalTrainPreview from '../../../components/TrainPreview/MultimodalTrainPreview'
 import ImagePredict from '../../../components/Predict/ImagePredict'
-import TextPredict from '../../../components/Predict/TextPredict'
+import TextPredict1 from '../../../components/Predict/TextPredict1'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultimodalTrainingGraph from '../../../components/TrainingGraph/MultimodalTrainingGraph'
 import TextTrainingGraph from '../../../components/TrainingGraph/TextTrainingGraph'
+import TabularTrainingGraph from '../../../components/TrainingGraph/TabularTrainingGraph'
 import { UploadTypes } from 'src/constants/file'
 
 const config = {
@@ -33,7 +34,7 @@ const config = {
 		labelingView: LabelingTextClassification,
 		trainPreview: TextTrainPreview,
 		trainingGraph: TextTrainingGraph,
-		predictView: TextPredict,
+		predictView: TextPredict1,
 	},
 	TABULAR_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',
@@ -41,6 +42,7 @@ const config = {
 		uploadPreview: TabularUploadPreview,
 		labelingView: LabelingTextClassification,
 		trainPreview: TabularTrainPreview,
+		trainingGraph: TabularTrainingGraph,
 		predictView: TabularPredict,
 	},
 	MULTIMODAL_CLASSIFICATION: {

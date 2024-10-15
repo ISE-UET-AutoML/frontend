@@ -130,6 +130,8 @@ const PredictData = (props) => {
 			)
 			const { predictions } = data
 
+			console.log('Prediction response', data)
+
 			//TODO: xóa userConfirm và predictResult
 			updateState({
 				showUploadPanel: false,
@@ -139,12 +141,6 @@ const PredictData = (props) => {
 			})
 
 			switch (projectInfo.type) {
-				// case 'TEXT_CLASSIFICATION': {
-				// 	updateState({
-				// 		uploadSentences: tmp,
-				// 	})
-				// 	break
-				// }
 				// save path cua file csv o BE
 				case 'TABULAR_CLASSIFICATION': {
 					updateState({

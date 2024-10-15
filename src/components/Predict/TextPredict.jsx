@@ -1,8 +1,4 @@
 import React, { Fragment, useReducer, useState, useEffect } from 'react'
-import instance from 'src/api/axios'
-import { fetchWithTimeout } from 'src/utils/timeout'
-import { API_URL } from 'src/constants/api'
-import Loading from 'src/components/Loading'
 import 'src/assets/css/chart.css'
 import SolutionImage from 'src/assets/images/Solution.png'
 import * as experimentAPI from 'src/api/experiment'

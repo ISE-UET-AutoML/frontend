@@ -3,8 +3,7 @@ import LineGraph from 'src/components/LineGraph'
 const TextTrainingGraph = (props) => {
 	const { trainLossGraph, val_lossGraph, val_roc_aucGraph, updateState } =
 		props
-	console.log('toi da toi day')
-	console.log('val_roc_aucGraph', val_roc_aucGraph)
+
 	return (
 		<div className="w-full h-max">
 			<div className="relative grid gap-3 grid-cols-4 grid-rows-1 max-w-full text-gray-500 py-2.5">

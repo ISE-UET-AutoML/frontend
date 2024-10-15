@@ -24,6 +24,7 @@ const ImagePredict = (props) => {
 		}
 	}, [predictDataState.uploadedFiles])
 
+	// If confidence score < 50% => false
 	useEffect(() => {
 		if (predictDataState.predictResult) {
 			predictDataState.predictResult.map((row, index) => {
@@ -33,6 +34,8 @@ const ImagePredict = (props) => {
 			})
 		}
 	}, [])
+
+	// Handling Pie Data
 	useEffect(() => {
 		const falseValue =
 			predictDataState.uploadedFiles.length > 0
@@ -49,6 +52,7 @@ const ImagePredict = (props) => {
 			{ name: 'Incorrect', value: parseFloat(falseValue) },
 		])
 	}, [falsePredict, predictDataState.uploadedFiles])
+
 	const handleExplainSelectedImage = async (index) => {
 		const formData = new FormData()
 
@@ -242,7 +246,6 @@ const ImagePredict = (props) => {
 												selectedData.index
 											)
 										) {
-											console.log('co nhan su kien')
 											setFalsePredict((prev) =>
 												prev.filter(
 													(item) =>

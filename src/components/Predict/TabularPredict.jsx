@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import 'src/assets/css/chart.css'
-import SolutionImage from 'src/assets/images/Solution.png'
 import * as experimentAPI from 'src/api/experiment'
 import Papa from 'papaparse'
 
