@@ -111,11 +111,6 @@ const TextPredict = ({
 
 				csvData[selectedIndexes].highlight = hl || []
 
-				console.log(
-					'Updated csvData with highlight:',
-					csvData[selectedIndexes]
-				)
-
 				console.log('Fetch successful')
 
 				updateState({ isLoading: false })

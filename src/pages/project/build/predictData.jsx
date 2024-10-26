@@ -89,6 +89,7 @@ const PredictData = (props) => {
 					)
 					setIsHasGraph(true)
 				}
+
 				if (data.fit_history.scalars.val_loss) {
 					readChart(
 						data.fit_history.scalars.val_loss,
@@ -96,6 +97,7 @@ const PredictData = (props) => {
 					)
 					setIsHasGraph(true)
 				}
+
 				if (data.fit_history.scalars.val_roc_auc) {
 					readChart(
 						data.fit_history.scalars.val_roc_auc,
@@ -170,7 +172,7 @@ const PredictData = (props) => {
 	return (
 		<div div className="max-h-full">
 			{/* TRAINING GRAPH */}
-			{isHasGraph &&
+			{/* {isHasGraph &&
 				(() => {
 					const object = config[projectInfo.type]
 					if (object) {
@@ -186,7 +188,30 @@ const PredictData = (props) => {
 						)
 					}
 					return null
-				})()}
+				})()} */}
+
+			<div className="justify-center flex w-full items-center mt-5">
+				<button
+					className="btn"
+					onClick={() => {
+						updateState({ showUploadPanel: true })
+					}}
+				>
+					<svg
+						height="24"
+						width="24"
+						fill="#FFFFFF"
+						viewBox="0 0 24 24"
+						data-name="Layer 1"
+						id="Layer_1"
+						className="sparkle"
+					>
+						<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+					</svg>
+
+					<span className="text">Predict New Data</span>
+				</button>
+			</div>
 
 			{predictDataState.isLoading && <Loading />}
 
@@ -309,175 +334,6 @@ const PredictData = (props) => {
 			) : (
 				<></>
 			)}
-
-			{/* BẢNG KẾT QUẢ SAU KHI CORRECT/ INCORRECT*/}
-			{/* <Transition.Root
-				show={predictDataState.showResultModal}
-				as={Fragment}
-			>
-				<Dialog
-					as="div"
-					className="relative z-[999999]"
-					onClose={(value) => {
-						updateState({ showResultModal: value })
-					}}
-				>
-					<Transition.Child
-						as={Fragment}
-						enter="ease-out duration-300"
-						enterFrom="opacity-0"
-						enterTo="opacity-100"
-						leave="ease-in duration-200"
-						leaveFrom="opacity-100"
-						leaveTo="opacity-0"
-					>
-						<div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-					</Transition.Child>
-
-					<div className="fixed inset-0 z-10 overflow-y-auto">
-						<div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-							<Transition.Child
-								as={Fragment}
-								enter="ease-out duration-300"
-								enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-								enterTo="opacity-100 translate-y-0 sm:scale-100"
-								leave="ease-in duration-200"
-								leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-								leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-							>
-								<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-									<div className="bg-white p-[10px] divide-y-2 divide-solid divide-slate-50">
-										<div className="flex justify-between items-center mb-5">
-											<div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-												<Dialog.Title
-													as="h3"
-													className="text-base font-semibold leading-6 text-gray-900"
-												>
-													Prediction Result
-												</Dialog.Title>
-											</div>
-											<div className="text-[30px] text-gray-400 mx-auto flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-transparent hover:text-red-200 sm:mx-0 sm:h-10 sm:w-10">
-												<button
-													onClick={() =>
-														updateState({
-															showResultModal: false,
-														})
-													}
-												>
-													×
-												</button>
-											</div>
-										</div>
-
-										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
-											Total Prediction:{' '}
-											<strong className="text-blue-600">
-												{projectInfo.type ===
-												'IMAGE_CLASSIFICATION'
-													? predictDataState
-															.uploadedFiles?.length
-													: projectInfo.type ===
-														  'TEXT_CLASSIFICATION'
-														? predictDataState
-																.uploadSentences
-																?.length
-														: 'no'}
-											</strong>
-										</h3>
-
-										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
-											Correct Prediction:{' '}
-											<strong className="text-blue-600">
-												{' '}
-												{
-													predictDataState.userConfirm.filter(
-														(item) =>
-															item.value ===
-															'true'
-													)?.length
-												}
-											</strong>
-										</h3>
-
-										<h3 className="text-[#666] font-[700] p-[15px] text-[24px]">
-											Accuracy:{' '}
-											<strong className="text-blue-600">
-												{projectInfo.type ===
-												'IMAGE_CLASSIFICATION'
-													? parseFloat(
-															predictDataState.userConfirm.filter(
-																(item) =>
-																	item.value ===
-																	'true'
-															)?.length /
-																predictDataState
-																	.uploadedFiles
-																	?.length
-														).toFixed(2)
-													: projectInfo.type ===
-														  'TEXT_CLASSIFICATION'
-														? parseFloat(
-																predictDataState.userConfirm.filter(
-																	(item) =>
-																		item.value ===
-																		'true'
-																)?.length /
-																	predictDataState
-																		.uploadSentences
-																		?.length
-															).toFixed(2)
-														: 'no'}
-											</strong>
-										</h3>
-
-										<div className="images-container flex flex-wrap gap-y-4 justify-center"></div>
-									</div>
-
-									<div className="bg-gray-50 px-4 py-3 sm:flex sm:px-6 justify-start">
-										<button
-											type="button"
-											className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-											onClick={() =>
-												updateState({
-													showResultModal: false,
-												})
-											}
-										>
-											Cancel
-										</button>
-										<button
-											type="button"
-											className="ml-auto w-fit inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-											onClick={() => {
-												updateState({
-													showResultModal: false,
-													isLoading: true,
-												})
-
-												const timer = setTimeout(() => {
-													updateState({
-														isLoading: false,
-													})
-													message.success(
-														'Your model is deployed',
-														2
-													)
-													navigate(PATHS.MODELS, {
-														replace: true,
-													})
-													clearTimeout(timer)
-												}, 5000)
-											}}
-										>
-											Deploy
-										</button>
-									</div>
-								</Dialog.Panel>
-							</Transition.Child>
-						</div>
-					</div>
-				</Dialog>
-			</Transition.Root> */}
 		</div>
 	)
 }

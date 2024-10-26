@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import 'src/assets/css/chart.css'
 import * as experimentAPI from 'src/api/experiment'
 import Papa from 'papaparse'
+import PieGraph from 'src/components/PieGraph'
 
 const TabularPredict = ({
 	experimentName,
@@ -11,15 +12,16 @@ const TabularPredict = ({
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [features, setFeatures] = useState([])
-	const [error, setError] = useState(null)
 	const [selectedIndexes, setSelectedIndexes] = useState([0])
-	const [explanation, setExplanation] = useState(null)
-	const [confirmStatus, setConfirmStatus] = useState([]) // New state for confirm status
+	const [falsePredict, setFalsePredict] = useState([])
+	const [isAllSelected, setIsAllSelected] = useState(false)
+	const [pieData, setPieData] = useState([])
+	const [isShowEff, setIsShowEff] = useState(false)
 
 	useEffect(() => {
 		if (
-			predictDataState.uploadFiles &&
-			predictDataState.uploadFiles[0].name.endsWith('.csv')
+			predictDataState.uploadedFiles &&
+			predictDataState.uploadedFiles[0].name.endsWith('.csv')
 		) {
 			const reader = new FileReader()
 
@@ -32,16 +34,47 @@ const TabularPredict = ({
 
 						if (data.length > 0) {
 							setFeatures(Object.keys(data[0]))
-							// Set default confirm status to true for all rows
-							setConfirmStatus(new Array(data.length).fill(true))
 						}
 					},
-					error: (err) => setError(err.message),
 				})
 			}
-			reader.readAsText(predictDataState.uploadFiles[0])
+			reader.readAsText(predictDataState.uploadedFiles[0])
 		}
-	}, [predictDataState.uploadFiles])
+	}, [predictDataState.uploadedFiles])
+
+	// Handling Pie Data
+	useEffect(() => {
+		const falseValue =
+			csvData.length > 0
+				? ((falsePredict.length / csvData.length) * 100).toFixed(2)
+				: 0
+		const trueValue = (100 - parseFloat(falseValue)).toFixed(2)
+
+		setPieData([
+			{ name: 'Correct', value: parseFloat(trueValue) },
+			{ name: 'Incorrect', value: parseFloat(falseValue) },
+		])
+	}, [falsePredict, csvData])
+
+	// If confidence score < 50% => false
+	useEffect(() => {
+		if (predictDataState.predictResult) {
+			predictDataState.predictResult.map((row, index) => {
+				if (row.confidence < 0.5 && !falsePredict.includes(index)) {
+					setFalsePredict((prev) => [...prev, index])
+				}
+			})
+		}
+	}, [])
+
+	const handleSelectAllChange = () => {
+		if (isAllSelected) {
+			setSelectedIndexes([]) // Deselect all
+		} else {
+			setSelectedIndexes(csvData.map((_, index) => index)) // Select all
+		}
+		setIsAllSelected(!isAllSelected) // Toggle state
+	}
 
 	const handleCheckboxChange = (index) => {
 		setSelectedIndexes((prev) => {
@@ -53,12 +86,6 @@ const TabularPredict = ({
 		})
 	}
 
-	const handleConfirmChange = (index) => {
-		setConfirmStatus(
-			(prev) => prev.map((status, i) => (i === index ? !status : status)) // Toggle confirm status for the selected row
-		)
-	}
-
 	const handleExplain = async (event) => {
 		event.preventDefault()
 
@@ -68,75 +95,80 @@ const TabularPredict = ({
 			isLoading: true,
 		})
 
-		formData.append('data_path', predictDataState.predictFile.url)
-		formData.append('row_indexes', selectedIndexes)
-		formData.append('task', projectInfo.type)
+		if (selectedIndexes) {
+			formData.append('data_path', predictDataState.predictFile.url)
+			formData.append('row_indexes', selectedIndexes)
+			formData.append('task', projectInfo.type)
 
-		console.log('Fetching explain text')
+			console.log('Fetching explain text')
 
-		try {
-			const { data } = await experimentAPI.explainData(
-				experimentName,
-				formData
-			)
+			try {
+				const { data } = await experimentAPI.explainData(
+					experimentName,
+					formData
+				)
 
-			console.log('data Explain', data)
+				console.log('data Explain', data)
 
-			setExplanation(data.explanation)
+				const hl =
+					data.explanation[
+						predictDataState.predictResult[selectedIndexes].class
+					].features
+				const highlightFeatures = hl.map((item) =>
+					item.replace('data-VAL-', '')
+				)
 
-			console.log('Fetch successful')
+				csvData[selectedIndexes].highlight = highlightFeatures || []
 
-			updateState({ isLoading: false })
-		} catch (error) {
-			console.error('Fetch error:', error.message)
-			updateState({ isLoading: false })
+				console.log('Fetch successful')
+
+				updateState({ isLoading: false })
+			} catch (error) {
+				console.error('Fetch error:', error.message)
+				updateState({ isLoading: false })
+			}
 		}
 	}
 
 	return (
-		<div className="w-full h-full">
+		<>
 			{/* HEADER */}
-			<div className="flex items-center mb-5">
-				<h1 className="mb-5 text-4xl font-extrabold text-gray-900 text-left mt-10 flex">
-					<span className="text-transparent bg-clip-text bg-gradient-to-r to-[#1904e5] from-[#fab2ff] mr-2">
+			<div className="mt-6 mb-6 flex">
+				<h1 className=" text-5xl font-extrabold leading-none tracking-tight text-gray-900">
+					Model{' '}
+					<mark className="px-2 text-white bg-blue-600 rounded ">
 						Prediction
-					</span>{' '}
-					result
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						fill="currentColor"
-						width="24"
-						height="24"
-					>
-						<path
-							fillRule="evenodd"
-							d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
-							clipRule="evenodd"
-						/>
-					</svg>
+					</mark>{' '}
+					results
 				</h1>
-
-				<button
-					type="button"
-					onClick={handleExplain}
-					className="h-max ml-auto block w-fit relative mt-[2.25rem] p-1 px-5 py-3 overflow-hidden font-medium text-indigo-600 rounded-lg shadow-2xl group"
-				>
-					<span className="absolute top-0 left-0 w-40 h-40 -mt-10 -ml-3 transition-all duration-700 bg-blue-500 rounded-full blur-md ease"></span>
-					<span className="absolute inset-0 w-full h-full transition duration-700 group-hover:rotate-180 ease">
-						<span className="absolute bottom-0 left-0 w-24 h-24 -ml-10 bg-purple-500 rounded-full blur-md"></span>
-						<span className="absolute bottom-0 right-0 w-24 h-24 -mr-10 bg-pink-500 rounded-full blur-md"></span>
-					</span>
-					<span className="relative text-white">Explain</span>
-				</button>
+				{/* ACCURACY BUTTON */}
+				<div className="rows-span-1 ml-auto mr-[30px] mt-2">
+					<button
+						type="button"
+						onClick={() => {
+							setIsShowEff(true)
+						}}
+						className="w-full h-full bg-blue-600 rounded-md text-xl px-2 py-1 font-medium  text-white transition-all hover:text-blue-600 hover:bg-white hover:border-2 hover:border-blue-600"
+					>
+						Accuracy
+					</button>
+				</div>
 			</div>
 
-			<div className="grid grid-cols-4 grid-rows-5 gap-4 h-[85%]">
-				{/* TABLE */}
-				<div className="col-span-4 row-span-3 max-h-96 overflow-y-auto rounded-lg shadow-lg">
-					<table className="min-w-full border-collapse table-auto rounded-lg overflow-hidden">
-						<thead className="sticky top-0 bg-blue-100 z-10">
-							<tr>
+			{csvData.length > 0 && (
+				<div className="relative w-full max-h-[575px] overflow-y-auto  [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+					{/* TABLE */}
+					<table className=" min-w-full table-auto border-collapse overflow-hidden">
+						<thead className="sticky top-0 z-10 bg-blue-600 text-white rounded-lg">
+							<tr className="border-2">
+								<th className="px-1 py-1 text-center w-[5%] ">
+									<input
+										type="checkbox"
+										className="cursor-pointer"
+										onChange={handleSelectAllChange}
+										checked={isAllSelected}
+									/>
+								</th>
 								{csvData.length > 0 &&
 									features.map((key) => (
 										<th
@@ -146,72 +178,26 @@ const TabularPredict = ({
 											{key}
 										</th>
 									))}
-								<th className="px-2 py-2 text-center">Label</th>
-								<th className="px-2 py-2 text-center">
+								<th className="px-2 py-3 text-center">Label</th>
+								<th className="px-2 py-3 text-center">
 									Confidence
 								</th>
-								<th className="px-2 py-2 text-center">
-									Confirm
-								</th>
-								<th className="px-2 py-2 text-center">
-									Explain
+								<th className="px-2 py-3 text-center">
+									Accurate
 								</th>
 							</tr>
 						</thead>
+
 						<tbody>
 							{csvData.map((row, index) => (
 								<tr
 									key={index}
-									className={`hover:bg-gray-100 ${
-										!confirmStatus[index]
-											? 'bg-red-100' // Row turns red when "false" is selected
-											: selectedIndexes.includes(index)
-												? 'bg-blue-100 cursor-pointer border-2 border-solid border-blue-500'
-												: ''
-									}`}
-									onClick={() => handleCheckboxChange(index)}
+									className="hover:bg-gray-100 border-2 border-solid"
 								>
-									{Object.values(row).map((value, i) => (
-										<td
-											key={i}
-											className="px-6 py-4 text-sm font-medium text-gray-900 text-center"
-										>
-											{value}
-										</td>
-									))}
-									<td
-										key={`label-${index}`}
-										className="px-6 py-4 text-sm font-bold text-[#FF5733] text-center"
-									>
-										{predictDataState.predictResult[index]
-											?.class || 'N/A'}
-									</td>
-									<td
-										key={`confidence-${index}`}
-										className="px-6 py-4 text-sm font-bold text-[#FF5733] text-center"
-									>
-										{predictDataState.predictResult[index]
-											?.confidence || 'N/A'}
-									</td>
-									<td className="px-6 py-4 text-center">
-										<select
-											value={
-												confirmStatus[index]
-													? 'true'
-													: 'false'
-											}
-											onChange={() =>
-												handleConfirmChange(index)
-											}
-											className={`border-none focus:border-none ${!confirmStatus[index] ? 'bg-red-100' : selectedIndexes.includes(index) ? 'bg-blue-100' : ''}`}
-										>
-											<option value="true">True</option>
-											<option value="false">False</option>
-										</select>
-									</td>
-									<td className="px-6 py-4 text-center">
+									<td className="px-2 py-3 text-center">
 										<input
 											type="checkbox"
+											className="cursor-pointer"
 											onChange={() =>
 												handleCheckboxChange(index)
 											}
@@ -220,13 +206,118 @@ const TabularPredict = ({
 											)}
 										/>
 									</td>
+									{features.map((feature, i) => (
+										<td
+											key={i}
+											className={`px-6 py-4 text-sm font-medium text-gray-900 text-center ${
+												row.highlight &&
+												row.highlight.includes(feature)
+													? 'bg-yellow-200 font-bold'
+													: ''
+											}`}
+										>
+											{row[feature]}
+										</td>
+									))}
+									<td
+										key={`label-${index}`}
+										className="px-2 py-3 text-sm font-bold text-[#FF5733] text-center"
+									>
+										{predictDataState.predictResult[index]
+											?.class || 'N/A'}
+									</td>
+									<td
+										key={`confidence-${index}`}
+										className="px-2 py-3 text-sm font-bold text-[#FF5733] text-center"
+									>
+										{predictDataState.predictResult[index]
+											?.confidence || 'N/A'}
+									</td>
+									<td
+										key={`accurate-${index}`}
+										className="px-2 py-3 text-center"
+									>
+										<button
+											className={`rounded-md px-2 py-1 font-medium text-white w-fit transition-all ${
+												!falsePredict.includes(index)
+													? 'bg-emerald-400 hover:text-emerald-400 hover:bg-white hover:border-2 hover:border-emerald-400'
+													: 'bg-red-500 hover:text-red-400 hover:bg-white hover:border-2 hover:border-red-400'
+											}`}
+											onClick={() => {
+												if (
+													falsePredict.includes(index)
+												) {
+													setFalsePredict((prev) =>
+														prev.filter(
+															(item) =>
+																item !== index
+														)
+													)
+												} else {
+													setFalsePredict((prev) => [
+														...prev,
+														index,
+													])
+												}
+											}}
+										>
+											{falsePredict.includes(index)
+												? 'Incorrect'
+												: 'Correct'}
+										</button>
+									</td>
 								</tr>
 							))}
 						</tbody>
 					</table>
 				</div>
+			)}
+
+			<div className="justify-center flex w-full items-center mt-5">
+				<button className="btn" onClick={handleExplain}>
+					<svg
+						height="24"
+						width="24"
+						fill="#FFFFFF"
+						viewBox="0 0 24 24"
+						data-name="Layer 1"
+						id="Layer_1"
+						className="sparkle"
+					>
+						<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+					</svg>
+
+					<span className="text">Explain Selected Row</span>
+				</button>
 			</div>
-		</div>
+			{isShowEff && (
+				<div className="overlay">
+					<div className="modal w-[50%] h-[75%] rounded-xl relative">
+						<h1 className=" mt-6 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
+							Accuracy
+						</h1>
+						<button
+							onClick={() => {
+								setIsShowEff(false)
+							}}
+							className="absolute top-[0.55rem] right-5 p-[6px] rounded-full bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
+						>
+							<svg
+								className=""
+								focusable="false"
+								viewBox="0 0 24 24"
+								color="#FFFFFF"
+								aria-hidden="true"
+								data-testId="close-upload-media-dialog-btn"
+							>
+								<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
+							</svg>
+						</button>
+						<PieGraph data={pieData} />
+					</div>
+				</div>
+			)}
+		</>
 	)
 }
 
