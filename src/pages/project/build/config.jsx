@@ -7,7 +7,7 @@ import TextTrainPreview from '../../../components/TrainPreview/TextTrainPreview'
 import TabularTrainPreview from '../../../components/TrainPreview/TabularTrainPreview'
 import MultimodalTrainPreview from '../../../components/TrainPreview/MultimodalTrainPreview'
 import ImagePredict from '../../../components/Predict/ImagePredict'
-import TextPredict1 from '../../../components/Predict/TextPredict1'
+import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
@@ -34,7 +34,7 @@ const config = {
 		labelingView: LabelingTextClassification,
 		trainPreview: TextTrainPreview,
 		trainingGraph: TextTrainingGraph,
-		predictView: TextPredict1,
+		predictView: TextPredict,
 	},
 	TABULAR_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',
