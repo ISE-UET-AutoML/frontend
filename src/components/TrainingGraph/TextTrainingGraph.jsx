@@ -1,7 +1,7 @@
 import LineGraph from 'src/components/LineGraph'
 
 const TextTrainingGraph = (props) => {
-	const { trainLossGraph, val_lossGraph, val_roc_aucGraph, updateState } =
+	const { trainLossGraph, val_lossGraph, val_roc_aucGraph, updateProjState } =
 		props
 
 	return (
@@ -42,7 +42,7 @@ const TextTrainingGraph = (props) => {
 				<button
 					className="btn"
 					onClick={() => {
-						updateState({ showUploadPanel: true })
+						updateProjState({ showUploadPanel: true })
 					}}
 				>
 					<svg

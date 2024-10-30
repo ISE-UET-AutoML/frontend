@@ -1,7 +1,8 @@
 import LineGraph from 'src/components/LineGraph'
 
 const MultimodalTrainingGraph = (props) => {
-	const { trainLossGraph, val_lossGraph, val_accGraph, updateState } = props
+	const { trainLossGraph, val_lossGraph, val_accGraph, updateProjState } =
+		props
 	return (
 		<div className="w-full h-max">
 			<div className="relative grid gap-3 grid-cols-4 grid-rows-1 max-w-full text-gray-500 py-2.5">
@@ -40,7 +41,7 @@ const MultimodalTrainingGraph = (props) => {
 				<button
 					className="btn"
 					onClick={() => {
-						updateState({ showUploadPanel: true })
+						updateProjState({ showUploadPanel: true })
 					}}
 				>
 					<svg

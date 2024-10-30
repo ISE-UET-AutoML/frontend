@@ -35,7 +35,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const [isLocked, setIsLocked] = useState(false)
 
 	//state
-	const [dashboardState, updateState] = useReducer((pre, next) => {
+	const [projectState, updateProjState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
 	}, initialState)
 
@@ -47,13 +47,13 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			const files = Array.from(event.target.files)
 
 			const validatedFiles = validateFiles(files, projectInfo.type)
-			updateState({ uploadFiles: validatedFiles })
+			updateProjState({ uploadFiles: validatedFiles })
 		}
 	}
 	const handleRemoveFile = (index) => {
-		const newState = [...dashboardState.uploadFiles]
+		const newState = [...projectState.uploadFiles]
 		newState.splice(index, 1)
-		updateState({ uploadFiles: newState })
+		updateProjState({ uploadFiles: newState })
 	}
 
 	const convertToCSV = (jsonData) => {
@@ -75,49 +75,28 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const convertPreviewToFile = (data) => {
 		const csvData = convertToCSV(data)
 		let fileName = 'train.csv'
-		if (dashboardState.uploadFiles.length >= 0) {
-			fileName = dashboardState.uploadFiles[0].name
+		if (projectState.uploadFiles.length >= 0) {
+			fileName = projectState.uploadFiles[0].name
 		}
 		const blob = new Blob([csvData], { type: 'text/csv' })
 		const file = new File([blob], 'train.csv', { type: 'text/csv' })
 
 		console.log(file)
-		if (dashboardState.uploadFiles.length >= 0) {
-			dashboardState.uploadFiles[0] = file
-			console.log("i've done bro")
+		if (projectState.uploadFiles.length >= 0) {
+			projectState.uploadFiles[0] = file
 		} else {
 			console.log('Failed: Upload files failed')
 		}
 	}
 
-	// test read file
-	const testReadFileCsv = (file) => {
-		// const file = dashboardState.uploadFiles[0]
-		const reader = new FileReader()
-
-		reader.onload = () => {
-			Papa.parse(reader.result, {
-				header: true,
-				skipEmptyLines: true,
-				complete: (result) => {
-					const resultData = result.data.map((el) => {
-						return { ...el }
-					})
-					console.log(resultData)
-				},
-			})
-		}
-		reader.readAsText(file)
-	}
-
-	// functioon upload 1 files here
+	// function upload 1 files here
 	const uploadFiles = async (e) => {
 		e.preventDefault()
 
-		if (dashboardState.uploadFiles.length === 0) return
+		if (projectState.uploadFiles.length === 0) return
 		if (
-			dashboardState.uploadFiles !== undefined &&
-			dashboardState.uploadFiles.length > 0
+			projectState.uploadFiles !== undefined &&
+			projectState.uploadFiles.length > 0
 		) {
 			if (
 				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
@@ -142,7 +121,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				projectInfo.type === 'TABULAR_CLASSIFICATION' ||
 				projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
 			) {
-				console.log(dataFeature)
 				const result = editedData.map((obj) => {
 					dataFeature.forEach((el) => {
 						if (!el.isLabel && !el.isActivated) delete obj[el.value]
@@ -151,45 +129,41 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				})
 
 				convertPreviewToFile(result)
-				testReadFileCsv(dashboardState.uploadFiles[0])
 			}
 
 			if (object) {
 				formData.append('type', object.folder)
 			}
-			console.log('preview data here')
+
 			if (previewData.label_column) {
-				console.log('sau khi them fake data', previewData)
 				formData.append('import_args', JSON.stringify(previewData))
 			}
 
-			for (let i = 0; i < dashboardState.uploadFiles.length; i++) {
+			for (let i = 0; i < projectState.uploadFiles.length; i++) {
 				// Convert file name with relative path to base64 string
 				let fileNameBase64 = window.btoa(
-					dashboardState.uploadFiles[i].webkitRelativePath
+					projectState.uploadFiles[i].webkitRelativePath
 				)
 
 				if (
 					projectInfo.type === 'TABULAR_CLASSIFICATION' ||
 					projectInfo.type === 'MULTIMODAL_CLASSIFICATION'
 				) {
-					fileNameBase64 = window.btoa(
-						dashboardState.uploadFiles.name
-					)
-					console.log(dashboardState.uploadFiles.name)
+					fileNameBase64 = window.btoa(projectState.uploadFiles.name)
+					console.log(projectState.uploadFiles.name)
 					console.log(fileNameBase64)
 					// fileNameBase64 = window.btoa('')
 				}
 
 				formData.append(
 					'files',
-					dashboardState.uploadFiles[i],
+					projectState.uploadFiles[i],
 					fileNameBase64
 				)
 			}
 
 			try {
-				updateState({ isUploading: true })
+				updateProjState({ isUploading: true })
 				projectAPI.uploadFiles(projectID, formData).then((data) => {
 					const props = {
 						files: data.data.tasks,
@@ -198,17 +172,18 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						updateFields: updateFields,
 						projectInfo: data.data.project_info,
 					}
+
 					console.log(props)
 
 					message.success('Successfully uploaded', 3)
-					updateState({ isUploading: false })
+					updateProjState({ isUploading: false })
 					updateFields({
 						isDoneUploadData: true,
 						...props,
 					})
 				})
 			} catch (error) {
-				updateState({ isUploading: false })
+				updateProjState({ isUploading: false })
 				message.error('Upload Failed', 3)
 
 				console.error(error)
@@ -220,19 +195,19 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	}
 
 	const handleLoadChunk = () => {
-		if (dashboardState.loadedChunk < dashboardState.uploadFiles.length) {
-			updateState({
-				loadedChunk: dashboardState.loadedChunk + LOAD_CHUNK,
+		if (projectState.loadedChunk < projectState.uploadFiles.length) {
+			updateProjState({
+				loadedChunk: projectState.loadedChunk + LOAD_CHUNK,
 			})
 		}
 	}
 
 	return (
 		<>
-			{dashboardState.isUploading ? <Loading /> : ''}
+			{projectState.isUploading ? <Loading /> : ''}
 			{/* uploaded */}
 			<div
-				onClick={() => updateState({ show: true })}
+				onClick={() => updateProjState({ show: true })}
 				className="flex flex-col cursor-pointer my-10 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)]  rounded-[10px] h-[calc(100%-124px)] min-h-[500px]"
 			>
 				<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
@@ -270,13 +245,13 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			{/* bottom up modal of image classify */}
 			<div
 				className={`${
-					dashboardState.show
+					projectState.show
 						? 'top-0 bottom-full z-[1000] opacity-100 left-0'
 						: 'top-full bottom-0 opacity-0'
 				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease`}
 			>
 				<button
-					onClick={() => updateState({ show: false })}
+					onClick={() => updateProjState({ show: false })}
 					className="absolute top-5 right-5 p-[12px] rounded-full bg-white hover:bg-gray-300 hover:text-white font-[600] w-[48px] h-[48px]"
 				>
 					<svg
@@ -295,7 +270,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				</h3>
 				<div className="container flex justify-around items-center mx-auto gap-4">
 					<div
-						onClick={() => updateState({ showUploader: true })}
+						onClick={() => updateProjState({ showUploader: true })}
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
@@ -314,7 +289,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						</div>
 					</div>
 					<div
-						onClick={() => updateState({ showUploader: true })}
+						onClick={() => updateProjState({ showUploader: true })}
 						className="w-full h-full bg-white p-10 rounded-md hover:scale-[1.02] transition-all ease-linear duration-100   cursor-pointer shadow-[0px_8px_24px_rgba(0,53,133,0.1)]"
 					>
 						<div className="flex flex-col">
@@ -337,14 +312,17 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			{/* bottom up modal of classify image uploader */}
 			<div
 				className={`${
-					dashboardState.showUploader
+					projectState.showUploader
 						? 'top-0 z-[1000] opacity-100'
 						: 'top-full bottom-0 opacity-0'
 				} fixed flex flex-col items-center h-full w-full justify-center bg-white  transition-all duration-500 ease overscroll-auto min-h-screen left-0  overflow-hidden`}
 			>
 				<button
 					onClick={() =>
-						updateState({ showUploader: false, uploadFiles: [] })
+						updateProjState({
+							showUploader: false,
+							uploadFiles: [],
+						})
 					}
 					className="absolute top-5 right-5 p-[12px] rounded-full bg-transparent hover:bg-gray-300 hover:text-white font-[600] w-[48px] h-[48px]"
 				>
@@ -413,20 +391,20 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							Preview
 						</span>
 						<div className="text-center">
-							{dashboardState.uploadFiles.length} File(s) Ready
-							for Upload
+							{projectState.uploadFiles.length} File(s) Ready for
+							Upload
 						</div>
 						<button
 							className="bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
 							onClick={uploadFiles}
 						>
-							Upload {dashboardState.uploadFiles.length} File(s)
+							Upload {projectState.uploadFiles.length} File(s)
 						</button>
 					</div>
 					{/* preview uploaded files */}
 					<div className="h-[2px] bg-gray-100 w-full my-5"></div>
 					{projectInfo &&
-						dashboardState.uploadFiles &&
+						projectState.uploadFiles &&
 						(() => {
 							const object = config[projectInfo.type]
 							if (object) {
@@ -435,11 +413,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 									<div
 										className={`grid ${object.gridClasses}`}
 									>
-										{dashboardState.uploadFiles
-											.slice(
-												0,
-												dashboardState.loadedChunk
-											)
+										{projectState.uploadFiles
+											.slice(0, projectState.loadedChunk)
 											.map((file, index) => (
 												<PreviewComponent
 													key={index}
@@ -471,8 +446,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							return null
 						})()}
 
-					{dashboardState.loadedChunk <
-						dashboardState.uploadFiles.length && (
+					{projectState.loadedChunk <
+						projectState.uploadFiles.length && (
 						<button
 							className="mx-auto flex mt-5 bg-blue-700 rounded-[10px] text-[14px] text-white font-[400] py-[8px] px-[15px]"
 							onClick={handleLoadChunk}

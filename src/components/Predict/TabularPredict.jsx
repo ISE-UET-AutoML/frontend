@@ -8,7 +8,7 @@ const TabularPredict = ({
 	experimentName,
 	projectInfo,
 	predictDataState,
-	updateState,
+	updateProjState,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [features, setFeatures] = useState([])
@@ -91,7 +91,7 @@ const TabularPredict = ({
 
 		const formData = new FormData()
 
-		updateState({
+		updateProjState({
 			isLoading: true,
 		})
 
@@ -122,10 +122,10 @@ const TabularPredict = ({
 
 				console.log('Fetch successful')
 
-				updateState({ isLoading: false })
+				updateProjState({ isLoading: false })
 			} catch (error) {
 				console.error('Fetch error:', error.message)
-				updateState({ isLoading: false })
+				updateProjState({ isLoading: false })
 			}
 		}
 	}

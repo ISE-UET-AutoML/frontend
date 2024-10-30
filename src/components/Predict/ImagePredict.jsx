@@ -4,7 +4,8 @@ import SolutionImage from 'src/assets/images/Solution.png'
 import * as experimentAPI from 'src/api/experiment'
 
 const ImagePredict = (props) => {
-	const { experimentName, projectInfo, predictDataState, updateState } = props
+	const { experimentName, projectInfo, predictDataState, updateProjState } =
+		props
 	const [selectedData, setSelectedData] = useState({ index: 0 })
 	const [falsePredict, setFalsePredict] = useState([])
 	const [explainImageUrl, setExplainImageUrl] = useState(
@@ -56,7 +57,7 @@ const ImagePredict = (props) => {
 	const handleExplainSelectedImage = async (index) => {
 		const formData = new FormData()
 
-		updateState({
+		updateProjState({
 			isLoading: true,
 		})
 
@@ -79,10 +80,10 @@ const ImagePredict = (props) => {
 
 			console.log('Fetch successful')
 
-			updateState({ isLoading: false })
+			updateProjState({ isLoading: false })
 		} catch (error) {
 			console.error('Fetch error:', error.message)
-			updateState({ isLoading: false })
+			updateProjState({ isLoading: false })
 		}
 	}
 

@@ -34,7 +34,7 @@ const PredictData = (props) => {
 	const navigate = useNavigate()
 	const searchParams = new URLSearchParams(location.search)
 	const experimentName = searchParams.get('experiment_name')
-	const [predictDataState, updateState] = useReducer(
+	const [predictDataState, updateProjState] = useReducer(
 		(pre, next) => ({ ...pre, ...next }),
 		initialState
 	)
@@ -112,7 +112,7 @@ const PredictData = (props) => {
 		const files = Array.from(event.target.files)
 		const validFiles = validateFiles(files, projectInfo.type)
 
-		updateState({
+		updateProjState({
 			isLoading: true,
 		})
 
@@ -135,7 +135,7 @@ const PredictData = (props) => {
 			console.log('Prediction response', data)
 
 			//TODO: xóa userConfirm và predictResult
-			updateState({
+			updateProjState({
 				showUploadPanel: false,
 				showPredictLayout: true,
 				uploadedFiles: validFiles,
@@ -145,7 +145,7 @@ const PredictData = (props) => {
 			switch (projectInfo.type) {
 				// save path cua file csv o BE
 				case 'TABULAR_CLASSIFICATION': {
-					updateState({
+					updateProjState({
 						predictFile: {
 							url: data.data_path,
 							label: '',
@@ -161,11 +161,11 @@ const PredictData = (props) => {
 
 			console.log('Fetch successful')
 
-			updateState({ isLoading: false })
+			updateProjState({ isLoading: false })
 			message.success('Success Predict', 3)
 		} catch (error) {
 			message.error('Predict Fail', 3)
-			updateState({ isLoading: false })
+			updateProjState({ isLoading: false })
 		}
 	}
 
@@ -183,7 +183,7 @@ const PredictData = (props) => {
 								val_lossGraph={val_lossGraph}
 								val_accGraph={val_accGraph}
 								val_roc_aucGraph={val_roc_aucGraph}
-								updateState={updateState}
+								updateProjState={updateProjState}
 							/>
 						)
 					}
@@ -194,7 +194,7 @@ const PredictData = (props) => {
 				<button
 					className="btn"
 					onClick={() => {
-						updateState({ showUploadPanel: true })
+						updateProjState({ showUploadPanel: true })
 					}}
 				>
 					<svg
@@ -272,7 +272,7 @@ const PredictData = (props) => {
 				</label>
 				<button
 					onClick={() => {
-						updateState({ showUploadPanel: false })
+						updateProjState({ showUploadPanel: false })
 					}}
 					className="absolute ml-[700px] mt-5 p-[6px] rounded-lg bg-white hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
 				>
@@ -303,7 +303,7 @@ const PredictData = (props) => {
 							<div className=" top-0 left-0 bottom-full z-[1000] opacity-100 fixed h-full w-full px-[30px] bg-white transition-all duration-500 ease overflow-auto pb-[30px]">
 								<button
 									onClick={() => {
-										updateState({
+										updateProjState({
 											showPredictLayout: false,
 										})
 									}}
@@ -324,7 +324,7 @@ const PredictData = (props) => {
 									experimentName={experimentName}
 									projectInfo={projectInfo}
 									predictDataState={predictDataState}
-									updateState={updateState}
+									updateProjState={updateProjState}
 								/>
 							</div>
 						)

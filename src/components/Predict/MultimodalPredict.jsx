@@ -3,7 +3,8 @@ import Papa from 'papaparse'
 import PieGraph from 'src/components/PieGraph'
 
 const MultimodalPredict = (props) => {
-	const { experimentName, projectInfo, predictDataState, updateState } = props
+	const { experimentName, projectInfo, predictDataState, updateProjState } =
+		props
 
 	const [csvData, setCsvData] = useState([])
 	const [selectedData, setSelectedData] = useState({ index: 0 })

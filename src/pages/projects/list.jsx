@@ -1,12 +1,12 @@
-import ProjectCard from './card'
+import { useReducer, useEffect, useState } from 'react'
 import { RectangleStackIcon } from '@heroicons/react/20/solid'
 import { PlusIcon } from '@heroicons/react/24/solid'
-import { useReducer, useEffect, useState } from 'react'
 import instance from 'src/api/axios'
 import { message } from 'antd'
 import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
 import { TYPES } from 'src/constants/types'
+import ProjectCard from './card'
 import class_img from 'src/assets/images/classification_img.jpg'
 import object_detection from 'src/assets/images/object-detection.png'
 import segmentaion_img from 'src/assets/images/segmentation_img.jpg'
@@ -38,8 +38,9 @@ const initialState = {
 	showUploader: false,
 	projects: [],
 }
+
 export default function ProjectList() {
-	const [dashboardState, updateState] = useReducer(
+	const [projectState, updateProjState] = useReducer(
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
@@ -62,7 +63,6 @@ export default function ProjectList() {
 		isSelected.forEach((el, idx) => {
 			if (el) data.type = projType[idx]
 		})
-		console.log(data)
 
 		try {
 			const response = await instance.post(API_URL.all_projects, data, {
@@ -71,9 +71,9 @@ export default function ProjectList() {
 				},
 			})
 
-			console.log({ response })
+			console.log('create Project responese', { response })
+
 			if (response.status === 200) {
-				console.log({ response })
 				window.location = PATHS.PROJECT_BUILD(response.data._id)
 			}
 		} catch (error) {
@@ -83,96 +83,94 @@ export default function ProjectList() {
 
 	const getProjects = async () => {
 		const response = await instance.get(API_URL.all_projects)
-		updateState({ projects: response.data })
+		updateProjState({ projects: response.data })
 		console.log('Project List', response.data)
 		return response.data
 	}
 
 	useEffect(() => {
-		dashboardState.projects.length >= 0 && getProjects()
+		projectState.projects.length >= 0 && getProjects()
 	}, [])
 
 	return (
 		<>
-			<div className="">
-				<div className="mx-auto w-full flex-grow lg:flex xl:px-2 -z-10 mt-2">
-					{/* Left sidebar & main wrapper */}
-					<div className="min-w-0 flex-1 bg-white xl:flex p-5 rounded-md">
-						{/* Projects List */}
-						<div className="bg-white lg:min-w-0 lg:flex-1">
-							<div className="flex justify-between mx-auto px-3 mb-5 ">
-								<div className="px-4 lg:px-0">
-									<h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-										Projects
-									</h1>
-									{/* Meta info */}
-									<div className="flex mt-5 flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-8 xl:flex-col xl:space-x-0 xl:space-y-6">
-										<div className="flex items-center space-x-2">
-											<RectangleStackIcon
-												className="h-5 w-5 text-gray-400"
-												aria-hidden="true"
-											/>
-											<span className="text-sm font-medium text-gray-500">
-												{dashboardState.projects.length}{' '}
-												Projects
-											</span>
-										</div>
-									</div>
-								</div>
-								{/* Action buttons */}
-								<div className="flex flex-col sm:flex-row xl:flex-col">
-									<button
-										type="button"
-										className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
-										onClick={() =>
-											updateState({ showUploader: true })
-										}
-									>
-										<PlusIcon
-											className="-ml-1 mr-2 h-5 w-5"
+			<div className="mx-auto w-full flex-grow lg:flex xl:px-2 -z-10 mt-2">
+				{/* Left sidebar & main wrapper */}
+				<div className="min-w-0 flex-1 bg-white xl:flex p-5 rounded-md">
+					{/* Projects List */}
+					<div className="bg-white lg:min-w-0 lg:flex-1">
+						<div className="flex justify-between mx-auto px-3 mb-5 ">
+							<div className="px-4 lg:px-0">
+								<h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+									Projects
+								</h1>
+								{/* Meta info */}
+								<div className="flex mt-5 flex-col space-y-6 sm:flex-row sm:space-y-0 sm:space-x-8 xl:flex-col xl:space-x-0 xl:space-y-6">
+									<div className="flex items-center space-x-2">
+										<RectangleStackIcon
+											className="h-5 w-5 text-gray-400"
 											aria-hidden="true"
 										/>
-										New Project
-									</button>
+										<span className="text-sm font-medium text-gray-500">
+											{projectState.projects.length}{' '}
+											Projects
+										</span>
+									</div>
 								</div>
 							</div>
-
-							{dashboardState.projects.length > 0 ? (
-								<div className="px-3  mx-auto pt-5 overflow-hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-4">
-									{dashboardState.projects.map((project) => (
-										<ProjectCard
-											key={project._id}
-											project={project}
-											getProjects={getProjects}
-										/>
-									))}
-								</div>
-							) : (
-								<div className="text-center">
-									<svg
-										className="mx-auto h-12 w-12 text-gray-400"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke="currentColor"
+							{/* Action buttons */}
+							<div className="flex flex-col sm:flex-row xl:flex-col">
+								<button
+									type="button"
+									className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
+									onClick={() =>
+										updateProjState({ showUploader: true })
+									}
+								>
+									<PlusIcon
+										className="-ml-1 mr-2 h-5 w-5"
 										aria-hidden="true"
-									>
-										<path
-											vectorEffect="non-scaling-stroke"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-										/>
-									</svg>
-									<h3 className="mt-2 text-sm font-medium text-gray-900">
-										No projects
-									</h3>
-									<p className="mt-1 text-sm text-gray-500">
-										Get started by creating a new project.
-									</p>
-								</div>
-							)}
+									/>
+									New Project
+								</button>
+							</div>
 						</div>
+
+						{projectState.projects.length > 0 ? (
+							<div className="px-3  mx-auto pt-5 overflow-hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-4">
+								{projectState.projects.map((project) => (
+									<ProjectCard
+										key={project._id}
+										project={project}
+										getProjects={getProjects}
+									/>
+								))}
+							</div>
+						) : (
+							<div className="text-center">
+								<svg
+									className="mx-auto h-12 w-12 text-gray-400"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+									aria-hidden="true"
+								>
+									<path
+										vectorEffect="non-scaling-stroke"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+									/>
+								</svg>
+								<h3 className="mt-2 text-sm font-medium text-gray-900">
+									No projects
+								</h3>
+								<p className="mt-1 text-sm text-gray-500">
+									Get started by creating a new project.
+								</p>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
@@ -180,13 +178,13 @@ export default function ProjectList() {
 			{/* modal */}
 			<div
 				className={`${
-					dashboardState.showUploader
+					projectState.showUploader
 						? 'top-0 !z-[1000] opacity-100'
 						: 'top-full bottom-0 opacity-0'
 				} fixed flex flex-col items-center h-full w-full px-[30px] justify-center bg-white  transition-all duration-500 ease overscroll-auto overflow-auto min-h-screen`}
 			>
 				<button
-					onClick={() => updateState({ showUploader: false })}
+					onClick={() => updateProjState({ showUploader: false })}
 					className="absolute top-5 right-5 p-[12px] rounded-full bg-transparent hover:bg-gray-300 hover:text-white font-[600] w-[48px] h-[48px]"
 				>
 					<svg

@@ -14,18 +14,18 @@ const initialState = {
 
 export default function ProjectModels() {
 	const { id: projectId } = useParams()
-	const [dashboardState, updateState] = useReducer((pre, next) => {
+	const [projectState, updateProjState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
 	}, initialState)
 
 	const getModels = async () => {
 		const { data } = await instance.get(API_URL.all_modelsById(projectId))
-		updateState({ models: data })
+		updateProjState({ models: data })
 		return data
 	}
 
 	useEffect(() => {
-		dashboardState.models.length >= 0 && getModels()
+		projectState.models.length >= 0 && getModels()
 	}, [])
 	return (
 		<>
@@ -42,16 +42,16 @@ export default function ProjectModels() {
 								aria-hidden="true"
 							/>
 							<span className="text-sm font-medium text-gray-500">
-								{dashboardState.models.length} Models
+								{projectState.models.length} Models
 							</span>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			{dashboardState.models.length > 0 ? (
+			{projectState.models.length > 0 ? (
 				<ul className="px-3  mx-auto pt-5 overflow-hidden sm:grid sm:grid-cols-2 gap-3 py-4">
-					{dashboardState.models.map((model) => (
+					{projectState.models.map((model) => (
 						<ModelCard key={model._id} model={model} />
 					))}
 				</ul>
