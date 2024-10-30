@@ -175,7 +175,7 @@ export default function ProjectList() {
 				</div>
 			</div>
 
-			{/* modal */}
+			{/* Create new project UI */}
 			<div
 				className={`${
 					projectState.showUploader
@@ -200,7 +200,6 @@ export default function ProjectList() {
 				</button>
 
 				<div className="mt-10 sm:mt-0 w-full max-w-6xl">
-					{/* need attention */}
 					<form action="#" onSubmit={handleCreateProject}>
 						<div className="overflow-hidden shadow sm:rounded-md">
 							<div className="flex sm:rounded-md px-4 py-5 sm:p-6 w-full max-w-6xl border border-gray-200">
@@ -302,7 +301,7 @@ export default function ProjectList() {
 									type="submit"
 									className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-5 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 								>
-									Save
+									Create
 								</button>
 							</div>
 						</div>

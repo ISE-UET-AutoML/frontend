@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
-    "@headlessui/react": "^1.7.11",
+    "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.0.16",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^5.14.1",
