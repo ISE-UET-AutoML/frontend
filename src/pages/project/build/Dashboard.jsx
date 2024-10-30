@@ -50,6 +50,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			updateProjState({ uploadFiles: validatedFiles })
 		}
 	}
+
 	const handleRemoveFile = (index) => {
 		const newState = [...projectState.uploadFiles]
 		newState.splice(index, 1)

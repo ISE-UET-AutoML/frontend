@@ -1,10 +1,13 @@
 import { useReducer, useEffect, useState } from 'react'
+import { TableCellsIcon } from '@heroicons/react/20/solid'
 import {
-	TableCellsIcon,
+	DocumentIcon,
 	EyeIcon,
 	EyeSlashIcon,
-} from '@heroicons/react/20/solid'
+	XMarkIcon,
+} from '@heroicons/react/24/outline'
 import { PlusIcon } from '@heroicons/react/24/solid'
+import { validateFiles2 } from 'src/utils/file'
 import DatasetCard from './card'
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { DATATYPES } from 'src/constants/types'
@@ -22,7 +25,13 @@ export default function DatasetList() {
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
-	const [selectedOption, setSelectedOption] = useState('remote-url')
+	const [title, setTitle] = useState('')
+	const [dataType1, setDataType1] = useState('IMAGE')
+	const [isPrivate, setIsPrivate] = useState(true)
+	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
+	const [url, setUrl] = useState('')
+	const [files, setFiles] = useState([])
+	const [totalKbytes, setTotalKbytes] = useState(0)
 
 	const handleCreateDataset = async (event) => {
 		event.preventDefault()
@@ -31,13 +40,25 @@ export default function DatasetList() {
 	}
 
 	const handleFileChange = (event) => {
-		// if (projectInfo) {
-		// 	const files = Array.from(event.target.files)
+		if (dataType1) {
+			const files = Array.from(event.target.files) // Change FileList to Array
+			const validatedFiles = validateFiles2(files, dataType1)
 
-		// 	const validatedFiles = validateFiles(files, projectInfo.type)
-		// 	updateProjState({ uploadFiles: validatedFiles })
-		// }
-		console.log('Ok')
+			const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+			const totalSizeInKB = (totalSize / 1024).toFixed(2)
+
+			setFiles(validatedFiles)
+			setTotalKbytes(totalSizeInKB)
+		}
+	}
+
+	const handleDelete = (webkitRelativePath) => {
+		// Filter out the file with the matching webkitRelativePath
+
+		const updatedFiles = files.filter(
+			(file) => file.webkitRelativePath !== webkitRelativePath
+		)
+		setFiles(updatedFiles)
 	}
 
 	return (
@@ -74,7 +95,7 @@ export default function DatasetList() {
 							<div className="flex flex-col sm:flex-row xl:flex-col">
 								<button
 									type="button"
-									className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
+									className="inline-flex items-center rounded-md border border-transparent bg-blue-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer h-fit"
 									onClick={() =>
 										updateDataState({ showUploader: true })
 									}
@@ -90,13 +111,13 @@ export default function DatasetList() {
 
 						{datasetState.datasets.length > 0 ? (
 							<div className="px-3  mx-auto pt-5 overflow-hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-4">
-								{datasetState.datasets.map((project) => (
+								{/* {datasetState.datasets.map((project) => (
 									<DatasetCard
 										key={dataset._id}
 										dataset={dataset}
 										getDatasets={getDatasets}
 									/>
-								))}
+								))} */}
 							</div>
 						) : (
 							<div className="text-center">
@@ -154,7 +175,7 @@ export default function DatasetList() {
 					</button>
 					<h1 className="font-bold ml-3 text-xl">Upload Data</h1>
 				</div>
-				<form
+				<div
 					className=" space-y-3"
 					action="#"
 					onSubmit={handleCreateDataset}
@@ -170,6 +191,7 @@ export default function DatasetList() {
 							type="text"
 							name="name"
 							id="name"
+							onChange={(e) => setTitle(e.targer.value)}
 							required
 							minLength={6}
 							className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
@@ -184,8 +206,9 @@ export default function DatasetList() {
 							Type
 						</label>
 						<select
-							id="type"
-							name="type"
+							name="dataType"
+							value={dataType1}
+							onChange={(e) => setDataType1(e.target.value)}
 							className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 						>
 							{dataType.map((type) => (
@@ -202,15 +225,29 @@ export default function DatasetList() {
 						>
 							Visibility
 						</label>
-						<div className="flex w-full mt-1  border-gray-300 bg-white ">
-							<button className="flex items-center space-x-2 px-2 py-2 w-1/2 border-gray-300 border rounded-md">
+						<div className="flex w-full mt-1 bg-white">
+							<button
+								onClick={() => setIsPrivate(true)}
+								className={`flex items-center space-x-2 px-2 py-2 w-1/2 border rounded-md ${
+									isPrivate
+										? 'border-blue-500'
+										: 'border-gray-300'
+								}`}
+							>
 								<EyeSlashIcon
 									className="h-5 w-5 text-gray-400"
 									aria-hidden="true"
 								/>
 								<span className="ml-2">Private</span>
 							</button>
-							<button className="flex items-center space-x-2 ml-3 px-2 py-2 w-1/2 border-gray-300 border rounded-md">
+							<button
+								onClick={() => setIsPrivate(false)}
+								className={`flex items-center space-x-2 ml-3 px-2 py-2 w-1/2 border rounded-md ${
+									!isPrivate
+										? 'border-blue-500'
+										: 'border-gray-300'
+								}`}
+							>
 								<EyeIcon
 									className="h-5 w-5 text-gray-400"
 									aria-hidden="true"
@@ -219,12 +256,13 @@ export default function DatasetList() {
 							</button>
 						</div>
 					</div>
+
 					<TabGroup className="w-full">
 						<TabList className="flex space-x-10 rounded-lg">
 							<Tab
 								className={({ selected }) =>
 									`w-max py-2.5 text-xl leading-5 font-medium transition duration-200 ease-in-out 
-            ${selected ? 'text-black border-b-2 border-blue-600' : 'text-gray-500 hover:text-blue-500'}`
+            ${selected ? 'text-black border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500'}`
 								}
 							>
 								File
@@ -232,7 +270,7 @@ export default function DatasetList() {
 							<Tab
 								className={({ selected }) =>
 									`w-max py-2.5 text-xl leading-5 font-medium transition duration-200 ease-in-out 
-            ${selected ? 'text-black border-b-2 border-blue-600' : 'text-gray-500 hover:text-blue-500'}`
+            ${selected ? 'text-black border-b-2 border-blue-500' : 'text-gray-500 hover:text-blue-500'}`
 								}
 							>
 								Link
@@ -245,7 +283,7 @@ export default function DatasetList() {
 							<TabPanel>
 								<label
 									htmlFor="classification"
-									className="mt-4 h-[180px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 rounded-[15px] hover:border-[#3498db]"
+									className="mt-4 h-[180px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 rounded-[15px] hover:border-blue-500"
 								>
 									<div className="w-full h-full bg-white p-5  cursor-pointer rounded-[15px]">
 										<div className="flex flex-col">
@@ -255,12 +293,12 @@ export default function DatasetList() {
 												className="mt-5 w-[200px] h-full mx-auto"
 											/>
 
-											{/* <p className="text-center text-[15px] font-[300]">
-												{(projectInfo &&
-													TYPES[projectInfo.type]
+											<p className="text-center text-[15px] font-[300]">
+												{(dataType1 &&
+													DATATYPES[dataType1]
 														?.description) ||
 													'No description available'}
-											</p> */}
+											</p>
 										</div>
 									</div>
 									<div className="w-full h-full bg-white p-5 cursor-pointer rounded-[15px]">
@@ -287,22 +325,65 @@ export default function DatasetList() {
 										onChange={handleFileChange}
 									/>
 								</label>
-								<div className="h-max-[110px] border-b border-gray-300 mt-2">
-									<div className="text-gray-500">Files</div>
+								<div className="border-b border-gray-300 mt-2">
+									<div className="">
+										Files
+										<span className="ml-2 text-gray-500 text-sm">
+											{'('}
+											{totalKbytes} {' kB)'}
+										</span>
+									</div>
 								</div>
+								{files && (
+									<div className="max-h-[120px] overflow-y-auto w-full">
+										{files.map((file) => (
+											<div className="border-b border-gray-300 flex py-2 items-center w-full hover:bg-gray-50">
+												<DocumentIcon
+													className="h-5 w-5 text-gray-400 mr-3"
+													aria-hidden="true"
+												/>
+												<span>{file.name}</span>
+												<span className="ml-2 text-gray-500 text-sm">
+													{'('}
+													{(file.size / 1024).toFixed(
+														2
+													)}{' '}
+													{' kB)'}
+												</span>
+
+												<button
+													className="ml-auto"
+													onClick={() =>
+														handleDelete(
+															file.webkitRelativePath
+														)
+													}
+												>
+													<XMarkIcon
+														className="h-5 w-5 text-gray-400 mr-3"
+														aria-hidden="true"
+													/>
+												</button>
+											</div>
+										))}
+									</div>
+								)}
 							</TabPanel>
 							<TabPanel>
-								<div className="mb-2 flex space-x-4 border-gray-300 border rounded-lg px-5 py-3">
+								<div
+									className="mb-2 flex space-x-4 border-gray-300 border rounded-lg px-5 py-3 cursor-pointer"
+									onClick={() =>
+										setSelectedUrlOption('remote-url')
+									}
+								>
 									<input
 										type="radio"
 										name="import-option"
 										value="remote-url"
 										checked={
-											selectedOption === 'remote-url'
+											selectedUrlOption === 'remote-url'
 										}
-										onChange={() =>
-											setSelectedOption('remote-url')
-										}
+										readOnly
 									/>
 									<img
 										src="https://www.kaggle.com/static/images/datasets/uploader/remote_url_light.svg"
@@ -320,17 +401,20 @@ export default function DatasetList() {
 										</p>
 									</div>
 								</div>
-								<div className="mb-2 flex space-x-4 border-gray-300 border rounded-lg px-5 py-3">
+								<div
+									className="mb-2 flex space-x-4 border-gray-300 border rounded-lg px-5 py-3 cursor-pointer"
+									onClick={() =>
+										setSelectedUrlOption('github-url')
+									}
+								>
 									<input
 										type="radio"
 										name="import-option"
 										value="github-url"
 										checked={
-											selectedOption === 'github-url'
+											selectedUrlOption === 'github-url'
 										}
-										onChange={() =>
-											setSelectedOption('github-url')
-										}
+										readOnly
 									/>
 									<img
 										src="https://www.kaggle.com/static/images/datasets/uploader/import_github_repository_light.svg"
@@ -349,15 +433,20 @@ export default function DatasetList() {
 										</p>
 									</div>
 								</div>
-								<div className=" flex space-x-4 border-gray-300 border rounded-lg px-5 py-3">
+								<div
+									className="flex space-x-4 border-gray-300 border rounded-lg px-5 py-3 cursor-pointer"
+									onClick={() =>
+										setSelectedUrlOption('cloud-url')
+									}
+								>
 									<input
 										type="radio"
 										name="import-option"
 										value="cloud-url"
-										checked={selectedOption === 'cloud-url'}
-										onChange={() =>
-											setSelectedOption('cloud-url')
+										checked={
+											selectedUrlOption === 'cloud-url'
 										}
+										readOnly
 									/>
 									<img
 										src="https://www.kaggle.com/static/images/datasets/uploader/google_cloud_storage_light.svg"
@@ -385,6 +474,7 @@ export default function DatasetList() {
 									minLength={6}
 									className="mt-2 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 									placeholder="URL"
+									onChange={(e) => setUrl(e.targer.value)}
 								/>
 							</TabPanel>
 						</TabPanels>
@@ -393,12 +483,12 @@ export default function DatasetList() {
 					<div className="text-right">
 						<button
 							type="submit"
-							className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-5 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+							className="inline-flex justify-center rounded-md border border-transparent bg-blue-500 py-2 px-5 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 						>
 							Create
 						</button>
 					</div>
-				</form>
+				</div>
 			</div>
 		</>
 	)
