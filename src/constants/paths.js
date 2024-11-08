@@ -4,6 +4,7 @@ const PATHS = {
 	SIGNUP: '/signup',
 	DEFAULT: '/app',
 	PROJECTS: '/app/projects',
+	BUCKETS: '/app/buckets',
 	DATASETS: '/app/datasets',
 	PROFILE: '/profile',
 	SETTINGS: '/settings',

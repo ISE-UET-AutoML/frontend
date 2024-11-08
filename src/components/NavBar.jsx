@@ -25,7 +25,7 @@ const NavBar = () => {
 	return (
 		<Disclosure
 			as="nav"
-			className="sticky top-0 bg-white shadow-md z-[999] relative"
+			className="sticky top-0 bg-white shadow-md z-[999]"
 		>
 			{({ open }) => (
 				<>
@@ -71,6 +71,16 @@ const NavBar = () => {
 										// className={({ isActive }) => (isActive ? activeClassName : defaultClassName)}
 									>
 										Projects
+									</ActiveLink>
+								</div>
+								<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+									<ActiveLink
+										to={PATHS.BUCKETS}
+										defaultclassname={defaultclassname}
+										activeclassname={activeclassname}
+										// className={({ isActive }) => (isActive ? activeClassName : defaultClassName)}
+									>
+										Buckets
 									</ActiveLink>
 								</div>
 								<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -162,7 +172,7 @@ const NavBar = () => {
 															active
 																? 'bg-gray-100'
 																: '',
-															'block px-4 py-2 text-sm text-gray-700 border-t text-rose-500'
+															'block px-4 py-2 text-sm text-gray-700 border-t'
 														)}
 													>
 														Sign out

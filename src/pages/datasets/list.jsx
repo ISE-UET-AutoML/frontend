@@ -39,8 +39,13 @@ export default function DatasetList() {
 		console.log('OK')
 	}
 
+	const handleFileChange2 = (event) => {
+		console.log('xda toi day??/')
+	}
 	const handleFileChange = (event) => {
+		console.log('da toi day??/')
 		if (dataType1) {
+			console.log('da toi day')
 			const files = Array.from(event.target.files) // Change FileList to Array
 			const validatedFiles = validateFiles2(files, dataType1)
 
@@ -49,6 +54,7 @@ export default function DatasetList() {
 
 			setFiles(validatedFiles)
 			setTotalKbytes(totalSizeInKB)
+			console.log('da vao toi day')
 		}
 	}
 
@@ -60,6 +66,8 @@ export default function DatasetList() {
 		)
 		setFiles(updatedFiles)
 	}
+
+	console.log('files', files)
 
 	return (
 		<>
@@ -175,7 +183,7 @@ export default function DatasetList() {
 					</button>
 					<h1 className="font-bold ml-3 text-xl">Upload Data</h1>
 				</div>
-				<div
+				<form
 					className=" space-y-3"
 					action="#"
 					onSubmit={handleCreateDataset}
@@ -191,7 +199,7 @@ export default function DatasetList() {
 							type="text"
 							name="name"
 							id="name"
-							onChange={(e) => setTitle(e.targer.value)}
+							onChange={(e) => setTitle(e.target.value)}
 							required
 							minLength={6}
 							className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
@@ -218,7 +226,7 @@ export default function DatasetList() {
 							))}
 						</select>
 					</div>
-					<div className="">
+					{/* <div className="">
 						<label
 							htmlFor="visibility"
 							className="block font-medium text-xl text-gray-700"
@@ -255,6 +263,62 @@ export default function DatasetList() {
 								<span className="ml-2">Public</span>
 							</button>
 						</div>
+					</div> */}
+					<div className="">
+						<label
+							htmlFor="service"
+							className="block font-medium text-xl text-gray-700"
+						>
+							Service
+						</label>
+						<div className="flex w-full mt-1 bg-white">
+							<button
+								className={`flex items-center space-x-2 px-2 py-2 w-1/2 border rounded-md ${
+									isPrivate
+										? 'border-blue-500'
+										: 'border-gray-300'
+								}`}
+							>
+								<img
+									className="rounded-md"
+									src="https://static-00.iconduck.com/assets.00/cloud-storage-icon-512x410-pb1vlt5m.png"
+									height="64"
+									width="64"
+									alt="Simple Storage Service icon"
+								></img>
+								<span className="ml-2">
+									Google Cloud Storage
+								</span>
+							</button>
+							<button
+								className={`flex items-center space-x-2 ml-3 px-2 py-2 w-1/2 border rounded-md ${
+									!isPrivate
+										? 'border-blue-500'
+										: 'border-gray-300'
+								}`}
+							>
+								<img
+									className="rounded-md"
+									src="https://icon.icepanel.io/AWS/svg/Storage/Simple-Storage-Service.svg"
+									height="64"
+									width="64"
+									alt="Simple Storage Service icon"
+								></img>
+								<span className="ml-2">AWS S3</span>
+							</button>
+						</div>
+					</div>
+
+					<div className=" border border-gray-300 flex rounded-md py-2 px-3">
+						<img
+							className="rounded-md"
+							src="https://cdn-icons-png.flaticon.com/512/7771/7771708.png"
+							height="30"
+							width="30"
+							alt="Simple Storage Service icon"
+						></img>
+
+						<select className="border-l-2 border-gray-300 ml-4"></select>
 					</div>
 
 					<TabGroup className="w-full">
@@ -321,10 +385,16 @@ export default function DatasetList() {
 										name="files"
 										webkitdirectory="true"
 										id="classification"
-										className="hidden"
+										className="z-50 hidden"
 										onChange={handleFileChange}
 									/>
 								</label>
+								<input
+									type="file"
+									webkitdirectory="true"
+									onSelect={handleFileChange}
+									onClick={handleFileChange2}
+								/>
 								<div className="border-b border-gray-300 mt-2">
 									<div className="">
 										Files
@@ -474,7 +544,7 @@ export default function DatasetList() {
 									minLength={6}
 									className="mt-2 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
 									placeholder="URL"
-									onChange={(e) => setUrl(e.targer.value)}
+									onChange={(e) => setUrl(e.target.value)}
 								/>
 							</TabPanel>
 						</TabPanels>
@@ -488,7 +558,7 @@ export default function DatasetList() {
 							Create
 						</button>
 					</div>
-				</div>
+				</form>
 			</div>
 		</>
 	)

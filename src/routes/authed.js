@@ -1,6 +1,7 @@
 import { PATHS } from 'src/constants/paths'
 
 import Projects from 'src/pages/projects'
+import Buckets from 'src/pages/buckets'
 import Datasets from 'src/pages/datasets'
 import Profile from 'src/pages/profile'
 import Settings from 'src/pages/settings'
@@ -34,6 +35,10 @@ const routes = {
 				{
 					path: PATHS.PROJECTS,
 					element: <Projects />,
+				},
+				{
+					path: PATHS.BUCKETS,
+					element: <Buckets />,
 				},
 				{
 					path: PATHS.DATASETS,
