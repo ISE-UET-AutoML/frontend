@@ -85,6 +85,7 @@ export default function ProjectList() {
 		const response = await instance.get(API_URL.all_projects)
 		updateProjState({ projects: response.data })
 		console.log('Project List', response.data)
+
 		return response.data
 	}
 

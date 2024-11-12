@@ -1,9 +1,18 @@
-import { API_URL, API_BASE_URL } from 'src/constants/api';
-import instance from './axios';
-import axios from 'axios';
+import { API_BASE_URL } from 'src/constants/api'
+import instance from './axios'
 
-// TODO 
-// update label,
-// 
+const URL = `${API_BASE_URL}/datasets`
 
-// export { createLabels }
+const createDataset = (formData) => {
+	const options = {
+		headers: { 'Content-Type': 'multipart/form-data' },
+	}
+
+	return instance.post(`${URL}`, formData, options)
+}
+
+const getDatasets = () => {
+	return instance.get(URL)
+}
+
+export { createDataset, getDatasets }

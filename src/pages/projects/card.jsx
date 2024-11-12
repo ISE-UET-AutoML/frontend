@@ -9,7 +9,7 @@ function clsx(...classes) {
 	return classes.filter(Boolean).join(' ')
 }
 
-export default function ProjectCard({ project, className, getProjects }) {
+export default function ProjectCard({ project, getProjects }) {
 	const handleDelete = (projectID) => {
 		if (window.confirm('Are you sure you want to delete this project?')) {
 			deleteProject(projectID)
@@ -28,8 +28,7 @@ export default function ProjectCard({ project, className, getProjects }) {
 			<div
 				key={project._id}
 				className={clsx(
-					'group relative rounded-xl bg-gray-50 shadow-md transition duration-300',
-					className
+					'group relative rounded-xl bg-gray-50 shadow-md transition duration-300'
 				)}
 			>
 				<div className="p-6 flex">

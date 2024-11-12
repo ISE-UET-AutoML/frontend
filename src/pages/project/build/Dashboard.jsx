@@ -83,6 +83,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		const file = new File([blob], 'train.csv', { type: 'text/csv' })
 
 		console.log(file)
+
 		if (projectState.uploadFiles.length >= 0) {
 			projectState.uploadFiles[0] = file
 		} else {
@@ -95,6 +96,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		e.preventDefault()
 
 		if (projectState.uploadFiles.length === 0) return
+
 		if (
 			projectState.uploadFiles !== undefined &&
 			projectState.uploadFiles.length > 0
@@ -162,6 +164,8 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					fileNameBase64
 				)
 			}
+
+			// console.log('formData', formData)
 
 			try {
 				updateProjState({ isUploading: true })

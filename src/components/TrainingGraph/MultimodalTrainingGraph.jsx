@@ -7,10 +7,10 @@ const MultimodalTrainingGraph = (props) => {
 		<div className="w-full h-max">
 			<div className="relative grid gap-3 grid-cols-4 grid-rows-1 max-w-full text-gray-500 py-2.5">
 				<div className="relative col-span-2 overflow-hidden  p-2 m-auto w-full h-full">
-					<h1 class="mb-2 text-[7.5rem] font-extrabold leading-none tracking-tight text-gray-900">
+					<h1 className="mb-2 text-[7.5rem] font-extrabold leading-none tracking-tight text-gray-900">
 						Training{' '}
 					</h1>
-					<h1 class="right-0 ml-5 mb-4 text-6xl font-extrabold leading-none tracking-tight text-gray-900 underline-draw">
+					<h1 className="right-0 ml-5 mb-4 text-6xl font-extrabold leading-none tracking-tight text-gray-900 underline-draw">
 						outcomes
 					</h1>
 				</div>

@@ -71,11 +71,11 @@ const ImageTrainPreview = ({ datas, pagination, next, updateFields }) => {
 			<div className="flex flex-col bg-white shadow-xl rounded-md h-max pl-10 pr-10 pb-8 ml-10">
 				<div className="flex w-full pt-2 pb-5">
 					<div
-						class="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50"
+						className="flex items-center p-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50"
 						role="alert"
 					>
 						<svg
-							class="flex-shrink-0 inline w-4 h-4 mr-3"
+							className="flex-shrink-0 inline w-4 h-4 mr-3"
 							aria-hidden="true"
 							xmlns="http://www.w3.org/2000/svg"
 							fill="currentColor"

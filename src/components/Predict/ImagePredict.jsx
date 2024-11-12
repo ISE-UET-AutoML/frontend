@@ -191,7 +191,7 @@ const ImagePredict = (props) => {
 									<a
 										target="_blank"
 										href="https://lime-ml.readthedocs.io/en/latest/lime.html"
-										class="hover:underline hover:decoration-indigo-500 font-semibold"
+										className="hover:underline hover:decoration-indigo-500 font-semibold"
 										rel="noopener noreferrer"
 									>
 										{' '}

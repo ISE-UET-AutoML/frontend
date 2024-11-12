@@ -6,6 +6,7 @@ import {
 	EyeSlashIcon,
 	XMarkIcon,
 } from '@heroicons/react/24/outline'
+import { PATHS } from 'src/constants/paths'
 import { PlusIcon } from '@heroicons/react/24/solid'
 import { validateFiles2 } from 'src/utils/file'
 import DatasetCard from './card'
@@ -13,12 +14,16 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import { DATATYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
+import { message } from 'antd'
+import * as datasetAPI from 'src/api/dataset'
 
 const dataType = Object.keys(DATATYPES)
 const initialState = {
 	showUploader: false,
 	datasets: [],
 }
+
+const bucketList = ['bucket-1', 'bucket-2']
 
 export default function DatasetList() {
 	const [datasetState, updateDataState] = useReducer(
@@ -28,24 +33,52 @@ export default function DatasetList() {
 	const [title, setTitle] = useState('')
 	const [dataType1, setDataType1] = useState('IMAGE')
 	const [isPrivate, setIsPrivate] = useState(true)
+	const [service, setService] = useState('GCP_STORAGE')
 	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
 	const [url, setUrl] = useState('')
 	const [files, setFiles] = useState([])
 	const [totalKbytes, setTotalKbytes] = useState(0)
+	const [bucketName, setBucketName] = useState(bucketList[0])
 
 	const handleCreateDataset = async (event) => {
 		event.preventDefault()
 
-		console.log('OK')
+		if (files.length === 0) {
+			message.error('Please upload your files', 3)
+			return
+		} else {
+			event.preventDefault()
+
+			const formData = new FormData()
+			formData.append('title', title)
+			formData.append('type', dataType1)
+			formData.append('isPrivate', isPrivate)
+			formData.append('service', service)
+			formData.append('selectedUrlOption', selectedUrlOption)
+			formData.append('url', url)
+			formData.append('bucketName', bucketName)
+
+			for (let i = 0; i < files.length; i++) {
+				// Convert file name with relative path to base64 string
+				let fileNameBase64 = window.btoa(files[i].webkitRelativePath)
+
+				formData.append('files', files[i], fileNameBase64)
+			}
+
+			try {
+				const response = await datasetAPI.createDataset(formData)
+				if (response.status === 201) {
+					message.success('Successfully Create A New Object', 3)
+					window.location = PATHS.DATASET_VIEW(response.data._id)
+				}
+			} catch (error) {
+				message.error('Dataset already existed', 3)
+			}
+		}
 	}
 
-	const handleFileChange2 = (event) => {
-		console.log('xda toi day??/')
-	}
 	const handleFileChange = (event) => {
-		console.log('da toi day??/')
 		if (dataType1) {
-			console.log('da toi day')
 			const files = Array.from(event.target.files) // Change FileList to Array
 			const validatedFiles = validateFiles2(files, dataType1)
 
@@ -54,11 +87,10 @@ export default function DatasetList() {
 
 			setFiles(validatedFiles)
 			setTotalKbytes(totalSizeInKB)
-			console.log('da vao toi day')
 		}
 	}
 
-	const handleDelete = (webkitRelativePath) => {
+	const handleDeleteFile = (webkitRelativePath) => {
 		// Filter out the file with the matching webkitRelativePath
 
 		const updatedFiles = files.filter(
@@ -67,7 +99,23 @@ export default function DatasetList() {
 		setFiles(updatedFiles)
 	}
 
-	console.log('files', files)
+	const getDatasets = async () => {
+		try {
+			const response = await datasetAPI.getDatasets()
+			updateDataState({ datasets: response.data })
+			console.log('Dataset List:', response.data)
+
+			return response.data
+		} catch (error) {
+			console.error('Error fetching datasets:', error)
+
+			return []
+		}
+	}
+
+	useEffect(() => {
+		datasetState.datasets.length >= 0 && getDatasets()
+	}, [])
 
 	return (
 		<>
@@ -119,13 +167,13 @@ export default function DatasetList() {
 
 						{datasetState.datasets.length > 0 ? (
 							<div className="px-3  mx-auto pt-5 overflow-hidden grid sm:grid-cols-2 xl:grid-cols-3 gap-5 py-4">
-								{/* {datasetState.datasets.map((project) => (
+								{datasetState.datasets.map((dataset) => (
 									<DatasetCard
 										key={dataset._id}
 										dataset={dataset}
 										getDatasets={getDatasets}
 									/>
-								))} */}
+								))}
 							</div>
 						) : (
 							<div className="text-center">
@@ -183,22 +231,18 @@ export default function DatasetList() {
 					</button>
 					<h1 className="font-bold ml-3 text-xl">Upload Data</h1>
 				</div>
-				<form
-					className=" space-y-3"
-					action="#"
-					onSubmit={handleCreateDataset}
-				>
+				<div className=" space-y-3">
 					<div className="">
 						<label
-							htmlFor="name"
+							htmlFor="title"
 							className="block font-medium text-xl text-gray-700"
 						>
 							Title
 						</label>
 						<input
 							type="text"
-							name="name"
-							id="name"
+							name="title"
+							id="title"
 							onChange={(e) => setTitle(e.target.value)}
 							required
 							minLength={6}
@@ -208,7 +252,7 @@ export default function DatasetList() {
 					</div>
 					<div className="">
 						<label
-							htmlFor="type"
+							htmlFor="dataType"
 							className="block font-medium text-xl text-gray-700"
 						>
 							Type
@@ -264,9 +308,11 @@ export default function DatasetList() {
 							</button>
 						</div>
 					</div> */}
+
+					{/* Service selection */}
 					<div className="">
 						<label
-							htmlFor="service"
+							htmlFor="visibility"
 							className="block font-medium text-xl text-gray-700"
 						>
 							Service
@@ -274,10 +320,11 @@ export default function DatasetList() {
 						<div className="flex w-full mt-1 bg-white">
 							<button
 								className={`flex items-center space-x-2 px-2 py-2 w-1/2 border rounded-md ${
-									isPrivate
+									service === 'GCP_STORAGE'
 										? 'border-blue-500'
 										: 'border-gray-300'
 								}`}
+								onClick={() => setService('GCP_STORAGE')}
 							>
 								<img
 									className="rounded-md"
@@ -285,17 +332,18 @@ export default function DatasetList() {
 									height="64"
 									width="64"
 									alt="Simple Storage Service icon"
-								></img>
+								/>
 								<span className="ml-2">
 									Google Cloud Storage
 								</span>
 							</button>
 							<button
 								className={`flex items-center space-x-2 ml-3 px-2 py-2 w-1/2 border rounded-md ${
-									!isPrivate
+									service === 'AWS_S3'
 										? 'border-blue-500'
 										: 'border-gray-300'
 								}`}
+								onClick={() => setService('AWS_S3')}
 							>
 								<img
 									className="rounded-md"
@@ -303,8 +351,8 @@ export default function DatasetList() {
 									height="64"
 									width="64"
 									alt="Simple Storage Service icon"
-								></img>
-								<span className="ml-2">AWS S3</span>
+								/>
+								<span className="ml-2">AWS S3 </span>
 							</button>
 						</div>
 					</div>
@@ -318,7 +366,17 @@ export default function DatasetList() {
 							alt="Simple Storage Service icon"
 						></img>
 
-						<select className="border-l-2 border-gray-300 ml-4"></select>
+						<select
+							className="border-l-2 border-gray-300 ml-4 w-full text-center"
+							value={bucketName}
+							onChange={(e) => setBucketName(e.target.value)}
+						>
+							{bucketList.map((bucket) => (
+								<option key={bucket} value={bucket}>
+									{bucket}
+								</option>
+							))}
+						</select>
 					</div>
 
 					<TabGroup className="w-full">
@@ -346,7 +404,7 @@ export default function DatasetList() {
 						<TabPanels className="mt-2 bg-white rounded-lg">
 							<TabPanel>
 								<label
-									htmlFor="classification"
+									htmlFor="file"
 									className="mt-4 h-[180px] flex justify-around items-center mx-auto border-[2px] border-dashed border-gray-500 rounded-[15px] hover:border-blue-500"
 								>
 									<div className="w-full h-full bg-white p-5  cursor-pointer rounded-[15px]">
@@ -380,21 +438,17 @@ export default function DatasetList() {
 											</p>
 										</div>
 									</div>
+
 									<input
 										type="file"
-										name="files"
+										name="file"
 										webkitdirectory="true"
-										id="classification"
-										className="z-50 hidden"
+										id="file"
+										className="hidden"
 										onChange={handleFileChange}
 									/>
 								</label>
-								<input
-									type="file"
-									webkitdirectory="true"
-									onSelect={handleFileChange}
-									onClick={handleFileChange2}
-								/>
+
 								<div className="border-b border-gray-300 mt-2">
 									<div className="">
 										Files
@@ -405,9 +459,12 @@ export default function DatasetList() {
 									</div>
 								</div>
 								{files && (
-									<div className="max-h-[120px] overflow-y-auto w-full">
+									<div className="max-h-[90px] overflow-y-auto w-full">
 										{files.map((file) => (
-											<div className="border-b border-gray-300 flex py-2 items-center w-full hover:bg-gray-50">
+											<div
+												key={file.webkitRelativePath}
+												className="border-b border-gray-300 flex py-2 items-center w-full hover:bg-gray-50"
+											>
 												<DocumentIcon
 													className="h-5 w-5 text-gray-400 mr-3"
 													aria-hidden="true"
@@ -424,7 +481,7 @@ export default function DatasetList() {
 												<button
 													className="ml-auto"
 													onClick={() =>
-														handleDelete(
+														handleDeleteFile(
 															file.webkitRelativePath
 														)
 													}
@@ -552,13 +609,13 @@ export default function DatasetList() {
 
 					<div className="text-right">
 						<button
-							type="submit"
+							onClick={handleCreateDataset}
 							className="inline-flex justify-center rounded-md border border-transparent bg-blue-500 py-2 px-5 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 						>
 							Create
 						</button>
 					</div>
-				</form>
+				</div>
 			</div>
 		</>
 	)

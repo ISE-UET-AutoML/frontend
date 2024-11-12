@@ -1,37 +1,23 @@
-import {
-	BuildIcon,
-	SettingIcon,
-	ModelIcon,
-	DeployIcon,
-	TasksIcon,
-} from 'src/components/icons'
+import { SettingIcon } from 'src/components/icons'
 import clsx from 'clsx'
 import { PATHS } from 'src/constants/paths'
+import {
+	IdentificationIcon,
+	ViewColumnsIcon,
+} from '@heroicons/react/24/outline'
 
-const ProjectSidebar = ({ projectID, className }) => {
+const DatasetSidebar = ({ datasetID, className }) => {
 	const navigation = [
 		{
-			name: 'Build',
-			href: PATHS.PROJECT_BUILD(projectID),
-			icon: BuildIcon,
+			name: 'View',
+			href: PATHS.DATASET_VIEW(datasetID),
+			icon: ViewColumnsIcon,
 			current: true,
 		},
 		{
-			name: 'Model',
-			href: PATHS.PROJECT_MODEL(projectID),
-			icon: ModelIcon,
-			current: false,
-		},
-		{
-			name: 'Deploy',
-			href: PATHS.PROJECT_DEPLOY(projectID),
-			icon: DeployIcon,
-			current: false,
-		},
-		{
-			name: 'Tasks',
-			href: PATHS.PROJECT_TASKS(projectID),
-			icon: TasksIcon,
+			name: 'Information',
+			href: PATHS.DATASET_VIEW(datasetID),
+			icon: IdentificationIcon,
 			current: false,
 		},
 	]
@@ -52,6 +38,7 @@ const ProjectSidebar = ({ projectID, className }) => {
 									'transition group flex flex-col items-center justify-center text-sm font-medium'
 								)}
 							>
+								{console.log('item.href', item.href)}
 								<item.icon
 									className={clsx(
 										item.current
@@ -69,7 +56,7 @@ const ProjectSidebar = ({ projectID, className }) => {
 						))}
 					</nav>
 					<a
-						href={PATHS.PROJECT_SETTINGS(projectID)}
+						href={PATHS.PROJECT_SETTINGS(datasetID)}
 						className={clsx(
 							'text-center text-gray-600 hover:text-blue-900',
 							'transition group flex flex-col items-center text-sm font-medium'
@@ -91,4 +78,4 @@ const ProjectSidebar = ({ projectID, className }) => {
 	)
 }
 
-export default ProjectSidebar
+export default DatasetSidebar
