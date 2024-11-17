@@ -25,4 +25,8 @@ const explainData = (experimentName, file) => {
 	return instance.post(API_URL.explain_data(experimentName), file)
 }
 
-export { getTrainingHistory, predictData, explainData, getExperiment }
+const deployModel = (experimentName, deployType) => {
+	return instance.get(API_URL.deploy_model(experimentName, deployType))
+}
+
+export { getTrainingHistory, predictData, explainData, getExperiment, deployModel }
