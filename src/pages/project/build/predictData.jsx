@@ -26,6 +26,7 @@ const initialState = {
 	selectedSentence: null,
 	uploadSentences: [],
 	predictResult: {},
+	predictEndpoint: null,
 }
 
 const PredictData = (props) => {
@@ -125,6 +126,7 @@ const PredictData = (props) => {
 		}
 		console.log('Fetch start')
 
+		// TODO: change here
 		try {
 			const { data } = await experimentAPI.predictData(
 				experimentName,
@@ -166,6 +168,32 @@ const PredictData = (props) => {
 		} catch (error) {
 			message.error('Predict Fail', 3)
 			updateProjState({ isLoading: false })
+		}
+	}
+
+	const handleFileChangeCloud = async (event) => {
+		// TODO: predict using dedicated endpoint instead of ml_service
+	}
+
+	const handleDeploy = async (event) => {
+		try {
+			updateProjState({
+				isLoading: true,
+			})
+
+
+			const deployType = 'REALTIME' // hardcode for now
+			const { data } = await experimentAPI.deployModel(experimentName, deployType)
+
+			updateProjState({
+				predictEndpoint: data.url,
+			})
+		} catch (error) {
+			console.log('Deploy model failed', error)
+		} finally {
+			updateProjState({
+				isLoading: false,
+			})
 		}
 	}
 
@@ -217,11 +245,10 @@ const PredictData = (props) => {
 
 			{/* UPLOAD VIEW */}
 			<div
-				className={`${
-					predictDataState.showUploadPanel
-						? 'top-[375px] left-0 bottom-full z-[1000] opacity-100'
-						: 'left-0 top-full bottom-0 opacity-0'
-				} fixed h-full w-full bg-white transition-all duration-500 ease overflow-auto pb-[30px]`}
+				className={`${predictDataState.showUploadPanel
+					? 'top-[375px] left-0 bottom-full z-[1000] opacity-100'
+					: 'left-0 top-full bottom-0 opacity-0'
+					} fixed h-full w-full bg-white transition-all duration-500 ease overflow-auto pb-[30px]`}
 			>
 				<label
 					htmlFor="file"
@@ -293,7 +320,7 @@ const PredictData = (props) => {
 
 			{/* PREDICT VIEW */}
 			{predictDataState.uploadedFiles.length > 0 &&
-			predictDataState.showPredictLayout ? (
+				predictDataState.showPredictLayout ? (
 				projectInfo &&
 				(() => {
 					const object = config[projectInfo.type]
