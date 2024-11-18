@@ -1,6 +1,6 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import NavBar from 'src/components/NavBar';
+import React from 'react'
+import { Outlet } from 'react-router-dom'
+import NavBar from 'src/components/NavBar'
 
 const DefaultLayout = () => {
 	return (
@@ -8,7 +8,7 @@ const DefaultLayout = () => {
 			<NavBar />
 			<Outlet className="outlet" />
 		</>
-	);
-};
+	)
+}
 
-export default DefaultLayout;
+export default DefaultLayout
