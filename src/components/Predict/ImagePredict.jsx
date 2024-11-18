@@ -64,6 +64,8 @@ const ImagePredict = (props) => {
 
 		formData.append('files', predictDataState.uploadedFiles[index])
 		formData.append('task', projectInfo.type)
+		formData.append('deploy_url', predictDataState.predictEndpoint)
+
 		try {
 			const { data } = await experimentAPI.explainData(
 				experimentName,

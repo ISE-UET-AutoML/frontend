@@ -121,6 +121,8 @@ const PredictData = (props) => {
 
 		formData.append('task', projectInfo.type)
 
+		formData.append('deploy_url', predictDataState.predictEndpoint)
+
 		for (let i = 0; i < validFiles.length; i++) {
 			formData.append('files', validFiles[i])
 		}
@@ -171,11 +173,7 @@ const PredictData = (props) => {
 		}
 	}
 
-	const handleFileChangeCloud = async (event) => {
-		// TODO: predict using dedicated endpoint instead of ml_service
-	}
-
-	const handleDeploy = async (event) => {
+	const handleDeploy = async () => {
 		try {
 			updateProjState({
 				isLoading: true,
@@ -222,6 +220,7 @@ const PredictData = (props) => {
 				<button
 					className="btn"
 					onClick={() => {
+						handleDeploy()
 						updateProjState({ showUploadPanel: true })
 					}}
 				>
