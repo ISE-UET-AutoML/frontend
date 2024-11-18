@@ -15,4 +15,8 @@ const getDatasets = () => {
 	return instance.get(URL)
 }
 
-export { createDataset, getDatasets }
+const getDataset = (datasetID) => {
+	return instance.get(`${URL}/${datasetID}`)
+}
+
+export { createDataset, getDatasets, getDataset }

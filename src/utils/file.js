@@ -1,5 +1,5 @@
 import { ALLOWED_FILE_EXTENSIONS } from 'src/constants/file'
-import { TYPES, DATATYPES } from 'src/constants/types'
+import { TYPES } from 'src/constants/types'
 
 const isAllowedExtension = (fileName, allowedExtensions) => {
 	const idx = fileName.lastIndexOf('.')
@@ -38,32 +38,4 @@ const validateFiles = (files, projectType) => {
 	return validFiles
 }
 
-const validateFiles2 = (files, dataType) => {
-	const dataInfo = DATATYPES[dataType]
-	if (!dataInfo) {
-		alert('Unsupported project type.')
-		return []
-	}
-
-	const { allowedExtensions } = dataInfo
-	const validFiles = []
-	for (let i = 0; i < files.length; i++) {
-		const file = files[i]
-		// Don't need to validate dot files (hidden files), just remove its
-		if (file.name.startsWith('.')) {
-			continue
-		}
-
-		if (isAllowedExtension(file.name, allowedExtensions)) {
-			validFiles.push(file)
-		} else {
-			alert(
-				`We only accept ${allowedExtensions.join(', ').toUpperCase()} format, please remove ${file.name} from folder`
-			)
-			return []
-		}
-	}
-	return validFiles
-}
-
-export { validateFiles, validateFiles2 }
+export { validateFiles }

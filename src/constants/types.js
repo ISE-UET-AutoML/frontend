@@ -31,22 +31,4 @@ const TYPES = {
 	},
 }
 
-const DATATYPES = {
-	IMAGE: {
-		type: 'Image',
-		description: 'We accept JPEG, PNG image format',
-		allowedExtensions: ['jpg', 'jpeg', 'png'],
-	},
-	TEXT: {
-		type: 'Text',
-		description: 'We accept CSV text format',
-		allowedExtensions: ['csv'],
-	},
-	MIX: {
-		type: 'Mix',
-		description: 'We accept JPEG, PNG image format or CSV text format',
-		allowedExtensions: ['jpg', 'jpeg', 'png', 'csv'],
-	},
-}
-
-export { TYPES, DATATYPES }
+export { TYPES }

@@ -8,22 +8,22 @@ import {
 } from '@heroicons/react/24/outline'
 import { PATHS } from 'src/constants/paths'
 import { PlusIcon } from '@heroicons/react/24/solid'
-import { validateFiles2 } from 'src/utils/file'
+import { validateFiles } from 'src/utils/file'
 import DatasetCard from './card'
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
-import { DATATYPES } from 'src/constants/types'
+import { TYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
 import { message } from 'antd'
 import * as datasetAPI from 'src/api/dataset'
 
-const dataType = Object.keys(DATATYPES)
+const dataType = Object.keys(TYPES)
 const initialState = {
 	showUploader: false,
 	datasets: [],
 }
 
-const bucketList = ['bucket-1', 'bucket-2']
+const bucketList = ['user-private-dataset', 'bucket-2']
 
 export default function DatasetList() {
 	const [datasetState, updateDataState] = useReducer(
@@ -31,7 +31,7 @@ export default function DatasetList() {
 		initialState
 	)
 	const [title, setTitle] = useState('')
-	const [dataType1, setDataType1] = useState('IMAGE')
+	const [dataType1, setDataType1] = useState('IMAGE_CLASSIFICATION')
 	const [isPrivate, setIsPrivate] = useState(true)
 	const [service, setService] = useState('GCP_STORAGE')
 	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
@@ -80,7 +80,7 @@ export default function DatasetList() {
 	const handleFileChange = (event) => {
 		if (dataType1) {
 			const files = Array.from(event.target.files) // Change FileList to Array
-			const validatedFiles = validateFiles2(files, dataType1)
+			const validatedFiles = validateFiles(files, dataType1)
 
 			const totalSize = files.reduce((sum, file) => sum + file.size, 0)
 			const totalSizeInKB = (totalSize / 1024).toFixed(2)
@@ -265,7 +265,7 @@ export default function DatasetList() {
 						>
 							{dataType.map((type) => (
 								<option key={type} value={type}>
-									{DATATYPES[type].type}
+									{TYPES[type].type}
 								</option>
 							))}
 						</select>
@@ -417,7 +417,7 @@ export default function DatasetList() {
 
 											<p className="text-center text-[15px] font-[300]">
 												{(dataType1 &&
-													DATATYPES[dataType1]
+													TYPES[dataType1]
 														?.description) ||
 													'No description available'}
 											</p>
@@ -451,6 +451,7 @@ export default function DatasetList() {
 
 								<div className="border-b border-gray-300 mt-2">
 									<div className="">
+										<span>{files.length} </span>
 										Files
 										<span className="ml-2 text-gray-500 text-sm">
 											{'('}
