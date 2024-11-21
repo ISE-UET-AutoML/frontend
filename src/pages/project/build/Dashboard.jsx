@@ -25,8 +25,14 @@ const initialState = {
 }
 
 const Dashboard = ({ updateFields, projectInfo }) => {
-	const { id: projectID } = useParams()
+	//state
+	const [projectState, updateProjState] = useReducer((pre, next) => {
+		return { ...pre, ...next }
+	}, initialState)
+
+	const [searchParams, setSearchParams] = useSearchParams()
 	const location = useLocation()
+	const { id: projectID } = useParams()
 	const [previewData, setPreviewData] = useState({})
 	const [editedData, setEditedData] = useState([])
 	const [dataFeature, setDataFeature] = useState([])
@@ -69,13 +75,6 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					item.type === projectInfo.type
 			)
 		: datasets
-
-	//state
-	const [projectState, updateProjState] = useReducer((pre, next) => {
-		return { ...pre, ...next }
-	}, initialState)
-
-	let [searchParams, setSearchParams] = useSearchParams()
 
 	// handler
 	const handleFileChange = (event) => {
@@ -243,10 +242,27 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		}
 	}
 
-	const trainModel = () => {
+	const trainModel = async () => {
 		if (projectID && selectedDataset !== null) {
 			const dataset = filteredDatasets[selectedDataset]
-			projectAPI.trainModel(projectID, dataset)
+			updateProjState({ isUploading: true })
+			try {
+				const res = await projectAPI.trainModel(projectID, dataset)
+
+				searchParams.set('experiment_name', res.data.task_id)
+				setSearchParams(searchParams)
+
+				updateFields({
+					isDoneUploadData: true,
+				})
+
+				message.success('Successfully Choose Dataset', 3)
+			} catch (error) {
+				console.error('Error training model:', error)
+				message.error('Choose Dataset Failed', 3)
+			} finally {
+				updateProjState({ isUploading: false })
+			}
 		} else {
 			console.log('No dataset or missing ProjectID')
 		}
@@ -288,6 +304,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							</option>
 						))}
 					</select>
+					{/* BUTTON */}
 					<div className="w-full pt-10 flex justify-center items-center">
 						{selectedDataset !== null && (
 							<button className="btn" onClick={trainModel}>
@@ -302,15 +319,15 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 								>
 									<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
 								</svg>
-								<span className="text">Train Model</span>
+								<span className="text">Next</span>
 							</button>
 						)}
 					</div>
 				</div>
 				{/* DATASETS TABLE */}
-				<div className="h-full w-[70%] ml-4 bg-white ">
+				<div className="h-full overflow-y-auto w-[70%] ml-4 bg-white [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
 					<table className="w-full divide-y divide-gray-200 rounded-[10px] break-words">
-						<thead className="bg-gradient-to-r bg-blue-500 font-bold rounded-[10px]">
+						<thead className="bg-gradient-to-r bg-blue-500 font-bold rounded-[10px] border-2 border-blue-500">
 							<tr>
 								<td className="px-6 py-1 text-center font-bold text-white uppercase tracking-wider w-1/3">
 									Title

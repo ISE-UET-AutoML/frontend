@@ -14,8 +14,9 @@ export default function ProjectBuild(props) {
 	const [projectInfo, setProjectInfo] = useState(null)
 
 	function updateFields(fields) {
+		//TODO: FIX isDoneUploadData -> goto(1)
 		if (fields.isDoneUploadData) {
-			goTo(1)
+			goTo(2)
 		}
 		if (fields.isDoneLabelData) {
 			goTo(2)

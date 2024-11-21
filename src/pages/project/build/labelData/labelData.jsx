@@ -12,6 +12,8 @@ const LabelData = ({
 	updateFields,
 	projectInfo,
 }) => {
+	/*------------------------------------- OLD CODE ----------------------------------------*/
+	/*
 	let [searchParams, setSearchParams] = useSearchParams()
 	const location = useLocation()
 	useEffect(() => {
@@ -69,7 +71,14 @@ const LabelData = ({
 			</div>
 		)
 	}
-	return <>{/* <Loading /> */}</>
+	*/
+	/*------------------------------------- OLD CODE ----------------------------------------*/
+
+	return (
+		<div>
+			<p>Config your instance</p>
+		</div>
+	)
 }
 
 export default memo(LabelData)
