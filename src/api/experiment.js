@@ -29,4 +29,8 @@ const deployModel = (experimentName, deployType) => {
 	return instance.get(API_URL.deploy_model(experimentName, deployType))
 }
 
-export { getTrainingHistory, predictData, explainData, getExperiment, deployModel }
+const getDeployStatus = (experimentName) => {
+	return instance.get(`${API_BASE_URL}/experiments/cloud_deploy_status?experiment_name=${experimentName}`)
+}
+
+export { getTrainingHistory, predictData, explainData, getExperiment, deployModel, getDeployStatus }
