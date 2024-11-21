@@ -28,7 +28,7 @@ const TrainModel = (props) => {
 		}
 
 		if (res.status === 200) {
-			setProcessValue((acc) => acc + 5)
+			setProcessValue((acc) => acc + 2)
 			document.getElementById('message').innerHTML = 'Progress'
 			document.getElementById('description').innerHTML = ''
 			// setProcessValue(data.accuracy)

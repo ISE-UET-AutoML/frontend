@@ -58,7 +58,6 @@ body {
 	/* background-color: #edf3fe; */
 }
 
-
 .container {
 	display: flex;
 	height: 100vh;
@@ -149,23 +148,33 @@ body {
 }
 
 .sparkle {
-	fill: #FFFFFF;
+	fill: #ffffff;
 	transition: all 800ms ease;
 }
 
 .text {
 	font-weight: 600;
-	color: #FFFFFF;
+	color: #ffffff;
 	font-size: medium;
 }
 
-.btn:hover {
+/* .btn:hover {
 	background: linear-gradient(0deg, #A47CF3, #683FEA);
 	box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4),
 		inset 0px -4px 0px 0px rgba(0, 0, 0, 0.2),
 		0px 0px 0px 4px rgba(255, 255, 255, 0.2),
 		0px 0px 180px 0px #9917FF;
 	transform: translateY(-2px);
+} */
+
+.btn:hover {
+	background: linear-gradient(0deg, #a47cf3, #683fea);
+	box-shadow:
+		inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4),
+		inset 0px -4px 0px 0px rgba(0, 0, 0, 0.2),
+		0px 0px 0px 4px rgba(255, 255, 255, 0.2);
+	transform: translateY(-2px);
+	transition: all 0.3s ease;
 }
 
 .btn:hover .text {
@@ -202,7 +211,7 @@ body {
 }
 
 .buttonFalse::before {
-	content: "";
+	content: '';
 	position: absolute;
 	left: -50px;
 	top: 0;
@@ -227,29 +236,29 @@ body {
 	letter-spacing: 5px;
 	text-transform: uppercase;
 	cursor: pointer;
-	color: #50C878;
+	color: #50c878;
 	transition: all 1000ms;
 	font-size: 15px;
 	position: relative;
 	overflow: hidden;
-	outline: 2px solid #50C878;
+	outline: 2px solid #50c878;
 }
 
 .buttonTrue:hover {
 	color: #ffffff;
 	transform: scale(1.1);
-	outline: 2px solid #2CA75B;
-	box-shadow: 4px 5px 17px -4px #3EBB6A;
+	outline: 2px solid #2ca75b;
+	box-shadow: 4px 5px 17px -4px #3ebb6a;
 }
 
 .buttonTrue::before {
-	content: "";
+	content: '';
 	position: absolute;
 	left: -50px;
 	top: 0;
 	width: 0;
 	height: 100%;
-	background-color: #50C878;
+	background-color: #50c878;
 	transform: skewX(45deg);
 	z-index: -1;
 	transition: width 1000ms;
@@ -260,12 +269,12 @@ body {
 }
 
 .glassMorphism {
-background: rgba(255, 255, 255, 0.5);
-box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-backdrop-filter: blur(17px);
--webkit-backdrop-filter: blur(17px);
-border-radius: 10px;
-border: 1px solid rgba(255, 255, 255, 0.18);
+	background: rgba(255, 255, 255, 0.5);
+	box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+	backdrop-filter: blur(17px);
+	-webkit-backdrop-filter: blur(17px);
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 /* Tooltip container */
@@ -279,7 +288,7 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 .tooltip .tooltiptext {
 	visibility: hidden;
 	width: 120px;
-	background-color: #A9A9A9;
+	background-color: #a9a9a9;
 	color: #fff;
 	text-align: center;
 	padding: 5px 0;
@@ -310,8 +319,8 @@ border: 1px solid rgba(255, 255, 255, 0.18);
 	width: 100%;
 	height: 100%;
 	overflow: auto;
-	background-color: rgb(0,0,0);
-	background-color: rgba(0,0,0,0.4);
+	background-color: rgb(0, 0, 0);
+	background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal {

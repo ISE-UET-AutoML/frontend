@@ -186,7 +186,7 @@ const MultimodalPredict = (props) => {
 												<div
 													className={
 														showAllRows
-															? 'max-h-[200px] overflow-y-auto  [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300'
+															? 'max-h-[200px] overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300'
 															: ''
 													}
 												>

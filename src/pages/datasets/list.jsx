@@ -15,12 +15,14 @@ import { TYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
 import { message } from 'antd'
+import Loading from 'src/components/Loading'
 import * as datasetAPI from 'src/api/dataset'
 
 const dataType = Object.keys(TYPES)
 const initialState = {
 	showUploader: false,
 	datasets: [],
+	isLoading: false,
 }
 
 const bucketList = ['user-private-dataset', 'bucket-2']
@@ -47,6 +49,7 @@ export default function DatasetList() {
 			message.error('Please upload your files', 3)
 			return
 		} else {
+			updateDataState({ isLoading: true })
 			event.preventDefault()
 
 			const formData = new FormData()
@@ -67,11 +70,14 @@ export default function DatasetList() {
 
 			try {
 				const response = await datasetAPI.createDataset(formData)
+
 				if (response.status === 201) {
+					updateDataState({ isLoading: false })
 					message.success('Successfully Create A New Object', 3)
 					window.location = PATHS.DATASET_VIEW(response.data._id)
 				}
 			} catch (error) {
+				updateDataState({ isLoading: false })
 				message.error('Dataset already existed', 3)
 			}
 		}
@@ -118,7 +124,8 @@ export default function DatasetList() {
 	}, [])
 
 	return (
-		<>
+		<div className="h-full">
+			{datasetState.isLoading ? <Loading /> : ''}
 			<div
 				className={` ${
 					datasetState.showUploader ? 'blur-[2px]' : ''
@@ -618,6 +625,6 @@ export default function DatasetList() {
 					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }

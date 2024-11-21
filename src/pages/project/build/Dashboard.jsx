@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { message } from 'antd'
-import React, { useReducer, useState } from 'react'
+import React, { useReducer, useState, useEffect } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import * as projectAPI from 'src/api/project'
 import { UploadTypes } from 'src/constants/file'
@@ -9,6 +9,7 @@ import Loading from 'src/components/Loading'
 import { TYPES } from 'src/constants/types'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
+import * as datasetAPI from 'src/api/dataset'
 import config from './config'
 import Papa from 'papaparse'
 
@@ -24,22 +25,56 @@ const initialState = {
 }
 
 const Dashboard = ({ updateFields, projectInfo }) => {
-	const { id: projectID } = useParams()
-	const location = useLocation()
-	const [previewData, setPreviewData] = useState({})
-
-	const [editedData, setEditedData] = useState([])
-
-	const [dataFeature, setDataFeature] = useState([])
-
-	const [isLocked, setIsLocked] = useState(false)
-
 	//state
 	const [projectState, updateProjState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
 	}, initialState)
 
-	let [searchParams, setSearchParams] = useSearchParams()
+	const [searchParams, setSearchParams] = useSearchParams()
+	const location = useLocation()
+	const { id: projectID } = useParams()
+	const [previewData, setPreviewData] = useState({})
+	const [editedData, setEditedData] = useState([])
+	const [dataFeature, setDataFeature] = useState([])
+	const [isLocked, setIsLocked] = useState(false)
+	const [datasets, setDatasets] = useState([])
+	const [serviceFilter, setServiceFilter] = useState('')
+	const [bucketFilter, setBucketFilter] = useState('')
+	const [selectedDataset, setSelectedDataset] = useState(null)
+
+	const getDatasets = async () => {
+		try {
+			const response = await datasetAPI.getDatasets()
+			if (Array.isArray(response.data)) {
+				setDatasets(response.data)
+			} else {
+				console.error('Dataset is not an array:', response.data)
+			}
+			console.log('Dataset List:', response.data)
+		} catch (error) {
+			console.error('Error fetching datasets:', error)
+		}
+	}
+
+	useEffect(() => {
+		getDatasets()
+	}, [])
+
+	const handleServiceChange = (e) => {
+		setServiceFilter(e.target.value)
+	}
+	const handleBucketChange = (e) => {
+		setBucketFilter(e.target.value)
+	}
+	// if (dataset && projectInfo) {}
+	const filteredDatasets = projectInfo
+		? datasets.filter(
+				(item) =>
+					(serviceFilter === '' || item.service === serviceFilter) &&
+					(bucketFilter === '' || item.bucketName === bucketFilter) &&
+					item.type === projectInfo.type
+			)
+		: datasets
 
 	// handler
 	const handleFileChange = (event) => {
@@ -207,13 +242,139 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		}
 	}
 
+	const trainModel = async () => {
+		if (projectID && selectedDataset !== null) {
+			const dataset = filteredDatasets[selectedDataset]
+			updateProjState({ isUploading: true })
+			try {
+				const res = await projectAPI.trainModel(projectID, dataset)
+
+				searchParams.set('experiment_name', res.data.task_id)
+				setSearchParams(searchParams)
+
+				updateFields({
+					isDoneUploadData: true,
+				})
+
+				message.success('Successfully Choose Dataset', 3)
+			} catch (error) {
+				console.error('Error training model:', error)
+				message.error('Choose Dataset Failed', 3)
+			} finally {
+				updateProjState({ isUploading: false })
+			}
+		} else {
+			console.log('No dataset or missing ProjectID')
+		}
+	}
+
+	const bucketList = ['user-private-dataset', 'bucket-1']
+
 	return (
-		<>
+		<div className="h-full">
 			{projectState.isUploading ? <Loading /> : ''}
+			{/* ----------------------------------------- CHOOSE DATABASE ------------------------------------  */}
+
+			<div className="h-[44%] w-full flex">
+				{/* FILTER AND BUTTON */}
+				<div className="h-full w-[28%] space-y-2 bg-[rgba(0,110,255,0.041)] rounded-[10px] p-5">
+					<p className="w-full text-xl font-bold">Service</p>
+					<select
+						value={serviceFilter}
+						onChange={handleServiceChange}
+						className="border-2 border-gray-300 w-full h-[15%] text-center text-lg rounded-[10px]"
+					>
+						<option value="">All Services</option>
+						<option value="AWS_S3">AWS</option>
+						<option value="GCP_STORAGE">
+							GOOGLE CLOUD STORAGES
+						</option>
+					</select>
+
+					<p className="w-full text-xl font-bold">Bucket</p>
+					<select
+						value={bucketFilter}
+						onChange={handleBucketChange}
+						className="border-2 border-gray-300 w-full h-[15%] text-center text-lg rounded-[10px]"
+					>
+						<option value="">All Buckets</option>
+						{bucketList.map((bucket) => (
+							<option key={bucket} value={bucket}>
+								{bucket}
+							</option>
+						))}
+					</select>
+					{/* BUTTON */}
+					<div className="w-full pt-10 flex justify-center items-center">
+						{selectedDataset !== null && (
+							<button className="btn" onClick={trainModel}>
+								<svg
+									height="24"
+									width="24"
+									fill="#FFFFFF"
+									viewBox="0 0 24 24"
+									data-name="Layer 1"
+									id="Layer_1"
+									className="sparkle"
+								>
+									<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+								</svg>
+								<span className="text">Next</span>
+							</button>
+						)}
+					</div>
+				</div>
+				{/* DATASETS TABLE */}
+				<div className="h-full overflow-y-auto w-[70%] ml-4 bg-white [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+					<table className="w-full divide-y divide-gray-200 rounded-[10px] break-words">
+						<thead className="bg-gradient-to-r bg-blue-500 font-bold rounded-[10px] border-2 border-blue-500">
+							<tr>
+								<td className="px-6 py-1 text-center font-bold text-white uppercase tracking-wider w-1/3">
+									Title
+								</td>
+								<td className="px-6 py-1 text-center font-bold text-white uppercase tracking-wider w-1/3">
+									Service
+								</td>
+								<td className="px-6 py-1 text-center font-bold text-white uppercase tracking-wider w-1/3">
+									Bucket
+								</td>
+							</tr>
+						</thead>
+						<tbody className="bg-white font-bold">
+							{filteredDatasets.map((data, index) => (
+								<tr
+									key={index}
+									className={`hover:bg-gray-100 cursor-pointer ${selectedDataset === index ? 'border-2 border-blue-700 bg-[rgba(0,110,255,0.041)]' : ''}`}
+									onClick={() => {
+										setSelectedDataset(index)
+									}}
+								>
+									<td className="px-6 py-1 text-center">
+										{data.title}
+									</td>
+									<td className="px-6 py-1 text-center">
+										{data.service}
+									</td>
+									<td className="px-6 py-1 text-center">
+										{data.bucketName}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			{/* ----------------------------------------- DIVIDER -----------------------------------------  */}
+			<div className="w-full flex items-center justify-center my-3">
+				<div className="flex-grow border-t border-gray-300"></div>
+				<span className="mx-3 text-gray-500">OR</span>
+				<div className="flex-grow border-t border-gray-300"></div>
+			</div>
+			{/* ----------------------------------------- UPLOAD FILES ------------------------------------  */}
 			{/* uploaded */}
 			<div
 				onClick={() => updateProjState({ show: true })}
-				className="flex flex-col cursor-pointer my-10 shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)]  rounded-[10px] h-[calc(100%-124px)] min-h-[500px]"
+				className="flex flex-col cursor-pointer shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] rounded-[10px] h-[50%]"
 			>
 				<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
 					<svg
@@ -462,7 +623,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					)}
 				</div>
 			</div>
-		</>
+		</div>
 	)
 }
 
