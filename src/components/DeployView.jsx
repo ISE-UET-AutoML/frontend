@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react'
 import { message } from 'antd'
-import {
-	CheckCircleIcon,
-	ArrowPathIcon,
-	Cog6ToothIcon,
-} from '@heroicons/react/24/outline'
+import { CheckCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import * as experimentAPI from 'src/api/experiment'
 
 const DeployView = (props) => {
@@ -33,7 +29,7 @@ const DeployView = (props) => {
 					return newProgress
 				})
 			}
-		}, 10000)
+		}, 6000)
 
 		return () => clearInterval(interval)
 	}, [isDone])
@@ -135,7 +131,7 @@ const DeployView = (props) => {
 						</div>
 					)}
 					{/* DEPLOY AGAIN */}
-					<div className="w-full h-10 pt-10 flex justify-center items-center">
+					{/* <div className="w-full h-10 pt-10 flex justify-center items-center">
 						<button
 							className="btn"
 							onClick={() => {
@@ -155,7 +151,7 @@ const DeployView = (props) => {
 							</svg>
 							<span className="text">Deploy Again</span>
 						</button>
-					</div>
+					</div> */}
 					{/* EXIT BUTTON */}
 					<button
 						onClick={() => {
