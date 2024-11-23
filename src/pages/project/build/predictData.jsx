@@ -141,7 +141,7 @@ const PredictData = (props) => {
 			//TODO: xóa userConfirm và predictResult
 			updateProjState({
 				showUploadPanel: false,
-				showPredictLayout: false,
+				showPredictLayout: true,
 				uploadedFiles: validFiles,
 				predictResult: predictions,
 			})

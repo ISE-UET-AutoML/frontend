@@ -16,6 +16,8 @@ const TrainModel = (props) => {
 		latestEpoch: 0,
 		accuracy: 0,
 	})
+	const [processValue, setProcessValue] = useState(5)
+	const [currentStep, setCurrentStep] = useState(0)
 
 	const steps = [
 		{
@@ -45,14 +47,6 @@ const TrainModel = (props) => {
 
 	const SIZE = steps.length
 
-	const [processValue, setProcessValue] = useState(5)
-	const [currentStep, setCurrentStep] = useState(0)
-
-	const getRandomIncrement = () => {
-		const increments = [3, 4]
-		return increments[Math.floor(Math.random() * increments.length)]
-	}
-
 	const getTrainingProgress = async (experimentName) => {
 		const res = await getExperiment(experimentName)
 
@@ -62,23 +56,51 @@ const TrainModel = (props) => {
 			message.error('Training Failed', 3)
 		}
 
+		console.log('Current processValue', processValue)
+
 		if (res.status === 200) {
 			if (processValue === 100 || processValue > 100) {
+				console.log('DONE')
 				message.success('Successfully Training', 3)
 				props.updateFields({
 					isDoneTrainModel: true,
 				})
 			} else if (res.data.experiment.status === 'DONE') {
-				setProcessValue((prev) => prev + 10)
+				setProcessValue((prev) => {
+					const newValue = prev + 10
+					console.log(
+						'Updated processValue in CLOUD UPLOAD',
+						newValue
+					)
+					return newValue
+				})
+				setTrainingInfo({
+					latestEpoch: res.data.trainInfo.latest_epoch,
+					accuracy: res.data.trainInfo.metrics.val_accuracy,
+				})
 			} else if (res.data.trainInfo.status === 'SETTING_UP') {
 				if (processValue < 50) {
-					setProcessValue((prev) => prev + getRandomIncrement())
+					setProcessValue((prev) => {
+						const newValue = prev + 1
+
+						if (newValue >= 50) return 50
+						return newValue
+					})
 				} else {
-					setProcessValue((prev) => prev + 0)
+					setProcessValue(50)
 				}
 			} else if (res.data.trainInfo.status === 'TRAINING') {
-				if (50 <= processValue && processValue < 75) {
-					setProcessValue((prev) => prev + getRandomIncrement())
+				if (
+					50 <= processValue &&
+					processValue < 75 &&
+					res.data.trainInfo.latest_epoch
+				) {
+					setProcessValue((prev) => {
+						const newValue = prev + 1
+
+						if (newValue >= 75) return 75
+						return newValue
+					})
 					setTrainingInfo({
 						latestEpoch: res.data.trainInfo.latest_epoch,
 						accuracy: res.data.trainInfo.metrics.val_accuracy,
@@ -86,7 +108,10 @@ const TrainModel = (props) => {
 				} else if (processValue < 50) {
 					setProcessValue(50)
 				} else {
-					setProcessValue((prev) => prev + 0)
+					setTrainingInfo({
+						latestEpoch: res.data.trainInfo.latest_epoch,
+						accuracy: res.data.trainInfo.metrics.val_accuracy,
+					})
 				}
 			}
 		}
@@ -98,19 +123,19 @@ const TrainModel = (props) => {
 		getTrainingProgress(experimentName)
 		const interval = setInterval(() => {
 			getTrainingProgress(experimentName)
-		}, 20000)
+		}, 50000)
 
 		return () => clearInterval(interval)
-	}, [experimentName])
+	}, [experimentName, processValue])
 
 	useEffect(() => {
 		if (processValue >= 0 && processValue < 15) {
 			setCurrentStep(0)
-		} else if (processValue >= 15 && processValue < 50) {
+		} else if (processValue >= 15 && processValue <= 50) {
 			setCurrentStep(1)
-		} else if (processValue >= 50 && processValue < 75) {
+		} else if (processValue > 50 && processValue <= 75) {
 			setCurrentStep(2)
-		} else if (processValue >= 75 && processValue <= 100) {
+		} else if (processValue > 75 && processValue <= 100) {
 			setCurrentStep(3)
 		}
 	}, [processValue])
