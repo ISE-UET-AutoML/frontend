@@ -7,7 +7,6 @@ import Loading from 'src/components/Loading'
 
 const services = ['VastAI', 'AWS EC2', 'GCP Compute']
 const gpuNames = ['RTX_3060', 'RTX_4090']
-const images = ['pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime', 'image2']
 
 const SelectInstance = (props) => {
 	const [searchParams, setSearchParams] = useSearchParams()
@@ -18,7 +17,6 @@ const SelectInstance = (props) => {
 		gpuNumber: '',
 		gpuName: gpuNames[0],
 		disk: '',
-		image: images[0],
 		trainingTime: '',
 		budget: '',
 	})
@@ -31,7 +29,6 @@ const SelectInstance = (props) => {
 				gpuNumber: '',
 				gpuName: '',
 				disk: '',
-				image: '',
 				trainingTime: '',
 				budget: '',
 			})
@@ -41,7 +38,6 @@ const SelectInstance = (props) => {
 				gpuNumber: '',
 				gpuName: gpuNames[0],
 				disk: '',
-				image: images[0],
 				trainingTime: '',
 				budget: '',
 			})
@@ -105,7 +101,6 @@ const SelectInstance = (props) => {
 				gpuNumber: randomGPU,
 				gpuName: gpuNames[Math.floor(Math.random() * gpuNames.length)],
 				disk: randomDisk,
-				image: images[Math.floor(Math.random() * images.length)],
 				trainingTime: formData.trainingTime,
 				budget: formData.budget,
 			})
@@ -220,12 +215,7 @@ const SelectInstance = (props) => {
 												</strong>{' '}
 												{formData.disk}
 											</p>
-											<p>
-												<strong className="text-xl">
-													Image:
-												</strong>{' '}
-												{formData.image}
-											</p>
+
 											<p>
 												<strong className="text-xl">
 													Training Time(s):
@@ -240,7 +230,7 @@ const SelectInstance = (props) => {
 					</TabPanel>
 					<TabPanel>
 						<div className="flex h-[90%] w-full">
-							<div className="h-full w-[50%] mt-5">
+							<div className="h-full w-[50%] mt-8">
 								<form
 									id="infoForm"
 									onSubmit={handleSubmit}
@@ -322,27 +312,6 @@ const SelectInstance = (props) => {
 
 									<label
 										className="block mb-2 text-xl font-bold"
-										htmlFor="image"
-									>
-										Image:
-									</label>
-									<select
-										id="image"
-										name="image"
-										value={formData.image}
-										onChange={handleChange}
-										className="w-full p-2 border border-gray-300 rounded mb-4"
-										required
-									>
-										{images.map((image, index) => (
-											<option key={index} value={image}>
-												{image}
-											</option>
-										))}
-									</select>
-
-									<label
-										className="block mb-2 text-xl font-bold"
 										htmlFor="trainingTime"
 									>
 										Training Time(s):
@@ -389,12 +358,7 @@ const SelectInstance = (props) => {
 												</strong>{' '}
 												{formData.disk}
 											</p>
-											<p>
-												<strong className="text-xl">
-													Image:
-												</strong>{' '}
-												{formData.image}
-											</p>
+
 											<p>
 												<strong className="text-xl">
 													Training Time(s):
