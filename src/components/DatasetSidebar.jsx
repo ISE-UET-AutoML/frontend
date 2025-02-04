@@ -38,7 +38,6 @@ const DatasetSidebar = ({ datasetID, className }) => {
 									'transition group flex flex-col items-center justify-center text-sm font-medium'
 								)}
 							>
-								{console.log('item.href', item.href)}
 								<item.icon
 									className={clsx(
 										item.current

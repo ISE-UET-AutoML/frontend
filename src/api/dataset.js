@@ -19,4 +19,15 @@ const getDataset = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}`)
 }
 
-export { createDataset, getDatasets, getDataset }
+const deleteObjects = (datasetID, formData) => {
+	return instance.post(`${URL}/${datasetID}/deleteObjects`, formData)
+}
+
+const addNewFiles = (datasetID, formData) => {
+	const options = {
+		headers: { 'Content-Type': 'multipart/form-data' },
+	}
+	return instance.post(`${URL}/${datasetID}/addNewFiles`, formData, options)
+}
+
+export { createDataset, getDatasets, getDataset, deleteObjects, addNewFiles }

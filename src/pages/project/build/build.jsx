@@ -6,6 +6,7 @@ import PredictData from './predictData'
 import UploadData from './uploadData.jsx'
 import TrainModel from './trainModel'
 import LabelData from './labelData/labelData'
+import SelectInstance from './selectInstance'
 
 export default function ProjectBuild(props) {
 	const location = useLocation()
@@ -14,11 +15,14 @@ export default function ProjectBuild(props) {
 	const [projectInfo, setProjectInfo] = useState(null)
 
 	function updateFields(fields) {
-		//TODO: FIX isDoneUploadData -> goto(1)
+		//TODO: Route to  LabelData
 		if (fields.isDoneUploadData) {
-			goTo(2)
+			goTo(1)
 		}
-		if (fields.isDoneLabelData) {
+		// if (fields.isDoneLabelData) {
+		// 	goTo(2)
+		// }
+		if (fields.isDoneSelectInstance) {
 			goTo(2)
 		}
 		if (fields.isDoneTrainModel) {
@@ -68,11 +72,16 @@ export default function ProjectBuild(props) {
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
-		<LabelData
+		<SelectInstance
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
+		// <LabelData
+		// 	{...data}
+		// 	updateFields={updateFields}
+		// 	projectInfo={projectInfo}
+		// />,
 		<TrainModel
 			{...data}
 			updateFields={updateFields}

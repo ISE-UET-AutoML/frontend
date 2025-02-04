@@ -42,10 +42,10 @@ const ImagePredict = (props) => {
 		const falseValue =
 			predictDataState.uploadedFiles.length > 0
 				? (
-					(falsePredict.length /
-						predictDataState.uploadedFiles.length) *
-					100
-				).toFixed(2)
+						(falsePredict.length /
+							predictDataState.uploadedFiles.length) *
+						100
+					).toFixed(2)
 				: 0
 		const trueValue = (100 - parseFloat(falseValue)).toFixed(2)
 
@@ -99,8 +99,10 @@ const ImagePredict = (props) => {
 
 		formData.append('image', predictDataState.uploadedFiles[index])
 		try {
-
-			const { data } = await axios.post(predictDataState.predictEndpoint, formData)
+			const { data } = await axios.post(
+				predictDataState.predictEndpoint,
+				formData
+			)
 
 			const base64ImageString = data.explanation
 			const fetchedImageUrl = `data:image/jpeg;base64,${base64ImageString}`
@@ -140,7 +142,7 @@ const ImagePredict = (props) => {
 								key={index}
 								src={URL.createObjectURL(data)}
 								alt=""
-								className={`h-[130px] object-cover rounded-lg cursor-pointer
+								className={`h-[130px] w-[95%] object-cover rounded-lg cursor-pointer
 						 ${selectedData.index === index ? 'border-2 border-blue-500 opacity-100' : 'opacity-50 hover:opacity-100'}
 						 ${falsePredict.includes(index) ? 'border-2 border-red-500' : ''}
 						`}
@@ -160,7 +162,7 @@ const ImagePredict = (props) => {
 							<img
 								src={URL.createObjectURL(
 									predictDataState.uploadedFiles[
-									selectedData.index
+										selectedData.index
 									]
 								)}
 								alt=""
@@ -194,10 +196,11 @@ const ImagePredict = (props) => {
 									<div
 										className="bg-blue-600 h-2.5 rounded-full"
 										style={{
-											width: `${predictDataState.predictResult[
-												selectedData.index
-											].confidence * 100
-												}%`,
+											width: `${
+												predictDataState.predictResult[
+													selectedData.index
+												].confidence * 100
+											}%`,
 										}}
 									></div>
 								</div>
@@ -235,25 +238,25 @@ const ImagePredict = (props) => {
 								{!predictDataState.userConfirm.some(
 									(item) => item.value === null
 								) && (
-										<button
-											type="button"
-											onClick={() =>
-												handleExplainSelectedImage(
-													selectedData.index
-												)
-											}
-											className="h-max mx-auto block w-fit relative items-center justify-center p-1 px-5 py-3 overflow-hidden font-medium text-indigo-600 rounded-lg shadow-2xl group"
-										>
-											<span className="absolute top-0 left-0 w-40 h-40 -mt-10 -ml-3 transition-all duration-700 bg-blue-500 rounded-full blur-md ease"></span>
-											<span className="absolute inset-0 w-full h-full transition duration-700 group-hover:rotate-180 ease">
-												<span className="absolute bottom-0 left-0 w-24 h-24 -ml-10 bg-purple-500 rounded-full blur-md"></span>
-												<span className="absolute bottom-0 right-0 w-24 h-24 -mr-10 bg-pink-500 rounded-full blur-md"></span>
-											</span>
-											<span className="relative text-white">
-												Explain AI
-											</span>
-										</button>
-									)}
+									<button
+										type="button"
+										onClick={() =>
+											handleExplainSelectedImage(
+												selectedData.index
+											)
+										}
+										className="h-max mx-auto block w-fit relative items-center justify-center p-1 px-5 py-3 overflow-hidden font-medium text-indigo-600 rounded-lg shadow-2xl group"
+									>
+										<span className="absolute top-0 left-0 w-40 h-40 -mt-10 -ml-3 transition-all duration-700 bg-blue-500 rounded-full blur-md ease"></span>
+										<span className="absolute inset-0 w-full h-full transition duration-700 group-hover:rotate-180 ease">
+											<span className="absolute bottom-0 left-0 w-24 h-24 -ml-10 bg-purple-500 rounded-full blur-md"></span>
+											<span className="absolute bottom-0 right-0 w-24 h-24 -mr-10 bg-pink-500 rounded-full blur-md"></span>
+										</span>
+										<span className="relative text-white">
+											Explain AI
+										</span>
+									</button>
+								)}
 								<div className="mt-2">
 									<img
 										src={

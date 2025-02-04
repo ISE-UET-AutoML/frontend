@@ -1,7 +1,7 @@
 import { API_URL, API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
 
-const URL = `${API_BASE_URL}/projects`
+/* ----------------------------------------------------- OLD API ------------------------------------ */
 
 const uploadFiles = (projectID, files) => {
 	const options = {
@@ -16,14 +16,9 @@ const listData = (projectID, queryString = '&page=1&size=24') => {
 	)
 }
 
-/* ---------------TRAIN MODEL OLD------------------ */
 // const trainModel = (projectID) => {
 //     return instance.post(API_URL.train_model(projectID));
 // };
-
-const trainModel = (projectID, dataset) => {
-	return instance.post(`${URL}/${projectID}/cloudTrain`, { dataset })
-}
 
 const updateData = (projectID) => {
 	return 'test'
@@ -74,6 +69,16 @@ const createLabels = (projectID, data) => {
 const updateAnnotation = (projectID, task_id, data) => {
 	// /:id/set_label /: task_id
 	return instance.post(API_URL.update_annotation(projectID, task_id), data)
+}
+
+/* ----------------------------------------------------- NEW API ------------------------------------ */
+const URL = `${API_BASE_URL}/projects`
+
+const trainModel = (projectID, dataset, instanceInfo) => {
+	return instance.post(`${URL}/${projectID}/cloudTrain`, {
+		dataset,
+		instanceInfo,
+	})
 }
 
 export {

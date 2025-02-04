@@ -242,30 +242,11 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 		}
 	}
 
-	const trainModel = async () => {
-		if (projectID && selectedDataset !== null) {
-			const dataset = filteredDatasets[selectedDataset]
-			updateProjState({ isUploading: true })
-			try {
-				const res = await projectAPI.trainModel(projectID, dataset)
-
-				searchParams.set('experiment_name', res.data.task_id)
-				setSearchParams(searchParams)
-
-				updateFields({
-					isDoneUploadData: true,
-				})
-
-				message.success('Successfully Choose Dataset', 3)
-			} catch (error) {
-				console.error('Error training model:', error)
-				message.error('Choose Dataset Failed', 3)
-			} finally {
-				updateProjState({ isUploading: false })
-			}
-		} else {
-			console.log('No dataset or missing ProjectID')
-		}
+	const selectInstance = () => {
+		updateFields({
+			isDoneUploadData: true,
+			selectedDataset: filteredDatasets[selectedDataset],
+		})
 	}
 
 	const bucketList = ['user-private-dataset', 'bucket-1']
@@ -307,7 +288,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 					{/* BUTTON */}
 					<div className="w-full pt-10 flex justify-center items-center">
 						{selectedDataset !== null && (
-							<button className="btn" onClick={trainModel}>
+							<button className="btn" onClick={selectInstance}>
 								<svg
 									height="24"
 									width="24"
