@@ -7,7 +7,6 @@ const createDataset = (formData) => {
 	const options = {
 		headers: { 'Content-Type': 'multipart/form-data' },
 	}
-
 	return instance.post(`${URL}`, formData, options)
 }
 

@@ -15,7 +15,7 @@ export default function ProjectBuild(props) {
 	const [projectInfo, setProjectInfo] = useState(null)
 
 	function updateFields(fields) {
-		//TODO: Route to  LabelData
+		//TODO: Route to LabelData
 		if (fields.isDoneUploadData) {
 			goTo(1)
 		}

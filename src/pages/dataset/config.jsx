@@ -5,7 +5,7 @@ const config = {
 	IMAGE_CLASSIFICATION: {
 		datasetView: ImageClassDataView,
 	},
-	TEXT_CLASSIDICAATION: {
+	TEXT_CLASSIFICATION: {
 		datasetView: TextClassDataView,
 	},
 }
