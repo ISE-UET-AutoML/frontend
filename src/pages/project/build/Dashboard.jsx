@@ -243,10 +243,17 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	}
 
 	const selectInstance = () => {
-		updateFields({
-			isDoneUploadData: true,
-			selectedDataset: filteredDatasets[selectedDataset],
-		})
+		if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+			updateFields({
+				isSelectTargetCol: true,
+				selectedDataset: filteredDatasets[selectedDataset],
+			})
+		} else {
+			updateFields({
+				isDoneUploadData: true,
+				selectedDataset: filteredDatasets[selectedDataset],
+			})
+		}
 	}
 
 	const bucketList = ['user-private-dataset', 'bucket-1']

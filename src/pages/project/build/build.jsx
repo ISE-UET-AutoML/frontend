@@ -7,6 +7,7 @@ import UploadData from './uploadData.jsx'
 import TrainModel from './trainModel'
 import LabelData from './labelData/labelData'
 import SelectInstance from './selectInstance'
+import SelectTargetCol from './selectTargetCol'
 
 export default function ProjectBuild(props) {
 	const location = useLocation()
@@ -29,8 +30,12 @@ export default function ProjectBuild(props) {
 			goTo(3)
 		}
 		if (fields.isDonePredictData) {
+			goTo(4) // Chua co
+		}
+		if (fields.isSelectTargetCol) {
 			goTo(4)
 		}
+
 		setData((prev) => {
 			return { ...prev, ...fields }
 		})
@@ -88,6 +93,11 @@ export default function ProjectBuild(props) {
 			projectInfo={projectInfo}
 		/>,
 		<PredictData
+			{...data}
+			updateFields={updateFields}
+			projectInfo={projectInfo}
+		/>,
+		<SelectTargetCol
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}

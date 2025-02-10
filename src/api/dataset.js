@@ -18,6 +18,10 @@ const getDataset = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}`)
 }
 
+const getDataTen = (datasetID) => {
+	return instance.get(`${URL}/${datasetID}/dataTen`)
+}
+
 const deleteObjects = (datasetID, formData) => {
 	return instance.post(`${URL}/${datasetID}/deleteObjects`, formData)
 }
@@ -29,4 +33,11 @@ const addNewFiles = (datasetID, formData) => {
 	return instance.post(`${URL}/${datasetID}/addNewFiles`, formData, options)
 }
 
-export { createDataset, getDatasets, getDataset, deleteObjects, addNewFiles }
+export {
+	createDataset,
+	getDatasets,
+	getDataset,
+	getDataTen,
+	deleteObjects,
+	addNewFiles,
+}
