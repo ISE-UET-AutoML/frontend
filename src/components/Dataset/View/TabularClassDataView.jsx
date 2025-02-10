@@ -3,34 +3,38 @@ import Loading from 'src/components/Loading'
 import PaginationNew from 'src/components/PaginationNew'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid'
 
-const TextClassDataView = ({ dataset, files }) => {
+const TabularClassDataView = ({ dataset, files }) => {
 	const [isLoading, setIsLoading] = useState(false)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [selectedRows, setSelectedRows] = useState([])
-	const rowsPerPage = 12
 
+	const rowsPerPage = 12
 	const totalPages = Math.ceil(files.tasks.length / rowsPerPage)
 	const indexOfLastRow = currentPage * rowsPerPage
 	const indexOfFirstRow = indexOfLastRow - rowsPerPage
 	const currentRows = files.tasks.slice(indexOfFirstRow, indexOfLastRow)
 
-	// Kiểm tra xem tất cả các rows trong trang hiện tại đã được chọn chưa
+	console.log('files', files)
+	const keys = Object.keys(files.tasks[0].data)
+	const colsName = keys.map((key) =>
+		key
+			.replace('data-VAL-', '')
+			.replace('label', files.project_info.original_label_column)
+	)
+
 	const isAllCurrentPageSelected =
 		currentRows.length > 0 &&
 		currentRows.every((row, index) =>
 			selectedRows.includes(indexOfFirstRow + index)
 		)
 
-	// Xử lý chọn/bỏ chọn tất cả rows trong trang hiện tại
 	const handleSelectAllChange = () => {
 		if (isAllCurrentPageSelected) {
-			// Bỏ chọn tất cả rows trong trang hiện tại
 			const newSelectedRows = selectedRows.filter(
 				(index) => index < indexOfFirstRow || index >= indexOfLastRow
 			)
 			setSelectedRows(newSelectedRows)
 		} else {
-			// Chọn tất cả rows trong trang hiện tại
 			const currentPageIndexes = Array.from(
 				{ length: currentRows.length },
 				(_, i) => indexOfFirstRow + i
@@ -46,7 +50,6 @@ const TextClassDataView = ({ dataset, files }) => {
 		}
 	}
 
-	// Xử lý chọn/bỏ chọn một row
 	const handleRowCheckboxChange = (index) => {
 		const actualIndex = indexOfFirstRow + index
 		if (selectedRows.includes(actualIndex)) {
@@ -79,51 +82,64 @@ const TextClassDataView = ({ dataset, files }) => {
 					</button>
 				</div>
 			</div>
-			<table className="min-w-full h-[50%] border-collapse overflow-y-auto">
-				<thead className="sticky top-0 z-10 bg-blue-600 text-white rounded-lg">
-					<tr className="border-2">
-						<th className="px-1 py-1 text-center w-[5%]">
-							<input
-								type="checkbox"
-								className="cursor-pointer"
-								checked={isAllCurrentPageSelected}
-								onChange={handleSelectAllChange}
-							/>
-						</th>
-						<th className="px-6 py-3 text-left w-[80%]">
-							Sentence
-						</th>
-						<th className="px-2 py-3 text-center">Label</th>
-					</tr>
-				</thead>
-				<tbody>
-					{currentRows.map((row, index) => (
-						<tr
-							key={index}
-							className="hover:bg-gray-100 border-2 border-solid"
-						>
-							<td className="px-2 py-3 text-center">
+			<div className="overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+				<table className="w-max table-fixed border-collapse">
+					<thead className="sticky top-0 z-10 bg-blue-600 text-white">
+						<tr className="border-2">
+							<th className="w-12 px-1 py-1 text-center">
 								<input
 									type="checkbox"
 									className="cursor-pointer"
-									checked={selectedRows.includes(
-										indexOfFirstRow + index
-									)}
-									onChange={() =>
-										handleRowCheckboxChange(index)
-									}
+									checked={isAllCurrentPageSelected}
+									onChange={handleSelectAllChange}
 								/>
-							</td>
-							<td className="px-6 py-3 text-left w-[80%]">
-								{row.data['data-TXT-text']}
-							</td>
-							<td className="px-2 py-3 text-center">
-								{row.data.label}
-							</td>
+							</th>
+							{colsName.map((col) => (
+								<th className=" max-w-[160px] px-2 py-3 text-center truncate">
+									{col}
+								</th>
+							))}
 						</tr>
-					))}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{currentRows.map((row, index) => (
+							<tr
+								key={index}
+								className="hover:bg-gray-100 border-2 border-solid"
+							>
+								<td className="w-12 px-2 py-3 text-center">
+									<input
+										type="checkbox"
+										className="cursor-pointer"
+										checked={selectedRows.includes(
+											indexOfFirstRow + index
+										)}
+										onChange={() =>
+											handleRowCheckboxChange(index)
+										}
+									/>
+								</td>
+
+								{Object.keys(row.data)
+									.filter((key) =>
+										key.startsWith('data-VAL-')
+									)
+									.map((key) => (
+										<td
+											key={key}
+											className=" max-w-[160px] px-6 py-2.5 text-sm text-gray-700 truncate text-center"
+										>
+											{row.data[key]}
+										</td>
+									))}
+								<td className=" max-w-[160px] px-6 py-2.5 text-sm text-gray-700 truncate text-center">
+									{row.data.label}
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 			<PaginationNew
 				currentPage={currentPage}
 				totalPages={totalPages}
@@ -133,4 +149,4 @@ const TextClassDataView = ({ dataset, files }) => {
 	)
 }
 
-export default TextClassDataView
+export default TabularClassDataView

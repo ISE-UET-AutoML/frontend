@@ -65,8 +65,19 @@ export default function DatasetList() {
 				// Convert file name with relative path to base64 string
 				let fileNameBase64 = window.btoa(files[i].webkitRelativePath)
 
+				// if (
+				// 	dataType1 === 'TABULAR_CLASSIFICATION' ||
+				// 	dataType1 === 'MULTIMODAL_CLASSIFICATION'
+				// ) {
+				// 	fileNameBase64 = window.btoa(files.name)
+				// 	console.log(projectState.uploadFiles.name)
+				// 	console.log(fileNameBase64)
+				// }
+
 				formData.append('files', files[i], fileNameBase64)
 			}
+
+			console.log('File name', files)
 
 			try {
 				const response = await datasetAPI.createDataset(formData)
