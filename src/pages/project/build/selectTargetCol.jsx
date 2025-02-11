@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import * as datasetAPI from 'src/api/dataset'
+import * as projectAPI from 'src/api/project'
+import { message } from 'antd'
 
 const SelectTargetCol = (props) => {
 	const [dataset, setDataset] = useState(null)
 	const [colsName, setColsName] = useState([])
 	const [selectedCol, setSelectedCol] = useState(null)
+	const { id: projectID } = useParams()
 
 	useEffect(() => {
 		if (!props.selectedDataset?._id) return
@@ -44,7 +48,22 @@ const SelectTargetCol = (props) => {
 	}, [props.selectedDataset?._id])
 
 	const sendTargetColumn = async () => {
-		window.alert('Target column selected: ' + selectedCol)
+		try {
+			const formData = new FormData()
+			formData.append('import_args', JSON.stringify(selectedCol))
+			formData.append('datasetID', props.selectedDataset?._id)
+
+			const res = await projectAPI.sendTargetColumn(projectID, formData)
+
+			if (res.status === 200) {
+				message.success('Set Target Column Finished', 3)
+				props.updateFields({
+					isDoneSelectTargetCol: true,
+				})
+			}
+		} catch (error) {
+			console.error('Error sending target column:', error)
+		}
 	}
 
 	return (

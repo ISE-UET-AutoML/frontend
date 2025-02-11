@@ -35,6 +35,9 @@ export default function ProjectBuild(props) {
 		if (fields.isSelectTargetCol) {
 			goTo(4)
 		}
+		if (fields.isDoneSelectTargetCol) {
+			goTo(1)
+		}
 
 		setData((prev) => {
 			return { ...prev, ...fields }
