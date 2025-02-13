@@ -11,7 +11,7 @@ const DatasetView = () => {
 	useEffect(() => {
 		const fetchDataset = async () => {
 			try {
-				const { data } = await datasetAPI.getDataset(id)
+				const { data } = await datasetAPI.getDataTen(id)
 
 				console.log('Dataset Response', data)
 				setDataset(data.dataset)
