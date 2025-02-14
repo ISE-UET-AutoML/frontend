@@ -31,7 +31,7 @@ export default function ProjectBuild(props) {
 			goTo(3)
 		}
 		if (fields.isDonePredictData) {
-			goTo(4) // Chua co
+			goTo(4) // Chua co -> Sua cho dung
 		}
 		if (fields.isSelectTargetCol) {
 			goTo(4)
@@ -41,6 +41,9 @@ export default function ProjectBuild(props) {
 		}
 		if (fields.isSelectTargetColMulti) {
 			goTo(5)
+		}
+		if (fields.isLabeling) {
+			goTo(6)
 		}
 		setData((prev) => {
 			return { ...prev, ...fields }
@@ -88,11 +91,13 @@ export default function ProjectBuild(props) {
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
+		//--------------------OLD-------------------
 		// <LabelData
 		// 	{...data}
 		// 	updateFields={updateFields}
 		// 	projectInfo={projectInfo}
 		// />,
+		//--------------------OLD-------------------
 		<TrainModel
 			{...data}
 			updateFields={updateFields}
@@ -113,6 +118,11 @@ export default function ProjectBuild(props) {
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
+		// <Labeling
+		// 	{...data}
+		// 	updateFields={updateFields}
+		// 	projectInfo={projectInfo}
+		// />,
 	])
 	return steps[currentStepIndex]
 }

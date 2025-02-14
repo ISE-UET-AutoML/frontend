@@ -12,6 +12,7 @@ import databaseList from 'src/assets/images/listData.png'
 import * as datasetAPI from 'src/api/dataset'
 import config from './config'
 import Papa from 'papaparse'
+import { PATHS } from 'src/constants/paths'
 
 const LOAD_CHUNK = 12
 
@@ -40,6 +41,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const [datasets, setDatasets] = useState([])
 	const [serviceFilter, setServiceFilter] = useState('')
 	const [bucketFilter, setBucketFilter] = useState('')
+	const [labeledFilter, setLabeledFilter] = useState('')
 	const [selectedDataset, setSelectedDataset] = useState(null)
 
 	const getDatasets = async () => {
@@ -66,12 +68,19 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	const handleBucketChange = (e) => {
 		setBucketFilter(e.target.value)
 	}
+	const handleLabeledChange = (e) => {
+		setLabeledFilter(e.target.value)
+	}
+
 	// if (dataset && projectInfo) {}
 	const filteredDatasets = projectInfo
 		? datasets.filter(
 				(item) =>
 					(serviceFilter === '' || item.service === serviceFilter) &&
 					(bucketFilter === '' || item.bucketName === bucketFilter) &&
+					(labeledFilter === '' ||
+						(labeledFilter === 'yes' && item.isLabeled) ||
+						(labeledFilter === 'no' && !item.isLabeled)) &&
 					item.type === projectInfo.type
 			)
 		: datasets
@@ -243,7 +252,12 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 	}
 
 	const selectInstance = () => {
-		if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+		if (datasets[selectedDataset].isLabeled === false) {
+			updateFields({
+				isLabeling: true,
+				selectedDataset: filteredDatasets[selectedDataset],
+			})
+		} else if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
 			updateFields({
 				isSelectTargetCol: true,
 				selectedDataset: filteredDatasets[selectedDataset],
@@ -297,8 +311,46 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							</option>
 						))}
 					</select>
+
+					<p className="w-full text-xl font-bold">Labeled</p>
+					<div className="flex space-x-4 mt-2 mb-10">
+						<label className="inline-flex items-center">
+							<input
+								type="radio"
+								name="labeled"
+								value=""
+								checked={labeledFilter === ''}
+								onChange={handleLabeledChange}
+								className="form-radio h-6 w-6 text-blue-600"
+							/>
+							<span className="ml-2">All</span>
+						</label>
+						<label className="inline-flex items-center">
+							<input
+								type="radio"
+								name="labeled"
+								value="yes"
+								checked={labeledFilter === 'yes'}
+								onChange={handleLabeledChange}
+								className="form-radio h-6 w-6 text-blue-600"
+							/>
+							<span className="ml-2">Yes</span>
+						</label>
+						<label className="inline-flex items-center">
+							<input
+								type="radio"
+								name="labeled"
+								value="no"
+								checked={labeledFilter === 'no'}
+								onChange={handleLabeledChange}
+								className="form-radio h-6 w-6 text-blue-600"
+							/>
+							<span className="ml-2">No</span>
+						</label>
+					</div>
+
 					{/* BUTTON */}
-					<div className="w-full pt-10 flex justify-center items-center">
+					<div className="w-full h-max flex justify-center items-center">
 						{selectedDataset !== null && (
 							<button className="btn" onClick={selectInstance}>
 								<svg
@@ -331,6 +383,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 								<td className="px-6 py-1 text-center font-bold text-white uppercase tracking-wider w-1/3">
 									Bucket
 								</td>
+								<td className="px-6 py-1 text-center font-bold text-white uppercase tracking-wider w-1/3">
+									Labeled
+								</td>
 							</tr>
 						</thead>
 						<tbody className="bg-white font-bold">
@@ -351,6 +406,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 									<td className="px-6 py-1 text-center">
 										{data.bucketName}
 									</td>
+									<td className="px-6 py-1 text-center">
+										{data.isLabeled ? 'Yes' : 'No'}
+									</td>
 								</tr>
 							))}
 						</tbody>
@@ -366,7 +424,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 			{/* ----------------------------------------- UPLOAD FILES ------------------------------------  */}
 			{/* uploaded */}
 			<div
-				onClick={() => updateProjState({ show: true })}
+				onClick={() => {
+					window.location = PATHS.DATASETS
+				}}
 				className="flex flex-col cursor-pointer shadow justify-between mx-auto items-center p-[10px] gap-[5px] bg-[rgba(0,110,255,0.041)] rounded-[10px] h-[50%]"
 			>
 				<div className="header flex flex-1 w-full border-[2px] justify-center items-center flex-col border-dashed border-[#4169e1] rounded-[10px]">
@@ -397,12 +457,12 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						</g>
 					</svg>
 					<p className="text-center text-black mt-5">
-						Browse File to upload!
+						Create Dataset Now
 					</p>
 				</div>
 			</div>
 			{/* bottom up modal of image classify */}
-			<div
+			{/* <div
 				className={`${
 					projectState.show
 						? 'top-0 bottom-full z-[1000] opacity-100 left-0'
@@ -467,9 +527,9 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> */}
 			{/* bottom up modal of classify image uploader */}
-			<div
+			{/* <div
 				className={`${
 					projectState.showUploader
 						? 'top-0 z-[1000] opacity-100'
@@ -560,7 +620,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 							Upload {projectState.uploadFiles.length} File(s)
 						</button>
 					</div>
-					{/* preview uploaded files */}
+
 					<div className="h-[2px] bg-gray-100 w-full my-5"></div>
 					{projectInfo &&
 						projectState.uploadFiles &&
@@ -615,7 +675,7 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 						</button>
 					)}
 				</div>
-			</div>
+			</div> */}
 		</div>
 	)
 }

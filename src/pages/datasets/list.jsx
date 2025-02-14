@@ -5,6 +5,8 @@ import {
 	EyeIcon,
 	EyeSlashIcon,
 	XMarkIcon,
+	BookmarkIcon,
+	BookmarkSlashIcon,
 } from '@heroicons/react/24/outline'
 import { PATHS } from 'src/constants/paths'
 import { PlusIcon } from '@heroicons/react/24/solid'
@@ -35,6 +37,7 @@ export default function DatasetList() {
 	const [title, setTitle] = useState('')
 	const [dataType1, setDataType1] = useState('IMAGE_CLASSIFICATION')
 	const [isPrivate, setIsPrivate] = useState(true)
+	const [isLabeled, setIsLabeled] = useState(true)
 	const [service, setService] = useState('GCP_STORAGE')
 	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
 	const [url, setUrl] = useState('')
@@ -56,6 +59,7 @@ export default function DatasetList() {
 			formData.append('title', title)
 			formData.append('type', dataType1)
 			formData.append('isPrivate', isPrivate)
+			formData.append('isLabeled', isLabeled)
 			formData.append('service', service)
 			formData.append('selectedUrlOption', selectedUrlOption)
 			formData.append('url', url)
@@ -331,10 +335,49 @@ export default function DatasetList() {
 						</div>
 					</div> */}
 
+					<div className="">
+						<label
+							htmlFor="isLabeled"
+							className="block font-medium text-xl text-gray-700"
+						>
+							Label
+						</label>
+						<div className="flex w-full mt-1 bg-white">
+							<button
+								onClick={() => setIsLabeled(true)}
+								className={`flex items-center space-x-2 px-2 py-2 w-1/2 border rounded-md ${
+									isLabeled
+										? 'border-blue-500'
+										: 'border-gray-300'
+								}`}
+							>
+								<BookmarkIcon
+									className="h-5 w-5 text-gray-400"
+									aria-hidden="true"
+								/>
+								<span className="ml-2">Labeled</span>
+							</button>
+							<button
+								onClick={() => setIsLabeled(false)}
+								className={`flex items-center space-x-2 ml-3 px-2 py-2 w-1/2 border rounded-md ${
+									!isLabeled
+										? 'border-blue-500'
+										: 'border-gray-300'
+								}`}
+							>
+								<BookmarkSlashIcon
+									className="h-5 w-5 text-gray-400"
+									aria-hidden="true"
+								/>
+								<span className="ml-2">Unlabeled</span>
+							</button>
+						</div>
+					</div>
+
 					{/* Service selection */}
 					<div className="">
 						<label
-							htmlFor="visibility"
+							htmlFor="service"
 							className="block font-medium text-xl text-gray-700"
 						>
 							Service
