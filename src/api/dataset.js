@@ -18,6 +18,10 @@ const getDataset = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}`)
 }
 
+const getDatasetPreview = (datasetID, size) => {
+	return instance.get(`${URL}/${datasetID}/datasetPreview?size=${size}`)
+}
+
 const getDataTen = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}/dataTen`)
 }
@@ -40,4 +44,5 @@ export {
 	getDataTen,
 	deleteObjects,
 	addNewFiles,
+	getDatasetPreview,
 }

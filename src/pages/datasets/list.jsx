@@ -63,8 +63,12 @@ export default function DatasetList() {
 
 			for (let i = 0; i < files.length; i++) {
 				// Convert file name with relative path to base64 string
-				let fileNameBase64 = window.btoa(files[i].webkitRelativePath)
-
+				// let fileNameBase64 = window.btoa(files[i].webkitRelativePath)
+				let fileNameBase64 = btoa(
+					String.fromCharCode(
+						...new TextEncoder().encode(files[i].webkitRelativePath)
+					)
+				)
 				// if (
 				// 	dataType1 === 'TABULAR_CLASSIFICATION' ||
 				// 	dataType1 === 'MULTIMODAL_CLASSIFICATION'

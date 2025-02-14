@@ -248,6 +248,11 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				isSelectTargetCol: true,
 				selectedDataset: filteredDatasets[selectedDataset],
 			})
+		} else if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
+			updateFields({
+				isSelectTargetColMulti: true,
+				selectedDataset: filteredDatasets[selectedDataset],
+			})
 		} else {
 			updateFields({
 				isDoneUploadData: true,
