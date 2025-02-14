@@ -40,4 +40,5 @@ export const API_URL = {
 		`${API_BASE_URL}/projects/${projectID}/dataset_preview?&page=${page}&page_size=${pageSize}`,
 	deploy_model: (experimentName, deployType) =>
 		`${API_BASE_URL}/experiments/cloud_deploy?experiment_name=${experimentName}&deploy_type=${deployType}`,
+	chatbot: (message) => `${API_BASE_URL}/chat`,
 }

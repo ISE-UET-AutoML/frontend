@@ -17,7 +17,7 @@ import { motion } from 'framer-motion'
 import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
 import * as datasetAPI from 'src/api/dataset'
-
+import { chat } from 'src/api/chatbot'
 const projType = Object.keys(TYPES)
 
 const imgArray = [
@@ -90,13 +90,16 @@ export default function ProjectList() {
 		textarea.style.height = `${newHeight}px`
 	}, [input]) // Re-run when input changes
 
-	const handleKeyPress = (e) => {
+	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			if (input.trim()) {
 				setShowTitle(false)
 				setMessages([...messages, { type: 'user', content: input }])
 				setInput('')
+				const response = await chat(input)
+				setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: response.data.reply }])
+				// console.log(response.data.reply)
 			}
 		}
 	}
@@ -490,7 +493,7 @@ export default function ProjectList() {
 												className={`max-w-[70%] p-3 rounded-xl ${
 													message.type === 'user'
 														? 'bg-gray-200 text-black'
-														: 'bg-white text-black'
+														: 'bg-gray-300 text-black'
 												}`}
 											>
 												{message.content}
