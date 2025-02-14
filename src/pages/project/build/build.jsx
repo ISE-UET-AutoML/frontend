@@ -8,6 +8,7 @@ import TrainModel from './trainModel'
 import LabelData from './labelData/labelData'
 import SelectInstance from './selectInstance'
 import SelectTargetCol from './selectTargetCol'
+import SelectTargetColMulti from './selectTargetColMulti'
 
 export default function ProjectBuild(props) {
 	const location = useLocation()
@@ -38,7 +39,9 @@ export default function ProjectBuild(props) {
 		if (fields.isDoneSelectTargetCol) {
 			goTo(1)
 		}
-
+		if (fields.isSelectTargetColMulti) {
+			goTo(5)
+		}
 		setData((prev) => {
 			return { ...prev, ...fields }
 		})
@@ -101,6 +104,11 @@ export default function ProjectBuild(props) {
 			projectInfo={projectInfo}
 		/>,
 		<SelectTargetCol
+			{...data}
+			updateFields={updateFields}
+			projectInfo={projectInfo}
+		/>,
+		<SelectTargetColMulti
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
