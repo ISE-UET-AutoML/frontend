@@ -57,6 +57,8 @@ export default function ProjectList() {
 	const [datasets, setDatasets] = useState([])
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
+	const [chatbotGreetings, setMessage] = useState("What can i help with?")
+	const [chatStep, setStep] = useState(0)
 
 	const options = [
 		{
@@ -94,12 +96,15 @@ export default function ProjectList() {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			if (input.trim()) {
+				if (messages.length === 0) {
+					setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: chatbotGreetings }])
+				}
 				setShowTitle(false)
-				setMessages([...messages, { type: 'user', content: input }])
+				setMessages(previousMessages => [...previousMessages, { type: 'user', content: input}]);
 				setInput('')
-				const response = await chat(input)
+				const response = await chat(input, chatStep)
 				setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: response.data.reply }])
-				// console.log(response.data.reply)
+				setStep(prevStep => prevStep + 1)
 			}
 		}
 	}
@@ -474,8 +479,8 @@ export default function ProjectList() {
 						<div className="flex-1 w-full overflow-y-auto pt-16 pb-4">
 							{showTitle ? (
 								<div className="flex items-center justify-center h-full">
-									<h1 className="text-4xl font-bold text-gray-800 mb-6">
-										What can I help with?
+									<h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
+										{chatbotGreetings}
 									</h1>
 								</div>
 							) : (
