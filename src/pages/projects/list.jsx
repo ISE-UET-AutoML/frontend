@@ -18,6 +18,7 @@ import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
 import * as datasetAPI from 'src/api/dataset'
 import { chat } from 'src/api/chatbot'
+import MarkdownRenderer from 'src/components/MarkdownRenderer'
 const projType = Object.keys(TYPES)
 
 const imgArray = [
@@ -495,13 +496,14 @@ export default function ProjectList() {
 											}`}
 										>
 											<div
-												className={`max-w-[70%] p-3 rounded-xl ${
+												className={`px-3 py-1 rounded-xl ${
 													message.type === 'user'
-														? 'bg-gray-200 text-black'
-														: 'bg-gray-300 text-black'
+														? 'bg-gray-200 text-black max-w-[70%]'
+														: 'bg-gray-300 text-black max-w-[95%]'
 												}`}
 											>
-												{message.content}
+												<MarkdownRenderer markdownText={message.content}></MarkdownRenderer>
+												{/* {message.content} */}
 											</div>
 										</div>
 									))}

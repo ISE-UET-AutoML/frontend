@@ -329,3 +329,6 @@ body {
 	padding: 20px;
 }
 
+.markdown > * {
+	all: revert;
+}
