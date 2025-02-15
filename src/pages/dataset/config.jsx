@@ -8,7 +8,7 @@ const config = {
 		datasetView: ImageClassDataView,
 	},
 	TEXT_CLASSIFICATION: {
-		datasetView: TextClassDataView,
+		datasetView: MultimodalClassDataView,
 	},
 	TABULAR_CLASSIFICATION: {
 		datasetView: TabularClassDataView,

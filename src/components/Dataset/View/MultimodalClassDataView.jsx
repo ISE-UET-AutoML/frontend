@@ -4,16 +4,22 @@ import PaginationNew from 'src/components/PaginationNew'
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/solid'
 
 const MultimodalClassDataView = ({ dataset, files }) => {
-	const colsName = Object.keys(files[0] || {})
+	// Bỏ qua phần tử đầu tiên vì nó là header
+	const actualFiles = Object.entries(files)
+		.filter(([key]) => key !== 'length' && Number(key) > 0)
+		.map(([_, value]) => value)
+	// Get column names from the first file entry
+	const colsName = Object.values(files[0] || {})
+
 	const [isLoading, setIsLoading] = useState(false)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [selectedRows, setSelectedRows] = useState([])
-	const rowsPerPage = 12
+	const rowsPerPage = 14
 
-	const totalPages = Math.ceil(files.length / rowsPerPage)
+	const totalPages = Math.ceil(actualFiles.length / rowsPerPage)
 	const indexOfLastRow = currentPage * rowsPerPage
 	const indexOfFirstRow = indexOfLastRow - rowsPerPage
-	const currentRows = files.slice(indexOfFirstRow, indexOfLastRow)
+	const currentRows = actualFiles.slice(indexOfFirstRow, indexOfLastRow)
 
 	// Kiểm tra xem tất cả các rows trong trang hiện tại đã được chọn chưa
 	const isAllCurrentPageSelected =
@@ -62,7 +68,7 @@ const MultimodalClassDataView = ({ dataset, files }) => {
 	}
 
 	return (
-		<div className="bg-white h-full w-full pl-2 pr-2 relative">
+		<div className="bg-white h-full w-full pl-2 pr-2 relative overflow-y-hidden overflow-x-auto">
 			{isLoading && <Loading />}
 			<div className="w-full h-[4%] flex mb-2 justify-between items-center">
 				<div className="text-sm text-gray-600">

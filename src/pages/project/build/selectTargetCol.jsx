@@ -15,32 +15,28 @@ const SelectTargetCol = (props) => {
 
 		const fetchDataset = async () => {
 			try {
-				const { data } = await datasetAPI.getDataTen(
-					props.selectedDataset._id
+				const { data } = await datasetAPI.getDatasetPreview(
+					props.selectedDataset._id,
+					12
 				)
 
-				console.log('Dataset Response', data)
-				if (!data.files || !data.files.tasks?.length) {
-					console.error('Invalid dataset structure:', data)
-					return
-				}
+				// Xử lý dữ liệu để đảm bảo cấu trúc nhất quán
+				const processedData = data.files.map((row) => {
+					// Chuyển đổi các giá trị undefined/null thành chuỗi rỗng
+					return Object.entries(row).reduce((acc, [key, value]) => {
+						acc[key] = value ?? ''
+						return acc
+					}, {})
+				})
 
-				setDataset(data.files)
+				setDataset(processedData)
 
-				const keys = Object.keys(data.files.tasks[0].data || {})
-				setColsName(
-					keys.map((key) =>
-						key
-							.replace('data-VAL-', '')
-							.replace(
-								'label',
-								data.files.project_info
-									?.original_label_column || 'label'
-							)
-					)
-				)
+				// Lấy tất cả các key có thể có từ tất cả các hàng
+				const allKeys = [...new Set(processedData.flatMap(Object.keys))]
+				setColsName(allKeys)
 			} catch (error) {
 				console.error('Error fetching dataset:', error)
+				message.error('Failed to load dataset preview')
 			}
 		}
 
@@ -48,28 +44,35 @@ const SelectTargetCol = (props) => {
 	}, [props.selectedDataset?._id])
 
 	const sendTargetColumn = async () => {
+		if (!selectedCol) return
+
+		const textCols = colsName.filter((col) => col !== selectedCol)
+
 		try {
 			const formData = new FormData()
-			formData.append('import_args', JSON.stringify(selectedCol))
+			formData.append('targetCol', JSON.stringify(selectedCol))
+			formData.append('textCols', JSON.stringify(textCols))
 			formData.append('datasetID', props.selectedDataset?._id)
 
 			const res = await projectAPI.sendTargetColumn(projectID, formData)
 
 			if (res.status === 200) {
-				message.success('Set Target Column Finished', 3)
+				message.success('Target Column successfully set')
 				props.updateFields({
 					isDoneSelectTargetCol: true,
 				})
 			}
 		} catch (error) {
 			console.error('Error sending target column:', error)
+			message.error('Failed to set target column')
+		} finally {
 		}
 	}
 
 	return (
 		<>
 			{dataset && (
-				<div className="ml-2 relative">
+				<div className="relative h-full flex flex-col p-4">
 					<div className="flex">
 						<h1 className="w-full text-center text-4xl font-bold">
 							Choose Target Column
@@ -96,64 +99,55 @@ const SelectTargetCol = (props) => {
 							)}
 						</div>
 					</div>
-					<div className="grid grid-cols-6 gap-4 mt-6 h-[45%]">
-						{colsName.map((col) => (
-							<div key={col}>
-								<button
-									onClick={() => setSelectedCol(col)}
-									className={`h-[50px] w-[220px] font-bold py-2 px-4 rounded text-lg
-                ${
-					selectedCol === col
-						? 'border-red-500 border-2 text-red-600 bg-white hover:bg-red-50'
-						: 'border-blue-500 border-2 text-blue-600 hover:text-white hover:bg-blue-600'
-				}`}
-								>
-									{col}
-								</button>
-							</div>
-						))}
-					</div>
 
-					{/* Bảng hiển thị dữ liệu */}
-					{dataset.tasks?.length > 0 && (
-						<div className="fixed bottom-0 h-[58%] mt-5 mr-2 overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
-							<table className="w-full table-fixed border-collapse">
-								<thead className="sticky top-0 z-10 bg-blue-600 text-white">
-									<tr className="border-2">
-										{colsName.map((col, index) => (
-											<th
-												key={index}
-												className="max-w-[160px] px-2 py-3 text-center truncate"
+					<div className="flex-1 overflow-auto border mt-10 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+						<table className="w-full border-collapse border border-black">
+							<thead className="sticky top-0 bg-blue-600">
+								<tr>
+									{colsName.map((col) => (
+										<th
+											key={col}
+											onClick={() => setSelectedCol(col)}
+											className={`
+							px-4 py-3 text-left text-sm font-medium uppercase text-white cursor-pointer border border-black
+							${selectedCol === col ? 'bg-blue-800' : ''}
+						`}
+										>
+											{col}
+										</th>
+									))}
+								</tr>
+							</thead>
+							<tbody className="bg-white">
+								{dataset.map((row, rowIndex) => (
+									<tr
+										key={rowIndex}
+										className="hover:bg-gray-200 transition-colors"
+									>
+										{colsName.map((col) => (
+											<td
+												key={`${rowIndex}-${col}`}
+												className={`px-4 py-2 text-sm text-gray-900 border border-black ${
+													selectedCol === col
+														? 'bg-blue-100'
+														: ''
+												}`}
+												style={{
+													maxWidth: '10%',
+													overflow: 'hidden',
+													textOverflow: 'ellipsis',
+												}}
 											>
-												{col}
-											</th>
+												<div title={row[col]}>
+													{row[col]}
+												</div>
+											</td>
 										))}
 									</tr>
-								</thead>
-								<tbody>
-									{dataset.tasks.map((row, rowIndex) => (
-										<tr
-											key={rowIndex}
-											className="border-b hover:bg-gray-50"
-										>
-											{colsName.map((col, colIndex) => (
-												<td
-													key={colIndex}
-													className="w-40 min-w-[160px] px-4 py-2 text-center truncate"
-												>
-													{row.data?.[
-														`data-VAL-${col}`
-													] ||
-														row.data?.label ||
-														'-'}
-												</td>
-											))}
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					)}
+								))}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			)}
 		</>
