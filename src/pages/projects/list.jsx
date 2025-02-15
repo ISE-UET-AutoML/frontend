@@ -17,7 +17,7 @@ import { motion } from 'framer-motion'
 import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
 import * as datasetAPI from 'src/api/dataset'
-import { chat } from 'src/api/chatbot'
+import { chat, clearHistory } from 'src/api/chatbot'
 import MarkdownRenderer from 'src/components/MarkdownRenderer'
 const projType = Object.keys(TYPES)
 
@@ -93,6 +93,25 @@ export default function ProjectList() {
 		textarea.style.height = `${newHeight}px`
 	}, [input]) // Re-run when input changes
 
+	const chatContainerRef = useRef(null)
+	useEffect(() => {
+		setTimeout(() => {
+			if (chatContainerRef.current) {
+				const lastMessage = chatContainerRef.current.lastElementChild?.children[chatContainerRef.current.lastElementChild.children.length - 1]
+				const secondLastMessage = chatContainerRef.current.lastElementChild?.children[chatContainerRef.current.lastElementChild.children.length - 2]
+				let height = 0
+				if (secondLastMessage) {
+					height = secondLastMessage.offsetHeight + lastMessage.offsetHeight + chatContainerRef.current.nextElementSibling.offsetHeight + 64
+				}
+				chatContainerRef.current.scrollTo({
+					top: chatContainerRef.current.scrollHeight - height,
+					behavior: "smooth",
+				})
+			}
+			console.log()
+		}, 500)
+	},[messages])
+
 	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
@@ -101,13 +120,20 @@ export default function ProjectList() {
 					setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: chatbotGreetings }])
 				}
 				setShowTitle(false)
-				setMessages(previousMessages => [...previousMessages, { type: 'user', content: input}]);
+				setMessages(previousMessages => [...previousMessages, { type: 'user', content: input}])
 				setInput('')
 				const response = await chat(input, chatStep)
 				setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: response.data.reply }])
 				setStep(prevStep => prevStep + 1)
 			}
 		}
+	}
+
+	const newChat = async () => {
+		setShowTitle(true)
+		setMessages([]);
+		setStep(prevStep => 0)
+		const response = await clearHistory()
 	}
 
 	const selectType = (e, idx) => {
@@ -475,16 +501,16 @@ export default function ProjectList() {
 
 				<div className="flex flex-col items-center h-full">
 					{/* Main Container with Fixed Width */}
-					<div className="w-full max-w-2xl h-full px-4 flex flex-col">
+					<div className="w-full max-w-2xl h-full px-4 flex flex-col">			
 						{/* Chat Messages Section */}
-						<div className="flex-1 w-full overflow-y-auto pt-16 pb-4">
+						<div ref={chatContainerRef} className="flex-1 w-full overflow-y-auto pt-16 pb-4">
 							{showTitle ? (
 								<div className="flex items-center justify-center h-full">
 									<h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
 										{chatbotGreetings}
 									</h1>
 								</div>
-							) : (
+							) : (										
 								<div className="space-y-4">
 									{messages.map((message, index) => (
 										<div
@@ -507,6 +533,12 @@ export default function ProjectList() {
 											</div>
 										</div>
 									))}
+									<button
+										onClick={() => newChat()}
+										className="p-4 rounded-full bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
+									>
+										New chat
+									</button>
 								</div>
 							)}
 						</div>

@@ -7,6 +7,11 @@ const chat = (message, step) => {
 	return instance.post(`${URL}`, {message: message, step: step})
 }
 
+const clearHistory = () => {
+    return instance.post(`${URL}/clear`)
+}
+
 export {
     chat,
+    clearHistory,
 }
