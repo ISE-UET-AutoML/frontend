@@ -39,8 +39,8 @@ const SelectTargetColMulti = (props) => {
 	const sendColumn = async () => {
 		try {
 			const formData = new FormData()
-			formData.append('targetCol', JSON.stringify(selectedTargetCol))
-			formData.append('imgCol', JSON.stringify(selectedImgCol))
+			formData.append('targetCol', selectedTargetCol)
+			formData.append('imgCol', selectedImgCol)
 			formData.append('datasetID', props.selectedDataset?._id)
 
 			const res = await projectAPI.sendTargetColumn(projectID, formData)
@@ -90,7 +90,12 @@ const SelectTargetColMulti = (props) => {
 								className="w-full"
 								placeholder="Select Target Column"
 								value={selectedTargetCol}
-								onChange={setSelectedTargetCol}
+								onChange={(value) => {
+									if (value === selectedImgCol) {
+										setSelectedImgCol(null)
+									}
+									setSelectedTargetCol(value)
+								}}
 							>
 								{colsName.map((col) => (
 									<Option key={col} value={col}>
@@ -108,7 +113,12 @@ const SelectTargetColMulti = (props) => {
 								className="w-full"
 								placeholder="Select Image Column"
 								value={selectedImgCol}
-								onChange={setSelectedImgCol}
+								onChange={(value) => {
+									if (value === selectedTargetCol) {
+										setSelectedTargetCol(null)
+									}
+									setSelectedImgCol(value)
+								}}
 							>
 								{colsName.map((col) => (
 									<Option key={col} value={col}>

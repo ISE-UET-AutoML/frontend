@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { message } from 'antd'
+import { message, Card, InputNumber, Slider } from 'antd'
 import * as projectAPI from 'src/api/project'
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import Loading from 'src/components/Loading'
@@ -20,6 +20,11 @@ const SelectInstance = (props) => {
 		trainingTime: '',
 		budget: '',
 	})
+	const [trainingTime, setTrainingTime] = useState(0)
+
+	const handleChangeTime = (value) => {
+		setTrainingTime(value)
+	}
 	const [isLoading, setIsLoading] = useState(false)
 
 	useEffect(() => {
@@ -78,7 +83,7 @@ const SelectInstance = (props) => {
 				console.error('Error training model:', error)
 				message.error('Error training model', 3)
 			} finally {
-				// updateProjState({ isUploading: false })
+				setIsLoading(false)
 			}
 		} else {
 			alert('Please adjust your instance.')
@@ -86,7 +91,7 @@ const SelectInstance = (props) => {
 	}
 
 	const findInstance = (e) => {
-		e.preventDefault()
+		// e.preventDefault()
 
 		setIsLoading(true)
 
@@ -101,8 +106,8 @@ const SelectInstance = (props) => {
 				gpuNumber: randomGPU,
 				gpuName: gpuNames[Math.floor(Math.random() * gpuNames.length)],
 				disk: randomDisk,
-				trainingTime: formData.trainingTime,
-				budget: formData.budget,
+				trainingTime: trainingTime,
+				// budget: formData.budget,
 			})
 
 			message.success('Finded Suitable Instance', 3)
@@ -139,51 +144,67 @@ const SelectInstance = (props) => {
 				<TabPanels className="mt-2">
 					<TabPanel>
 						<div className="flex h-full w-full">
-							<div className="h-full w-[50%] mt-10">
-								<form
-									id="infoForm"
-									onSubmit={findInstance}
-									className="p-4"
-								>
-									<label
-										className="block mb-2 text-xl font-bold"
-										htmlFor="disk"
-									>
-										Budget ($):
-									</label>
-									<input
-										type="number"
-										id="budget"
-										name="budget"
-										value={formData.budget}
-										onChange={handleChange}
-										className="w-full p-2 border border-gray-300 rounded mb-4"
-										required
-									/>
-									<label
-										className="block mb-2 text-xl font-bold"
-										htmlFor="trainingTime"
-									>
-										Training Time (s):
-									</label>
-									<input
-										type="number"
-										id="trainingTime"
-										name="trainingTime"
-										value={formData.trainingTime}
-										onChange={handleChange}
-										className="w-full p-2 border border-gray-300 rounded mb-4"
-										required
-									/>
-
+							<div className="w-[50%] mt-10 flex justify-center">
+								<div className="w-[90%] h-full space-y-4">
+									<Card className="w-full h-[40%] shadow-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white rounded-lg">
+										<label
+											className="block mb-2 text-xl font-bold"
+											htmlFor="trainingTime"
+										>
+											Training Time (s):
+										</label>
+										<InputNumber
+											prefix="🕒"
+											className="w-full"
+											min={0} // Đảm bảo giá trị >= 0
+											value={trainingTime}
+											onChange={handleChangeTime}
+										></InputNumber>
+									</Card>
+									<Card className="w-full h-[40%] shadow-lg border border-gray-200 bg-gradient-to-b from-gray-50 to-white rounded-lg">
+										<label
+											className="block mb-2 text-xl font-bold"
+											htmlFor="trainingTime"
+										>
+											Cost ($):
+										</label>
+									</Card>
 									<button
-										type="submit"
 										className="w-full p-2 bg-blue-500 text-white rounded"
+										onClick={findInstance}
 									>
 										Find Suitable Instance
 									</button>
-								</form>
+								</div>
+								<div className="w-[5%] h-[87%]">
+									<Slider
+										vertical
+										defaultValue={40}
+										min={0}
+										max={100}
+										marks={{
+											0: 'Small',
+											25: 'Medium',
+											50: 'Large',
+											75: 'X-Large',
+											100: 'XX-Large',
+										}}
+										step={1}
+										className="h-full"
+										tooltip={{
+											formatter: (value) => {
+												if (value <= 25) return 'Small'
+												if (value <= 50) return 'Medium'
+												if (value <= 75) return 'Large'
+												if (value <= 100)
+													return 'X-Large'
+												return 'XX-Large'
+											},
+										}}
+									/>
+								</div>
 							</div>
+
 							<div className="h-full w-[50%] p-8">
 								<div className="w-full h-full p-2 rounded-2xl bg-blue-50">
 									<div className="w-full h-full rounded-2xl border-2 border-blue-800 border-dashed">
