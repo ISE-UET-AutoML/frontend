@@ -257,7 +257,10 @@ const Dashboard = ({ updateFields, projectInfo }) => {
 				isLabeling: true,
 				selectedDataset: filteredDatasets[selectedDataset],
 			})
-		} else if (projectInfo.type === 'TABULAR_CLASSIFICATION') {
+		} else if (
+			projectInfo.type === 'TABULAR_CLASSIFICATION' ||
+			projectInfo.type === 'TEXT_CLASSIFICATION'
+		) {
 			updateFields({
 				isSelectTargetCol: true,
 				selectedDataset: filteredDatasets[selectedDataset],

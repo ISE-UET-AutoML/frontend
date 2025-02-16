@@ -9,10 +9,10 @@ const TabularClassDataView = ({ dataset, files }) => {
 	const [selectedRows, setSelectedRows] = useState([])
 
 	const rowsPerPage = 12
-	const totalPages = Math.ceil(files.tasks.length / rowsPerPage)
+	const totalPages = Math.ceil(files.length / rowsPerPage)
 	const indexOfLastRow = currentPage * rowsPerPage
 	const indexOfFirstRow = indexOfLastRow - rowsPerPage
-	const currentRows = files.tasks.slice(indexOfFirstRow, indexOfLastRow)
+	const currentRows = files.slice(indexOfFirstRow, indexOfLastRow)
 
 	console.log('files', files)
 	const keys = Object.keys(files.tasks[0].data)
