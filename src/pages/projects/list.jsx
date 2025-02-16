@@ -19,6 +19,7 @@ import NormalImage from 'src/assets/images/normal.png'
 import * as datasetAPI from 'src/api/dataset'
 import { chat, clearHistory } from 'src/api/chatbot'
 import MarkdownRenderer from 'src/components/MarkdownRenderer'
+import chatLoading from 'src/assets/gif/chat_loading.svg'
 const projType = Object.keys(TYPES)
 
 const imgArray = [
@@ -60,6 +61,7 @@ export default function ProjectList() {
 	const [messages, setMessages] = useState([])
 	const [chatbotGreetings, setMessage] = useState("What can i help with?")
 	const [chatStep, setStep] = useState(0)
+	const [loading, setLoading] = useState(false);
 
 	const options = [
 		{
@@ -122,9 +124,20 @@ export default function ProjectList() {
 				setShowTitle(false)
 				setMessages(previousMessages => [...previousMessages, { type: 'user', content: input}])
 				setInput('')
-				const response = await chat(input, chatStep)
-				setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: response.data.reply }])
-				setStep(prevStep => prevStep + 1)
+				setMessages(previousMessages => [...previousMessages, { type: "assistant", content: "loading..." }]);
+				setLoading(true)
+				try {
+					const response = await chat(input, chatStep)
+					setTimeout(() => {
+						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { type: "assistant", content: response.data.reply }]);
+						setStep(prevStep => prevStep + 1)
+					}, 500)
+					
+				} catch (error) {
+					console.error("Error receiving message:", error);
+				} finally {
+					setLoading(false)
+				}
 			}
 		}
 	}
@@ -528,16 +541,19 @@ export default function ProjectList() {
 														: 'bg-gray-300 text-black max-w-[95%]'
 												}`}
 											>
-												<MarkdownRenderer markdownText={message.content}></MarkdownRenderer>
-												{/* {message.content} */}
+												{message.content === "loading..." ? (
+													<img src={chatLoading} className="w-16 h-12 mx-auto" />
+													) : (
+													<MarkdownRenderer markdownText={message.content}></MarkdownRenderer>
+												)}
 											</div>
 										</div>
 									))}
 									<button
 										onClick={() => newChat()}
-										className="p-4 rounded-full bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
+										className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
 									>
-										New chat
+										New chat ?
 									</button>
 								</div>
 							)}
