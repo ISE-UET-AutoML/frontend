@@ -21,7 +21,7 @@ const DeployView = (props) => {
 		const interval = setInterval(() => {
 			if (!isDone) {
 				setProgress((prev) => {
-					const newProgress = Math.min(prev + 2, 100)
+					const newProgress = Math.min(prev + 10, 100)
 					if (newProgress === 100) {
 						setIsDone(true)
 						console.log('Done')

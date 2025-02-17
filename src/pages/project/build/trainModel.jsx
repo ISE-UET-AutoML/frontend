@@ -20,6 +20,7 @@ import {
 	CheckCircleOutlined,
 	CloudDownloadOutlined,
 } from '@ant-design/icons'
+import { useSpring, animated } from '@react-spring/web'
 import {
 	LineChart,
 	Line,
@@ -28,10 +29,38 @@ import {
 	CartesianGrid,
 	Tooltip,
 	Legend,
-	ResponsiveContainer,
 } from 'recharts'
-import { useSpring, animated } from '@react-spring/web'
-import LineGraph from 'src/components/LineGraph'
+
+const LineGraph = ({ data }) => {
+	return (
+		<LineChart width={500} height={300} data={data}>
+			<CartesianGrid strokeDasharray="3 3" />
+			<XAxis
+				dataKey="time"
+				label={{
+					value: 'Time (m)',
+					position: 'insideRight',
+					offset: -10,
+				}}
+			/>
+			<YAxis
+				label={{
+					value: 'Accuracy',
+					angle: -90,
+					position: 'insideLeft',
+				}}
+			/>
+			<Tooltip />
+			<Legend />
+			<Line
+				type="monotone"
+				dataKey="accuracy"
+				stroke="#8884d8"
+				activeDot={{ r: 8 }}
+			/>
+		</LineChart>
+	)
+}
 
 const { Step } = Steps
 const { Title, Text } = Typography
@@ -92,7 +121,7 @@ const TrainModel = (props) => {
 				updateChartData(res.data)
 				// Simulate download progress for step 0
 				if (currentStep === 0) {
-					setDownloadProgress((prev) => Math.min(prev + 15, 99))
+					setDownloadProgress((prev) => Math.min(prev + 2, 99))
 				}
 			}
 		} catch (err) {
@@ -103,17 +132,21 @@ const TrainModel = (props) => {
 	}
 
 	const handleTrainingStatus = (data) => {
-		if (data.trainInfo.status === 'TRAINING') {
+		if (data.experiment.status === 'DONE') {
+			setCurrentStep(2)
+			setTimeout(() => {
+				props.updateFields({ isDoneTrainModel: true })
+			}, 8000)
+		} else if (data.trainInfo.status === 'TRAINING') {
 			setCurrentStep(1)
 			setTrainingInfo({
 				latestEpoch: data.trainInfo.latest_epoch,
-				accuracy: data.trainInfo.metrics.val_accuracy,
+				accuracy: data.trainInfo.metrics.val_acc,
 			})
 
-			if (data.experiment.status === 'DONE') {
-				setCurrentStep(2)
-				// props.updateFields({ isDoneTrainModel: true })
-			}
+			console.log('training Infor', data.trainInfo)
+
+			console.log('Training Status', data.experiment.status)
 		} else {
 			setCurrentStep(0)
 		}
@@ -136,7 +169,7 @@ const TrainModel = (props) => {
 				...prev,
 				{
 					time: parseFloat(elapsedTime), // Elapsed time in minutes
-					loss: data.trainInfo.metrics.loss, // Loss value
+					accuracy: data.trainInfo.metrics.val_acc, // Accuracy value
 				},
 			])
 		}
@@ -245,7 +278,7 @@ const TrainModel = (props) => {
 						{currentStep === 1 && (
 							<Card>
 								<Row gutter={16}>
-									{/* Space thứ nhất */}
+									{/* First Space */}
 									<Col span={12}>
 										<Space
 											direction="vertical"
@@ -273,7 +306,6 @@ const TrainModel = (props) => {
 															trainingInfo.accuracy
 														}
 														precision={2}
-														suffix="%"
 														prefix={
 															<LineChartOutlined />
 														}
@@ -283,67 +315,29 @@ const TrainModel = (props) => {
 										</Space>
 									</Col>
 
-									{/* Space thứ hai */}
+									{/* Second Space */}
 									<Col span={12}>
 										<Space
 											direction="vertical"
 											size="middle"
 											style={{ width: '100%' }}
 										>
+											{/* Line Chart Here */}
 											<Title level={4}>
-												<LineChartOutlined /> Loss Chart
+												Accuracy Over Time
 											</Title>
-											<ResponsiveContainer
-												width="100%"
-												height={200}
-											>
-												<LineChart
-													data={chartData}
-													margin={{
-														top: 20,
-														right: 30,
-														left: 20,
-														bottom: 10,
-													}}
-												>
-													<CartesianGrid strokeDasharray="3 3" />
-													<XAxis
-														dataKey="time"
-														label={{
-															value: 'Time (minutes)',
-															position: 'rights',
-														}}
-													/>
-													<YAxis
-														label={{
-															value: 'Loss',
-															angle: -90,
-															position:
-																'insideLeft',
-														}}
-													/>
-													<Tooltip
-														formatter={(
-															value,
-															name,
-															props
-														) => [
-															`${value.toFixed(4)}`, // Format loss value
-															`Time: ${props.payload.time.toFixed(2)} minutes`, // Display elapsed time
-														]}
-													/>
-													<Legend />
-													<Line
-														type="monotone"
-														dataKey="loss"
-														stroke="#8884d8"
-														strokeWidth={2}
-														dot={{ r: 4 }}
-														activeDot={{ r: 6 }}
-													/>
-												</LineChart>
-											</ResponsiveContainer>
+											<LineGraph data={chartData} />
 										</Space>
+									</Col>
+								</Row>
+								<Row>
+									<Col span={24}>
+										<Alert
+											message="Accuracy"
+											description="Accuracy measures the percentage of correct predictions during model training. It helps evaluate performance but may be misleading for imbalanced data."
+											type="info"
+											showIcon
+										/>
 									</Col>
 								</Row>
 							</Card>
