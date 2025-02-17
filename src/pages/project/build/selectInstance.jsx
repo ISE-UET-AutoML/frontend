@@ -26,6 +26,16 @@ const SelectInstance = (props) => {
 		setTrainingTime(value)
 	}
 	const [isLoading, setIsLoading] = useState(false)
+	const [isHasInstance, setIsHasInstance] = useState(false)
+	const [isCreateInstance, setIsCreateInstance] = useState(false)
+
+	const gpuLevels = [
+		{ name: 'RTX 3060', gpuNumber: 1, disk: 10, cost: 0.2 },
+		{ name: 'RTX 3070', gpuNumber: 2, disk: 20, cost: 0.4 },
+		{ name: 'RTX 3080', gpuNumber: 3, disk: 30, cost: 0.6 },
+		{ name: 'RTX 3090', gpuNumber: 4, disk: 40, cost: 0.8 },
+		{ name: 'RTX 4090', gpuNumber: 5, disk: 50, cost: 1.0 },
+	]
 
 	useEffect(() => {
 		if (selectedTab === 'Automatic') {
@@ -61,7 +71,7 @@ const SelectInstance = (props) => {
 			'Please check your instance information before training?'
 		)
 		if (confirmation) {
-			setIsLoading(true)
+			setIsCreateInstance(true)
 
 			try {
 				const res = await projectAPI.trainModel(
@@ -83,7 +93,7 @@ const SelectInstance = (props) => {
 				console.error('Error training model:', error)
 				message.error('Error training model', 3)
 			} finally {
-				setIsLoading(false)
+				setIsCreateInstance(false)
 			}
 		} else {
 			alert('Please adjust your instance.')
@@ -91,27 +101,31 @@ const SelectInstance = (props) => {
 	}
 
 	const findInstance = (e) => {
-		// e.preventDefault()
+		if (trainingTime === 0) {
+			message.error('Training Time must be greater than 0', 3)
+			return
+		}
 
 		setIsLoading(true)
 
-		const randomGPU = Math.floor(Math.random() * 4) + 1
-		const randomDisk = Math.floor(Math.random() * 31) + 10
+		const levelIndex = Math.floor(Math.random() * gpuLevels.length)
+		const selectedGPU = gpuLevels[levelIndex]
 
 		setTimeout(() => {
 			setIsLoading(false)
+			setIsHasInstance(true)
 
 			setFormData({
 				service: services[Math.floor(Math.random() * services.length)],
-				gpuNumber: randomGPU,
-				gpuName: gpuNames[Math.floor(Math.random() * gpuNames.length)],
-				disk: randomDisk,
+				gpuNumber: selectedGPU.gpuNumber,
+				gpuName: selectedGPU.name,
+				disk: selectedGPU.disk,
 				trainingTime: trainingTime,
-				// budget: formData.budget,
+				budget: selectedGPU.cost * trainingTime, // Tính chi phí theo thời gian
 			})
 
-			message.success('Finded Suitable Instance', 3)
-		}, 5000)
+			message.success('Found Suitable Instance', 3)
+		}, 2000)
 	}
 
 	return (
@@ -151,7 +165,7 @@ const SelectInstance = (props) => {
 											className="block mb-2 text-xl font-bold"
 											htmlFor="trainingTime"
 										>
-											Training Time (s):
+											Training Time (h):
 										</label>
 										<InputNumber
 											prefix="🕒"
@@ -166,15 +180,21 @@ const SelectInstance = (props) => {
 											className="block mb-2 text-xl font-bold"
 											htmlFor="trainingTime"
 										>
-											Cost ($):
+											<strong className="text-xl">
+												Cost ($):
+											</strong>{' '}
+											{formData.budget}
 										</label>
 									</Card>
-									<button
-										className="w-full p-2 bg-blue-500 text-white rounded"
-										onClick={findInstance}
-									>
-										Find Suitable Instance
-									</button>
+
+									{trainingTime > 0 && (
+										<button
+											className="w-full p-2 bg-blue-500 text-white rounded"
+											onClick={findInstance}
+										>
+											Find Suitable Instance
+										</button>
+									)}
 								</div>
 								<div className="w-[5%] h-[87%]">
 									<Slider
@@ -395,28 +415,53 @@ const SelectInstance = (props) => {
 				</TabPanels>
 			</TabGroup>
 
-			<div className="w-full flex justify-center items-center">
-				<button
-					className="btn"
-					onClick={(e) => {
-						e.preventDefault()
-						handleSubmit(e)
-					}}
-				>
-					<svg
-						height="24"
-						width="24"
-						fill="#FFFFFF"
-						viewBox="0 0 24 24"
-						data-name="Layer 1"
-						id="Layer_1"
-						className="sparkle"
+			{isCreateInstance ? (
+				<>
+					<div
+						className="w-full p-2 text-2xl text-center text-yellow-500 rounded"
+						style={{ animation: 'blink 5s infinite' }}
 					>
-						<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
-					</svg>
-					<span className="text">Train Model</span>
-				</button>
-			</div>
+						⚡ Initializing instance... This process usually takes
+						about 45 seconds to 1 minute.
+					</div>
+
+					<style>
+						{`
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  `}
+					</style>
+				</>
+			) : (
+				<>
+					{isHasInstance && (
+						<div className="w-full flex justify-center items-center">
+							<button
+								className="btn"
+								onClick={(e) => {
+									e.preventDefault()
+									handleSubmit(e)
+								}}
+							>
+								<svg
+									height="24"
+									width="24"
+									fill="#FFFFFF"
+									viewBox="0 0 24 24"
+									data-name="Layer 1"
+									id="Layer_1"
+									className="sparkle"
+								>
+									<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+								</svg>
+								<span className="text">Train Model</span>
+							</button>
+						</div>
+					)}
+				</>
+			)}
 		</div>
 	)
 }
