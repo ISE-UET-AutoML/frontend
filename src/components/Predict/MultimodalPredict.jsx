@@ -136,20 +136,28 @@ const MultimodalPredict = (props) => {
 										{/* MAIN IMAGE */}
 										<div className="h-[500px] w-[420px] ml-[70px] mt-[30px] shadow-xl rounded-md">
 											<img
-												src={data.url_thumbnail}
+												src={
+													data[projectInfo.img_column]
+												}
 												alt=""
 												className="object-cover w-full h-full rounded-md"
 											/>
 										</div>
 										<div className="w-[50%] space-y-4 mt-[30px] ml-10">
 											{/* LABEL */}
-											<p className="text-center font-semibold text-6xl uppercase mt-4 mb-2">
-												{
-													predictDataState
-														.predictResult[index]
-														.class
-												}
-											</p>
+											<div className="flex w-full">
+												<p className="text-left font-semibold text-6xl uppercase mt-4 mb-2 w-[80%]">
+													{projectInfo.target_column}
+												</p>
+												<p className="text-right font-semibold text-6xl uppercase mt-4 mb-2 w-[20%]">
+													{
+														predictDataState
+															.predictResult[
+															index
+														].class
+													}
+												</p>
+											</div>
 											{/* PROGRESS BAR */}
 											<div className="w-full mb-14">
 												<div className="flex justify-between mb-1">
@@ -202,77 +210,42 @@ const MultimodalPredict = (props) => {
 															</tr>
 														</thead>
 														<tbody className="bg-white divide-y divide-gray-200">
-															<tr className="hover:bg-gray-100 break-words">
-																<td className="pl-4 text-left text-sm font-bold">
-																	{capitalizeFirstLetter(
-																		'name'
-																	)}
-																</td>
-																<td>
-																	{
-																		data[
-																			'name'
-																		]
-																	}
-																</td>
-															</tr>
-															<tr className="hover:bg-gray-100 break-words">
-																<td className="pl-4 text-left text-sm font-bold">
-																	{capitalizeFirstLetter(
-																		'product base id'
-																	)}
-																</td>
-																<td>
-																	{
-																		data[
-																			'product_base_id'
-																		]
-																	}
-																</td>
-															</tr>
-															{!showAllRows ? (
-																<></>
-															) : (
-																<>
-																	{Object.keys(
-																		data
-																	)
-																		.filter(
-																			(
-																				key
-																			) =>
-																				key !==
-																					'name' &&
-																				key !==
-																					'product_base_id'
-																		)
-																		.map(
-																			(
-																				key
-																			) => (
-																				<tr
-																					className="hover:bg-gray-100 break-words"
-																					key={
-																						key
-																					}
-																				>
-																					<td className="pl-4 text-left text-sm font-bold break-words">
-																						{capitalizeFirstLetter(
-																							key
-																						)}
-																					</td>
-																					<td className="text-left text-sm break-words">
-																						{
-																							data[
-																								key
-																							]
-																						}
-																					</td>
-																				</tr>
+															{Object.entries(
+																data
+															)
+																.slice(
+																	0,
+																	showAllRows
+																		? Object.keys(
+																				data
 																			)
-																		)}
-																</>
-															)}
+																				.length
+																		: 2
+																) // Hiển thị 2 dòng khi showAllRows = false
+																.map(
+																	([
+																		key,
+																		value,
+																	]) => (
+																		<tr
+																			className="hover:bg-gray-100 break-words"
+																			key={
+																				key
+																			}
+																		>
+																			<td className="pl-4 text-left text-sm font-bold break-words">
+																				{capitalizeFirstLetter(
+																					key
+																				)}
+																			</td>
+																			<td className="text-left text-sm break-words">
+																				{
+																					value
+																				}
+																			</td>
+																		</tr>
+																	)
+																)}
 														</tbody>
 													</table>
 												</div>
@@ -394,7 +367,7 @@ const MultimodalPredict = (props) => {
 				{csvData.map((data, index) => (
 					<img
 						key={index}
-						src={data.url_thumbnail}
+						src={data[projectInfo.img_column]}
 						alt=""
 						className={`h-full object-cover rounded-lg cursor-pointer
 						 ${selectedData.index === index ? 'border-2 border-blue-500 opacity-100' : 'opacity-50 hover:opacity-100'}

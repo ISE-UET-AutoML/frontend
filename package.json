@@ -6,6 +6,7 @@
     "@ant-design/icons": "^5.5.1",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.0.16",
+    "@react-spring/web": "^9.7.5",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
@@ -62,6 +63,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@shadcn/ui": "^0.0.4",
     "dayjs": "^1.11.7",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.2.7"

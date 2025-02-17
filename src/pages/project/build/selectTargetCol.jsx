@@ -50,8 +50,8 @@ const SelectTargetCol = (props) => {
 
 		try {
 			const formData = new FormData()
-			formData.append('targetCol', JSON.stringify(selectedCol))
-			formData.append('textCols', JSON.stringify(textCols))
+			formData.append('targetCol', selectedCol)
+			formData.append('textCols', textCols)
 			formData.append('datasetID', props.selectedDataset?._id)
 
 			const res = await projectAPI.sendTargetColumn(projectID, formData)
