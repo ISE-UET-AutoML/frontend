@@ -363,7 +363,7 @@ const MultimodalPredict = (props) => {
 			)}
 
 			{/* LIST IMAGE */}
-			<div className="w-[75%] h-[8%] ml-[180px] mt-2 flex overflow-y-auto space-x-4">
+			<div className="w-[75%] h-[8%] ml-[180px] mt-2 flex overflow-y-auto space-x-4 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
 				{csvData.map((data, index) => (
 					<img
 						key={index}
