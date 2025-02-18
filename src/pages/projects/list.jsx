@@ -60,7 +60,6 @@ export default function ProjectList() {
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
 	const [chatbotGreetings, setMessage] = useState("What can i help with?")
-	const [chatStep, setStep] = useState(0)
 	const [loading, setLoading] = useState(false);
 
 	const options = [
@@ -127,10 +126,9 @@ export default function ProjectList() {
 				setMessages(previousMessages => [...previousMessages, { type: "assistant", content: "loading..." }]);
 				setLoading(true)
 				try {
-					const response = await chat(input, chatStep)
+					const response = await chat(input)
 					setTimeout(() => {
 						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { type: "assistant", content: response.data.reply }]);
-						setStep(prevStep => prevStep + 1)
 					}, 500)
 					
 				} catch (error) {
@@ -145,7 +143,6 @@ export default function ProjectList() {
 	const newChat = async () => {
 		setShowTitle(true)
 		setMessages([]);
-		setStep(prevStep => 0)
 		const response = await clearHistory()
 	}
 
