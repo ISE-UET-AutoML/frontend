@@ -41,7 +41,9 @@ const MultimodalTrainingGraph = (props) => {
 				<button
 					className="btn"
 					onClick={() => {
-						updateProjState({ showDeployView: true })
+						updateProjState.updateFields({
+							isDoneRenderGraph: true,
+						})
 					}}
 				>
 					<svg

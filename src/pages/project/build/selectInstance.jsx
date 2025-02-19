@@ -156,7 +156,7 @@ const SelectInstance = ({ selectedDataset, updateFields }) => {
 		} else if (formData.instanceSize <= 75) {
 			instanceSize = 'Super Strong'
 		} else {
-			instanceSize = 'TA dep trai'
+			instanceSize = 'Rocket'
 		}
 
 		// Find the most suitable GPU configuration based on the instance size
@@ -174,7 +174,7 @@ const SelectInstance = ({ selectedDataset, updateFields }) => {
 			case 'Super Strong':
 				selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 6) // 6 GPUs
 				break
-			case 'TA dep trai':
+			case 'Rocket':
 				selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 8) // 8 GPUs
 				break
 			default:
@@ -324,7 +324,7 @@ const SelectInstance = ({ selectedDataset, updateFields }) => {
 												25: 'Medium',
 												50: 'Strong',
 												75: 'Super Strong',
-												100: 'TA dep trai',
+												100: 'Rocket',
 											}}
 											step={25}
 											// defaultValue={50}

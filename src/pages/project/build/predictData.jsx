@@ -3,13 +3,10 @@ import { message } from 'antd'
 import React, { Fragment, useReducer, useState, useEffect } from 'react'
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom'
 import { validateFiles } from 'src/utils/file'
-import instance from 'src/api/axios'
-import { API_URL } from 'src/constants/api'
 import 'src/assets/css/chart.css'
 import config from './config'
 import * as experimentAPI from 'src/api/experiment'
 import Loading from 'src/components/Loading'
-import DeployView from 'src/components/DeployView'
 
 const initialState = {
 	showDeployView: false,
@@ -41,75 +38,6 @@ const PredictData = (props) => {
 		(pre, next) => ({ ...pre, ...next }),
 		initialState
 	)
-	const [GraphJSON, setGraphJSON] = useState({})
-	const [trainLossGraph, setTrainLossGraph] = useState([])
-	const [val_lossGraph, setValLossGraph] = useState([])
-	const [val_accGraph, setValAccGraph] = useState([])
-	const [val_roc_aucGraph, setRocAucGraph] = useState([])
-	const [isHasGraph, setIsHasGraph] = useState(false)
-
-	const readChart = (contents, setGraph) => {
-		const lines = contents.split('\n')
-		const header = lines[0].split(',')
-		let parsedData = []
-		for (let i = 1; i < lines.length - 1; i++) {
-			const line = lines[i].split(',')
-			const item = {}
-
-			for (let j = 1; j < header.length; j++) {
-				const key = header[j]?.trim() || ''
-				const value = line[j]?.trim() || ''
-				item[key] = value
-			}
-
-			parsedData.push(item)
-		}
-
-		setGraph(parsedData)
-	}
-	// TODO: Render training graph for Tabular/Text
-	useEffect(() => {
-		instance
-			.get(API_URL.get_training_history(experimentName))
-			.then((res) => {
-				const data = res.data
-
-				console.log('history', data)
-				setGraphJSON(data)
-
-				if (data.fit_history.scalars.train_loss) {
-					readChart(
-						data.fit_history.scalars.train_loss,
-						setTrainLossGraph
-					)
-					setIsHasGraph(true)
-				}
-
-				if (data.fit_history.scalars.val_accuracy) {
-					readChart(
-						data.fit_history.scalars.val_accuracy,
-						setValAccGraph
-					)
-					setIsHasGraph(true)
-				}
-
-				if (data.fit_history.scalars.val_loss) {
-					readChart(
-						data.fit_history.scalars.val_loss,
-						setValLossGraph
-					)
-					setIsHasGraph(true)
-				}
-
-				if (data.fit_history.scalars.val_roc_auc) {
-					readChart(
-						data.fit_history.scalars.val_roc_auc,
-						setRocAucGraph
-					)
-					setIsHasGraph(true)
-				}
-			})
-	}, [])
 
 	const handleFileChange = async (event) => {
 		const files = Array.from(event.target.files)
@@ -181,27 +109,8 @@ const PredictData = (props) => {
 		<div className="h-full">
 			{predictDataState.isLoading && <Loading />}
 
-			{/* TRAINING GRAPH */}
-			{isHasGraph &&
-				(() => {
-					const object = config[projectInfo.type]
-					if (object) {
-						const GraphComponent = object.trainingGraph
-						return (
-							<GraphComponent
-								trainLossGraph={trainLossGraph}
-								val_lossGraph={val_lossGraph}
-								val_accGraph={val_accGraph}
-								val_roc_aucGraph={val_roc_aucGraph}
-								updateProjState={updateProjState}
-							/>
-						)
-					}
-					return null
-				})()}
-
 			{/* DEPLOY VIEW  */}
-			<div
+			{/* <div
 				className={`${
 					predictDataState.showDeployView
 						? 'top-[405px] left-0 bottom-full z-[1000] opacity-100'
@@ -214,7 +123,13 @@ const PredictData = (props) => {
 						updateProjState={updateProjState}
 					/>
 				</div>
-			</div>
+			</div> */}
+			{/* <div className="ml-[80px] mr-[30px]">
+				<DeployView
+					experimentName={experimentName}
+					updateProjState={updateProjState}
+				/>
+			</div> */}
 
 			{/* UPLOAD VIEW */}
 

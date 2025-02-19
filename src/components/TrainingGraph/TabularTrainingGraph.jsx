@@ -42,7 +42,9 @@ const TabularTrainingGraph = (props) => {
 				<button
 					className="btn"
 					onClick={() => {
-						updateProjState({ showUploadPanel: true })
+						updateProjState.updateFields({
+							isDoneRenderGraph: true,
+						})
 					}}
 				>
 					<svg
