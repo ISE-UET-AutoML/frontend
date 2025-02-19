@@ -11,7 +11,12 @@ const clearHistory = () => {
     return instance.post(`${URL}/clear`)
 }
 
+const getHistory = () => {
+    return instance.post(`${URL}/getHistory`)
+}
+
 export {
     chat,
     clearHistory,
+    getHistory
 }

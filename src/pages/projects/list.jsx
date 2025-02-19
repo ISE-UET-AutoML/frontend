@@ -17,7 +17,7 @@ import { motion } from 'framer-motion'
 import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
 import * as datasetAPI from 'src/api/dataset'
-import { chat, clearHistory } from 'src/api/chatbot'
+import { chat, clearHistory, getHistory } from 'src/api/chatbot'
 import MarkdownRenderer from 'src/components/MarkdownRenderer'
 import chatLoading from 'src/assets/gif/chat_loading.svg'
 const projType = Object.keys(TYPES)
@@ -59,7 +59,7 @@ export default function ProjectList() {
 	const [datasets, setDatasets] = useState([])
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
-	const [chatbotGreetings, setMessage] = useState("What can i help with?")
+	const [chatbotGreetings, setMessage] = useState("What can I help with?")
 	const [loading, setLoading] = useState(false);
 
 	const options = [
@@ -113,24 +113,41 @@ export default function ProjectList() {
 		}, 500)
 	},[messages])
 
+	const getChatHistory = async () => {
+		if (messages) {
+			const response = await getHistory()
+			const history = response.data.chatHistory
+			if (messages.length === 0) {
+				setMessages(previousMessages => [...previousMessages, { role: 'assistant', content: chatbotGreetings }])
+			}
+			setMessages(prevMessages => {
+				const newMessages = [...prevMessages, ...history];
+				if (newMessages.length > 1) {
+					setShowTitle(false);
+				}
+				return newMessages;
+			});	
+		}
+	};
+
+	useEffect(() => {
+		getChatHistory()
+	}, []);
+
 	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			if (input.trim()) {
-				if (messages.length === 0) {
-					setMessages(previousMessages => [...previousMessages, { type: 'assistant', content: chatbotGreetings }])
-				}
 				setShowTitle(false)
-				setMessages(previousMessages => [...previousMessages, { type: 'user', content: input}])
+				setMessages(previousMessages => [...previousMessages, { role: 'user', content: input}])
 				setInput('')
-				setMessages(previousMessages => [...previousMessages, { type: "assistant", content: "loading..." }]);
+				setMessages(previousMessages => [...previousMessages, { role: "assistant", content: "loading..." }]);
 				setLoading(true)
 				try {
 					const response = await chat(input)
 					setTimeout(() => {
-						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { type: "assistant", content: response.data.reply }]);
+						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
 					}, 500)
-					
 				} catch (error) {
 					console.error("Error receiving message:", error);
 				} finally {
@@ -526,14 +543,14 @@ export default function ProjectList() {
 										<div
 											key={index}
 											className={`flex ${
-												message.type === 'user'
+												message.role === 'user'
 													? 'justify-end'
 													: 'justify-start'
 											}`}
 										>
 											<div
 												className={`px-3 py-1 rounded-xl ${
-													message.type === 'user'
+													message.role === 'user'
 														? 'bg-gray-200 text-black max-w-[70%]'
 														: 'bg-gray-300 text-black max-w-[95%]'
 												}`}

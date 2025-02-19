@@ -332,3 +332,6 @@ body {
 .markdown > * {
 	all: revert;
 }
+.markdown .text {
+	all: revert;
+}
