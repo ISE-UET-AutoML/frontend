@@ -335,3 +335,8 @@ body {
 .markdown .text {
 	all: revert;
 }
+.markdown li ul {
+	list-style-type: disc;
+	padding-left: 20px;
+}
+  
