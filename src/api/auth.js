@@ -9,6 +9,7 @@ const signup = (credential) => {
 }
 const login = (credential) =>
 	instanceWithoutCredential.post(API_URL.login, credential)
+
 const refreshToken = () => instance.get(API_URL.refresh_token)
 
 export { signup, login, refreshToken }

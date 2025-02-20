@@ -4,12 +4,13 @@ import useMultiStepForm from 'src/hooks/useMultiStepForm'
 import * as projectAPI from 'src/api/project'
 import PredictData from './predictData'
 import UploadData from './uploadData.jsx'
-import TrainModel2 from './trainModel2'
 import TrainModel from './trainModel'
 import LabelData from './labelData/labelData'
 import SelectInstance from './selectInstance'
 import SelectTargetCol from './selectTargetCol'
 import SelectTargetColMulti from './selectTargetColMulti'
+import RenderGraph from './renderGraph'
+import DeployView from './deployView'
 
 export default function ProjectBuild(props) {
 	const location = useLocation()
@@ -19,33 +20,45 @@ export default function ProjectBuild(props) {
 
 	function updateFields(fields) {
 		//TODO: Route to LabelData
+
+		// Main Pipeline
 		if (fields.isDoneUploadData) {
-			goTo(1)
+			goTo(1) // SelectInstance
 		}
-		// if (fields.isDoneLabelData) {
-		// 	goTo(2)
-		// }
+
 		if (fields.isDoneSelectInstance) {
-			goTo(2)
+			goTo(2) // TrainModel
 		}
 		if (fields.isDoneTrainModel) {
-			goTo(3)
+			goTo(3) // DeployView
 		}
+
 		if (fields.isDonePredictData) {
-			goTo(4) // Chua co -> Sua cho dung
+			// Chua co
 		}
+
+		//Additional
+
 		if (fields.isSelectTargetCol) {
 			goTo(4)
 		}
-		if (fields.isDoneSelectTargetCol) {
-			goTo(1)
-		}
+
 		if (fields.isSelectTargetColMulti) {
 			goTo(5)
 		}
+
 		if (fields.isLabeling) {
 			goTo(6)
 		}
+
+		if (fields.isDoneSelectTargetCol) {
+			goTo(1) // SelectInstance
+		}
+
+		// if (fields.isDoneLabelData) {
+		// 	goTo(2)
+		// }
+
 		setData((prev) => {
 			return { ...prev, ...fields }
 		})
@@ -82,16 +95,47 @@ export default function ProjectBuild(props) {
 		next,
 		goTo,
 	} = useMultiStepForm([
+		//0
 		<UploadData
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
+		//1
 		<SelectInstance
 			{...data}
 			updateFields={updateFields}
 			projectInfo={projectInfo}
 		/>,
+
+		//2
+		<TrainModel
+			{...data}
+			updateFields={updateFields}
+			projectInfo={projectInfo}
+		/>,
+
+		//3
+		<DeployView
+			{...data}
+			updateFields={updateFields}
+			projectInfo={projectInfo}
+		/>,
+
+		//4
+		<SelectTargetCol
+			{...data}
+			updateFields={updateFields}
+			projectInfo={projectInfo}
+		/>,
+
+		//5
+		<SelectTargetColMulti
+			{...data}
+			updateFields={updateFields}
+			projectInfo={projectInfo}
+		/>,
+
 		//--------------------OLD-------------------
 		// <LabelData
 		// 	{...data}
@@ -99,26 +143,8 @@ export default function ProjectBuild(props) {
 		// 	projectInfo={projectInfo}
 		// />,
 		//--------------------OLD-------------------
-		<TrainModel
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-		<PredictData
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-		<SelectTargetCol
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-		<SelectTargetColMulti
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
+
+		//6
 		// <Labeling
 		// 	{...data}
 		// 	updateFields={updateFields}

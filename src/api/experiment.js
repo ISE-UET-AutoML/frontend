@@ -1,9 +1,11 @@
 import { API_URL, API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
 
+const URL = `${API_BASE_URL}/experiments`
+
 const getTrainingHistory = (experimentName) => {
 	return instance.get(
-		`${API_BASE_URL}/experiments/train-history?experiment_name=${experimentName}`
+		`${URL}/train-history?experiment_name=${experimentName}`
 	)
 }
 
@@ -26,7 +28,22 @@ const explainData = (experimentName, file) => {
 }
 
 const deployModel = (experimentName, deployType) => {
-	return instance.get(API_URL.deploy_model(experimentName, deployType))
+	return instance.get(
+		`${URL}/cloud_deploy?experiment_name=${experimentName}&deploy_type=${deployType}`
+	)
 }
 
-export { getTrainingHistory, predictData, explainData, getExperiment, deployModel }
+const getDeployStatus = (experimentName) => {
+	return instance.get(
+		`${URL}/cloud_deploy_status?experiment_name=${experimentName}`
+	)
+}
+
+export {
+	getTrainingHistory,
+	predictData,
+	explainData,
+	getExperiment,
+	deployModel,
+	getDeployStatus,
+}
