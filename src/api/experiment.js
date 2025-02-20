@@ -10,7 +10,11 @@ const getTrainingHistory = (experimentName) => {
 }
 
 const getExperiment = (experimentName) => {
-	return instance.get(`${API_BASE_URL}/experiments?name=${experimentName}`)
+	return instance.get(`${URL}?name=${experimentName}`)
+}
+
+const getAllExperiments = (projectID) => {
+	return instance.get(`${URL}/allExperiments?projectID=${projectID}`)
 }
 
 const predictData = (experimentName, files) => {
@@ -41,6 +45,7 @@ const getDeployStatus = (experimentName) => {
 
 export {
 	getTrainingHistory,
+	getAllExperiments,
 	predictData,
 	explainData,
 	getExperiment,

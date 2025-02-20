@@ -119,7 +119,7 @@ const UploadData = ({ updateFields, projectInfo }) => {
 	]
 
 	return (
-		<div className="p-6">
+		<div className="pl-6 pr-6">
 			<Row justify="center" className="">
 				<Col xs={24} md={16}>
 					<Title level={1} className="text-center">
@@ -266,7 +266,7 @@ const UploadData = ({ updateFields, projectInfo }) => {
 					</Card>
 
 					<Card
-						// hoverable
+						hoverable
 						className="shadow-md rounded-lg text-center"
 					>
 						<Space
@@ -275,23 +275,17 @@ const UploadData = ({ updateFields, projectInfo }) => {
 							// className="py-6"
 						>
 							<CloudUploadOutlined className="text-5xl text-blue-500" />
-							<div>
+							<button
+								onClick={() =>
+									(window.location = PATHS.DATASETS)
+								}
+							>
 								<Title level={4}>Create a New Dataset</Title>
 								<Text type="secondary">
 									Don't see what you need? Click here to
 									upload and create your own dataset
 								</Text>
-							</div>
-							<Button
-								type="primary"
-								size="large"
-								icon={<CloudUploadOutlined />}
-								onClick={() =>
-									(window.location = PATHS.DATASETS)
-								}
-							>
-								Create Dataset
-							</Button>
+							</button>
 						</Space>
 					</Card>
 				</Col>

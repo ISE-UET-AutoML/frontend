@@ -12,15 +12,14 @@ import ProjectDeploy from 'src/pages/project/deploy'
 import ProjectModels from 'src/pages/project/models'
 import ProjectBuild from 'src/pages/project/build/build'
 import ProjectSettings from 'src/pages/project/settings'
-// import UploadData from 'src/pages/project/build/uploadData';
-// import TrainModel from 'src/pages/project/build/trainModel';
-// import PredictData from 'src/pages/project/build/predictData';
 
 import Buckets from 'src/pages/buckets'
 
 import Datasets from 'src/pages/datasets'
 import DatasetLayout from 'src/layouts/DatasetLayout'
 import DatasetView from 'src/pages/dataset/DatasetView'
+import UploadData from 'src/pages/project/build/uploadData'
+import SelectInstance from 'src/pages/project/build/selectInstance'
 
 const routes = {
 	element: <DefaultLayout />,
@@ -53,23 +52,16 @@ const routes = {
 								{
 									path: 'build',
 									element: <ProjectBuild />,
-									//     children: [{
-									//         path: 'upload',
-									//         element: <UploadData />
-									//     },
-									//     {
-									//         path: 'train',
-									//         element: <TrainModel />
-									//     },
-									//     {
-									//         path: 'predict',
-									//         element: <PredictData />
-									//     },
-									//     {
-									//         path: 'upload',
-									//         element: <UploadData />
-									//     }
-									// ]
+									children: [
+										{
+											path: 'uploadData',
+											element: <UploadData />,
+										},
+										{
+											path: 'selectInstance',
+											element: <SelectInstance />,
+										},
+									],
 								},
 								{
 									path: 'model',

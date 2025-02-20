@@ -17,12 +17,13 @@ const detectImageColumns = (row) => {
 		'.bmp',
 		'.svg',
 	]
-	const urlPattern =
-		/^https?:\/\/.*\.(jpg|jpeg|png|gif|webp|bmp|svg)(\?.*)?$/i
+	const urlPattern = /^https?:\/\/.+/i // Kiểm tra URL hợp lệ
 
 	return Object.keys(row).filter((col) => {
 		const value = row[col]
 		if (typeof value !== 'string') return false
+
+		// Kiểm tra nếu giá trị có chứa phần mở rộng ảnh hoặc là một URL hợp lệ
 		return (
 			imageExtensions.some((ext) => value.toLowerCase().includes(ext)) ||
 			urlPattern.test(value)

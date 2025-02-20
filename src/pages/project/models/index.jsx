@@ -1,32 +1,33 @@
 import ModelCard from './card'
 import { RectangleStackIcon } from '@heroicons/react/20/solid'
-import { PlusIcon } from '@heroicons/react/24/solid'
 import { useReducer, useEffect } from 'react'
-import instance from 'src/api/axios'
 import { message } from 'antd'
-import { API_URL } from 'src/constants/api'
+import { getModels } from 'src/api/project'
+import { getAllExperiments } from 'src/api/experiment'
 import { useParams } from 'react-router-dom'
 
 const initialState = {
 	showUploader: false,
-	models: [],
+	experiments: [],
 }
 
 export default function ProjectModels() {
 	const { id: projectId } = useParams()
-	const [projectState, updateProjState] = useReducer((pre, next) => {
+	const [model, updateModelState] = useReducer((pre, next) => {
 		return { ...pre, ...next }
 	}, initialState)
 
-	const getModels = async () => {
-		const { data } = await instance.get(API_URL.all_modelsById(projectId))
-		updateProjState({ models: data })
-		return data
+	const getListModels = async () => {
+		const { data } = await getAllExperiments(projectId)
+
+		updateModelState({ experiments: data.data })
+		return
 	}
 
 	useEffect(() => {
-		projectState.models.length >= 0 && getModels()
+		model.experiments.length >= 0 && getListModels()
 	}, [])
+
 	return (
 		<>
 			<div className="flex justify-between mx-auto px-3 mb-5 ">
@@ -42,17 +43,20 @@ export default function ProjectModels() {
 								aria-hidden="true"
 							/>
 							<span className="text-sm font-medium text-gray-500">
-								{projectState.models.length} Models
+								{model.experiments.length} Models
 							</span>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			{projectState.models.length > 0 ? (
+			{model.experiments.length > 0 ? (
 				<ul className="px-3  mx-auto pt-5 overflow-hidden sm:grid sm:grid-cols-2 gap-3 py-4">
-					{projectState.models.map((model) => (
-						<ModelCard key={model._id} model={model} />
+					{model.experiments.map((experiment) => (
+						<ModelCard
+							key={experiment._id}
+							experiment={experiment}
+						/>
 					))}
 				</ul>
 			) : (

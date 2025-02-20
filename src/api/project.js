@@ -81,6 +81,10 @@ const trainModel = (projectID, dataset, instanceInfo) => {
 	})
 }
 
+const getModels = (projectID) => {
+	return instance.get(`${URL}/models?project_id=${projectID}`)
+}
+
 const sendTargetColumn = (projectID, formData) => {
 	return instance.post(`${URL}/${projectID}/sendTargetColumn`, formData)
 }
@@ -101,5 +105,6 @@ export {
 	getProjectFullDataset,
 	autoLabel,
 	getPreviewDataByPage,
+	getModels,
 	sendTargetColumn,
 }

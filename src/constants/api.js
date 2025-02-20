@@ -8,8 +8,6 @@ export const API_URL = {
 	train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
 	delete_project: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/delete`,
-	all_modelsById: (projectId) =>
-		`${API_BASE_URL}/projects/models?project_id=${projectId}`,
 	upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
 	get_project_dataset: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/datasets`,

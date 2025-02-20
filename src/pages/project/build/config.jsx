@@ -2,7 +2,6 @@ import ImagePredict from '../../../components/Predict/ImagePredict'
 import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
-import MultimodalPredict2 from '../../../components/Predict/MultimodalPredict2'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultimodalTrainingGraph from '../../../components/TrainingGraph/MultimodalTrainingGraph'
@@ -36,8 +35,8 @@ const config = {
 		gridClasses: 'grid-cols-1',
 		folder: UploadTypes.CSV_SINGLE,
 		labelingView: LabelingTextClassification,
-		predictView: MultimodalPredict2,
-		trainingGraph: MultimodalTrainingGraph,
+		predictView: MultimodalPredict,
+		// trainingGraph: MultimodalTrainingGraph,
 	},
 	// Add more types here as needed
 }

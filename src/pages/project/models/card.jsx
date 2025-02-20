@@ -8,11 +8,11 @@ function classNames(...classes) {
 	return classes.filter(Boolean).join(' ')
 }
 
-export default function ModelCard({ model }) {
+export default function ModelCard({ experiment }) {
 	return (
 		<>
 			<div
-				key={model._id}
+				key={experiment._id}
 				className={classNames(
 					'relative group p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 rounded-lg bg-white shadow '
 				)}
@@ -35,10 +35,22 @@ export default function ModelCard({ model }) {
 					<div className="flex w-full justify-between items-center">
 						<h3 className="text-lg font-medium">
 							<a
-								href={PATHS.PREDICT(
-									model.project_id,
-									model.runID
-								)}
+								// href={PATHS.PREDICT(
+								// 	experiment.project_id,
+								// 	experiment.experimentID
+								// )}
+								href={
+									experiment.status === 'DONE'
+										? PATHS.PREDICT(
+												experiment.project_id,
+												experiment.experimentID
+											)
+										: PATHS.PREDICT(
+												// Tmp route
+												experiment.project_id,
+												experiment.experimentID
+											)
+								}
 								className="focus:outline-none"
 							>
 								{/* Extend touch target to entire panel */}
@@ -46,11 +58,11 @@ export default function ModelCard({ model }) {
 									className="absolute inset-0"
 									aria-hidden="true"
 								/>
-								{model?.name}
+								{experiment?.name}
 							</a>
 						</h3>
-						{model.createdAt && (
-							<span>{dayjs(model.createdAt).fromNow()}</span>
+						{experiment.createdAt && (
+							<span>{dayjs(experiment.createdAt).fromNow()}</span>
 						)}
 					</div>
 				</div>

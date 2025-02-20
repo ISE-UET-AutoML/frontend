@@ -410,7 +410,7 @@ const TrainModel = (props) => {
 							</Card>
 						)}
 
-						{/* Step 2: Training Complete */}
+						{/* Step 2: Performance */}
 						{currentStep === 2 && (
 							<Space
 								direction="vertical"
