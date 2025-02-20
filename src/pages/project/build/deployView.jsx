@@ -12,8 +12,8 @@ import {
 	Button,
 	Badge,
 	Tag,
-	Progress,
 	message,
+	Progress,
 } from 'antd'
 import {
 	RocketOutlined,
@@ -23,6 +23,7 @@ import {
 	CloudDownloadOutlined,
 	SettingOutlined,
 	UploadOutlined,
+	LineChartOutlined,
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import { validateFiles } from 'src/utils/file'
@@ -71,6 +72,8 @@ const AnimatedIcon = ({ icon, isActive }) => {
 
 const DeployView = (props) => {
 	const { projectInfo } = props
+
+	console.log('projectInfo1', projectInfo)
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
 	const experimentName = searchParams.get('experiment_name')
@@ -79,26 +82,24 @@ const DeployView = (props) => {
 	const [currentStep, setCurrentStep] = useState(0)
 	const [instanceURL, setInstanceURL] = useState(null)
 	const [predictResult, setPredictResult] = useState(null)
+	const [downloadProgress, setDownloadProgress] = useState(0)
+	const [uploadedFiles, setUploadedFiles] = useState(null)
 
 	const deploySteps = [
 		{
 			icon: <SettingOutlined style={{ fontSize: '24px' }} />,
 			title: 'Setting Up',
 			description: 'Preparing deployment environment',
-			status: 'SETTING_UP',
 		},
-
 		{
 			icon: <RocketOutlined style={{ fontSize: '24px' }} />,
 			title: 'Launching Service',
 			description: 'Starting the prediction service',
-			status: 'ONLINE',
 		},
 		{
-			icon: <RocketOutlined style={{ fontSize: '24px' }} />,
+			icon: <LineChartOutlined style={{ fontSize: '24px' }} />,
 			title: 'Prediction Result',
 			description: '',
-			// status: 'ONLINE',
 		},
 	]
 
@@ -187,7 +188,6 @@ const DeployView = (props) => {
 		}
 
 		setIsDeploying(true)
-
 		setCurrentStep(0)
 
 		try {
@@ -243,6 +243,7 @@ const DeployView = (props) => {
 
 		const validFiles = validateFiles(files, projectInfo.type)
 
+		setUploadedFiles(validFiles)
 		setUploading(true)
 		const formData = new FormData()
 		formData.append('task', projectInfo.type)
@@ -257,13 +258,12 @@ const DeployView = (props) => {
 				experimentName,
 				formData
 			)
+			console.log('Fetch prediction successful', data)
 			const { predictions } = data
 
 			setPredictResult(predictions)
 			setUploading(false)
 			setCurrentStep(2)
-
-			console.log('Fetch prediction successful')
 
 			message.success('Success Predict', 3)
 		} catch (error) {
@@ -281,6 +281,20 @@ const DeployView = (props) => {
 			handleUploadFiles(files)
 		}
 	}
+
+	useEffect(() => {
+		if (currentStep === 0 && isDeploying) {
+			const interval = setInterval(() => {
+				setDownloadProgress((prev) => {
+					if (prev >= 100) {
+						clearInterval(interval)
+						return 100
+					}
+					return prev + Math.floor(Math.random() * (9 - 2 + 1))
+				})
+			}, 10000)
+		}
+	}, [currentStep, isDeploying])
 
 	return (
 		<div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -460,27 +474,56 @@ const DeployView = (props) => {
 						))}
 					</Steps>
 
-					<div style={{ marginTop: '24px' }}>
-						<Card>
-							<Space
-								direction="vertical"
-								style={{ width: '100%' }}
-							>
-								<Row align="middle" justify="space-between">
-									<Col>
-										<Title level={4} style={{ margin: 0 }}>
-											{deploySteps[currentStep].title}
-										</Title>
-										<Text type="secondary">
-											{
-												deploySteps[currentStep]
-													.description
-											}
-										</Text>
-									</Col>
-								</Row>
-							</Space>
-						</Card>
+					<div>
+						{currentStep === 0 && (
+							<Card>
+								<Space
+									direction="vertical"
+									size="middle"
+									style={{ width: '100%' }}
+								>
+									<Title level={4}>
+										<CloudDownloadOutlined /> Downloading
+										Dependencies
+									</Title>
+									<Row gutter={[16, 16]}>
+										<Col span={24}>
+											<Progress
+												percent={downloadProgress}
+												status="active"
+												strokeColor={{
+													'0%': '#108ee9',
+													'100%': '#87d068',
+												}}
+											/>
+										</Col>
+									</Row>
+									<Row gutter={[16, 16]}>
+										<Col span={12}>
+											<Card size="small">
+												<Space direction="vertical">
+													<Text strong>
+														Current Tasks:
+													</Text>
+													<Text type="secondary">
+														• Setting up virtual
+														environment
+													</Text>
+													<Text type="secondary">
+														• Installing required
+														packages
+													</Text>
+													<Text type="secondary">
+														• Configuring model
+														dependencies
+													</Text>
+												</Space>
+											</Card>
+										</Col>
+									</Row>
+								</Space>
+							</Card>
+						)}
 
 						{currentStep === 1 && (
 							<>
@@ -491,7 +534,7 @@ const DeployView = (props) => {
 									showIcon
 									style={{ marginTop: '16px' }}
 								/>
-								<div className="flex flex-col items-center gap-4">
+								<div className="flex flex-col items-center gap-4 mt-10">
 									<input
 										type="file"
 										multiple
@@ -510,7 +553,7 @@ const DeployView = (props) => {
 										className="flex items-center gap-2"
 									>
 										{uploading
-											? 'Uploading...'
+											? 'Predicting...'
 											: 'Upload Files to Predict'}
 									</Button>
 								</div>
@@ -526,6 +569,8 @@ const DeployView = (props) => {
 										return (
 											<PredictComponent
 												predictResult={predictResult}
+												uploadedFiles={uploadedFiles}
+												projectInfo={projectInfo}
 											/>
 										)
 									}

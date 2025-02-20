@@ -65,6 +65,9 @@ const SelectTargetColMulti = (props) => {
 			formData.append('targetCol', selectedTargetCol)
 			formData.append('imgCol', selectedImgCol)
 			formData.append('datasetID', props.selectedDataset?._id)
+			props.projectInfo.target_column = selectedTargetCol
+			props.projectInfo.img_column = selectedImgCol
+
 			const res = await projectAPI.sendTargetColumn(projectID, formData)
 			if (res.status === 200) {
 				message.success('Target Column Set Successfully', 3)

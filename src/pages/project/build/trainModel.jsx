@@ -321,17 +321,6 @@ const TrainModel = (props) => {
 									<Row gutter={[16, 16]}>
 										<Col span={12}>
 											<Card size="small">
-												<Statistic
-													title="Dependencies Downloaded"
-													value={`${downloadProgress}%`}
-													prefix={
-														<DownloadOutlined />
-													}
-												/>
-											</Card>
-										</Col>
-										<Col span={12}>
-											<Card size="small">
 												<Space direction="vertical">
 													<Text strong>
 														Current Tasks:
