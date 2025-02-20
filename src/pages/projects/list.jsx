@@ -113,6 +113,16 @@ export default function ProjectList() {
 		}, 500)
 	},[messages])
 
+	const setTask = (jsonSumm) => {
+		if (jsonSumm) {
+			const givenSumm = JSON.parse(jsonSumm)
+			const givenTask = givenSumm.task
+			let task = -1
+			task = Object.values(TYPES).findIndex((value) => value.type === givenTask)
+			if (task != -1) selectType(undefined, task)
+		}
+	}
+
 	const getChatHistory = async () => {
 		if (messages) {
 			const response = await getHistory()
@@ -126,7 +136,8 @@ export default function ProjectList() {
 					setShowTitle(false);
 				}
 				return newMessages;
-			});	
+			});
+			setTask(response.data.jsonSumm)
 		}
 	};
 
@@ -148,6 +159,7 @@ export default function ProjectList() {
 					setTimeout(() => {
 						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
 					}, 500)
+					setTask(response.data.jsonSumm)
 				} catch (error) {
 					console.error("Error receiving message:", error);
 				} finally {
