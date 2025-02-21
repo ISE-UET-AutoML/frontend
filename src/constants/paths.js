@@ -14,7 +14,7 @@ const PATHS = {
 
 	/*-----------------------------PROJECT-------------------------------------*/
 
-	PROJECT_BUILD: (projectID) => `/app/project/${projectID}/build`,
+	PROJECT_BUILD: (projectID) => `/app/project/${projectID}/build/uploadData`,
 	PROJECT_MODEL: (projectID) => `/app/project/${projectID}/model`,
 	PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,
 	PROJECT_TASKS: (projectID) => `/app/project/${projectID}/tasks`,

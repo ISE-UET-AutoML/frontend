@@ -13,9 +13,6 @@ import * as projectAPI from 'src/api/project'
 import 'src/assets/css/card.css'
 import CreateLabel from 'src/pages/project/build/labelData/createLabel/index'
 
-
-
-
 const LabelingTextClassification = ({
 	datas,
 	pagination,
@@ -39,7 +36,6 @@ const LabelingTextClassification = ({
 	const rootRef = useRef()
 	const lsf = useRef(null)
 	const [currentIndex, setIndex] = useState(0)
-
 
 	const updateData = (labelWithID) => {
 		currentLabelWithID.current = labelWithID
@@ -91,7 +87,9 @@ const LabelingTextClassification = ({
 		if (text.id.length <= 0) {
 			return
 		}
-		return await projectAPI.updateAnnotation(projectId, text.id, { 'choice': newLabel })
+		return await projectAPI.updateAnnotation(projectId, text.id, {
+			choice: newLabel,
+		})
 	}
 
 	const HandleEndLoop = () => {
@@ -143,7 +141,7 @@ const LabelingTextClassification = ({
 					datas[index],
 					newLabel
 				)
-				console.log('result update', resultUpdate);
+				console.log('result update', resultUpdate)
 				increase(index)
 				message.success('Successfully Updated', 3)
 			}
@@ -160,12 +158,12 @@ const LabelingTextClassification = ({
 
 				const newLabel = at[0]['value']['choices'][0]
 				datas[index].label = newLabel
-				console.log(datas[index]);
+				console.log(datas[index])
 				const resultUpdate = await updateLabelTask(
 					datas[index],
 					newLabel
 				)
-				console.log('result update', resultUpdate);
+				console.log('result update', resultUpdate)
 				increase(index)
 				message.success('Successfully Submitted', 3)
 			}
@@ -209,7 +207,7 @@ const LabelingTextClassification = ({
 				console.info('Destroying LSF')
 				try {
 					lsf.current.destroy()
-				} catch (e) { }
+				} catch (e) {}
 				lsf.current = null
 			}
 		}
@@ -284,8 +282,6 @@ const LabelingTextClassification = ({
 		setIsLoading(false)
 	}
 
-
-
 	return (
 		<div className="label-editor-container" id="label-editor-container">
 			{isLoading && <Loading />}
@@ -293,7 +289,6 @@ const LabelingTextClassification = ({
 				className="group-hover/item:block flex 
                 top-full right-0 py-4 px-3 bg-white w-[100%] rounded-md shadow-md "
 			>
-
 				<div className="relative h-full pt-4">
 					<button
 						onClick={() => {
@@ -308,7 +303,7 @@ const LabelingTextClassification = ({
 							className="size-4 mr-2"
 						>
 							<path
-								fill-rule="evenodd"
+								fillRule="evenodd"
 								d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.546 3.75 3.75 0 0 1 3.255 3.718Z"
 								clip-rule="evenodd"
 							/>
@@ -332,11 +327,12 @@ const LabelingTextClassification = ({
 			<div id="label-studio" ref={rootRef} />
 
 			{/* ADD LABELS */}
-			{createLabel &&
+			{createLabel && (
 				<CreateLabel
 					updateData={updateData}
 					setCreateLabel={setCreateLabel}
-				/>}
+				/>
+			)}
 		</div>
 	)
 }

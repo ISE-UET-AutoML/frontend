@@ -20,6 +20,9 @@ import DatasetLayout from 'src/layouts/DatasetLayout'
 import DatasetView from 'src/pages/dataset/DatasetView'
 import UploadData from 'src/pages/project/build/uploadData'
 import SelectInstance from 'src/pages/project/build/selectInstance'
+import SelectTargetColMulti from 'src/pages/project/build/selectTargetColMulti'
+import Training from 'src/pages/project/build/training'
+import TrainResult from 'src/pages/project/build/trainResult'
 
 const routes = {
 	element: <DefaultLayout />,
@@ -58,8 +61,20 @@ const routes = {
 											element: <UploadData />,
 										},
 										{
+											path: 'selectTargetColMulti',
+											element: <SelectTargetColMulti />,
+										},
+										{
 											path: 'selectInstance',
 											element: <SelectInstance />,
+										},
+										{
+											path: 'training',
+											element: <Training />,
+										},
+										{
+											path: 'trainResult',
+											element: <TrainResult />,
 										},
 									],
 								},

@@ -1,22 +1,38 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
+	useParams,
+	useSearchParams,
+	useOutletContext,
+	useNavigate,
+} from 'react-router-dom'
+import { getExperiment } from 'src/api/experiment'
+import {
+	Steps,
 	Card,
 	Row,
 	Col,
+	Alert,
+	Typography,
 	Space,
 	Statistic,
-	Alert,
+	Spin,
+	Progress,
 	Table,
+	Tag,
 	Button,
-	Typography,
 } from 'antd'
 import {
+	DownloadOutlined,
+	ExperimentOutlined,
+	LineChartOutlined,
 	CheckCircleOutlined,
+	CloudDownloadOutlined,
 	TrophyOutlined,
 	ClockCircleOutlined,
 	RocketOutlined,
-	CloudDownloadOutlined,
 } from '@ant-design/icons'
+import { useSpring, animated } from '@react-spring/web'
 import {
 	LineChart,
 	Line,
@@ -27,6 +43,7 @@ import {
 	Legend,
 	ResponsiveContainer,
 } from 'recharts'
+
 // Line Graph Component
 const LineGraph = ({ data }) => {
 	return (
@@ -60,27 +77,76 @@ const LineGraph = ({ data }) => {
 	)
 }
 
+const { Step } = Steps
 const { Title, Text } = Typography
 
-const PerformanceStep = ({
-	trainingInfo,
-	chartData,
-	startTime,
-	performanceMetrics,
-	columns,
-	onDeploy,
-}) => {
+// Performance Metrics Data
+const performanceMetrics = [
+	{
+		key: '1',
+		metric: 'Validation Accuracy',
+		value: '95.2%',
+		status: <Tag color="green">Excellent</Tag>,
+	},
+	{
+		key: '2',
+		metric: 'Training Loss',
+		value: '0.142',
+		status: <Tag color="blue">Good</Tag>,
+	},
+	{
+		key: '3',
+		metric: 'F1 Score',
+		value: '0.934',
+		status: <Tag color="green">Excellent</Tag>,
+	},
+	{
+		key: '4',
+		metric: 'Precision',
+		value: '0.928',
+		status: <Tag color="blue">Good</Tag>,
+	},
+]
+
+// Table Columns Configuration
+const columns = [
+	{
+		title: 'Metric',
+		dataIndex: 'metric',
+		key: 'metric',
+	},
+	{
+		title: 'Value',
+		dataIndex: 'value',
+		key: 'value',
+	},
+	{
+		title: 'Status',
+		dataIndex: 'status',
+		key: 'status',
+	},
+]
+
+const TrainResult = () => {
+	console.log('context', useOutletContext())
+	const { projectInfo, updateFields, trainingInfo, startTime, chartData } =
+		useOutletContext()
+	const navigate = useNavigate()
+
 	const getTrainingDuration = (startTime) => {
 		const endTime = new Date()
-		const duration = Math.floor((endTime - startTime) / 1000)
+		const duration = Math.floor((endTime - startTime) / 1000) // in seconds
 		const hours = Math.floor(duration / 3600)
 		const minutes = Math.floor((duration % 3600) / 60)
 		const seconds = duration % 60
 		return `${hours}h ${minutes}m ${seconds}s`
 	}
-
 	return (
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
+		<Space
+			direction="vertical"
+			size="large"
+			style={{ width: '100%', padding: '24px' }}
+		>
 			<Card>
 				<Space
 					direction="vertical"
@@ -109,7 +175,9 @@ const PerformanceStep = ({
 							precision={2}
 							prefix={<TrophyOutlined />}
 							suffix="%"
-							valueStyle={{ color: '#3f8600' }}
+							valueStyle={{
+								color: '#3f8600',
+							}}
 						/>
 					</Card>
 				</Col>
@@ -133,8 +201,6 @@ const PerformanceStep = ({
 				</Col>
 			</Row>
 
-			{/* Rest of the performance step components... */}
-			{/* Add the remaining cards and components from the original performance step */}
 			<Card title="Training Performance Over Time">
 				<ResponsiveContainer width="100%" height={300}>
 					<LineGraph data={chartData} />
@@ -189,7 +255,11 @@ const PerformanceStep = ({
 							<Button
 								type="primary"
 								icon={<RocketOutlined />}
-								onClick={onDeploy}
+								onClick={() => {
+									// props.updateFields({
+									// 	isDoneTrainModel: true,
+									// })
+								}}
 								size="large"
 								style={{
 									width: '100%',
@@ -223,4 +293,4 @@ const PerformanceStep = ({
 	)
 }
 
-export default PerformanceStep
+export default TrainResult

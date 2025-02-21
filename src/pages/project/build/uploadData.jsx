@@ -23,11 +23,14 @@ import {
 } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
 import { PATHS } from 'src/constants/paths'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
 
-const UploadData = ({ updateFields, projectInfo }) => {
+const UploadData = () => {
+	const { updateFields, projectInfo } = useOutletContext()
+	const navigate = useNavigate()
 	const [datasets, setDatasets] = useState([])
 	const [serviceFilter, setServiceFilter] = useState('')
 	const [bucketFilter, setBucketFilter] = useState('')
@@ -59,25 +62,38 @@ const UploadData = ({ updateFields, projectInfo }) => {
 			item.type === projectInfo?.type
 	)
 
+	// const selectDataset = () => {
+	// 	const selectedDataset = filteredDatasets[selectedRowKeys[0]]
+	// 	if (!selectedDataset) return
+	// 	const fieldUpdates = {
+	// 		selectedDataset,
+	// 		// isDoneUploadData: true,
+	// 	}
+	// 	if (!selectedDataset.isLabeled) fieldUpdates.isLabeling = true
+	// 	if (
+	// 		['TABULAR_CLASSIFICATION', 'TEXT_CLASSIFICATION'].includes(
+	// 			projectInfo.type
+	// 		)
+	// 	) {
+	// 		fieldUpdates.isSelectTargetCol = true
+	// 	} else if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
+	// 		fieldUpdates.isSelectTargetColMulti = true
+	// 		navigate(
+	// 			`/app/project/${projectInfo._id}/build/selectTargetColMulti`
+	// 		)
+	// 	}
+	// 	updateFields(fieldUpdates)
+	// }
+
 	const selectDataset = () => {
 		const selectedDataset = filteredDatasets[selectedRowKeys[0]]
 		if (!selectedDataset) return
 
-		const fieldUpdates = {
-			selectedDataset,
-			isDoneUploadData: true,
-		}
-		if (!selectedDataset.isLabeled) fieldUpdates.isLabeling = true
-		if (
-			['TABULAR_CLASSIFICATION', 'TEXT_CLASSIFICATION'].includes(
-				projectInfo.type
-			)
-		) {
-			fieldUpdates.isSelectTargetCol = true
-		} else if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
-			fieldUpdates.isSelectTargetColMulti = true
-		}
-		updateFields(fieldUpdates)
+		updateFields({
+			selectedDataset, // Store selected dataset
+		})
+
+		navigate(`/app/project/${projectInfo._id}/build/selectTargetColMulti`)
 	}
 
 	const columns = [

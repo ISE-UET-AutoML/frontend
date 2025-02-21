@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 import * as datasetAPI from 'src/api/dataset'
 import * as projectAPI from 'src/api/project'
 import { Select, message } from 'antd'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 const { Option } = Select
 
 const detectImageColumns = (row) => {
@@ -31,21 +31,23 @@ const detectImageColumns = (row) => {
 	})
 }
 
-const SelectTargetColMulti = (props) => {
+const SelectTargetColMulti = () => {
+	const { projectInfo, selectedDataset } = useOutletContext()
+
+	const navigate = useNavigate()
 	const [dataset, setDataset] = useState(null)
 	const [colsName, setColsName] = useState([])
 	const [selectedTargetCol, setSelectedTargetCol] = useState(null)
 	const [selectedImgCol, setSelectedImgCol] = useState(null)
 	const [imgCols, setImgCols] = useState([])
-	const { id: projectID } = useParams()
 
 	useEffect(() => {
-		if (!props.selectedDataset?._id) return
+		if (!selectedDataset?._id) return
 
 		const fetchDataset = async () => {
 			try {
 				const { data } = await datasetAPI.getDatasetPreview(
-					props.selectedDataset._id,
+					selectedDataset._id,
 					10
 				)
 				const iC = detectImageColumns(data.files[0])
@@ -58,21 +60,25 @@ const SelectTargetColMulti = (props) => {
 		}
 
 		fetchDataset()
-	}, [props.selectedDataset?._id])
+	}, [selectedDataset?._id])
 
 	const sendColumn = async () => {
 		try {
 			const formData = new FormData()
 			formData.append('targetCol', selectedTargetCol)
 			formData.append('imgCol', selectedImgCol)
-			formData.append('datasetID', props.selectedDataset?._id)
-			props.projectInfo.target_column = selectedTargetCol
-			props.projectInfo.img_column = selectedImgCol
+			formData.append('datasetID', selectedDataset?._id)
+			projectInfo.target_column = selectedTargetCol
+			projectInfo.img_column = selectedImgCol
 
-			const res = await projectAPI.sendTargetColumn(projectID, formData)
+			const res = await projectAPI.sendTargetColumn(
+				projectInfo._id,
+				formData
+			)
 			if (res.status === 200) {
 				message.success('Target Column Set Successfully', 3)
-				props.updateFields({ isDoneSelectTargetCol: true })
+
+				navigate(`/app/project/${projectInfo._id}/build/selectInstance`)
 			}
 		} catch (error) {
 			console.error('Error sending target column:', error)
