@@ -35,8 +35,6 @@ const MultimodalPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 		accuracy: 0,
 	})
 
-	console.log('projectInfo', projectInfo)
-
 	// Parse CSV and initialize data
 	useEffect(() => {
 		if (uploadedFiles?.[0]?.name.endsWith('.csv')) {

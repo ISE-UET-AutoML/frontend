@@ -8,11 +8,11 @@ function classNames(...classes) {
 	return classes.filter(Boolean).join(' ')
 }
 
-export default function ModelCard({ model }) {
+export default function ExperimentCard({ experiment }) {
 	return (
 		<>
 			<div
-				key={model._id}
+				key={experiment._id}
 				className={classNames(
 					'relative group p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 rounded-lg bg-white shadow '
 				)}
@@ -30,18 +30,20 @@ export default function ModelCard({ model }) {
 							aria-hidden="true"
 						/>
 					</span>
-					{console.log('ModelCard', model)}
 				</div>
 				<div className="mt-8">
 					<div className="flex w-full justify-between items-center">
 						<h3 className="text-lg font-medium">
 							<a
 								href={
-									model.isDeployed === true
-										? PATHS.PREDICT(model.experimentID) // Tmp route
-										: PATHS.PROJECT_TRAININGRESULT(
-												model.project_id,
-												model.experimentID
+									experiment.status === 'DONE'
+										? PATHS.PROJECT_TRAININGRESULT(
+												experiment.project_id,
+												experiment.name
+											)
+										: PATHS.PROJECT_TRAINING(
+												experiment.project_id,
+												experiment.name
 											)
 								}
 								className="focus:outline-none"
@@ -51,11 +53,11 @@ export default function ModelCard({ model }) {
 									className="absolute inset-0"
 									aria-hidden="true"
 								/>
-								{model?.name} {model.isDeployed.toString()}
+								{experiment?.name} {experiment?.status}
 							</a>
 						</h3>
-						{model.createdAt && (
-							<span>{dayjs(model.createdAt).fromNow()}</span>
+						{experiment.createdAt && (
+							<span>{dayjs(experiment.createdAt).fromNow()}</span>
 						)}
 					</div>
 				</div>

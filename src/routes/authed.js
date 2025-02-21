@@ -12,6 +12,7 @@ import ProjectDeploy from 'src/pages/project/deploy'
 import ProjectModels from 'src/pages/project/models'
 import ProjectBuild from 'src/pages/project/build/build'
 import ProjectSettings from 'src/pages/project/settings'
+import ProjectExperiments from 'src/pages/project/experiments'
 
 import Buckets from 'src/pages/buckets'
 
@@ -23,6 +24,7 @@ import SelectInstance from 'src/pages/project/build/selectInstance'
 import SelectTargetColMulti from 'src/pages/project/build/selectTargetColMulti'
 import Training from 'src/pages/project/build/training'
 import TrainResult from 'src/pages/project/build/trainResult'
+import DeployView from 'src/pages/project/build/deployView'
 
 const routes = {
 	element: <DefaultLayout />,
@@ -76,7 +78,15 @@ const routes = {
 											path: 'trainResult',
 											element: <TrainResult />,
 										},
+										{
+											path: 'deployView',
+											element: <DeployView />,
+										},
 									],
+								},
+								{
+									path: 'experiments',
+									element: <ProjectExperiments />,
 								},
 								{
 									path: 'model',

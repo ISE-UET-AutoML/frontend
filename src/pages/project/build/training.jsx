@@ -1,37 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import {
-	useParams,
-	useSearchParams,
-	useOutletContext,
-	useNavigate,
-} from 'react-router-dom'
+import { useOutletContext, useNavigate } from 'react-router-dom'
 import { getExperiment } from 'src/api/experiment'
-import {
-	Steps,
-	Card,
-	Row,
-	Col,
-	Alert,
-	Typography,
-	Space,
-	Statistic,
-	Spin,
-	Progress,
-	Table,
-	Tag,
-	Button,
-} from 'antd'
-import {
-	DownloadOutlined,
-	ExperimentOutlined,
-	LineChartOutlined,
-	CheckCircleOutlined,
-	CloudDownloadOutlined,
-	TrophyOutlined,
-	ClockCircleOutlined,
-	RocketOutlined,
-} from '@ant-design/icons'
+import { Card, Row, Col, Alert, Typography, Space, Statistic } from 'antd'
+import { ExperimentOutlined, LineChartOutlined } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import {
 	LineChart,
@@ -77,8 +49,7 @@ const LineGraph = ({ data }) => {
 	)
 }
 
-const { Step } = Steps
-const { Title, Text } = Typography
+const { Title } = Typography
 
 const Training = () => {
 	const { projectInfo, updateFields } = useOutletContext()
@@ -139,7 +110,7 @@ const Training = () => {
 						updateFields({ trainingInfo, startTime, chartData })
 						clearInterval(interval)
 						navigate(
-							`/app/project/${projectInfo._id}/build/trainResult`
+							`/app/project/${projectInfo._id}/build/trainResult?experimentName=${experimentName}`
 						)
 					} else if (res.data.trainInfo.status === 'TRAINING') {
 						setTrainingInfo((prev) => ({

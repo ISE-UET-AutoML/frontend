@@ -17,6 +17,12 @@ const ProjectSidebar = ({ projectID, className }) => {
 			current: true,
 		},
 		{
+			name: 'Experiment',
+			href: PATHS.PROJECT_EXPERIMENT(projectID),
+			icon: TasksIcon,
+			current: false,
+		},
+		{
 			name: 'Model',
 			href: PATHS.PROJECT_MODEL(projectID),
 			icon: ModelIcon,
@@ -26,12 +32,6 @@ const ProjectSidebar = ({ projectID, className }) => {
 			name: 'Deploy',
 			href: PATHS.PROJECT_DEPLOY(projectID),
 			icon: DeployIcon,
-			current: false,
-		},
-		{
-			name: 'Tasks',
-			href: PATHS.PROJECT_TASKS(projectID),
-			icon: TasksIcon,
 			current: false,
 		},
 	]

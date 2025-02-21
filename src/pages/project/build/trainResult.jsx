@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
 import {
-	useParams,
-	useSearchParams,
-	useOutletContext,
-	useNavigate,
-} from 'react-router-dom'
-import { getExperiment } from 'src/api/experiment'
-import {
-	Steps,
 	Card,
 	Row,
 	Col,
@@ -16,16 +8,11 @@ import {
 	Typography,
 	Space,
 	Statistic,
-	Spin,
-	Progress,
 	Table,
 	Tag,
 	Button,
 } from 'antd'
 import {
-	DownloadOutlined,
-	ExperimentOutlined,
-	LineChartOutlined,
 	CheckCircleOutlined,
 	CloudDownloadOutlined,
 	TrophyOutlined,
@@ -77,7 +64,6 @@ const LineGraph = ({ data }) => {
 	)
 }
 
-const { Step } = Steps
 const { Title, Text } = Typography
 
 // Performance Metrics Data
@@ -129,9 +115,13 @@ const columns = [
 
 const TrainResult = () => {
 	console.log('context', useOutletContext())
-	const { projectInfo, updateFields, trainingInfo, startTime, chartData } =
+	const { projectInfo, trainingInfo, startTime, chartData } =
 		useOutletContext()
+
 	const navigate = useNavigate()
+	const location = useLocation()
+	const searchParams = new URLSearchParams(location.search)
+	const experimentName = searchParams.get('experimentName')
 
 	const getTrainingDuration = (startTime) => {
 		const endTime = new Date()
@@ -171,7 +161,7 @@ const TrainResult = () => {
 					<Card>
 						<Statistic
 							title="Final Accuracy"
-							value={trainingInfo.accuracy}
+							value={trainingInfo ? trainingInfo.accuracy : 0}
 							precision={2}
 							prefix={<TrophyOutlined />}
 							suffix="%"
@@ -194,7 +184,7 @@ const TrainResult = () => {
 					<Card>
 						<Statistic
 							title="Total Epochs"
-							value={trainingInfo.latestEpoch}
+							value={trainingInfo ? trainingInfo.latestEpoch : 0}
 							prefix={<RocketOutlined />}
 						/>
 					</Card>
@@ -256,9 +246,9 @@ const TrainResult = () => {
 								type="primary"
 								icon={<RocketOutlined />}
 								onClick={() => {
-									// props.updateFields({
-									// 	isDoneTrainModel: true,
-									// })
+									navigate(
+										`/app/project/${projectInfo._id}/build/deployView?experimentName=${experimentName}`
+									)
 								}}
 								size="large"
 								style={{

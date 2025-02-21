@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
 import {
 	Steps,
 	Card,
@@ -70,13 +70,13 @@ const AnimatedIcon = ({ icon, isActive }) => {
 	return <animated.div style={styles}>{icon}</animated.div>
 }
 
-const DeployView = (props) => {
-	const { projectInfo } = props
+const DeployView = () => {
+	const { projectInfo } = useOutletContext()
+	const navigate = useNavigate()
 
-	console.log('projectInfo1', projectInfo)
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
-	const experimentName = searchParams.get('experiment_name')
+	const experimentName = searchParams.get('experimentName')
 	const [isDeploying, setIsDeploying] = useState(false)
 	const [selectedOption, setSelectedOption] = useState('')
 	const [currentStep, setCurrentStep] = useState(0)
