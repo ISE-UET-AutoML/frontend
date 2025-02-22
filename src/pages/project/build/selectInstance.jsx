@@ -4,6 +4,8 @@ import {
 	useOutletContext,
 	useNavigate,
 } from 'react-router-dom'
+import * as projectAPI from 'src/api/project'
+import { getExperiment } from 'src/api/experiment'
 import {
 	Card,
 	Tabs,
@@ -16,6 +18,12 @@ import {
 	message,
 	Tooltip,
 	Steps,
+	Alert,
+	Progress,
+	Badge,
+	Row,
+	Col,
+	Divider,
 } from 'antd'
 import {
 	ClockCircleOutlined,
@@ -26,109 +34,253 @@ import {
 	LoadingOutlined,
 	CloudDownloadOutlined,
 	SettingOutlined,
+	DollarOutlined,
+	RocketOutlined,
+	SafetyCertificateOutlined,
 } from '@ant-design/icons'
-import * as projectAPI from 'src/api/project'
-import { getExperiment } from 'src/api/experiment'
 
-const { Title, Text } = Typography
+const { Title, Text, Paragraph } = Typography
 const { Step } = Steps
 
-const SERVICES = ['VastAI', 'AWS EC2', 'GCP Compute']
-const GPU_NAMES = ['RTX_3060', 'RTX_4090']
-const GPU_LEVELS = [
-	{ name: 'RTX 3060', gpuNumber: 1, disk: 10, cost: 0.2 },
-	{ name: 'RTX 3070', gpuNumber: 2, disk: 20, cost: 0.4 },
-	{ name: 'RTX 3080', gpuNumber: 4, disk: 30, cost: 0.8 },
-	{ name: 'RTX 3090', gpuNumber: 6, disk: 40, cost: 1.0 },
-	{ name: 'RTX 4090', gpuNumber: 8, disk: 50, cost: 2.0 },
+const SERVICES = [
+	{
+		name: 'VastAI',
+		description: 'Cost-effective GPU instances',
+		icon: <CloudServerOutlined />,
+	},
+	{
+		name: 'AWS EC2',
+		description: 'Reliable and scalable computing',
+		icon: <CloudServerOutlined />,
+	},
+	{
+		name: 'GCP Compute',
+		description: 'High-performance cloud computing',
+		icon: <CloudServerOutlined />,
+	},
 ]
 
-const INSTANCE_SIZE_INFO = `
-🛠️Weak (Basic Configuration):
-• Suitable for small datasets and simple models
-• 1-2 GPUs
-• Basic memory allocation
-• Recommended for testing and development
+const GPU_NAMES = ['RTX_3060', 'RTX_4090']
 
-⚖️Medium (Balanced Setup):
-• Optimal for moderate workloads
-• 2-4 GPUs
-• Increased memory capacity
-• Good for regular training tasks
+const GPU_LEVELS = [
+	{
+		name: 'RTX 3060',
+		gpuNumber: 1,
+		disk: 10,
+		cost: 0.2,
+		performance: 'Weak',
+		memory: '8GB',
+	},
+	{
+		name: 'RTX 3070',
+		gpuNumber: 2,
+		disk: 20,
+		cost: 0.4,
+		performance: 'Medium',
+		memory: '12GB',
+	},
+	{
+		name: 'RTX 3080',
+		gpuNumber: 4,
+		disk: 30,
+		cost: 0.8,
+		performance: 'Strong',
+		memory: '16GB',
+	},
+	{
+		name: 'RTX 3090',
+		gpuNumber: 6,
+		disk: 40,
+		cost: 1.0,
+		performance: 'Super Strong',
+		memory: '24GB',
+	},
+	{
+		name: 'RTX 4090',
+		gpuNumber: 8,
+		disk: 50,
+		cost: 2.0,
+		performance: 'Rocket',
+		memory: '24GB',
+	},
+]
 
-🔥Strong (Enhanced Performance):
-• Designed for larger datasets
-• 4-6 GPUs
-• High memory allocation
-• Ideal for complex model training
+const INSTANCE_SIZE_DETAILS = {
+	Weak: {
+		title: '🛠️ Basic Configuration',
+		suitable: 'Small datasets and simple models',
+		gpuRange: '1-2 GPUs',
+		memory: 'Basic memory allocation',
+		recommended: 'Testing and development',
+		color: '#91d5ff',
+	},
+	Medium: {
+		title: '⚖️ Balanced Setup',
+		suitable: 'Moderate workloads',
+		gpuRange: '2-4 GPUs',
+		memory: 'Increased memory capacity',
+		recommended: 'Regular training tasks',
+		color: '#b7eb8f',
+	},
+	Strong: {
+		title: '🔥 Enhanced Performance',
+		suitable: 'Larger datasets',
+		gpuRange: '4-6 GPUs',
+		memory: 'High memory allocation',
+		recommended: 'Complex model training',
+		color: '#ffd666',
+	},
+	'Super Strong': {
+		title: '⚡ High Performance',
+		suitable: 'Demanding workloads',
+		gpuRange: '6-8 GPUs',
+		memory: 'Extended memory capacity',
+		recommended: 'Large-scale training',
+		color: '#ff9c6e',
+	},
+	Rocket: {
+		title: '🚀 Maximum Power',
+		suitable: 'Enterprise-level tasks',
+		gpuRange: '8+ GPUs',
+		memory: 'Maximum memory allocation',
+		recommended: 'Production deployment',
+		color: '#ff7875',
+	},
+}
 
-⚡Super Strong (High Performance):
-• Built for demanding workloads
-• 6-8 GPUs
-• Extended memory capacity
-• Perfect for large-scale training
-
-🚀Rocket (Maximum Power):
-• Ultimate performance configuration
-• 8+ GPUs
-• Maximum memory allocation
-• Best for enterprise-level training
-`
-
-const InstanceInfo = ({ formData }) => (
+const InstanceSizeCard = ({ size, details, selected, onClick }) => (
 	<Card
-		className="h-full"
+		hoverable
+		className={`instance-size-card ${selected ? 'selected' : ''}`}
 		style={{
-			background: '#f0f5ff',
-			borderStyle: 'dashed',
-			borderColor: '#1890ff',
+			borderColor: selected ? details.color : '#d9d9d9',
+			backgroundColor: selected ? `${details.color}10` : 'white',
 		}}
+		onClick={onClick}
 	>
-		<Space direction="vertical" size="large" style={{ width: '100%' }}>
-			<Title level={4} style={{ textAlign: 'center', margin: 0 }}>
-				Instance Information
-			</Title>
-			<Space direction="vertical" size="middle" style={{ width: '100%' }}>
-				<InfoItem
-					icon={<CloudServerOutlined />}
-					label="Service"
-					value={formData.service}
-				/>
-				<InfoItem
-					icon={<ThunderboltOutlined />}
-					label="GPU Number"
-					value={formData.gpuNumber}
-				/>
-				<InfoItem
-					icon={<ThunderboltOutlined />}
-					label="GPU Name"
-					value={formData.gpuName}
-				/>
-				<InfoItem
-					icon={<HddOutlined />}
-					label="Disk"
-					value={formData.disk && `${formData.disk} GB`}
-				/>
-				<InfoItem
-					icon={<ClockCircleOutlined />}
-					label="Training Time"
-					value={
-						formData.trainingTime &&
-						`${formData.trainingTime} hours`
-					}
-				/>
-			</Space>
+		<Title level={5}>{details.title}</Title>
+		<Space direction="vertical" size="small">
+			<Text type="secondary">Suitable for: {details.suitable}</Text>
+			<Text>GPU Range: {details.gpuRange}</Text>
+			<Text>Memory: {details.memory}</Text>
+			<Badge
+				color={details.color}
+				text={`Recommended for: ${details.recommended}`}
+			/>
 		</Space>
 	</Card>
 )
 
-const InfoItem = ({ icon, label, value }) => (
-	<Space>
-		{icon}
-		<Text strong>{label}:</Text>
-		<Text>{value || '-'}</Text>
-	</Space>
-)
+const CostEstimator = ({ hours, gpuLevel }) => {
+	const hourlyRate = gpuLevel?.cost || 0
+	const totalCost = hours * hourlyRate
+
+	return (
+		<Card title="Cost Estimation" className="cost-card">
+			<Space direction="vertical" size="large" style={{ width: '100%' }}>
+				<Row justify="space-between">
+					<Col>
+						<Text>Hourly Rate:</Text>
+					</Col>
+					<Col>
+						<Text strong>${hourlyRate}/hour</Text>
+					</Col>
+				</Row>
+				<Row justify="space-between">
+					<Col>
+						<Text>Training Hours:</Text>
+					</Col>
+					<Col>
+						<Text strong>{hours} hours</Text>
+					</Col>
+				</Row>
+				<Divider style={{ margin: '12px 0' }} />
+				<Row justify="space-between">
+					<Col>
+						<Text>Estimated Total:</Text>
+					</Col>
+					<Col>
+						<Text type="success" strong>
+							${totalCost.toFixed(2)}
+						</Text>
+					</Col>
+				</Row>
+			</Space>
+		</Card>
+	)
+}
+
+const InstanceInfo = ({ formData }) => {
+	const selectedGPU = GPU_LEVELS.find((gpu) => gpu.name === formData.gpuName)
+
+	return (
+		<Card
+			title={<Title level={4}>Instance Configuration</Title>}
+			extra={
+				<SafetyCertificateOutlined
+					style={{ fontSize: '24px', color: '#52c41a' }}
+				/>
+			}
+			className="instance-info-card"
+		>
+			<Space direction="vertical" size="large" style={{ width: '100%' }}>
+				<Alert
+					message="Configuration Overview"
+					description={`This configuration is optimized for ${selectedGPU?.performance} workloads with ${selectedGPU?.memory} GPU memory.`}
+					type="info"
+					showIcon
+				/>
+
+				<Row gutter={[16, 16]}>
+					<Col span={12}>
+						<Card size="small" title="Hardware Specs">
+							<Space direction="vertical">
+								<Text>
+									<ThunderboltOutlined /> GPUs:{' '}
+									{formData.gpuNumber}x {formData.gpuName}
+								</Text>
+								<Text>
+									<HddOutlined /> Storage: {formData.disk} GB
+								</Text>
+								<Text>
+									<CloudServerOutlined /> Provider:{' '}
+									{formData.service}
+								</Text>
+							</Space>
+						</Card>
+					</Col>
+					<Col span={12}>
+						<Card size="small" title="Training Details">
+							<Space direction="vertical">
+								<Text>
+									<ClockCircleOutlined /> Duration:{' '}
+									{formData.trainingTime} hours
+								</Text>
+								<Text>
+									<DollarOutlined /> Cost: ${formData.budget}
+									/hour
+								</Text>
+							</Space>
+						</Card>
+					</Col>
+				</Row>
+
+				<Progress
+					percent={100}
+					steps={5}
+					strokeColor={
+						selectedGPU
+							? INSTANCE_SIZE_DETAILS[selectedGPU.performance]
+									.color
+							: '#1890ff'
+					}
+					size="small"
+				/>
+			</Space>
+		</Card>
+	)
+}
+
 const SelectInstance = () => {
 	const { projectInfo, updateFields, selectedDataset } = useOutletContext()
 	const navigate = useNavigate()
@@ -138,12 +290,13 @@ const SelectInstance = () => {
 	const [isCreatingInstance, setIsCreatingInstance] = useState(false)
 	const [isProcessing, setIsProcessing] = useState(false)
 	const [formData, setFormData] = useState({
-		service: SERVICES[0],
+		service: SERVICES[0].name,
 		gpuNumber: '',
 		gpuName: GPU_NAMES[0],
 		disk: '',
 		trainingTime: '',
 		budget: '',
+		instanceSize: 'Weak', // Initialize instanceSize
 	})
 
 	const [currentStep, setCurrentStep] = useState(0)
@@ -170,18 +323,7 @@ const SelectInstance = () => {
 
 		try {
 			// Determine the instance size based on the slider value
-			let instanceSize
-			if (formData.instanceSize <= 0) {
-				instanceSize = 'Weak'
-			} else if (formData.instanceSize <= 25) {
-				instanceSize = 'Medium'
-			} else if (formData.instanceSize <= 50) {
-				instanceSize = 'Strong'
-			} else if (formData.instanceSize <= 75) {
-				instanceSize = 'Super Strong'
-			} else {
-				instanceSize = 'Rocket'
-			}
+			let instanceSize = formData.instanceSize
 
 			// Find the most suitable GPU configuration
 			let selectedGPU
@@ -211,7 +353,7 @@ const SelectInstance = () => {
 
 			setFormData((prev) => ({
 				...prev,
-				service: SERVICES[0],
+				service: SERVICES[0].name,
 				gpuNumber: selectedGPU.gpuNumber,
 				gpuName: selectedGPU.name,
 				disk: selectedGPU.disk,
@@ -285,275 +427,165 @@ const SelectInstance = () => {
 	const items = [
 		{
 			key: 'automatic',
-			label: 'Automatic',
+			label: <span>⚡Automatic Configuration</span>,
 			children: (
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: '1fr 1fr',
-						gap: 24,
-						marginTop: 24,
-					}}
+				<Space
+					direction="vertical"
+					size="large"
+					style={{ width: '100%' }}
 				>
-					<Space
-						direction="vertical"
-						size="large"
-						style={{ width: '100%' }}
-					>
-						<Card loading={isLoading}>
+					<Alert
+						message="Smart Instance Configuration"
+						description="Our system will automatically select the best instance configuration based on your requirements. Just specify your training time and desired performance level."
+						type="info"
+						showIcon
+					/>
+
+					<Row gutter={[24, 24]}>
+						<Col span={16}>
+							<Card title="Training Requirements">
+								<Space
+									direction="vertical"
+									size="large"
+									style={{ width: '100%' }}
+								>
+									<div>
+										<Text strong>Training Duration</Text>
+										<InputNumber
+											style={{
+												width: '100%',
+												marginTop: 8,
+											}}
+											min={1}
+											max={168} // 1 week
+											value={formData.trainingTime}
+											onChange={(value) =>
+												setFormData((prev) => ({
+													...prev,
+													trainingTime: value,
+												}))
+											}
+											prefix={<ClockCircleOutlined />}
+											suffix="hours"
+										/>
+										<Text type="secondary">
+											Recommended: 24-48 hours for most
+											models
+										</Text>
+									</div>
+
+									<div>
+										<Text strong>Performance Level</Text>
+										<div
+											style={{
+												display: 'grid',
+												gap: '16px',
+												marginTop: '16px',
+											}}
+										>
+											{Object.entries(
+												INSTANCE_SIZE_DETAILS
+											).map(([size, details]) => (
+												<InstanceSizeCard
+													key={size}
+													size={size}
+													details={details}
+													selected={
+														formData.instanceSize ===
+														size
+													}
+													onClick={() =>
+														setFormData((prev) => ({
+															...prev,
+															instanceSize: size,
+														}))
+													}
+												/>
+											))}
+										</div>
+									</div>
+								</Space>
+							</Card>
+						</Col>
+
+						<Col span={8}>
 							<Space
 								direction="vertical"
 								size="large"
 								style={{ width: '100%' }}
 							>
-								<div>
-									<Text strong>Training Time (hours)</Text>
-									<InputNumber
-										style={{ width: '100%', marginTop: 8 }}
-										min={0}
-										value={formData.trainingTime}
-										onChange={(value) =>
-											setFormData((prev) => ({
-												...prev,
-												trainingTime: value,
-											}))
-										}
-										prefix={<ClockCircleOutlined />}
+								<InstanceInfo formData={formData} />
+								{formData.trainingTime && (
+									<CostEstimator
+										hours={formData.trainingTime}
+										gpuLevel={GPU_LEVELS.find(
+											(gpu) =>
+												gpu.name === formData.gpuName
+										)}
 									/>
-								</div>
-
-								<div>
-									<Space align="center">
-										<Text strong>Instance Size</Text>
-										<Tooltip
-											title={
-												<div
-													style={{
-														whiteSpace: 'pre-wrap',
-														fontFamily:
-															'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-														fontSize: '14px',
-														lineHeight: '1.6',
-														color: 'black',
-													}}
-												>
-													{INSTANCE_SIZE_INFO}
-												</div>
-											}
-											placement="right"
-											overlayInnerStyle={{
-												backgroundColor: 'white',
-												color: 'black',
-												padding: '16px',
-												minWidth: '330px',
-												border: '1px solid #d9d9d9',
-												borderRadius: '8px',
-												boxShadow:
-													'0 2px 8px rgba(0,0,0,0.15)',
-											}}
-											color="white"
-										>
-											<InfoCircleOutlined
-												style={{
-													color: '#1890ff',
-													cursor: 'help',
-													fontSize: '16px',
-												}}
-											/>
-										</Tooltip>
-									</Space>
-									<Slider
-										marks={{
-											0: 'Weak',
-											25: 'Medium',
-											50: 'Strong',
-											75: 'Super Strong',
-											100: 'Rocket',
-										}}
-										step={25}
-										value={formData.instanceSize}
-										onChange={(value) =>
-											setFormData((prev) => ({
-												...prev,
-												instanceSize: value,
-											}))
-										}
-									/>
-								</div>
-								{formData.budget && (
-									<div>
-										<Text strong>Estimated Cost: </Text>
-										<Text type="success">
-											${formData.budget}
-										</Text>
-									</div>
 								)}
-
+							</Space>
+							<div className="action-container mt-4 w-full justify-between items-center">
 								<Button
 									type="primary"
-									block
+									size="large"
+									icon={<RocketOutlined />}
 									onClick={handleFindInstance}
-									disabled={
-										!formData.trainingTime || isLoading
-									}
 									loading={isLoading}
+									disabled={
+										!formData.trainingTime || isProcessing
+									}
+									style={{ marginRight: 16 }}
 								>
-									Find Suitable Instance
+									{isLoading
+										? 'Finding Instance...'
+										: 'Find Instance'}
 								</Button>
-							</Space>
-						</Card>
-					</Space>
 
-					<InstanceInfo formData={formData} />
-				</div>
-			),
-		},
-		{
-			key: 'manual',
-			label: 'Manual',
-			children: (
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: '1fr 1fr',
-						gap: 24,
-						marginTop: 24,
-					}}
-				>
-					<Card>
-						<Space
-							direction="vertical"
-							size="large"
-							style={{ width: '100%' }}
-						>
-							<div>
-								<Text strong>Service</Text>
-								<Select
-									style={{ width: '100%', marginTop: 8 }}
-									value={formData.service}
-									onChange={(value) =>
-										setFormData((prev) => ({
-											...prev,
-											service: value,
-										}))
-									}
-								>
-									{SERVICES.map((service) => (
-										<Select.Option
-											key={service}
-											value={service}
+								{formData.gpuNumber &&
+									formData.trainingTime && (
+										<Button
+											type="primary"
+											size="large"
+											icon={<ThunderboltOutlined />}
+											onClick={handleTrainModel}
+											loading={isProcessing}
+											disabled={
+												isProcessing ||
+												!formData.gpuNumber
+											}
 										>
-											{service}
-										</Select.Option>
-									))}
-								</Select>
+											{isProcessing
+												? 'Processing...'
+												: 'Start Training'}
+										</Button>
+									)}
 							</div>
-
-							<div>
-								<Text strong>GPU Number</Text>
-								<InputNumber
-									style={{ width: '100%', marginTop: 8 }}
-									min={1}
-									value={formData.gpuNumber}
-									onChange={(value) =>
-										setFormData((prev) => ({
-											...prev,
-											gpuNumber: value,
-										}))
-									}
-								/>
-							</div>
-
-							<div>
-								<Text strong>GPU Name</Text>
-								<Select
-									style={{ width: '100%', marginTop: 8 }}
-									value={formData.gpuName}
-									onChange={(value) =>
-										setFormData((prev) => ({
-											...prev,
-											gpuName: value,
-										}))
-									}
-								>
-									{GPU_NAMES.map((gpu) => (
-										<Select.Option key={gpu} value={gpu}>
-											{gpu}
-										</Select.Option>
-									))}
-								</Select>
-							</div>
-
-							<div>
-								<Text strong>Disk Size (GB)</Text>
-								<InputNumber
-									style={{ width: '100%', marginTop: 8 }}
-									min={10}
-									value={formData.disk}
-									onChange={(value) =>
-										setFormData((prev) => ({
-											...prev,
-											disk: value,
-										}))
-									}
-								/>
-							</div>
-
-							<div>
-								<Text strong>Training Time (hours)</Text>
-								<InputNumber
-									style={{ width: '100%', marginTop: 8 }}
-									min={1}
-									value={formData.trainingTime}
-									onChange={(value) =>
-										setFormData((prev) => ({
-											...prev,
-											trainingTime: value,
-										}))
-									}
-								/>
-							</div>
-						</Space>
-					</Card>
-
-					<InstanceInfo formData={formData} />
-				</div>
+						</Col>
+					</Row>
+				</Space>
 			),
 		},
 	]
 
 	return (
-		<div style={{ maxWidth: 1200, margin: '0 auto', padding: 24 }}>
-			{/* {isProcessing && <LoadingOverlay />} */}
-
-			<Tabs
-				activeKey={activeTab}
-				onChange={setActiveTab}
-				type="card"
-				size="large"
-				items={items}
-			/>
+		<div className="select-instance-container p-6">
+			<Tabs items={items} />
 
 			{isCreatingInstance && (
-				<Card style={{ marginTop: 24 }}>
+				<Card className="progress-card">
 					<Steps current={currentStep}>
 						{steps.map((step, index) => (
 							<Step
 								key={index}
 								title={step.title}
+								description={step.description}
 								icon={
 									currentStep === index ? (
-										<LoadingOutlined spin />
+										<LoadingOutlined />
 									) : (
 										step.icon
 									)
-								}
-								status={
-									currentStep === index
-										? 'process'
-										: currentStep > index
-											? 'finish'
-											: 'wait'
 								}
 							/>
 						))}
@@ -561,34 +593,32 @@ const SelectInstance = () => {
 				</Card>
 			)}
 
-			{formData.gpuNumber &&
-				formData.trainingTime &&
-				!isCreatingInstance && (
-					//TODO: Change buttuon here
-					<div className="flex justify-center mt-6">
-						<button
-							className="btn relative"
-							onClick={handleTrainModel}
-							disabled={isProcessing}
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="currentColor"
-								className="size-6 text-white"
-							>
-								<path
-									fillRule="evenodd"
-									d="M14.615 1.595a.75.75 0 0 1 .359.852L12.982 9.75h7.268a.75.75 0 0 1 .548 1.262l-10.5 11.25a.75.75 0 0 1-1.272-.71l1.992-7.302H3.75a.75.75 0 0 1-.548-1.262l10.5-11.25a.75.75 0 0 1 .913-.143Z"
-									clipRule="evenodd"
-								/>
-							</svg>
-							<span className="text">
-								{isProcessing ? 'Processing...' : 'Train Model'}
-							</span>
-						</button>
-					</div>
+			{/* <div className="action-container">
+				<Button
+					type="primary"
+					size="large"
+					icon={<RocketOutlined />}
+					onClick={handleFindInstance}
+					loading={isLoading}
+					disabled={!formData.trainingTime || isProcessing}
+					style={{ marginRight: 16 }}
+				>
+					{isLoading ? 'Finding Instance...' : 'Find Instance'}
+				</Button>
+
+				{formData.gpuNumber && formData.trainingTime && (
+					<Button
+						type="primary"
+						size="large"
+						icon={<ThunderboltOutlined />}
+						onClick={handleTrainModel}
+						loading={isProcessing}
+						disabled={isProcessing || !formData.gpuNumber}
+					>
+						{isProcessing ? 'Processing...' : 'Start Training'}
+					</Button>
 				)}
+			</div> */}
 		</div>
 	)
 }

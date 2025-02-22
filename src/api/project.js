@@ -16,10 +16,6 @@ const listData = (projectID, queryString = '&page=1&size=24') => {
 	)
 }
 
-// const trainModel = (projectID) => {
-//     return instance.post(API_URL.train_model(projectID));
-// };
-
 const updateData = (projectID) => {
 	return 'test'
 }

@@ -235,12 +235,12 @@ const UploadData = () => {
 								<Button
 									type="primary"
 									size="large"
-									icon={<ArrowRightOutlined />}
 									onClick={selectDataset}
-									className="mt-4"
+									className="mt-4 flex items-center justify-between"
 									block
 								>
 									Continue with Selected Dataset
+									<ArrowRightOutlined />
 								</Button>
 							)}
 						</Space>

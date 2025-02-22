@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import * as datasetAPI from 'src/api/dataset'
 import * as projectAPI from 'src/api/project'
-import { Select, message } from 'antd'
+import {
+	Select,
+	Card,
+	Row,
+	Col,
+	Button,
+	Typography,
+	Spin,
+	Tooltip,
+	message,
+} from 'antd'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import { InfoCircleOutlined } from '@ant-design/icons'
+
 const { Option } = Select
+const { Title, Text } = Typography
 
 const detectImageColumns = (row) => {
 	if (!row || typeof row !== 'object') return []
@@ -33,18 +46,19 @@ const detectImageColumns = (row) => {
 
 const SelectTargetColMulti = () => {
 	const { projectInfo, selectedDataset } = useOutletContext()
-
 	const navigate = useNavigate()
 	const [dataset, setDataset] = useState(null)
 	const [colsName, setColsName] = useState([])
 	const [selectedTargetCol, setSelectedTargetCol] = useState(null)
 	const [selectedImgCol, setSelectedImgCol] = useState(null)
 	const [imgCols, setImgCols] = useState([])
+	const [loading, setLoading] = useState(false)
 
 	useEffect(() => {
 		if (!selectedDataset?._id) return
 
 		const fetchDataset = async () => {
+			setLoading(true)
 			try {
 				const { data } = await datasetAPI.getDatasetPreview(
 					selectedDataset._id,
@@ -56,6 +70,9 @@ const SelectTargetColMulti = () => {
 				setColsName(Object.keys(data.files[0] || {}))
 			} catch (error) {
 				console.error('Error fetching dataset:', error)
+				message.error('Failed to load dataset. Please try again.')
+			} finally {
+				setLoading(false)
 			}
 		}
 
@@ -77,104 +94,124 @@ const SelectTargetColMulti = () => {
 			)
 			if (res.status === 200) {
 				message.success('Target Column Set Successfully', 3)
-
 				navigate(`/app/project/${projectInfo._id}/build/selectInstance`)
 			}
 		} catch (error) {
 			console.error('Error sending target column:', error)
+			message.error('Failed to set target column. Please try again.')
 		}
 	}
 
 	return (
-		<div className="mx-auto bg-white rounded-lg w-full p-6">
-			<h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">
+		<Card className="mx-auto w-full border-none">
+			<Title level={2} className="text-center mb-6">
 				Select Target & Image Column
-			</h2>
-			<div className="grid grid-cols-2 gap-6">
-				<div>
-					<label className="block text-gray-700 font-medium mb-2">
-						Target Column
-					</label>
-					<Select
-						className="w-full"
-						placeholder="Select Target Column"
-						value={selectedTargetCol}
-						onChange={setSelectedTargetCol}
-					>
-						{colsName
-							.filter((col) => !imgCols.includes(col))
-							.map((col) => (
+			</Title>
+			<Text type="secondary" className="block text-center mb-8">
+				Choose the target column for analysis and the image column
+				containing visual data.
+			</Text>
+
+			<Spin spinning={loading}>
+				<Row gutter={[24, 24]} className="mb-8">
+					<Col xs={24} md={12}>
+						<label className="block text-gray-700 font-medium mb-2">
+							Target Column{' '}
+							<Tooltip title="Select the column that contains the target data for analysis.">
+								<InfoCircleOutlined className="text-gray-500" />
+							</Tooltip>
+						</label>
+						<Select
+							className="w-full"
+							placeholder="Select Target Column"
+							value={selectedTargetCol}
+							onChange={setSelectedTargetCol}
+							optionFilterProp="children"
+							showSearch
+						>
+							{colsName
+								.filter((col) => !imgCols.includes(col))
+								.map((col) => (
+									<Option key={col} value={col}>
+										{col}
+									</Option>
+								))}
+						</Select>
+					</Col>
+					<Col xs={24} md={12}>
+						<label className="block text-gray-700 font-medium mb-2">
+							Image Column{' '}
+							<Tooltip title="Select the column that contains image URLs or paths.">
+								<InfoCircleOutlined className="text-gray-500" />
+							</Tooltip>
+						</label>
+						<Select
+							className="w-full"
+							placeholder="Select Image Column"
+							value={selectedImgCol}
+							onChange={setSelectedImgCol}
+							optionFilterProp="children"
+							showSearch
+						>
+							{imgCols.map((col) => (
 								<Option key={col} value={col}>
 									{col}
 								</Option>
 							))}
-					</Select>
-				</div>
-				<div>
-					<label className="block text-gray-700 font-medium mb-2">
-						Image Column
-					</label>
-					<Select
-						className="w-full"
-						placeholder="Select Image Column"
-						value={selectedImgCol}
-						onChange={setSelectedImgCol}
-					>
-						{imgCols.map((col) => (
-							<Option key={col} value={col}>
-								{col}
-							</Option>
-						))}
-					</Select>
-				</div>
-			</div>
-			<div className="mt-6 flex justify-center">
-				<button
-					className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300 disabled:opacity-50"
-					onClick={sendColumn}
-					disabled={!selectedTargetCol || !selectedImgCol}
-				>
-					Confirm Selection
-				</button>
-			</div>
+						</Select>
+					</Col>
+				</Row>
 
-			{dataset && (
-				<div className="mt-8 overflow-auto h-max border rounded-lg shadow-md">
-					<table className="w-full border-collapse text-sm text-gray-700">
-						<thead className="bg-gray-200 text-gray-800 sticky top-0 text-center">
-							<tr>
-								{colsName.map((col) => (
-									<th
-										key={col}
-										className="py-2 px-4 border-b"
-									>
-										{col}
-									</th>
-								))}
-							</tr>
-						</thead>
-						<tbody>
-							{dataset.map((row, rowIndex) => (
-								<tr
-									key={rowIndex}
-									className="border-b hover:bg-gray-50 text-center"
-								>
+				<div className="text-center">
+					<Button
+						type="primary"
+						size="large"
+						onClick={sendColumn}
+						disabled={!selectedTargetCol || !selectedImgCol}
+						className="w-48"
+					>
+						Confirm Selection
+					</Button>
+				</div>
+
+				{dataset && (
+					<div className="mt-8 overflow-auto border rounded-lg shadow-sm">
+						<table className="w-full border-collapse text-sm text-gray-700">
+							<thead className="bg-gray-100 text-gray-800 sticky top-0 text-center">
+								<tr>
 									{colsName.map((col) => (
-										<td
+										<th
 											key={col}
-											className="px-4 py-2 truncate max-w-[150px]"
-											title={row[col]}
+											className="py-3 px-4 border-b"
 										>
-											{row[col]}
-										</td>
+											{col}
+										</th>
 									))}
 								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			)}
-		</div>
+							</thead>
+							<tbody>
+								{dataset.map((row, rowIndex) => (
+									<tr
+										key={rowIndex}
+										className="border-b hover:bg-gray-50 text-center"
+									>
+										{colsName.map((col) => (
+											<td
+												key={col}
+												className="px-4 py-2 truncate max-w-[150px]"
+												title={row[col]}
+											>
+												{row[col]}
+											</td>
+										))}
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
+			</Spin>
+		</Card>
 	)
 }
 
