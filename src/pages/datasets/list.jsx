@@ -18,6 +18,7 @@ import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
 import { message } from 'antd'
 import Loading from 'src/components/Loading'
+import { getHistory } from 'src/api/chatbot'
 import * as datasetAPI from 'src/api/dataset'
 
 const dataType = Object.keys(TYPES)
@@ -44,6 +45,22 @@ export default function DatasetList() {
 	const [files, setFiles] = useState([])
 	const [totalKbytes, setTotalKbytes] = useState(0)
 	const [bucketName, setBucketName] = useState(bucketList[0])
+
+	const setTask = async () => {
+		const response = await getHistory()
+		console.log(response)
+		const jsonSumm = response.data.jsonSumm
+		if (jsonSumm) {
+			const givenSumm = JSON.parse(jsonSumm)
+			const givenTask = givenSumm.task
+			let task = Object.entries(TYPES).find(([key, value]) => value.type === givenTask)?.[0]
+			if (task) setDataType1(task)
+		}
+	}
+
+	useEffect(() => {
+		setTask()
+	}, []);
 
 	const handleCreateDataset = async (event) => {
 		event.preventDefault()
