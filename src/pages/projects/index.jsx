@@ -116,7 +116,9 @@ export default function Projects() {
 	]
 
 	useEffect(() => {
-		const textarea = textareaRef.current
+		// const textarea = textareaRef.current
+		const textarea = textareaRef.current?.resizableTextArea?.textArea
+
 		if (!textarea) return
 
 		// Reset height to auto to get the correct scrollHeight
