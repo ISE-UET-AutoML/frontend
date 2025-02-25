@@ -95,9 +95,12 @@ export default function Projects() {
 	const [datasets, setDatasets] = useState([])
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
-	const [description, setDescription] = useState('')
+	const [description, setDescription] = useState("")
+	const [projectName, setProjectName] = useState("")
 	const textareaRef = useRef(null)
 	const [chatbotDisplay, setChatbotDisplay] = useState(false)
+	const [jsonSumm, setJsonSumm] = useState("")
+	const [proceedState, setProceed] = useState(false)
 
 	const options = [
 		{
@@ -188,13 +191,14 @@ export default function Projects() {
 		}
 	}, [messages, chatContainerRef, projectState.showUploaderChatbot])
 
-	const setTask = (jsonSumm) => {
-		if (jsonSumm) {
-			const givenSumm = JSON.parse(jsonSumm)
+	const setTask = (_jsonSumm) => {
+		if (_jsonSumm) {
+			const givenSumm = JSON.parse(_jsonSumm)
 			const givenTask = givenSumm.task
 			const givenDescription = givenSumm.project_summary
-			console.log(givenDescription)
+			const givenName = givenSumm.project_name
 			setDescription(givenDescription)
+			setProjectName(givenName)
 			let task = -1
 			task = Object.values(TYPES).findIndex(
 				(value) => value.type === givenTask
@@ -221,10 +225,8 @@ export default function Projects() {
 				if (newMessages.length > 1) {
 					setShowTitle(false)
 				}
-				return newMessages
-			})
-			console.log(response)
-			setTask(response.data.jsonSumm)
+				return newMessages;
+			});
 		}
 	}
 
@@ -232,40 +234,53 @@ export default function Projects() {
 		getChatHistory()
 	}, [])
 
+	const userChat = async (input, confirmed = false, projectList = []) => {
+		setShowTitle(false)
+		if (proceedState) {
+			setProceed(false)
+		}
+		setMessages(previousMessages => [...previousMessages, { role: 'user', content: input}])
+		setInput('')
+		setMessages(previousMessages => [...previousMessages, { role: "assistant", content: "loading..." }]);
+		try {
+			const response = await chat(input, confirmed, projectList)
+			setTimeout(() => {
+				setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
+			}, 500)
+			setJsonSumm(response.data.jsonSumm)
+			
+		} catch (error) {
+			console.error("Error receiving message:", error);
+		}
+	} 
+
 	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			if (input.trim()) {
-				setShowTitle(false)
-				setMessages((previousMessages) => [
-					...previousMessages,
-					{ role: 'user', content: input },
-				])
-				setInput('')
-				setMessages((previousMessages) => [
-					...previousMessages,
-					{ role: 'assistant', content: 'loading...' },
-				])
-				try {
-					const response = await chat(input)
-					setTimeout(() => {
-						setMessages((previousMessages) => [
-							...previousMessages.slice(0, -1),
-							{ role: 'assistant', content: response.data.reply },
-						])
-					}, 500)
-					setTask(response.data.jsonSumm)
-				} catch (error) {
-					console.error('Error receiving message:', error)
-				}
+				await userChat(input)
 			}
 		}
 	}
 
 	const newChat = async () => {
 		setShowTitle(true)
-		setMessages([])
 		const response = await clearHistory()
+		setMessages([]);
+		setProceed(false)
+	}
+
+	const proceedFromChat = async () => {
+		if (proceedState) {
+			updateProjState({ showUploaderChatbot: false })
+			updateProjState({ showUploaderManual: true })
+			setTask(jsonSumm)
+		} else {
+			setProceed(true)
+			const projectList = projectState.projects.map((project => project.name))
+			await userChat("Proceed", true, projectList)
+		}
+		
 	}
 
 	const selectType = (e, idx) => {
@@ -285,6 +300,12 @@ export default function Projects() {
 		isSelected.forEach((el, idx) => {
 			if (el) data.type = projType[idx]
 		})
+
+		if (jsonSumm) {
+			const givenJson = JSON.parse(jsonSumm)
+			const metricsExplain = givenJson.metrics_explain
+			if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
+		}
 
 		try {
 			const response = await instance.post(API_URL.all_projects, data, {
@@ -473,6 +494,8 @@ export default function Projects() {
 										<Tooltip title="Choose a descriptive name for your project">
 											<Input
 												name="name"
+												value={projectName}
+												onChange={(e) => setProjectName(e.target.value)}
 												placeholder="E.g., Customer Churn Predictor"
 												required
 												prefix={<FileTextOutlined />}
@@ -660,6 +683,12 @@ export default function Projects() {
 								className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
 							>
 								New chat ?
+							</button>
+							<button
+								onClick={() => proceedFromChat()}
+								className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
+							>
+								Proceed ?
 							</button>
 						</div>
 
