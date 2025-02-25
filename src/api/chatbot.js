@@ -3,12 +3,12 @@ import instance from './axios'
 
 const URL = `${API_BASE_URL}/chat`
 
-const chat = (message)  => {
-	return instance.post(`${URL}`, {message: message})
+const chat = (message, confirmed = false, projectList = [])  => {
+	return instance.post(`${URL}`, {message: message, confirmed: confirmed, projectList: projectList})
 }
 
-const clearHistory = () => {
-    return instance.post(`${URL}/clear`)
+const clearHistory = (projectCreated = false) => {
+    return instance.post(`${URL}/clear`, {projectCreated: projectCreated})
 }
 
 const getHistory = () => {
