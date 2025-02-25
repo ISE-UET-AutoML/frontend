@@ -59,8 +59,8 @@ export default function ProjectList() {
 	const [datasets, setDatasets] = useState([])
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
-	const [chatbotGreetings, setMessage] = useState("What can I help with?")
-	const [loading, setLoading] = useState(false);
+	const [chatbotGreetings, setMessage] = useState('What can I help with?')
+	const [loading, setLoading] = useState(false)
 
 	const options = [
 		{
@@ -80,6 +80,7 @@ export default function ProjectList() {
 	const textareaRef = useRef(null)
 	useEffect(() => {
 		const textarea = textareaRef.current
+		console.log('textArea', textarea)
 		if (!textarea) return
 
 		// Reset height to auto to get the correct scrollHeight
@@ -98,27 +99,42 @@ export default function ProjectList() {
 	useEffect(() => {
 		setTimeout(() => {
 			if (chatContainerRef.current) {
-				const lastMessage = chatContainerRef.current.lastElementChild?.children[chatContainerRef.current.lastElementChild.children.length - 1]
-				const secondLastMessage = chatContainerRef.current.lastElementChild?.children[chatContainerRef.current.lastElementChild.children.length - 2]
+				const lastMessage =
+					chatContainerRef.current.lastElementChild?.children[
+						chatContainerRef.current.lastElementChild.children
+							.length - 1
+					]
+				const secondLastMessage =
+					chatContainerRef.current.lastElementChild?.children[
+						chatContainerRef.current.lastElementChild.children
+							.length - 2
+					]
 				let height = 0
 				if (secondLastMessage) {
-					height = secondLastMessage.offsetHeight + lastMessage.offsetHeight + chatContainerRef.current.nextElementSibling.offsetHeight + 64
+					height =
+						secondLastMessage.offsetHeight +
+						lastMessage.offsetHeight +
+						chatContainerRef.current.nextElementSibling
+							.offsetHeight +
+						64
 				}
 				chatContainerRef.current.scrollTo({
 					top: chatContainerRef.current.scrollHeight - height,
-					behavior: "smooth",
+					behavior: 'smooth',
 				})
 			}
 			console.log()
 		}, 500)
-	},[messages])
+	}, [messages])
 
 	const setTask = (jsonSumm) => {
 		if (jsonSumm) {
 			const givenSumm = JSON.parse(jsonSumm)
 			const givenTask = givenSumm.task
 			let task = -1
-			task = Object.values(TYPES).findIndex((value) => value.type === givenTask)
+			task = Object.values(TYPES).findIndex(
+				(value) => value.type === givenTask
+			)
 			if (task != -1) selectType(undefined, task)
 		}
 	}
@@ -128,40 +144,52 @@ export default function ProjectList() {
 			const response = await getHistory()
 			const history = response.data.chatHistory
 			if (messages.length === 0) {
-				setMessages(previousMessages => [...previousMessages, { role: 'assistant', content: chatbotGreetings }])
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{ role: 'assistant', content: chatbotGreetings },
+				])
 			}
-			setMessages(prevMessages => {
-				const newMessages = [...prevMessages, ...history];
+			setMessages((prevMessages) => {
+				const newMessages = [...prevMessages, ...history]
 				if (newMessages.length > 1) {
-					setShowTitle(false);
+					setShowTitle(false)
 				}
-				return newMessages;
-			});
+				return newMessages
+			})
 			setTask(response.data.jsonSumm)
 		}
-	};
+	}
 
 	useEffect(() => {
 		getChatHistory()
-	}, []);
+	}, [])
 
 	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			if (input.trim()) {
 				setShowTitle(false)
-				setMessages(previousMessages => [...previousMessages, { role: 'user', content: input}])
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{ role: 'user', content: input },
+				])
 				setInput('')
-				setMessages(previousMessages => [...previousMessages, { role: "assistant", content: "loading..." }]);
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{ role: 'assistant', content: 'loading...' },
+				])
 				setLoading(true)
 				try {
 					const response = await chat(input)
 					setTimeout(() => {
-						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
+						setMessages((previousMessages) => [
+							...previousMessages.slice(0, -1),
+							{ role: 'assistant', content: response.data.reply },
+						])
 					}, 500)
 					setTask(response.data.jsonSumm)
 				} catch (error) {
-					console.error("Error receiving message:", error);
+					console.error('Error receiving message:', error)
 				} finally {
 					setLoading(false)
 				}
@@ -171,7 +199,7 @@ export default function ProjectList() {
 
 	const newChat = async () => {
 		setShowTitle(true)
-		setMessages([]);
+		setMessages([])
 		const response = await clearHistory()
 	}
 
@@ -540,16 +568,19 @@ export default function ProjectList() {
 
 				<div className="flex flex-col items-center h-full">
 					{/* Main Container with Fixed Width */}
-					<div className="w-full max-w-2xl h-full px-4 flex flex-col">			
+					<div className="w-full max-w-2xl h-full px-4 flex flex-col">
 						{/* Chat Messages Section */}
-						<div ref={chatContainerRef} className="flex-1 w-full overflow-y-auto pt-16 pb-4">
+						<div
+							ref={chatContainerRef}
+							className="flex-1 w-full overflow-y-auto pt-16 pb-4"
+						>
 							{showTitle ? (
 								<div className="flex items-center justify-center h-full">
 									<h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
 										{chatbotGreetings}
 									</h1>
 								</div>
-							) : (										
+							) : (
 								<div className="space-y-4">
 									{messages.map((message, index) => (
 										<div
@@ -567,10 +598,18 @@ export default function ProjectList() {
 														: 'bg-gray-300 text-black max-w-[95%]'
 												}`}
 											>
-												{message.content === "loading..." ? (
-													<img src={chatLoading} className="w-16 h-12 mx-auto" />
-													) : (
-													<MarkdownRenderer markdownText={message.content}></MarkdownRenderer>
+												{message.content ===
+												'loading...' ? (
+													<img
+														src={chatLoading}
+														className="w-16 h-12 mx-auto"
+													/>
+												) : (
+													<MarkdownRenderer
+														markdownText={
+															message.content
+														}
+													></MarkdownRenderer>
 												)}
 											</div>
 										</div>

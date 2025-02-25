@@ -95,7 +95,7 @@ export default function Projects() {
 	const [datasets, setDatasets] = useState([])
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
-	const [description, setDescription] = useState("")
+	const [description, setDescription] = useState('')
 	const textareaRef = useRef(null)
 	const [chatbotDisplay, setChatbotDisplay] = useState(false)
 
@@ -121,7 +121,9 @@ export default function Projects() {
 	]
 
 	useEffect(() => {
+		// const textarea = textareaRef.current
 		const textarea = textareaRef.current?.resizableTextArea?.textArea
+
 		if (!textarea) return
 
 		// Reset height to auto to get the correct scrollHeight
@@ -138,24 +140,36 @@ export default function Projects() {
 
 	const chatContainerRef = useRef(null)
 
-	function chatBotScroll (chatContainerRef, chatbotDisplay) {
+	function chatBotScroll(chatContainerRef, chatbotDisplay) {
 		if (chatContainerRef.current) {
-			const lastMessage = chatContainerRef.current.lastElementChild?.children[chatContainerRef.current.lastElementChild.children.length - 1]
-			const secondLastMessage = chatContainerRef.current.lastElementChild?.children[chatContainerRef.current.lastElementChild.children.length - 2]
+			const lastMessage =
+				chatContainerRef.current.lastElementChild?.children[
+					chatContainerRef.current.lastElementChild.children.length -
+						1
+				]
+			const secondLastMessage =
+				chatContainerRef.current.lastElementChild?.children[
+					chatContainerRef.current.lastElementChild.children.length -
+						2
+				]
 			let height = 0
 			if (secondLastMessage) {
-				height = secondLastMessage.offsetHeight + lastMessage.offsetHeight + chatContainerRef.current.nextElementSibling.offsetHeight + 32
+				height =
+					secondLastMessage.offsetHeight +
+					lastMessage.offsetHeight +
+					chatContainerRef.current.nextElementSibling.offsetHeight +
+					32
 			}
 			if (chatbotDisplay) {
 				chatContainerRef.current.scrollTo({
 					top: chatContainerRef.current.scrollHeight - height,
-					behavior: "smooth",
+					behavior: 'smooth',
 				})
 			} else {
 				chatContainerRef.current.scrollTo({
 					top: chatContainerRef.current.scrollHeight - height,
 				})
-			}		
+			}
 		}
 	}
 
@@ -172,7 +186,7 @@ export default function Projects() {
 		} else {
 			setChatbotDisplay(false)
 		}
-	},[messages, chatContainerRef, projectState.showUploaderChatbot])
+	}, [messages, chatContainerRef, projectState.showUploaderChatbot])
 
 	const setTask = (jsonSumm) => {
 		if (jsonSumm) {
@@ -182,7 +196,9 @@ export default function Projects() {
 			console.log(givenDescription)
 			setDescription(givenDescription)
 			let task = -1
-			task = Object.values(TYPES).findIndex((value) => value.type === givenTask)
+			task = Object.values(TYPES).findIndex(
+				(value) => value.type === givenTask
+			)
 			if (task !== -1) selectType(undefined, task)
 		}
 	}
@@ -192,40 +208,55 @@ export default function Projects() {
 			const response = await getHistory()
 			const history = response.data.chatHistory
 			if (messages.length === 0) {
-				setMessages(previousMessages => [...previousMessages, { role: 'assistant', content: "How can I help you create your project?" }])
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{
+						role: 'assistant',
+						content: 'How can I help you create your project?',
+					},
+				])
 			}
-			setMessages(prevMessages => {
-				const newMessages = [...prevMessages, ...history];
+			setMessages((prevMessages) => {
+				const newMessages = [...prevMessages, ...history]
 				if (newMessages.length > 1) {
-					setShowTitle(false);
+					setShowTitle(false)
 				}
-				return newMessages;
-			});
+				return newMessages
+			})
 			console.log(response)
 			setTask(response.data.jsonSumm)
 		}
-	};
+	}
 
 	useEffect(() => {
 		getChatHistory()
-	}, []);
+	}, [])
 
 	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault()
 			if (input.trim()) {
 				setShowTitle(false)
-				setMessages(previousMessages => [...previousMessages, { role: 'user', content: input}])
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{ role: 'user', content: input },
+				])
 				setInput('')
-				setMessages(previousMessages => [...previousMessages, { role: "assistant", content: "loading..." }]);
+				setMessages((previousMessages) => [
+					...previousMessages,
+					{ role: 'assistant', content: 'loading...' },
+				])
 				try {
 					const response = await chat(input)
 					setTimeout(() => {
-						setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
+						setMessages((previousMessages) => [
+							...previousMessages.slice(0, -1),
+							{ role: 'assistant', content: response.data.reply },
+						])
 					}, 500)
 					setTask(response.data.jsonSumm)
 				} catch (error) {
-					console.error("Error receiving message:", error);
+					console.error('Error receiving message:', error)
 				}
 			}
 		}
@@ -233,7 +264,7 @@ export default function Projects() {
 
 	const newChat = async () => {
 		setShowTitle(true)
-		setMessages([]);
+		setMessages([])
 		const response = await clearHistory()
 	}
 
@@ -463,7 +494,11 @@ export default function Projects() {
 										<Tooltip title="Explain what your project aims to achieve">
 											<TextArea
 												value={description}
-												onChange={(e) => setDescription(e.target.value)}
+												onChange={(e) =>
+													setDescription(
+														e.target.value
+													)
+												}
 												name="description"
 												rows={4}
 												placeholder="Describe your project's goals and requirements..."
@@ -565,7 +600,10 @@ export default function Projects() {
 					centered
 				>
 					<div className="flex flex-col h-[600px]">
-						<div ref={chatContainerRef} className="flex-1 overflow-auto p-4">
+						<div
+							ref={chatContainerRef}
+							className="flex-1 overflow-auto p-4"
+						>
 							{showTitle ? (
 								<div className="text-center my-12">
 									<Title level={2}>
@@ -580,21 +618,39 @@ export default function Projects() {
 								<div className="space-y-4">
 									{messages.map((message, index) => (
 										<Alert
-										key={index}
-										type={message.role === 'user' ? 'info' : 'success'}
-										showIcon
-										style={{
-											marginLeft: message.role === 'user' ? 'auto' : '0',
-											marginRight: message.role === 'user' ? '0' : 'auto',
-											maxWidth: '70%',
-										}}
-										message={
-											message.content === "loading..." ? (
-												<img src={chatLoading} className="w-16 h-12 mx-auto" />
-											) : (
-												<MarkdownRenderer markdownText={message.content} />
-											)
-										}
+											key={index}
+											type={
+												message.role === 'user'
+													? 'info'
+													: 'success'
+											}
+											showIcon
+											style={{
+												marginLeft:
+													message.role === 'user'
+														? 'auto'
+														: '0',
+												marginRight:
+													message.role === 'user'
+														? '0'
+														: 'auto',
+												maxWidth: '70%',
+											}}
+											message={
+												message.content ===
+												'loading...' ? (
+													<img
+														src={chatLoading}
+														className="w-16 h-12 mx-auto"
+													/>
+												) : (
+													<MarkdownRenderer
+														markdownText={
+															message.content
+														}
+													/>
+												)
+											}
 										/>
 									))}
 								</div>
