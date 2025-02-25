@@ -18,6 +18,8 @@ import {
 	Spin,
 	Tag,
 	Statistic,
+	Layout,
+	Table,
 } from 'antd'
 import {
 	InfoCircleOutlined,
@@ -37,11 +39,10 @@ import * as experimentAPI from 'src/api/experiment'
 
 const { Title, Text, Paragraph } = Typography
 
-const ImagePredict = ({ predictResult, uploadedFiles, projectInfo }) => {
+const ImagePredict2 = ({ predictResult, uploadedFiles, projectInfo }) => {
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
 	const experimentName = searchParams.get('experimentName')
-	const [selectedData, setSelectedData] = useState({ index: 0 })
 	const [falsePredict, setFalsePredict] = useState([])
 	const [explainImageUrl, setExplainImageUrl] = useState(
 		Array(uploadedFiles.length).fill(SolutionImage)
@@ -51,6 +52,13 @@ const ImagePredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 	const [explanationModalVisible, setExplanationModalVisible] =
 		useState(false)
 	const [loadingExplanation, setLoadingExplanation] = useState(false)
+
+	const [currentIndex, setCurrentIndex] = useState(0)
+	const [statistics, setStatistics] = useState({
+		correct: 0,
+		incorrect: 0,
+		accuracy: 0,
+	})
 
 	// Initialize explanation images
 	useEffect(() => {
@@ -607,28 +615,204 @@ const ImagePredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 	}
 
 	return (
-		<div className="image-predict-container" style={{ padding: '24px' }}>
-			{uploadedFiles && uploadedFiles.length > 0 ? (
-				<Row gutter={[24, 0]} style={{ height: 'calc(100vh - 200px)' }}>
-					{/* Image gallery sidebar */}
-					<Col span={4} style={{ height: '100%' }}>
-						{renderImageGallery()}
-					</Col>
+		<Layout className=" bg-white">
+			<Content className="p-4">
+				{/* Header with Statistics */}
+				<Card
+					size="small"
+					className="mb-4 border-green-500 bg-green-50 border-dashed"
+				>
+					<Space
+						size="large"
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+						}}
+					>
+						<Statistic
+							title="Total Predictions"
+							value={uploadedFiles.length}
+							prefix={<QuestionCircleOutlined />}
+						/>
+						<Statistic
+							title="Correct Predictions"
+							value={statistics.correct}
+							prefix={
+								<CheckCircleOutlined
+									style={{ color: '#52c41a' }}
+								/>
+							}
+						/>
+						<Statistic
+							title="Incorrect Predictions"
+							value={statistics.incorrect}
+							prefix={
+								<CloseCircleOutlined
+									style={{ color: '#f5222d' }}
+								/>
+							}
+						/>
+						<Statistic
+							title="Accuracy"
+							value={statistics.accuracy}
+							suffix="%"
+							precision={1}
+						/>
+					</Space>
+				</Card>
 
-					{/* Main content area */}
-					<Col span={20} style={{ height: '100%' }}>
-						{renderMainContent()}
-					</Col>
-				</Row>
-			) : (
-				<Empty description="No images uploaded for prediction" />
-			)}
+				{/* Main Content */}
+				<Card className="mb-6">
+					<Space direction="vertical" size="large" className="w-full">
+						{/* Navigation Controls */}
+						<Space className="w-full justify-between">
+							<Button
+								type="primary"
+								icon={<LeftOutlined />}
+								disabled={currentIndex === 0}
+								onClick={() =>
+									setCurrentIndex((prev) => prev - 1)
+								}
+							>
+								Previous
+							</Button>
+							<Text
+								strong
+							>{`Image ${currentIndex + 1} of ${uploadedFiles.length}`}</Text>
+							<Button
+								type="primary"
+								icon={<RightOutlined />}
+								disabled={
+									currentIndex === uploadedFiles.length - 1
+								}
+								onClick={() =>
+									setCurrentIndex((prev) => prev + 1)
+								}
+							>
+								Next
+							</Button>
+						</Space>
 
-			{/* Modals */}
-			{renderAccuracyModal()}
-			{renderExplanationHelpModal()}
-		</div>
+						{/* Main Content Area */}
+						<div className="grid grid-cols-2 gap-6">
+							{/* Image Display */}
+							<Card>
+								<Image
+									src={URL.createObjectURL(
+										uploadedFiles[currentIndex]
+									)}
+									alt="Prediction Image"
+									className="w-full object-contain"
+								/>
+							</Card>
+
+							{/* Prediction Details */}
+							<Card>
+								<Space direction="vertical" className="w-full">
+									<Title level={4}>
+										Prediction Results
+										<Tooltip title="This shows the model's prediction and confidence level">
+											<QuestionCircleOutlined className="ml-2" />
+										</Tooltip>
+									</Title>
+
+									<Alert
+										message={
+											<Space>
+												<Text>
+													{`Predicted ${projectInfo.target_column}:`}
+												</Text>
+												<Text strong>
+													{currentPrediction.class}
+												</Text>
+											</Space>
+										}
+										type={
+											incorrectPredictions.includes(
+												currentIndex
+											)
+												? 'error'
+												: 'success'
+										}
+										showIcon
+									/>
+
+									<div>
+										<Space className="w-full justify-between mb-2">
+											<Text strong>Confidence Score</Text>
+											<Text>
+												{formatConfidence(
+													currentPrediction.confidence
+												)}
+											</Text>
+										</Space>
+										<Progress
+											percent={Math.round(
+												currentPrediction.confidence *
+													100
+											)}
+											status={
+												currentPrediction.confidence >=
+												0.5
+													? 'success'
+													: 'exception'
+											}
+											format={(percent) => `${percent}%`}
+										/>
+									</div>
+
+									<Button
+										type={
+											incorrectPredictions.includes(
+												currentIndex
+											)
+												? 'primary'
+												: 'default'
+										}
+										danger={
+											!incorrectPredictions.includes(
+												currentIndex
+											)
+										}
+										onClick={() =>
+											handlePredictionToggle(currentIndex)
+										}
+										icon={
+											incorrectPredictions.includes(
+												currentIndex
+											) ? (
+												<CheckCircleOutlined />
+											) : (
+												<CloseCircleOutlined />
+											)
+										}
+									>
+										{incorrectPredictions.includes(
+											currentIndex
+										)
+											? 'Mark as Correct'
+											: 'Mark as Incorrect'}
+									</Button>
+
+									<Table
+										columns={getTableColumns()}
+										dataSource={getTableData()}
+										size="small"
+										pagination={false}
+										scroll={{ y: 300 }}
+									/>
+								</Space>
+							</Card>
+						</div>
+
+						{/* Thumbnail Gallery */}
+						{renderThumbnails()}
+					</Space>
+				</Card>
+			</Content>
+		</Layout>
 	)
 }
 
-export default ImagePredict
+export default ImagePredict2

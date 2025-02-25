@@ -263,21 +263,6 @@ const MultimodalPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 										showIcon
 									/>
 
-									{/* <div>
-										<Text>Confidence Score</Text>
-										<Progress
-											percent={Math.round(
-												currentPrediction.confidence *
-													100
-											)}
-											status={
-												currentPrediction.confidence >=
-												0.5
-													? 'success'
-													: 'exception'
-											}
-										/>
-									</div> */}
 									<div>
 										<Space className="w-full justify-between mb-2">
 											<Text strong>Confidence Score</Text>
