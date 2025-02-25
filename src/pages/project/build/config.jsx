@@ -1,4 +1,5 @@
 import ImagePredict from '../../../components/Predict/ImagePredict'
+import ImagePredict2 from '../../../components/Predict/ImagePredict2'
 import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
@@ -15,7 +16,7 @@ const config = {
 		folder: UploadTypes.FOLDER,
 		labelingView: LabelingImageClassification,
 		trainingGraph: MultimodalTrainingGraph,
-		predictView: ImagePredict,
+		predictView: ImagePredict2,
 	},
 	TEXT_CLASSIFICATION: {
 		gridClasses: 'grid-cols-1',

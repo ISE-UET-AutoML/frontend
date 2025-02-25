@@ -71,8 +71,18 @@ const UploadData = () => {
 		updateFields({
 			selectedDataset, // Store selected dataset
 		})
-
-		navigate(`/app/project/${projectInfo._id}/build/selectTargetColMulti`)
+		if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
+			navigate(
+				`/app/project/${projectInfo._id}/build/selectTargetColMulti`
+			)
+		} else if (
+			projectInfo.type === 'TEXT_CLASSIFICATION' ||
+			projectInfo.type === 'TABULAR_CLASSIFICATION'
+		) {
+			navigate(`/app/project/${projectInfo._id}/build/selectTargetCol`)
+		} else {
+			navigate(`/app/project/${projectInfo._id}/build/selectInstance`)
+		}
 	}
 
 	const showModal = () => {
@@ -268,7 +278,7 @@ const UploadData = () => {
 									onChange: setSelectedRowKeys,
 								}}
 								rowKey={(record, index) => index}
-								pagination={{ pageSize: 6 }}
+								pagination={{ pageSize: 2 }}
 								className="border rounded-lg"
 								locale={{
 									emptyText: (
