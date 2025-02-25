@@ -10,8 +10,8 @@ function useAuth() {
 	const writeCookies = ({ accessToken, refreshToken }) => {
 		const cookieOptions = {
 			path: '/',
-			secure: true,
-			sameSite: 'none',
+			secure: process.env.NODE_ENV === "production",
+ 			sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
 		};
 		if (process.env.REACT_APP_DOMAIN_NAME) {
 			cookieOptions.domain = process.env.REACT_APP_DOMAIN_NAME;
