@@ -243,6 +243,7 @@ const DeployView = () => {
 
 		const validFiles = validateFiles(files, projectInfo.type)
 
+		console.log('uploadedFiles', validFiles)
 		setUploadedFiles(validFiles)
 		setUploading(true)
 		const formData = new FormData()
@@ -297,7 +298,7 @@ const DeployView = () => {
 	}, [currentStep, isDeploying])
 
 	return (
-		<div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+		<div style={{ margin: '0 auto' }}>
 			{!isDeploying ? (
 				<>
 					<Card style={{ marginBottom: '24px' }}>
@@ -457,7 +458,7 @@ const DeployView = () => {
 					</Row>
 				</>
 			) : (
-				<Card>
+				<Card className="border-none">
 					<Steps current={currentStep}>
 						{deploySteps.map((step, index) => (
 							<Step
@@ -541,7 +542,7 @@ const DeployView = () => {
 										ref={fileInputRef}
 										onChange={handleChange}
 										className="hidden"
-										accept=".csv,.txt,.json,.xlsx,.png,.jpeg"
+										accept=".csv,.txt,.json,.xlsx,.png,.jpg"
 									/>
 
 									<Button

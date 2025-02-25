@@ -24,6 +24,7 @@ import {
 import * as datasetAPI from 'src/api/dataset'
 import { PATHS } from 'src/constants/paths'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
@@ -37,6 +38,7 @@ const UploadData = () => {
 	const [labeledFilter, setLabeledFilter] = useState('')
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
 	const [loading, setLoading] = useState(false)
+	const [isModalVisible, setIsModalVisible] = useState(false)
 
 	useEffect(() => {
 		const fetchDatasets = async () => {
@@ -62,29 +64,6 @@ const UploadData = () => {
 			item.type === projectInfo?.type
 	)
 
-	// const selectDataset = () => {
-	// 	const selectedDataset = filteredDatasets[selectedRowKeys[0]]
-	// 	if (!selectedDataset) return
-	// 	const fieldUpdates = {
-	// 		selectedDataset,
-	// 		// isDoneUploadData: true,
-	// 	}
-	// 	if (!selectedDataset.isLabeled) fieldUpdates.isLabeling = true
-	// 	if (
-	// 		['TABULAR_CLASSIFICATION', 'TEXT_CLASSIFICATION'].includes(
-	// 			projectInfo.type
-	// 		)
-	// 	) {
-	// 		fieldUpdates.isSelectTargetCol = true
-	// 	} else if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
-	// 		fieldUpdates.isSelectTargetColMulti = true
-	// 		navigate(
-	// 			`/app/project/${projectInfo._id}/build/selectTargetColMulti`
-	// 		)
-	// 	}
-	// 	updateFields(fieldUpdates)
-	// }
-
 	const selectDataset = () => {
 		const selectedDataset = filteredDatasets[selectedRowKeys[0]]
 		if (!selectedDataset) return
@@ -92,8 +71,40 @@ const UploadData = () => {
 		updateFields({
 			selectedDataset, // Store selected dataset
 		})
+		if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
+			navigate(
+				`/app/project/${projectInfo._id}/build/selectTargetColMulti`
+			)
+		} else if (
+			projectInfo.type === 'TEXT_CLASSIFICATION' ||
+			projectInfo.type === 'TABULAR_CLASSIFICATION'
+		) {
+			navigate(`/app/project/${projectInfo._id}/build/selectTargetCol`)
+		} else {
+			navigate(`/app/project/${projectInfo._id}/build/selectInstance`)
+		}
+	}
 
-		navigate(`/app/project/${projectInfo._id}/build/selectTargetColMulti`)
+	const showModal = () => {
+		setIsModalVisible(true)
+	}
+
+	const hideModal = () => {
+		setIsModalVisible(false)
+	}
+
+	const handleCreateDataset = async (formData) => {
+		setLoading(true)
+		try {
+			const response = await datasetAPI.createDataset(formData)
+			// Add the new dataset to the list
+			setDatasets([...datasets, response.data])
+			setIsModalVisible(false)
+		} catch (error) {
+			console.error('Error creating dataset:', error)
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	const columns = [
@@ -267,7 +278,7 @@ const UploadData = () => {
 									onChange: setSelectedRowKeys,
 								}}
 								rowKey={(record, index) => index}
-								pagination={{ pageSize: 6 }}
+								pagination={{ pageSize: 2 }}
 								className="border rounded-lg"
 								locale={{
 									emptyText: (
@@ -283,29 +294,32 @@ const UploadData = () => {
 
 					<Card
 						hoverable
-						className="shadow-md rounded-lg text-center"
+						className="shadow-md rounded-lg text-center cursor-pointer"
+						onClick={showModal}
 					>
 						<Space
 							direction="vertical"
 							size="medium"
-							// className="py-6"
+							className="w-full py-6"
 						>
 							<CloudUploadOutlined className="text-5xl text-blue-500" />
-							<button
-								onClick={() =>
-									(window.location = PATHS.DATASETS)
-								}
-							>
+							<div>
 								<Title level={4}>Create a New Dataset</Title>
 								<Text type="secondary">
 									Don't see what you need? Click here to
 									upload and create your own dataset
 								</Text>
-							</button>
+							</div>
 						</Space>
 					</Card>
 				</Col>
 			</Row>
+
+			<CreateDatasetModal
+				visible={isModalVisible}
+				onCancel={hideModal}
+				onCreate={handleCreateDataset}
+			/>
 		</div>
 	)
 }

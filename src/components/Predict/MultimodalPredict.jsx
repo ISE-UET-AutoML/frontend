@@ -9,7 +9,6 @@ import {
 	Image,
 	Badge,
 	Alert,
-	Tooltip,
 	Statistic,
 	Progress,
 } from 'antd'
@@ -138,11 +137,6 @@ const MultimodalPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 		</Space>
 	)
 
-	// Confidence score formatter
-	const formatConfidence = (confidence) => {
-		return (confidence * 100).toFixed(1) + '%'
-	}
-
 	return (
 		<Layout className=" bg-white">
 			<Content className="p-4">
@@ -235,12 +229,7 @@ const MultimodalPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							{/* Prediction Details */}
 							<Card>
 								<Space direction="vertical" className="w-full">
-									<Title level={4}>
-										Prediction Results
-										<Tooltip title="This shows the model's prediction and confidence level">
-											<QuestionCircleOutlined className="ml-2" />
-										</Tooltip>
-									</Title>
+									<Title level={4}>Prediction Results</Title>
 
 									<Alert
 										message={
@@ -263,29 +252,9 @@ const MultimodalPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 										showIcon
 									/>
 
-									{/* <div>
-										<Text>Confidence Score</Text>
-										<Progress
-											percent={Math.round(
-												currentPrediction.confidence *
-													100
-											)}
-											status={
-												currentPrediction.confidence >=
-												0.5
-													? 'success'
-													: 'exception'
-											}
-										/>
-									</div> */}
 									<div>
 										<Space className="w-full justify-between mb-2">
 											<Text strong>Confidence Score</Text>
-											<Text>
-												{formatConfidence(
-													currentPrediction.confidence
-												)}
-											</Text>
 										</Space>
 										<Progress
 											percent={Math.round(
