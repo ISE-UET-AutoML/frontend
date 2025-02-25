@@ -1,6 +1,11 @@
 import React from 'react'
 import { Button, Typography, Tag } from 'antd'
-import { DeleteOutlined, DatabaseOutlined } from '@ant-design/icons'
+import {
+	DeleteOutlined,
+	DatabaseOutlined,
+	CheckCircleOutlined,
+	CloseCircleOutlined,
+} from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -26,23 +31,6 @@ const TAG_COLORS = {
 }
 
 export default function DatasetCard({ dataset, getDatasets }) {
-	// const handleDelete = (e, datasetID) => {
-	// 	e.preventDefault() // Prevent card navigation
-	// 	e.stopPropagation() // Prevent event bubbling
-
-	// 	if (window.confirm('Are you sure you want to delete this dataset?')) {
-	// 		deleteDataset(datasetID)
-	// 			.then(() => {
-	// 				alert('Dataset deleted successfully!')
-	// 				getDatasets()
-	// 			})
-	// 			.catch((error) => {
-	// 				alert('Failed to delete dataset. Please try again.')
-	// 				console.error(error)
-	// 			})
-	// 	}
-	// }
-
 	const tagColor = TAG_COLORS[dataset?.type] || TAG_COLORS.other
 
 	const handleCardClick = () => {
@@ -54,7 +42,7 @@ export default function DatasetCard({ dataset, getDatasets }) {
 			key={dataset._id}
 			className="group relative rounded-xl bg-white shadow-md transition duration-300 hover:shadow-lg cursor-pointer"
 			style={{
-				border: '1px solid #e8e8e8',
+				border: `1px solid ${dataset.isLabeled ? '#e8e8e8' : '#faad14'}`,
 				overflow: 'hidden',
 			}}
 			onClick={handleCardClick}
@@ -72,8 +60,7 @@ export default function DatasetCard({ dataset, getDatasets }) {
 				<div
 					className="group rounded-[12px] p-3 ring-4 ring-white transition duration-450"
 					style={{
-						backgroundColor: '#e6f4ff',
-						color: '#1677ff',
+						color: dataset.isLabeled ? '#1677ff' : '#faad14',
 					}}
 				>
 					<DatabaseOutlined
@@ -129,16 +116,24 @@ export default function DatasetCard({ dataset, getDatasets }) {
 					<Text style={{ fontSize: 14, color: '#444444' }}>
 						{dataset?.bucketName}
 					</Text>
-					<Tag
-						style={{
-							fontSize: 12,
-							backgroundColor: tagColor.bg,
-							color: tagColor.text,
-							border: `1px solid ${tagColor.border}`,
-						}}
-					>
-						{dataset?.type || 'Unknown Type'}
-					</Tag>
+					<div className="flex items-center gap-2">
+						<Tag
+							style={{
+								fontSize: 12,
+								backgroundColor: tagColor.bg,
+								color: tagColor.text,
+								border: `1px solid ${tagColor.border}`,
+							}}
+						>
+							{dataset?.type || 'Unknown Type'}
+						</Tag>
+						<Tag
+							color={dataset.isLabeled ? 'success' : 'warning'}
+							style={{ fontSize: 12 }}
+						>
+							{dataset.isLabeled ? 'Labeled' : 'Unlabeled'}
+						</Tag>
+					</div>
 				</div>
 			</div>
 		</div>

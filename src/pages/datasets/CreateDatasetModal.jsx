@@ -1,21 +1,6 @@
 import React, { useState } from 'react'
-import {
-	Form,
-	Input,
-	Select,
-	Radio,
-	Button,
-	message,
-	Modal,
-	Card,
-	Tabs,
-} from 'antd'
-import {
-	FolderOutlined,
-	FileOutlined,
-	DeleteOutlined,
-	LinkOutlined,
-} from '@ant-design/icons'
+import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd'
+import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons'
 
 const { Option } = Select
 
@@ -64,9 +49,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	}
 
 	const handleSubmit = async (values) => {
-		console.log('Form Values:', values) // Debugging
-		console.log('Files:', files) // Debugging
-
 		const formData = new FormData()
 		Object.entries(values).forEach(([key, value]) => {
 			formData.append(key, value)
@@ -90,12 +72,26 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		try {
 			await onCreate(formData)
 			message.success('Dataset created successfully!')
-			form.resetFields()
-			setFiles([])
-			setTotalKbytes(0)
+			resetFormAndState()
 		} catch (error) {
 			message.error('Failed to create dataset. Please try again.')
 		}
+	}
+
+	const resetFormAndState = () => {
+		form.resetFields()
+		setFiles([])
+		setTotalKbytes(0)
+		setSelectedUrlOption('remote-url')
+		setIsLabeled(true)
+		setService('GCP_STORAGE')
+		setBucketName('user-private-dataset')
+		setDatasetType('IMAGE_CLASSIFICATION')
+	}
+
+	const handleCancel = () => {
+		resetFormAndState()
+		onCancel()
 	}
 
 	const tabItems = [
@@ -110,7 +106,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 							display: 'flex',
 							justifyContent: 'center',
 							alignItems: 'center',
-							height: '180px',
+							height: '100px',
 							border: '2px dashed #d9d9d9',
 							borderRadius: '8px',
 							cursor: 'pointer',
@@ -143,7 +139,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					</div>
 
 					{files.length > 0 && (
-						<div style={{ maxHeight: '120px', overflowY: 'auto' }}>
+						<div style={{ maxHeight: '50px', overflowY: 'auto' }}>
 							{files.map((file) => (
 								<div
 									key={file.webkitRelativePath}
@@ -201,11 +197,12 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	return (
 		<Modal
 			title="Create New Dataset"
-			visible={visible}
-			onCancel={onCancel}
+			open={visible}
+			onCancel={handleCancel}
 			footer={null}
 			width={800}
 			destroyOnClose
+			centered
 		>
 			<Form form={form} layout="vertical" onFinish={handleSubmit}>
 				<Form.Item
@@ -231,6 +228,9 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					>
 						<Option value="IMAGE_CLASSIFICATION">
 							Image Classification
+						</Option>
+						<Option value="TEXT_CLASSIFICATION">
+							Text Classification
 						</Option>
 						<Option value="TABULAR_CLASSIFICATION">
 							Tabular Classification
@@ -279,7 +279,10 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					<Button type="primary" htmlType="submit">
 						Create Dataset
 					</Button>
-					<Button style={{ marginLeft: '8px' }} onClick={onCancel}>
+					<Button
+						style={{ marginLeft: '8px' }}
+						onClick={handleCancel}
+					>
 						Cancel
 					</Button>
 				</Form.Item>

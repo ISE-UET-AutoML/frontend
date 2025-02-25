@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
 import DatasetCard from './card'
 import CreateDatasetModal from './CreateDatasetModal'
+import { PATHS } from 'src/constants/paths'
 
 const { Title } = Typography
 
@@ -29,12 +30,11 @@ export default function Datasets() {
 	}
 
 	const handleCreateDataset = async (formData) => {
-		console.log('formData', formData)
 		try {
 			const response = await datasetAPI.createDataset(formData)
 			if (response.status === 201) {
 				updateDataState({ showUploader: false })
-				getDatasets()
+				window.location = PATHS.DATASET_VIEW(response.data._id)
 			}
 		} catch (error) {
 			console.error('Error creating dataset:', error)
