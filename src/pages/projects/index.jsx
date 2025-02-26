@@ -101,6 +101,7 @@ export default function Projects() {
 	const [chatbotDisplay, setChatbotDisplay] = useState(false)
 	const [jsonSumm, setJsonSumm] = useState("")
 	const [proceedState, setProceed] = useState(false)
+	const [showChatbotButtons, setShowChatbotButtons] = useState(false)
 
 	const options = [
 		{
@@ -210,6 +211,7 @@ export default function Projects() {
 	const getChatHistory = async () => {
 		if (messages) {
 			const response = await getHistory()
+			console.log(response)
 			const history = response.data.chatHistory
 			if (messages.length === 0) {
 				setMessages((previousMessages) => [
@@ -224,6 +226,7 @@ export default function Projects() {
 				const newMessages = [...prevMessages, ...history]
 				if (newMessages.length > 1) {
 					setShowTitle(false)
+					setShowChatbotButtons(true)
 				}
 				return newMessages;
 			});
@@ -236,8 +239,11 @@ export default function Projects() {
 
 	const userChat = async (input, confirmed = false, projectList = []) => {
 		setShowTitle(false)
-		if (proceedState) {
-			setProceed(false)
+		setShowChatbotButtons(true)
+		if (!confirmed) {
+			setProceed((prev) => false);
+		} else {
+			setProceed((prev) => true);
 		}
 		setMessages(previousMessages => [...previousMessages, { role: 'user', content: input}])
 		setInput('')
@@ -247,8 +253,8 @@ export default function Projects() {
 			setTimeout(() => {
 				setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
 			}, 500)
-			setJsonSumm(response.data.jsonSumm)
-			
+			if (confirmed) setJsonSumm(response.data.jsonSumm)
+			console.log(response)
 		} catch (error) {
 			console.error("Error receiving message:", error);
 		}
@@ -265,24 +271,34 @@ export default function Projects() {
 
 	const newChat = async () => {
 		setShowTitle(true)
+		setShowChatbotButtons(false)
 		const response = await clearHistory()
 		setMessages([]);
-		setProceed(false)
+		setProceed((prev) => false);
 	}
 
 	const proceedFromChat = async () => {
-		if (proceedState) {
+		if (proceedState && jsonSumm) {
 			updateProjState({ showUploaderChatbot: false })
 			updateProjState({ showUploaderManual: true })
 			setTask(jsonSumm)
 		} else {
-			setProceed(true)
+			setProceed((prev) => true);
 			const projectList = projectState.projects.map((project => project.name))
 			await userChat("Proceed", true, projectList)
 		}
-		
 	}
+	const proceedRef = useRef(proceedState);
 
+	useEffect(() => {
+		proceedRef.current = proceedState;
+	}, [proceedState]);
+
+	const jsonSummRef = useRef(jsonSumm);
+
+	useEffect(() => {
+		proceedRef.current = jsonSumm;
+	}, [jsonSumm]);
 	const selectType = (e, idx) => {
 		const tmpArr = isSelected.map((el, index) => {
 			if (index === idx) el = true
@@ -315,6 +331,7 @@ export default function Projects() {
 			})
 
 			console.log('create Project response', { response })
+			await newChat()
 
 			if (response.status === 200) {
 				navigate(PATHS.PROJECT_BUILD(response.data._id))
@@ -678,18 +695,24 @@ export default function Projects() {
 									))}
 								</div>
 							)}
-							<button
-								onClick={() => newChat()}
-								className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
-							>
-								New chat ?
-							</button>
-							<button
-								onClick={() => proceedFromChat()}
-								className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
-							>
-								Proceed ?
-							</button>
+							{showChatbotButtons ? (
+								<div>
+									<button
+										onClick={() => newChat()}
+										className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
+									>
+										New chat ?
+									</button>
+									<button
+										onClick={() => proceedFromChat()}
+										className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
+									>
+										Proceed ?
+									</button>
+								</div>
+							): (
+								<div></div>
+							)}
 						</div>
 
 						<div className="p-4 border-t">
@@ -722,6 +745,7 @@ export default function Projects() {
 											onClick={() => {
 												if (input.trim()) {
 													setShowTitle(false)
+													setShowChatbotButtons(true)
 													setMessages([
 														...messages,
 														{
