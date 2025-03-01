@@ -339,4 +339,10 @@ body {
 	list-style-type: disc;
 	padding-left: 20px;
 }
-  
+
+.katex-display {
+    display: block !important;
+    max-width: 100% !important;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
