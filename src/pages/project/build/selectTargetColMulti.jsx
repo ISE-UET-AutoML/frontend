@@ -44,6 +44,29 @@ const detectImageColumns = (row) => {
 	})
 }
 
+const getColumnType = (value) => {
+	if (typeof value === 'string') {
+		// Kiểm tra nếu giá trị là "TRUE" hoặc "FALSE" (không phân biệt chữ hoa/chữ thường)
+		if (/^(true|false)$/i.test(value.trim())) return '#bool'
+
+		// Kiểm tra nếu giá trị là một số (có thể chuyển đổi thành số)
+		if (!isNaN(value) && !isNaN(parseFloat(value))) return '#int'
+
+		// Kiểm tra nếu giá trị là URL
+		if (/^https?:\/\/.+/i.test(value)) return '#url'
+
+		// Kiểm tra nếu giá trị chứa phần mở rộng ảnh
+		if (/(\.jpg|\.jpeg|\.png|\.gif|\.webp|\.bmp|\.svg)$/i.test(value))
+			return '#img'
+
+		// Mặc định là string
+		return '#str'
+	}
+	if (typeof value === 'number') return '#int'
+	if (typeof value === 'boolean') return '#bool'
+	return '#unknown'
+}
+
 const SelectTargetColMulti = () => {
 	const { projectInfo, selectedDataset } = useOutletContext()
 	const navigate = useNavigate()
@@ -53,6 +76,7 @@ const SelectTargetColMulti = () => {
 	const [selectedImgCol, setSelectedImgCol] = useState(null)
 	const [imgCols, setImgCols] = useState([])
 	const [loading, setLoading] = useState(false)
+	const [filterType, setFilterType] = useState(null) // State để lọc kiểu dữ liệu
 
 	useEffect(() => {
 		if (!selectedDataset?._id) return
@@ -68,6 +92,7 @@ const SelectTargetColMulti = () => {
 				setImgCols(iC)
 				setDataset(data.files)
 				setColsName(Object.keys(data.files[0] || {}))
+				setSelectedImgCol(iC[0])
 			} catch (error) {
 				console.error('Error fetching dataset:', error)
 				message.error('Failed to load dataset. Please try again.')
@@ -102,6 +127,24 @@ const SelectTargetColMulti = () => {
 		}
 	}
 
+	// Hàm lọc các cột dựa trên kiểu dữ liệu
+	const getFilteredColumns = () => {
+		if (!dataset || dataset.length === 0) return []
+
+		const firstRow = dataset[0]
+		return colsName.filter((col) => {
+			const type = getColumnType(firstRow[col])
+			// Loại bỏ các cột có kiểu dữ liệu là #url hoặc #img
+			if (type === '#url' || type === '#img') return false
+
+			// Nếu có filterType, chỉ hiển thị các cột có kiểu dữ liệu phù hợp
+			if (filterType) return type === filterType
+
+			// Mặc định hiển thị tất cả các cột không phải #url hoặc #img
+			return true
+		})
+	}
+
 	return (
 		<Card className="mx-auto w-full border-none">
 			<Title level={2} className="text-center mb-6">
@@ -114,8 +157,27 @@ const SelectTargetColMulti = () => {
 
 			<Spin spinning={loading}>
 				<Row gutter={[24, 24]} className="mb-8">
-					<Col xs={24} md={12}>
+					<Col xs={24} md={8}>
 						<label className="block text-gray-700 font-medium mb-2">
+							Filter Target Column by Type{' '}
+							<Tooltip title="Filter the target column by data type.">
+								<InfoCircleOutlined className="text-gray-500" />
+							</Tooltip>
+						</label>
+						<Select
+							className="w-full mb-4"
+							placeholder="Select Data Type"
+							value={filterType}
+							onChange={setFilterType}
+							allowClear
+						>
+							<Option value="#str">String (#str)</Option>
+							<Option value="#int">Integer (#int)</Option>
+							<Option value="#bool">Boolean (#bool)</Option>
+						</Select>
+					</Col>
+					<Col xs={24} md={8}>
+						<label className="block text-blue-600 font-medium mb-2">
 							Target Column{' '}
 							<Tooltip title="Select the column that contains the target data for analysis.">
 								<InfoCircleOutlined className="text-gray-500" />
@@ -129,17 +191,15 @@ const SelectTargetColMulti = () => {
 							optionFilterProp="children"
 							showSearch
 						>
-							{colsName
-								.filter((col) => !imgCols.includes(col))
-								.map((col) => (
-									<Option key={col} value={col}>
-										{col}
-									</Option>
-								))}
+							{getFilteredColumns().map((col) => (
+								<Option key={col} value={col}>
+									{col}
+								</Option>
+							))}
 						</Select>
 					</Col>
-					<Col xs={24} md={12}>
-						<label className="block text-gray-700 font-medium mb-2">
+					<Col xs={24} md={8}>
+						<label className="block text-blue-600 font-medium mb-2">
 							Image Column{' '}
 							<Tooltip title="Select the column that contains image URLs or paths.">
 								<InfoCircleOutlined className="text-gray-500" />
@@ -180,11 +240,18 @@ const SelectTargetColMulti = () => {
 							<thead className="bg-gray-100 text-gray-800 sticky top-0 text-center">
 								<tr>
 									{colsName.map((col) => (
+										<th key={col} className="pt-2 px-4">
+											{col}
+										</th>
+									))}
+								</tr>
+								<tr>
+									{colsName.map((col) => (
 										<th
 											key={col}
-											className="py-3 px-4 border-b"
+											className="pb-2 px-4 border-b text-xs text-gray-500"
 										>
-											{col}
+											{getColumnType(dataset[0][col])}
 										</th>
 									))}
 								</tr>

@@ -1,5 +1,5 @@
 import ExperimentCard from './card'
-import { RectangleStackIcon } from '@heroicons/react/20/solid'
+import { RectangleStackIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState } from 'react'
 import { getAllExperiments } from 'src/api/experiment'
 import { useParams } from 'react-router-dom'

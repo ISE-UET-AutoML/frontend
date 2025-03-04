@@ -1,5 +1,5 @@
 import ModelCard from './card'
-import { RectangleStackIcon } from '@heroicons/react/20/solid'
+import { ModelIcon } from 'src/components/icons'
 import { useEffect, useState } from 'react'
 import { getModels } from 'src/api/project'
 import { useParams } from 'react-router-dom'
@@ -30,7 +30,7 @@ export default function ProjectModels() {
 					</Title>
 					{/* Meta Info */}
 					<div className="mt-2 flex items-center space-x-2">
-						<RectangleStackIcon
+						<ModelIcon
 							className="h-5 w-5 text-gray-400"
 							aria-hidden="true"
 						/>
