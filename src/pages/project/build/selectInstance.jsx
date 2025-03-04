@@ -10,8 +10,6 @@ import {
 	Card,
 	Tabs,
 	InputNumber,
-	Slider,
-	Select,
 	Button,
 	Space,
 	Typography,
@@ -24,6 +22,8 @@ import {
 	Row,
 	Col,
 	Divider,
+	Modal,
+	Collapse,
 } from 'antd'
 import {
 	ClockCircleOutlined,
@@ -39,8 +39,9 @@ import {
 	SafetyCertificateOutlined,
 } from '@ant-design/icons'
 
-const { Title, Text, Paragraph } = Typography
+const { Title, Text } = Typography
 const { Step } = Steps
+const { Panel } = Collapse
 
 const SERVICES = [
 	{
@@ -158,16 +159,34 @@ const InstanceSizeCard = ({ size, details, selected, onClick }) => (
 		}}
 		onClick={onClick}
 	>
-		<Title level={5}>{details.title}</Title>
-		<Space direction="vertical" size="small">
-			<Text type="secondary">Suitable for: {details.suitable}</Text>
-			<Text>GPU Range: {details.gpuRange}</Text>
-			<Text>Memory: {details.memory}</Text>
-			<Badge
-				color={details.color}
-				text={`Recommended for: ${details.recommended}`}
-			/>
-		</Space>
+		<div
+			style={{
+				display: 'flex',
+				// justifyContent: 'space-between',
+				alignItems: 'center',
+			}}
+		>
+			<Title level={5} className="mr-10">
+				{details.title}
+			</Title>
+			{selected && (
+				<Collapse ghost>
+					<Panel header="Detail" key="1">
+						<Space direction="vertical" size="small">
+							<Text type="secondary">
+								Suitable for: {details.suitable}
+							</Text>
+							<Text>GPU Range: {details.gpuRange}</Text>
+							<Text>Memory: {details.memory}</Text>
+							<Badge
+								color={details.color}
+								text={`Recommended for: ${details.recommended}`}
+							/>
+						</Space>
+					</Panel>
+				</Collapse>
+			)}
+		</div>
 	</Card>
 )
 
@@ -224,13 +243,6 @@ const InstanceInfo = ({ formData }) => {
 			className="instance-info-card"
 		>
 			<Space direction="vertical" size="large" style={{ width: '100%' }}>
-				<Alert
-					message="Configuration Overview"
-					description={`This configuration is optimized for ${selectedGPU?.performance} workloads with ${selectedGPU?.memory} GPU memory.`}
-					type="info"
-					showIcon
-				/>
-
 				<Row gutter={[16, 16]}>
 					<Col span={12}>
 						<Card size="small" title="Hardware Specs">
@@ -264,18 +276,6 @@ const InstanceInfo = ({ formData }) => {
 						</Card>
 					</Col>
 				</Row>
-
-				<Progress
-					percent={100}
-					steps={5}
-					strokeColor={
-						selectedGPU
-							? INSTANCE_SIZE_DETAILS[selectedGPU.performance]
-									.color
-							: '#1890ff'
-					}
-					size="small"
-				/>
 			</Space>
 		</Card>
 	)
@@ -296,10 +296,11 @@ const SelectInstance = () => {
 		disk: '',
 		trainingTime: '',
 		budget: '',
-		instanceSize: 'Weak', // Initialize instanceSize
+		instanceSize: 'Weak',
 	})
 
 	const [currentStep, setCurrentStep] = useState(0)
+	const [isModalVisible, setIsModalVisible] = useState(false)
 
 	const steps = [
 		{
@@ -378,6 +379,7 @@ const SelectInstance = () => {
 		try {
 			setIsProcessing(true)
 			setIsCreatingInstance(true)
+			setIsModalVisible(true)
 
 			const res1 = await projectAPI.trainModel(
 				projectInfo._id,
@@ -424,6 +426,10 @@ const SelectInstance = () => {
 		}
 	}
 
+	const handleModalCancel = () => {
+		setIsModalVisible(false)
+	}
+
 	const items = [
 		{
 			key: 'automatic',
@@ -434,16 +440,9 @@ const SelectInstance = () => {
 					size="large"
 					style={{ width: '100%' }}
 				>
-					<Alert
-						message="Smart Instance Configuration"
-						description="Our system will automatically select the best instance configuration based on your requirements. Just specify your training time and desired performance level."
-						type="info"
-						showIcon
-					/>
-
 					<Row gutter={[24, 24]}>
 						<Col span={16}>
-							<Card title="Training Requirements">
+							<Card>
 								<Space
 									direction="vertical"
 									size="large"
@@ -469,7 +468,7 @@ const SelectInstance = () => {
 											suffix="hours"
 										/>
 										<Text type="secondary">
-											Recommended: 24-48 hours for most
+											Recommended: 22-24 hours for most
 											models
 										</Text>
 									</div>
@@ -569,56 +568,82 @@ const SelectInstance = () => {
 	]
 
 	return (
-		<div className="select-instance-container p-6">
+		<div className="select-instance-container pl-6 pr-6">
 			<Tabs items={items} />
 
 			{isCreatingInstance && (
-				<Card className="progress-card">
-					<Steps current={currentStep}>
-						{steps.map((step, index) => (
-							<Step
-								key={index}
-								title={step.title}
-								description={step.description}
-								icon={
-									currentStep === index ? (
-										<LoadingOutlined />
-									) : (
-										step.icon
-									)
+				<Modal
+					title={
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '10px',
+							}}
+						>
+							Resource Preparation
+							<Tooltip
+								title={
+									<div>
+										<p>
+											This process ensures a smooth and
+											secure setup:
+										</p>
+										<ul>
+											<li>
+												1. Create an isolated virtual
+												machine
+											</li>
+											<li>
+												2. Download required resources
+												safely
+											</li>
+											<li>
+												3. Configure the environment for
+												optimal performance
+											</li>
+										</ul>
+										<p>
+											Each step is carefully monitored to
+											prevent potential issues.
+										</p>
+									</div>
 								}
-							/>
-						))}
-					</Steps>
-				</Card>
-			)}
-
-			{/* <div className="action-container">
-				<Button
-					type="primary"
-					size="large"
-					icon={<RocketOutlined />}
-					onClick={handleFindInstance}
-					loading={isLoading}
-					disabled={!formData.trainingTime || isProcessing}
-					style={{ marginRight: 16 }}
+							>
+								<InfoCircleOutlined
+									style={{
+										color: '#1890ff',
+										cursor: 'pointer',
+									}}
+								/>
+							</Tooltip>
+						</div>
+					}
+					open={isModalVisible}
+					onCancel={handleModalCancel}
+					footer={null}
+					width={1000}
 				>
-					{isLoading ? 'Finding Instance...' : 'Find Instance'}
-				</Button>
-
-				{formData.gpuNumber && formData.trainingTime && (
-					<Button
-						type="primary"
-						size="large"
-						icon={<ThunderboltOutlined />}
-						onClick={handleTrainModel}
-						loading={isProcessing}
-						disabled={isProcessing || !formData.gpuNumber}
-					>
-						{isProcessing ? 'Processing...' : 'Start Training'}
-					</Button>
-				)}
-			</div> */}
+					<Card className="preparation-card">
+						<Steps current={currentStep}>
+							{steps.map((step, index) => (
+								<Step
+									key={index}
+									title={step.title}
+									description={step.description}
+									icon={
+										currentStep === index ? (
+											<LoadingOutlined />
+										) : (
+											step.icon
+										)
+									}
+								/>
+							))}
+						</Steps>
+					</Card>
+				</Modal>
+			)}
 		</div>
 	)
 }

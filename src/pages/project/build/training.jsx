@@ -129,7 +129,7 @@ const Training = () => {
 			} catch (err) {
 				clearInterval(interval)
 			}
-		}, 20000)
+		}, 5000)
 
 		return () => {
 			clearInterval(interval)

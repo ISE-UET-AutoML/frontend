@@ -28,8 +28,6 @@ export const API_URL = {
 		`${API_BASE_URL}/projects/${datasetID}/autolabel`,
 	get_model: (experimentName) =>
 		`${API_BASE_URL}/experiments/model/${experimentName}`,
-	get_training_history: (experimentName) =>
-		`${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
 	predict_data: (experimentName) =>
 		`${API_BASE_URL}/experiments/predict/?experiment_name=${experimentName}`,
 	explain_data: (experimentName) =>
