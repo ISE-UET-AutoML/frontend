@@ -37,6 +37,7 @@ import { PATHS } from 'src/constants/paths'
 import { TYPES } from 'src/constants/types'
 import ProjectCard from './card'
 import * as datasetAPI from 'src/api/dataset'
+import AIAssistantModal from './AIAssistantModal' // Import component mới
 
 // Import images
 import class_img from 'src/assets/images/classification_img.jpg'
@@ -95,11 +96,11 @@ export default function Projects() {
 	const [datasets, setDatasets] = useState([])
 	const [showTitle, setShowTitle] = useState(true)
 	const [messages, setMessages] = useState([])
-	const [description, setDescription] = useState("")
-	const [projectName, setProjectName] = useState("")
+	const [description, setDescription] = useState('')
+	const [projectName, setProjectName] = useState('')
 	const textareaRef = useRef(null)
 	const [chatbotDisplay, setChatbotDisplay] = useState(false)
-	const [jsonSumm, setJsonSumm] = useState("")
+	const [jsonSumm, setJsonSumm] = useState('')
 	const [proceedState, setProceed] = useState(false)
 	const [showChatbotButtons, setShowChatbotButtons] = useState(false)
 
@@ -125,22 +126,15 @@ export default function Projects() {
 	]
 
 	useEffect(() => {
-		// const textarea = textareaRef.current
 		const textarea = textareaRef.current?.resizableTextArea?.textArea
 
 		if (!textarea) return
 
-		// Reset height to auto to get the correct scrollHeight
 		textarea.style.height = 'auto'
-
-		// Set new height based on scrollHeight
-		const newHeight = Math.max(
-			textarea.scrollHeight, // actual content height
-			40 // minimum height in pixels for one line
-		)
+		const newHeight = Math.max(textarea.scrollHeight, 40)
 
 		textarea.style.height = `${newHeight}px`
-	}, [input]) // Re-run when input changes
+	}, [input])
 
 	const chatContainerRef = useRef(null)
 
@@ -228,8 +222,8 @@ export default function Projects() {
 					setShowTitle(false)
 					setShowChatbotButtons(true)
 				}
-				return newMessages;
-			});
+				return newMessages
+			})
 		}
 	}
 
@@ -241,24 +235,33 @@ export default function Projects() {
 		setShowTitle(false)
 		setShowChatbotButtons(true)
 		if (!confirmed) {
-			setProceed((prev) => false);
+			setProceed((prev) => false)
 		} else {
-			setProceed((prev) => true);
+			setProceed((prev) => true)
 		}
-		setMessages(previousMessages => [...previousMessages, { role: 'user', content: input}])
+		setMessages((previousMessages) => [
+			...previousMessages,
+			{ role: 'user', content: input },
+		])
 		setInput('')
-		setMessages(previousMessages => [...previousMessages, { role: "assistant", content: "loading..." }]);
+		setMessages((previousMessages) => [
+			...previousMessages,
+			{ role: 'assistant', content: 'loading...' },
+		])
 		try {
 			const response = await chat(input, confirmed, projectList)
 			setTimeout(() => {
-				setMessages((previousMessages) => [...previousMessages.slice(0, -1), { role: "assistant", content: response.data.reply }]);
+				setMessages((previousMessages) => [
+					...previousMessages.slice(0, -1),
+					{ role: 'assistant', content: response.data.reply },
+				])
 			}, 500)
 			if (confirmed) setJsonSumm(response.data.jsonSumm)
 			console.log(response)
 		} catch (error) {
-			console.error("Error receiving message:", error);
+			console.error('Error receiving message:', error)
 		}
-	} 
+	}
 
 	const handleKeyPress = async (e) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
@@ -273,8 +276,8 @@ export default function Projects() {
 		setShowTitle(true)
 		setShowChatbotButtons(false)
 		const response = await clearHistory()
-		setMessages([]);
-		setProceed((prev) => false);
+		setMessages([])
+		setProceed((prev) => false)
 	}
 
 	const proceedFromChat = async () => {
@@ -283,22 +286,24 @@ export default function Projects() {
 			updateProjState({ showUploaderManual: true })
 			setTask(jsonSumm)
 		} else {
-			setProceed((prev) => true);
-			const projectList = projectState.projects.map((project => project.name))
-			await userChat("Proceed", true, projectList)
+			setProceed((prev) => true)
+			const projectList = projectState.projects.map(
+				(project) => project.name
+			)
+			await userChat('Create', true, projectList)
 		}
 	}
-	const proceedRef = useRef(proceedState);
+	const proceedRef = useRef(proceedState)
 
 	useEffect(() => {
-		proceedRef.current = proceedState;
-	}, [proceedState]);
+		proceedRef.current = proceedState
+	}, [proceedState])
 
-	const jsonSummRef = useRef(jsonSumm);
+	const jsonSummRef = useRef(jsonSumm)
 
 	useEffect(() => {
-		proceedRef.current = jsonSumm;
-	}, [jsonSumm]);
+		proceedRef.current = jsonSumm
+	}, [jsonSumm])
 	const selectType = (e, idx) => {
 		const tmpArr = isSelected.map((el, index) => {
 			if (index === idx) el = true
@@ -320,7 +325,8 @@ export default function Projects() {
 		if (jsonSumm) {
 			const givenJson = JSON.parse(jsonSumm)
 			const metricsExplain = givenJson.metrics_explain
-			if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
+			if (metricsExplain)
+				data.metrics_explain = JSON.stringify(metricsExplain)
 		}
 
 		try {
@@ -448,7 +454,7 @@ export default function Projects() {
 					width={1000}
 					centered
 				>
-					<div className="text-center mb-8">
+					<div className="text-center mb-4">
 						<Title level={2}>
 							How would you like to create your project?
 						</Title>
@@ -494,7 +500,7 @@ export default function Projects() {
 						updateProjState({ showUploaderManual: false })
 					}
 					footer={null}
-					width={1200}
+					width={1000}
 					centered
 				>
 					<Row gutter={[16, 16]}>
@@ -512,7 +518,11 @@ export default function Projects() {
 											<Input
 												name="name"
 												value={projectName}
-												onChange={(e) => setProjectName(e.target.value)}
+												onChange={(e) =>
+													setProjectName(
+														e.target.value
+													)
+												}
 												placeholder="E.g., Customer Churn Predictor"
 												required
 												prefix={<FileTextOutlined />}
@@ -576,14 +586,8 @@ export default function Projects() {
 
 						<Col span={12}>
 							<Title level={3}>Project Type</Title>
-							<Alert
-								message="Choose Your AI Model"
-								description="Select the type of AI model that best fits your data and goals. Each type is optimized for specific kinds of problems."
-								type="info"
-								showIcon
-								className="mb-4"
-							/>
-							<div className="overflow-auto max-h-[500px]">
+
+							<div className="overflow-auto max-h-[550px] p-2">
 								<Row gutter={[16, 16]}>
 									{projType.map((type, idx) => (
 										<Col span={24} key={type}>
@@ -594,7 +598,7 @@ export default function Projects() {
 														? ' bg-purple-50 border-purple-400'
 														: ''
 												}
-												`}
+                        `}
 												onClick={(e) =>
 													selectType(e, idx)
 												}
@@ -629,141 +633,6 @@ export default function Projects() {
 					</Row>
 				</Modal>
 
-				{/* AI Assistant Modal */}
-				<Modal
-					open={projectState.showUploaderChatbot}
-					onCancel={() =>
-						updateProjState({ showUploaderChatbot: false })
-					}
-					footer={null}
-					width={800}
-					centered
-				>
-					<div className="flex flex-col h-[600px]">
-						<div
-							ref={chatContainerRef}
-							className="flex-1 overflow-auto p-4"
-						>
-							{showTitle ? (
-								<div className="text-center my-12">
-									<Title level={2}>
-										How can I help you create your project?
-									</Title>
-									<Text type="secondary">
-										Describe your goals, and I'll guide you
-										through the process
-									</Text>
-								</div>
-							) : (
-								<div className="space-y-4">
-									{messages.map((message, index) => (
-										<Alert
-											key={index}
-											type={
-												message.role === 'user'
-													? 'info'
-													: 'success'
-											}
-											showIcon
-											style={{
-												marginLeft:
-													message.role === 'user'
-														? 'auto'
-														: '0',
-												marginRight:
-													message.role === 'user'
-														? '0'
-														: 'auto',
-												maxWidth: '70%',
-											}}
-											message={
-												message.content ===
-												'loading...' ? (
-													<img
-														src={chatLoading}
-														className="w-16 h-12 mx-auto"
-													/>
-												) : (
-													<MarkdownRenderer
-														markdownText={
-															message.content
-														}
-													/>
-												)
-											}
-										/>
-									))}
-								</div>
-							)}
-							{showChatbotButtons ? (
-								<div>
-									<button
-										onClick={() => newChat()}
-										className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
-									>
-										New chat ?
-									</button>
-									<button
-										onClick={() => proceedFromChat()}
-										className="px-6 py-3 rounded-md bg-gray-300 hover:bg-gray-200 transition-colors duration-200"
-									>
-										Proceed ?
-									</button>
-								</div>
-							): (
-								<div></div>
-							)}
-						</div>
-
-						<div className="p-4 border-t">
-							{selectedDataset && (
-								<Tag color="blue" className="mb-2">
-									<DatabaseOutlined />{' '}
-									{datasets[selectedDataset].title}
-								</Tag>
-							)}
-
-							<Input.TextArea
-								ref={textareaRef}
-								value={input}
-								onChange={(e) => setInput(e.target.value)}
-								onKeyPress={handleKeyPress}
-								placeholder="Describe your project goals..."
-								autoSize={{ minRows: 1, maxRows: 6 }}
-								suffix={
-									<Space>
-										<Tooltip title="Attach dataset">
-											<Button
-												type="text"
-												icon={<PaperClipOutlined />}
-												onClick={() => getDatasets()}
-											/>
-										</Tooltip>
-										<Button
-											type="primary"
-											icon={<SendOutlined />}
-											onClick={() => {
-												if (input.trim()) {
-													setShowTitle(false)
-													setShowChatbotButtons(true)
-													setMessages([
-														...messages,
-														{
-															type: 'user',
-															content: input,
-														},
-													])
-													setInput('')
-												}
-											}}
-										/>
-									</Space>
-								}
-							/>
-						</div>
-					</div>
-				</Modal>
-
 				{/* Dataset Selection Modal */}
 				<Modal
 					open={projectState.showSelectData}
@@ -790,6 +659,7 @@ export default function Projects() {
 						</Button>,
 					]}
 					width={800}
+					style={{ zIndex: 1000 }}
 				>
 					<Alert
 						message="Choose a Dataset"
@@ -833,6 +703,29 @@ export default function Projects() {
 						className="dataset-table"
 					/>
 				</Modal>
+
+				{/* AI Assistant Modal */}
+				<AIAssistantModal
+					open={projectState.showUploaderChatbot}
+					onCancel={() =>
+						updateProjState({ showUploaderChatbot: false })
+					}
+					messages={messages}
+					showTitle={showTitle}
+					showChatbotButtons={showChatbotButtons}
+					input={input}
+					setInput={setInput}
+					handleKeyPress={handleKeyPress}
+					selectedDataset={selectedDataset}
+					datasets={datasets}
+					getDatasets={getDatasets}
+					newChat={newChat}
+					proceedFromChat={proceedFromChat}
+					chatContainerRef={chatContainerRef}
+					setShowTitle={setShowTitle}
+					setMessages={setMessages}
+					setShowChatbotButtons={setShowChatbotButtons}
+				/>
 			</Content>
 		</Layout>
 	)
