@@ -163,7 +163,6 @@ const TrainResult = () => {
 								suffix="%"
 								valueStyle={{
 									color: '#3f8600',
-									fontWeight: 'bold',
 								}}
 							/>
 						</Card>
@@ -173,6 +172,9 @@ const TrainResult = () => {
 							<Statistic
 								title="Training Duration"
 								value={getTrainingDuration(startTime)}
+								valueStyle={{
+									color: '#f0b100',
+								}}
 								prefix={<ClockCircleOutlined />}
 							/>
 						</Card>
@@ -183,6 +185,9 @@ const TrainResult = () => {
 								title="Total Epochs"
 								value={trainingInfo?.latestEpoch || 0}
 								prefix={<ExperimentOutlined />}
+								valueStyle={{
+									color: '#2b7fff',
+								}}
 							/>
 						</Card>
 					</Col>

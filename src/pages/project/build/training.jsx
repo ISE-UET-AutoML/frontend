@@ -1,60 +1,382 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { useOutletContext, useNavigate } from 'react-router-dom'
+import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
 import { getExperiment } from 'src/api/experiment'
-import { Card, Row, Col, Alert, Typography, Space, Statistic } from 'antd'
-import { ExperimentOutlined, LineChartOutlined } from '@ant-design/icons'
+import {
+	Card,
+	Row,
+	Col,
+	Alert,
+	Typography,
+	Space,
+	Progress,
+	Divider,
+	Tag,
+	Spin,
+	Skeleton,
+	Button,
+	Tooltip,
+} from 'antd'
+import {
+	ExperimentOutlined,
+	LineChartOutlined,
+	CheckCircleOutlined,
+	InfoCircleOutlined,
+	BarChartOutlined,
+	DashboardOutlined,
+	CalendarOutlined,
+	HourglassOutlined,
+	RadarChartOutlined,
+} from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import {
-	LineChart,
 	Line,
 	XAxis,
 	YAxis,
 	CartesianGrid,
-	Tooltip,
+	Tooltip as RechartsTooltip,
 	Legend,
 	ResponsiveContainer,
+	Area,
+	AreaChart,
 } from 'recharts'
 
-// Line Graph Component
-const LineGraph = ({ data }) => {
+const { Title, Text, Paragraph } = Typography
+
+// Custom Countdown Component
+const CustomCountdown = ({ remainingMinutes }) => {
+	const [timeLeft, setTimeLeft] = useState(remainingMinutes * 60)
+
+	useEffect(() => {
+		// Update the countdown every second
+		const interval = setInterval(() => {
+			setTimeLeft((prev) => Math.max(0, prev - 1))
+		}, 1000)
+
+		// Initialize with the proper value whenever remainingMinutes changes
+		setTimeLeft(remainingMinutes * 60)
+
+		return () => clearInterval(interval)
+	}, [remainingMinutes])
+
+	// Format seconds to HH:MM:SS
+	const formatTime = (seconds) => {
+		const hours = Math.floor(seconds / 3600)
+		const minutes = Math.floor((seconds % 3600) / 60)
+		const secs = seconds % 60
+
+		return [
+			hours.toString().padStart(2, '0'),
+			minutes.toString().padStart(2, '0'),
+			secs.toString().padStart(2, '0'),
+		].join(':')
+	}
+
 	return (
-		<LineChart width={500} height={300} data={data}>
-			<CartesianGrid strokeDasharray="3 3" />
-			<XAxis
-				dataKey="time"
-				label={{
-					value: 'Time (m)',
-					position: 'insideRight',
-					offset: -10,
+		<div className="text-center">
+			<Text
+				style={{
+					fontSize: '24px',
+					color: '#1890ff',
+					fontWeight: 'bold',
 				}}
-			/>
-			<YAxis
-				label={{
-					value: 'Accuracy',
-					angle: -90,
-					position: 'insideLeft',
-				}}
-			/>
-			<Tooltip />
-			<Legend />
-			<Line
-				type="monotone"
-				dataKey="accuracy"
-				stroke="#4e80ee"
-				strokeWidth="3"
-				activeDot={{ r: 8 }}
-			/>
-		</LineChart>
+			>
+				{formatTime(timeLeft)}
+			</Text>
+		</div>
 	)
 }
 
-const { Title } = Typography
+// Training Metric Card Component - replacement for AnimatedStatistic
+const TrainingMetricCard = ({
+	title,
+	value,
+	prefix,
+	suffix,
+	loading,
+	icon,
+}) => {
+	return (
+		<Card className="h-max shadow-md">
+			{loading ? (
+				<Skeleton active paragraph={{ rows: 1 }} />
+			) : (
+				<div className="flex">
+					<div className="text-lg font-semibold text-gray-600 flex items-center">
+						{icon && <span className="mr-2">{icon}</span>}
+						{title}
+					</div>
+					<div className="text-xl font-bold text-blue-600 ml-8">
+						{prefix && <span className="mr-1">{prefix}</span>}
+						{typeof value === 'number'
+							? value % 1 === 0
+								? value
+								: value.toFixed(2)
+							: value}
+						{suffix && <span className="ml-1">{suffix}</span>}
+					</div>
+				</div>
+			)}
+		</Card>
+	)
+}
 
+// Enhanced Line Graph Component
+const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
+	if (loading) {
+		return (
+			<div className="flex justify-center items-center h-64 w-full">
+				<Spin size="large" tip="Loading chart data..." />
+			</div>
+		)
+	}
+
+	if (!data || data.length === 0) {
+		return (
+			<div className="flex justify-center items-center h-64 w-full border border-dashed border-gray-300 rounded-lg">
+				<Space direction="vertical" align="center">
+					<LineChartOutlined
+						style={{ fontSize: 48, color: '#d9d9d9' }}
+					/>
+					<Text type="secondary">Waiting for training data...</Text>
+				</Space>
+			</div>
+		)
+	}
+
+	return (
+		<ResponsiveContainer width="100%" height={300}>
+			<AreaChart
+				data={data}
+				margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+			>
+				<defs>
+					<linearGradient
+						id="colorAccuracy"
+						x1="0"
+						y1="0"
+						x2="0"
+						y2="1"
+					>
+						<stop
+							offset="5%"
+							stopColor="#1890ff"
+							stopOpacity={0.8}
+						/>
+						<stop
+							offset="95%"
+							stopColor="#1890ff"
+							stopOpacity={0.1}
+						/>
+					</linearGradient>
+				</defs>
+				<CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+				<XAxis
+					dataKey="time"
+					label={{
+						value: 'Time (min)',
+						position: 'insideBottomRight',
+						offset: -5,
+					}}
+					tick={{ fontSize: 12 }}
+					domain={[0, maxTrainingTime ? maxTrainingTime : 'auto']}
+				/>
+				<YAxis
+					label={{
+						value: 'Accuracy',
+						angle: -90,
+						position: 'insideLeft',
+					}}
+					domain={[0, 1]}
+					tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
+					tick={{ fontSize: 12 }}
+				/>
+				<RechartsTooltip
+					formatter={(value) => [
+						`${(value * 100).toFixed(2)}%`,
+						'Accuracy',
+					]}
+					labelFormatter={(label) => `Time: ${label} min`}
+					contentStyle={{
+						backgroundColor: '#fff',
+						borderRadius: '4px',
+						boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+					}}
+				/>
+				<Legend />
+				<Area
+					type="monotone"
+					dataKey="accuracy"
+					stroke="#1890ff"
+					strokeWidth={3}
+					fillOpacity={1}
+					fill="url(#colorAccuracy)"
+					activeDot={{
+						r: 8,
+						stroke: '#1890ff',
+						strokeWidth: 2,
+						fill: '#fff',
+					}}
+					name="Validation Accuracy"
+				/>
+				{maxTrainingTime && (
+					<Line
+						type="monotone"
+						dataKey="threshold"
+						stroke="transparent"
+						strokeWidth={0}
+						name="Max Training Time"
+					/>
+				)}
+			</AreaChart>
+		</ResponsiveContainer>
+	)
+}
+
+// Training Time Remaining Component
+const TrainingTimeRemaining = ({ maxTrainingTime, elapsedTime, status }) => {
+	if (!maxTrainingTime || status === 'DONE') {
+		return null
+	}
+
+	const remainingMinutes = Math.max(0, maxTrainingTime - elapsedTime)
+
+	return (
+		<Card className="text-center shadow-md">
+			<Space direction="vertical">
+				<Text type="secondary">Remaining Training Time</Text>
+				{remainingMinutes > 0 ? (
+					<CustomCountdown remainingMinutes={remainingMinutes} />
+				) : (
+					<Text type="warning" strong>
+						Time limit reached
+					</Text>
+				)}
+			</Space>
+		</Card>
+	)
+}
+
+// Training Information Card
+const TrainingInfoCard = ({
+	experimentName,
+	trainingInfo,
+	elapsedTime,
+	status,
+	maxTrainingTime,
+	onViewResults,
+}) => {
+	// Calculate time-based progress
+	const timeProgress = maxTrainingTime
+		? Math.min((elapsedTime / maxTrainingTime) * 100, 100).toFixed(1)
+		: 0
+
+	return (
+		<Card
+			title={
+				<Title level={5}>
+					<DashboardOutlined /> Training Information:{' '}
+					<Tag color="blue" icon={<ExperimentOutlined />}>
+						{experimentName}
+					</Tag>
+					{maxTrainingTime > 0 && (
+						<Tag color="orange" icon={<CalendarOutlined />}>
+							{`Max Duration: ${maxTrainingTime} minutes`}
+						</Tag>
+					)}
+				</Title>
+			}
+			className="shadow-md hover:shadow-lg transition-shadow duration-300"
+			extra={
+				<>
+					{status === 'DONE' && (
+						<div className="text-center">
+							<button
+								onClick={onViewResults}
+								className="border border-green-500 bg-green-50 text-green-500 p-2 rounded-md hover:bg-green-500 hover:text-white "
+							>
+								<CheckCircleOutlined className="mr-2" />
+								View Training Results
+							</button>
+						</div>
+					)}
+				</>
+			}
+		>
+			<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+				<Row>
+					<div className="w-[28%]">
+						<TrainingMetricCard
+							title="Current Epoch"
+							value={trainingInfo.latestEpoch}
+							icon={<ExperimentOutlined />}
+							loading={
+								!trainingInfo.latestEpoch &&
+								status === 'TRAINING'
+							}
+						/>
+					</div>
+					<div className="w-[28%] ml-10">
+						<TrainingMetricCard
+							title="Validation Accuracy"
+							value={trainingInfo.accuracy * 100}
+							suffix="%"
+							icon={<BarChartOutlined />}
+							loading={
+								!trainingInfo.accuracy && status === 'TRAINING'
+							}
+						/>
+					</div>
+				</Row>
+
+				{status === 'TRAINING' && maxTrainingTime > 0 && (
+					<TrainingTimeRemaining
+						maxTrainingTime={maxTrainingTime}
+						elapsedTime={elapsedTime}
+						status={status}
+					/>
+				)}
+
+				<Divider orientation="left">Training Progress</Divider>
+
+				<Row gutter={[16, 16]}>
+					{maxTrainingTime > 0 && (
+						<Col span={24}>
+							<Card
+								className="shadow-sm"
+								title="Time Utilization"
+							>
+								<Progress
+									percent={timeProgress}
+									status={
+										timeProgress >= 100
+											? 'exception'
+											: 'active'
+									}
+									strokeColor={{
+										'0%': '#87d068',
+										'100%': '#fa8c16',
+									}}
+								/>
+								<div className="mt-2">
+									<Text type="secondary">
+										{timeProgress < 100
+											? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(1)} minutes`
+											: 'Maximum training time reached'}
+									</Text>
+								</div>
+							</Card>
+						</Col>
+					)}
+				</Row>
+			</Space>
+		</Card>
+	)
+}
+
+// Main Component
 const Training = () => {
 	const { projectInfo, updateFields } = useOutletContext()
 	const navigate = useNavigate()
-
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
 	const experimentName = searchParams.get('experimentName')
@@ -64,24 +386,53 @@ const Training = () => {
 	})
 	const [chartData, setChartData] = useState([])
 	const [startTime, setStartTime] = useState(null)
+	const [elapsedTime, setElapsedTime] = useState(0)
+	const [status, setStatus] = useState('PENDING')
+	const [loading, setLoading] = useState(true)
+	const [maxTrainingTime, setMaxTrainingTime] = useState(null)
+	const metricExplain = projectInfo.metrics_explain
+
+	// Handle view results button click
+	const handleViewResults = () => {
+		navigate(
+			`/app/project/${projectInfo._id}/build/trainResult?experimentName=${experimentName}`
+		)
+	}
+
+	// Calculate elapsed time based on current time and start time
+	const calculateElapsedTime = (startTimeValue) => {
+		if (!startTimeValue) return 0
+
+		const currentTime = new Date()
+		return ((currentTime - startTimeValue) / (1000 * 60)).toFixed(2)
+	}
+
+	// Update elapsed time on interval
+	useEffect(() => {
+		if (status === 'TRAINING' && startTime) {
+			const timer = setInterval(() => {
+				const elapsed = calculateElapsedTime(startTime)
+				setElapsedTime(parseFloat(elapsed))
+			}, 1000)
+
+			return () => clearInterval(timer)
+		}
+	}, [startTime, status])
 
 	// Utility Functions
 	const updateChartData = (data) => {
 		if (data.trainInfo.status === 'TRAINING') {
-			const currentTime = new Date()
 			if (!startTime) {
-				setStartTime(currentTime)
+				setStartTime(new Date())
 			}
 
-			const elapsedTime = (
-				(currentTime - startTime) /
-				(1000 * 60)
-			).toFixed(2)
+			const currentElapsedTime = calculateElapsedTime(startTime)
+			setElapsedTime(parseFloat(currentElapsedTime))
 
 			setChartData((prev) => [
 				...prev,
 				{
-					time: parseFloat(elapsedTime),
+					time: parseFloat(currentElapsedTime),
 					accuracy: data.trainInfo.metrics.val_acc,
 				},
 			])
@@ -97,37 +448,74 @@ const Training = () => {
 				}, 60000)
 
 				clearTimeout(timeout)
+				setLoading(true)
 
 				const res = await getExperiment(experimentName)
+
+				console.log('res', res)
 				if (res.status === 422 || res.status === 500) {
 					clearInterval(interval)
+					setLoading(false)
 					return
 				}
 
-				console.log('training call')
 				if (res.status === 200) {
-					if (res.data.experiment.status === 'DONE') {
-						updateFields({ trainingInfo, startTime, chartData })
-						clearInterval(interval)
-						navigate(
-							`/app/project/${projectInfo._id}/build/trainResult?experimentName=${experimentName}`
+					setStatus(res.data.experiment.status)
+
+					// Extract max_training_time from experiment properties if available
+					if (
+						res.data.experiment &&
+						res.data.experiment.max_training_time
+					) {
+						setMaxTrainingTime(
+							res.data.experiment.max_training_time
 						)
+					}
+
+					if (res.data.experiment.status === 'DONE') {
+						updateFields({
+							trainingInfo,
+							startTime,
+							chartData,
+							elapsedTime: calculateElapsedTime(startTime),
+						})
+						clearInterval(interval)
+						// Save final data before redirecting
+						if (res.data.trainInfo) {
+							setTrainingInfo({
+								latestEpoch:
+									res.data.trainInfo.latest_epoch || 0,
+								accuracy:
+									res.data.trainInfo.metrics.val_acc || 0,
+							})
+						}
 					} else if (res.data.trainInfo.status === 'TRAINING') {
-						setTrainingInfo((prev) => ({
+						setTrainingInfo({
 							latestEpoch: res.data.trainInfo.latest_epoch || 0,
 							accuracy: res.data.trainInfo.metrics.val_acc || 0,
-						}))
+						})
 
 						// Ensure startTime is set once at the beginning
 						setStartTime(
 							(prevStartTime) => prevStartTime || new Date()
 						)
-
 						updateChartData(res.data)
+
+						// Check if training time has exceeded the limit
+						const currentElapsedTime =
+							calculateElapsedTime(startTime)
+						if (
+							maxTrainingTime &&
+							currentElapsedTime >= maxTrainingTime
+						) {
+							console.log('Training time limit reached')
+						}
 					}
 				}
+				setLoading(false)
 			} catch (err) {
 				clearInterval(interval)
+				setLoading(false)
 			}
 		}, 5000)
 
@@ -135,55 +523,122 @@ const Training = () => {
 			clearInterval(interval)
 			clearTimeout(timeout)
 		}
-	}, [experimentName, startTime]) // Include startTime as a dependency
+	}, [experimentName, startTime, maxTrainingTime, projectInfo._id])
+
+	// Create chart data with time limit reference line
+	const enhancedChartData = React.useMemo(() => {
+		if (!maxTrainingTime || chartData.length === 0) return chartData
+
+		// Add a threshold reference that can be used for visual cues
+		return chartData.map((point) => ({
+			...point,
+			threshold: point.time <= maxTrainingTime ? null : 0,
+		}))
+	}, [chartData, maxTrainingTime])
 
 	return (
-		<Card className="p-6">
-			<Row gutter={16}>
-				<Col span={12}>
-					<Space direction="vertical" style={{ width: '100%' }}>
-						<Title level={4}>Current Training Status</Title>
-						<Row gutter={[16, 16]}>
-							<Col span={12}>
-								<Statistic
-									title="Current Epoch"
-									value={trainingInfo.latestEpoch}
-									prefix={<ExperimentOutlined />}
-								/>
-							</Col>
-							<Col span={12}>
-								<Statistic
-									title="Current Accuracy"
-									value={trainingInfo.accuracy}
-									precision={2}
-									prefix={<LineChartOutlined />}
-								/>
-							</Col>
-						</Row>
-					</Space>
-				</Col>
-				<Col span={12}>
-					<Space
-						direction="vertical"
-						size="middle"
-						style={{ width: '100%' }}
-					>
-						<Title level={4}>Accuracy Over Time</Title>
-						<LineGraph data={chartData} />
-					</Space>
-				</Col>
-			</Row>
-			<Row>
-				<Col span={24}>
-					<Alert
-						message="Accuracy"
-						description="Accuracy measures the percentage of correct predictions during model training. It helps evaluate performance but may be misleading for imbalanced data."
-						type="info"
-						showIcon
+		<div className="p-4">
+			<animated.div
+				style={useSpring({
+					from: { opacity: 0, transform: 'translateY(20px)' },
+					to: { opacity: 1, transform: 'translateY(0)' },
+					config: { tension: 280, friction: 20 },
+				})}
+			>
+				<Space
+					direction="vertical"
+					size="large"
+					style={{ width: '100%' }}
+				>
+					<TrainingInfoCard
+						experimentName={experimentName}
+						trainingInfo={trainingInfo}
+						elapsedTime={elapsedTime}
+						status={status}
+						maxTrainingTime={maxTrainingTime}
+						onViewResults={handleViewResults}
 					/>
-				</Col>
-			</Row>
-		</Card>
+
+					<Card
+						title={
+							<Title level={5}>
+								<LineChartOutlined /> Accuracy Trend
+							</Title>
+						}
+						className="shadow-md hover:shadow-lg transition-shadow duration-300"
+						extra={
+							maxTrainingTime ? (
+								<Tag
+									color="orange"
+									icon={<HourglassOutlined />}
+								>
+									Time Limit: {maxTrainingTime} min
+								</Tag>
+							) : null
+						}
+					>
+						<EnhancedLineGraph
+							data={enhancedChartData}
+							loading={loading && chartData.length === 0}
+							maxTrainingTime={maxTrainingTime}
+						/>
+
+						{maxTrainingTime && status === 'TRAINING' && (
+							<div className="mt-4">
+								<Alert
+									type={
+										elapsedTime >= maxTrainingTime
+											? 'warning'
+											: 'info'
+									}
+									message={
+										elapsedTime >= maxTrainingTime
+											? 'Training Time Limit Reached'
+											: 'Training Time Limit'
+									}
+									description={
+										elapsedTime >= maxTrainingTime
+											? 'The training has reached its maximum allocated time. It may automatically stop soon.'
+											: `This experiment is configured to run for maximum ${maxTrainingTime} minutes.`
+									}
+									showIcon
+								/>
+							</div>
+						)}
+					</Card>
+
+					<Alert
+						description={
+							<div>
+								<Paragraph>
+									<RadarChartOutlined className="mr-2" />
+									<Text strong>Understand Metrics:</Text>{' '}
+									{metricExplain}
+								</Paragraph>
+
+								{maxTrainingTime && (
+									<Paragraph>
+										<Tooltip title="Time constraints can affect model performance">
+											<HourglassOutlined className="mr-2" />
+											<Text strong>
+												Training Time Limit:
+											</Text>{' '}
+											This experiment has a maximum
+											training time of {maxTrainingTime}{' '}
+											minutes. If the training doesn't
+											converge within this time, consider
+											adjusting model complexity or
+											training parameters.
+										</Tooltip>
+									</Paragraph>
+								)}
+							</div>
+						}
+						type="info"
+					/>
+				</Space>
+			</animated.div>
+		</div>
 	)
 }
 

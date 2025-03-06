@@ -13,6 +13,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	const [bucketName, setBucketName] = useState('user-private-dataset')
 	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION')
 	const [totalKbytes, setTotalKbytes] = useState(0)
+	const [isLoading, setIsLoading] = useState(false)
 
 	const validateFiles = (files, datasetType) => {
 		const allowedImageTypes = ['image/jpeg', 'image/png']
@@ -70,12 +71,25 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		formData.append('bucketName', bucketName)
 
 		try {
+			// Set loading state to true
+			setIsLoading(true)
+
+			// Wait for onCreate to complete
 			await onCreate(formData)
+
 			message.success('Dataset created successfully!')
 			resetFormAndState()
 		} catch (error) {
 			message.error('Failed to create dataset. Please try again.')
+		} finally {
+			// Set loading state back to false
+			setIsLoading(false)
 		}
+	}
+
+	const handleCancel = () => {
+		resetFormAndState()
+		onCancel()
 	}
 
 	const resetFormAndState = () => {
@@ -87,11 +101,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		setService('GCP_STORAGE')
 		setBucketName('user-private-dataset')
 		setDatasetType('IMAGE_CLASSIFICATION')
-	}
-
-	const handleCancel = () => {
-		resetFormAndState()
-		onCancel()
+		setIsLoading(false)
 	}
 
 	const tabItems = [
@@ -131,7 +141,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						/>
 					</label>
 
-					<div style={{ marginBottom: '16px' }}>
+					<div>
 						<span>{files.length} Files</span>
 						<span style={{ marginLeft: '8px', color: '#8c8c8c' }}>
 							({totalKbytes} kB)
@@ -139,14 +149,14 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					</div>
 
 					{files.length > 0 && (
-						<div style={{ maxHeight: '50px', overflowY: 'auto' }}>
+						<div style={{ maxHeight: '40px', overflowY: 'auto' }}>
 							{files.map((file) => (
 								<div
 									key={file.webkitRelativePath}
 									style={{
 										display: 'flex',
 										alignItems: 'center',
-										padding: '8px',
+										// padding: '8px',
 										borderBottom: '1px solid #f0f0f0',
 									}}
 								>
@@ -165,7 +175,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 									<Button
 										type="text"
 										icon={<DeleteOutlined />}
-										style={{ marginLeft: 'auto' }}
 										onClick={() =>
 											handleDeleteFile(
 												file.webkitRelativePath
@@ -203,6 +212,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			width={800}
 			destroyOnClose
 			centered
+			styles={{ paddingBottom: 0 }}
 		>
 			<Form form={form} layout="vertical" onFinish={handleSubmit}>
 				<Form.Item
@@ -276,12 +286,17 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Tabs defaultActiveKey="file" items={tabItems} />
 
 				<Form.Item>
-					<Button type="primary" htmlType="submit">
+					<Button
+						type="primary"
+						htmlType="submit"
+						loading={isLoading}
+					>
 						Create Dataset
 					</Button>
 					<Button
 						style={{ marginLeft: '8px' }}
 						onClick={handleCancel}
+						disabled={isLoading}
 					>
 						Cancel
 					</Button>

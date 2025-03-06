@@ -157,32 +157,28 @@ const SelectTargetColMulti = () => {
 
 			<Spin spinning={loading}>
 				<Row gutter={[24, 24]} className="mb-8">
-					<Col xs={24} md={8}>
-						<label className="block text-gray-700 font-medium mb-2">
-							Filter Target Column by Type{' '}
-							<Tooltip title="Filter the target column by data type.">
-								<InfoCircleOutlined className="text-gray-500" />
-							</Tooltip>
-						</label>
-						<Select
-							className="w-full mb-4"
-							placeholder="Select Data Type"
-							value={filterType}
-							onChange={setFilterType}
-							allowClear
-						>
-							<Option value="#str">String (#str)</Option>
-							<Option value="#int">Integer (#int)</Option>
-							<Option value="#bool">Boolean (#bool)</Option>
-						</Select>
-					</Col>
-					<Col xs={24} md={8}>
-						<label className="block text-blue-600 font-medium mb-2">
-							Target Column{' '}
-							<Tooltip title="Select the column that contains the target data for analysis.">
-								<InfoCircleOutlined className="text-gray-500" />
-							</Tooltip>
-						</label>
+					<Col xs={24} md={12}>
+						<div className="flex items-center mb-2">
+							<label className="text-blue-600 font-medium mr-3">
+								Target Column{' '}
+								<Tooltip title="Select the column that contains the target data for analysis.">
+									<InfoCircleOutlined className="text-gray-500" />
+								</Tooltip>
+							</label>
+							<Select
+								className="w-36"
+								placeholder="Data Type"
+								value={filterType}
+								onChange={setFilterType}
+								size="small"
+								allowClear
+								bordered={true}
+							>
+								<Option value="#str">#str</Option>
+								<Option value="#int">#int</Option>
+								<Option value="#bool">#bool</Option>
+							</Select>
+						</div>
 						<Select
 							className="w-full"
 							placeholder="Select Target Column"
@@ -198,7 +194,7 @@ const SelectTargetColMulti = () => {
 							))}
 						</Select>
 					</Col>
-					<Col xs={24} md={8}>
+					<Col xs={24} md={12}>
 						<label className="block text-blue-600 font-medium mb-2">
 							Image Column{' '}
 							<Tooltip title="Select the column that contains image URLs or paths.">

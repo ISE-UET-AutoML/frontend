@@ -620,7 +620,7 @@ const SelectInstance = () => {
 						</div>
 					}
 					open={isModalVisible}
-					onCancel={handleModalCancel}
+					// onCancel={handleModalCancel}
 					footer={null}
 					width={1000}
 				>
