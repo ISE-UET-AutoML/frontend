@@ -455,8 +455,9 @@ const SelectInstance = () => {
 												width: '100%',
 												marginTop: 8,
 											}}
-											min={1}
+											min={0.1}
 											max={168} // 1 week
+											step={0.1}
 											value={formData.trainingTime}
 											onChange={(value) =>
 												setFormData((prev) => ({
@@ -465,10 +466,10 @@ const SelectInstance = () => {
 												}))
 											}
 											prefix={<ClockCircleOutlined />}
-											suffix="hours"
+											addonAfter="hours"
 										/>
 										<Text type="secondary">
-											Recommended: 22-24 hours for most
+											Recommended: 1-24 hours for most
 											models
 										</Text>
 									</div>

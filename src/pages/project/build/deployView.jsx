@@ -14,6 +14,13 @@ import {
 	Tag,
 	message,
 	Progress,
+	Timeline,
+	Spin,
+	Tooltip,
+	Divider,
+	Input,
+	Modal,
+	List,
 } from 'antd'
 import {
 	RocketOutlined,
@@ -24,6 +31,18 @@ import {
 	SettingOutlined,
 	UploadOutlined,
 	LineChartOutlined,
+	LoadingOutlined,
+	CheckCircleOutlined,
+	InfoCircleOutlined,
+	CloudServerOutlined,
+	CodeOutlined,
+	NodeIndexOutlined,
+	SyncOutlined,
+	CloudUploadOutlined,
+	LinkOutlined,
+	ExpandAltOutlined,
+	CheckOutlined,
+	ClockCircleOutlined,
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import { validateFiles } from 'src/utils/file'
@@ -61,13 +80,35 @@ const AnimatedCard = ({ children, onClick, isSelected }) => {
 		</animated.div>
 	)
 }
-
-const AnimatedIcon = ({ icon, isActive }) => {
-	const styles = useSpring({
-		transform: isActive ? 'scale(1.2)' : 'scale(1)',
-		config: { tension: 300, friction: 10 },
-	})
-	return <animated.div style={styles}>{icon}</animated.div>
+const AnimatedProgressBar = ({ percent, title, subtitle, color }) => {
+	return (
+		<Card
+			style={{
+				marginBottom: '16px',
+				background: `linear-gradient(to right, ${color}10, ${color}05)`,
+				border: `1px solid ${color}30`,
+				borderRadius: '8px',
+			}}
+		>
+			<Space direction="vertical" style={{ width: '100%' }}>
+				<Space align="center" style={{ marginBottom: '4px' }}>
+					<Text strong>{title}</Text>
+					<Text type="secondary" style={{ fontSize: '12px' }}>
+						{subtitle}
+					</Text>
+				</Space>
+				<Progress
+					percent={percent}
+					status="active"
+					strokeColor={{
+						'0%': color,
+						'100%': color + 'aa',
+					}}
+					trailColor={color + '20'}
+				/>
+			</Space>
+		</Card>
+	)
 }
 
 const DeployView = () => {
@@ -82,24 +123,37 @@ const DeployView = () => {
 	const [currentStep, setCurrentStep] = useState(0)
 	const [instanceURL, setInstanceURL] = useState(null)
 	const [predictResult, setPredictResult] = useState(null)
-	const [downloadProgress, setDownloadProgress] = useState(0)
 	const [uploadedFiles, setUploadedFiles] = useState(null)
+	const [isComplete, setIsComplete] = useState(false)
+
+	// Added for enhanced UI
+	const [shouldStopSimulation, setShouldStopSimulation] = useState(false)
+	const [setupProgress, setSetupProgress] = useState(0)
+	const [configProgress, setConfigProgress] = useState(0)
+	const [optimizationProgress, setOptimizationProgress] = useState(0)
+	const [networkProgress, setNetworkProgress] = useState(0)
+	const [currentAction, setCurrentAction] = useState(
+		'Initializing deployment environment'
+	)
+	const [deploymentLogs, setDeploymentLogs] = useState([])
+	const [selectedDeployOption, setSelectedDeployOption] = useState(null)
+
+	// For detailed progress modal
+	const [completedTasks, setCompletedTasks] = useState([])
+	const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
 
 	const deploySteps = [
 		{
 			icon: <SettingOutlined style={{ fontSize: '24px' }} />,
 			title: 'Setting Up',
-			description: 'Preparing deployment environment',
 		},
 		{
-			icon: <RocketOutlined style={{ fontSize: '24px' }} />,
-			title: 'Launching Service',
-			description: 'Starting the prediction service',
+			icon: <SettingOutlined style={{ fontSize: '24px' }} />,
+			title: 'Serving',
 		},
 		{
 			icon: <LineChartOutlined style={{ fontSize: '24px' }} />,
 			title: 'Prediction Result',
-			description: '',
 		},
 	]
 
@@ -172,6 +226,157 @@ const DeployView = () => {
 			color: '#722ed1',
 		},
 	]
+	// Detailed deployment task structure
+	const deploymentTasks = [
+		{
+			id: 'environment-setup',
+			title: 'Environment Setup',
+			description: 'Preparing the runtime environment for your model',
+			icon: <CloudServerOutlined />,
+			color: '#1890ff',
+			progress: setupProgress,
+			status:
+				setupProgress === 100
+					? 'completed'
+					: setupProgress > 0
+						? 'in-progress'
+						: 'pending',
+			setProgress: setSetupProgress,
+			subtasks: [
+				{
+					id: 'init-vm',
+					title: 'Initializing virtual machine',
+					status: 'pending',
+				},
+				{
+					id: 'config-network',
+					title: 'Configuring network settings',
+					status: 'pending',
+				},
+				{
+					id: 'setup-security',
+					title: 'Setting up security protocols',
+					status: 'pending',
+				},
+				{
+					id: 'verify-environment',
+					title: 'Verifying environment configuration',
+					status: 'pending',
+				},
+			],
+		},
+		{
+			id: 'dependencies-installation',
+			title: 'Dependencies Installation',
+			description: 'Installing required packages and libraries',
+			icon: <CodeOutlined />,
+			color: '#52c41a',
+			progress: configProgress,
+			status:
+				configProgress === 100
+					? 'completed'
+					: configProgress > 0
+						? 'in-progress'
+						: 'pending',
+			setProgress: setConfigProgress,
+			subtasks: [
+				{
+					id: 'fetch-manifest',
+					title: 'Fetching package manifests',
+					status: 'pending',
+				},
+				{
+					id: 'install-core',
+					title: 'Installing core libraries',
+					status: 'pending',
+				},
+				{
+					id: 'install-extras',
+					title: 'Installing additional dependencies',
+					status: 'pending',
+				},
+				{
+					id: 'setup-env-vars',
+					title: 'Setting up environment variables',
+					status: 'pending',
+				},
+			],
+		},
+		{
+			id: 'model-configuration',
+			title: 'Model Configuration',
+			description: 'Preparing your model for deployment',
+			icon: <NodeIndexOutlined />,
+			color: '#faad14',
+			progress: optimizationProgress,
+			status:
+				optimizationProgress === 100
+					? 'completed'
+					: optimizationProgress > 0
+						? 'in-progress'
+						: 'pending',
+			setProgress: setOptimizationProgress,
+			subtasks: [
+				{
+					id: 'load-weights',
+					title: 'Loading model weights',
+					status: 'pending',
+				},
+				{
+					id: 'configure-inference',
+					title: 'Configuring inference parameters',
+					status: 'pending',
+				},
+				{
+					id: 'optimize-performance',
+					title: 'Optimizing for performance',
+					status: 'pending',
+				},
+				{
+					id: 'validate-model',
+					title: 'Validating model configuration',
+					status: 'pending',
+				},
+			],
+		},
+		{
+			id: 'api-endpoint-setup',
+			title: 'API Endpoint Setup',
+			description: 'Creating secure API endpoints for your model',
+			icon: <LinkOutlined />,
+			color: '#722ed1',
+			progress: networkProgress,
+			status:
+				networkProgress === 100
+					? 'completed'
+					: networkProgress > 0
+						? 'in-progress'
+						: 'pending',
+			setProgress: setNetworkProgress,
+			subtasks: [
+				{
+					id: 'config-routes',
+					title: 'Configuring API routes',
+					status: 'pending',
+				},
+				{
+					id: 'setup-auth',
+					title: 'Setting up authentication',
+					status: 'pending',
+				},
+				{
+					id: 'enable-cors',
+					title: 'Enabling CORS policies',
+					status: 'pending',
+				},
+				{
+					id: 'test-endpoint',
+					title: 'Testing endpoint connectivity',
+					status: 'pending',
+				},
+			],
+		},
+	]
 
 	const startDeployment = async () => {
 		if (!selectedOption) {
@@ -189,13 +394,41 @@ const DeployView = () => {
 
 		setIsDeploying(true)
 		setCurrentStep(0)
+		setShouldStopSimulation(false)
+
+		// Reset all progress trackers
+		setSetupProgress(0)
+		setConfigProgress(0)
+		setOptimizationProgress(0)
+		setNetworkProgress(0)
+		setCompletedTasks([])
+		setCurrentTaskIndex(0)
+
+		// Store the selected deployment option details for UI
+		setSelectedDeployOption(
+			deployOptions.find((option) => option.id === selectedOption)
+		)
+
+		// Add initial deployment log
+		addDeploymentLog('Initializing deployment process', 'info')
+		addDeploymentLog(
+			`Selected deployment option: ${selectedOption}`,
+			'info'
+		)
 
 		try {
+			// Simulate different stages of deployment with progress updates
+			simulateDeploymentProgress()
+
 			const { data } = await experimentAPI.deployModel(
 				experimentName,
 				selectedOption
 			)
 			setInstanceURL(data.url)
+			addDeploymentLog(
+				`Deployment endpoint created: ${data.url}`,
+				'success'
+			)
 
 			const interval = setInterval(async () => {
 				try {
@@ -204,9 +437,22 @@ const DeployView = () => {
 					const { deployInfo } = statusResponse.data
 
 					if (deployInfo.status === 'ONLINE') {
-						setCurrentStep(1)
+						setIsComplete(true)
 						clearInterval(interval)
 						message.success('Deployment completed successfully!', 5)
+						setCurrentStep(1)
+						setShouldStopSimulation(true)
+						setCurrentTaskIndex(deploymentTasks.length - 1)
+						setCurrentAction('Deploy Completely')
+
+						addDeploymentLog(
+							'Deployment successfully completed',
+							'success'
+						)
+						addDeploymentLog(
+							'Model is now online and ready for predictions',
+							'success'
+						)
 					} else {
 						setCurrentStep(0)
 					}
@@ -217,11 +463,19 @@ const DeployView = () => {
 						'Error checking deployment status: ' + err.message,
 						5
 					)
+					addDeploymentLog(
+						`Deployment error: ${err.message}`,
+						'error'
+					)
 				}
 			}, 10000)
 		} catch (error) {
 			setIsDeploying(false)
 			message.error('Failed to start deployment: ' + error.message, 5)
+			addDeploymentLog(
+				`Failed to start deployment: ${error.message}`,
+				'error'
+			)
 		}
 	}
 
@@ -246,11 +500,14 @@ const DeployView = () => {
 		console.log('uploadedFiles', validFiles)
 		setUploadedFiles(validFiles)
 		setUploading(true)
+		addDeploymentLog('Uploading files for prediction', 'info')
+
 		const formData = new FormData()
 		formData.append('task', projectInfo.type)
 
 		Array.from(validFiles).forEach((file) => {
 			formData.append('files', file)
+			addDeploymentLog(`Processing file: ${file.name}`, 'info')
 		})
 		console.log('Fetch prediction start')
 
@@ -267,8 +524,11 @@ const DeployView = () => {
 			setCurrentStep(2)
 
 			message.success('Success Predict', 3)
+			addDeploymentLog('Prediction completed successfully', 'success')
 		} catch (error) {
 			message.error('Predict Fail', 3)
+			addDeploymentLog(`Prediction failed: ${error.message}`, 'error')
+			setUploading(false)
 		}
 	}
 
@@ -283,19 +543,121 @@ const DeployView = () => {
 		}
 	}
 
-	useEffect(() => {
-		if (currentStep === 0 && isDeploying) {
-			const interval = setInterval(() => {
-				setDownloadProgress((prev) => {
-					if (prev >= 100) {
-						clearInterval(interval)
-						return 100
-					}
-					return prev + Math.floor(Math.random() * (9 - 2 + 1))
-				})
-			}, 10000)
+	// Helper function to add logs with timestamps
+	const addDeploymentLog = (message, type = 'info') => {
+		const timestamp = new Date().toLocaleTimeString()
+		setDeploymentLogs((prev) => [...prev, { message, timestamp, type }])
+	}
+
+	// Function to update subtask status
+	const updateSubtaskStatus = (taskId, subtaskId, newStatus) => {
+		const updatedTasks = [...deploymentTasks]
+		const taskIndex = updatedTasks.findIndex((task) => task.id === taskId)
+
+		if (taskIndex !== -1) {
+			const subtaskIndex = updatedTasks[taskIndex].subtasks.findIndex(
+				(subtask) => subtask.id === subtaskId
+			)
+
+			if (subtaskIndex !== -1) {
+				updatedTasks[taskIndex].subtasks[subtaskIndex].status =
+					newStatus
+
+				// If this is a completed task, add it to the completed tasks list
+				if (newStatus === 'completed') {
+					setCompletedTasks((prev) => [
+						...prev,
+						{
+							taskId,
+							subtaskId,
+							title: updatedTasks[taskIndex].subtasks[
+								subtaskIndex
+							].title,
+							timestamp: new Date().toLocaleTimeString(),
+						},
+					])
+				}
+			}
 		}
-	}, [currentStep, isDeploying])
+	}
+
+	// Simulate deployment progress for better visual feedback - SEQUENTIAL VERSION
+	const simulateDeploymentProgress = () => {
+		// Function to process a specific task
+		const processTask = (taskIndex) => {
+			if (taskIndex >= deploymentTasks.length || shouldStopSimulation) {
+				return // All tasks are complete
+			}
+
+			const currentTask = deploymentTasks[taskIndex]
+			const { id: taskId, subtasks, setProgress } = currentTask
+
+			setCurrentTaskIndex(taskIndex)
+			setCurrentAction(`${currentTask.title} in progress`)
+			addDeploymentLog(
+				`Starting ${currentTask.title.toLowerCase()}`,
+				'info'
+			)
+
+			// Process each subtask sequentially
+			let subtaskCounter = 0
+			const processSubtask = () => {
+				if (subtaskCounter >= subtasks.length || shouldStopSimulation) {
+					// All subtasks for this task are complete or should stop
+					if (!shouldStopSimulation) {
+						setProgress(100)
+						addDeploymentLog(
+							`${currentTask.title} completed`,
+							'success'
+						)
+						setTimeout(() => processTask(taskIndex + 1), 1000)
+					}
+					return
+				}
+
+				const subtask = subtasks[subtaskCounter]
+				updateSubtaskStatus(taskId, subtask.id, 'in-progress')
+				addDeploymentLog(`${subtask.title}`, 'info')
+
+				// Calculate progress increment for this subtask
+				const progressIncrement = 100 / subtasks.length
+
+				// Simulate work on this subtask
+				let progress = 0
+
+				const incrementInterval = setInterval(() => {
+					if (shouldStopSimulation) {
+						clearInterval(incrementInterval)
+						return
+					}
+
+					progress += Math.floor(Math.random() * 5) + 1
+
+					const overallProgress = Math.min(
+						subtaskCounter * progressIncrement +
+							(progress * progressIncrement) / 100,
+						100
+					)
+					setProgress(overallProgress)
+
+					if (progress >= 100) {
+						clearInterval(incrementInterval)
+						updateSubtaskStatus(taskId, subtask.id, 'completed')
+						subtaskCounter++
+						if (!shouldStopSimulation) {
+							setTimeout(processSubtask, 500)
+						}
+					}
+				}, 500)
+			}
+
+			// Start processing subtasks for this task
+			processSubtask()
+		}
+
+		// Start with the first task
+		processTask(0)
+	}
 
 	return (
 		<div style={{ margin: '0 auto' }}>
@@ -446,7 +808,6 @@ const DeployView = () => {
 							</Button>
 							<Button
 								type="primary"
-								icon={<RocketOutlined />}
 								size="large"
 								style={{ fontWeight: 'bold' }}
 								onClick={startDeployment}
@@ -464,12 +825,12 @@ const DeployView = () => {
 							<Step
 								key={index}
 								title={step.title}
-								description={step.description}
 								icon={
-									<AnimatedIcon
-										icon={step.icon}
-										isActive={currentStep === index}
-									/>
+									currentStep === index ? (
+										<LoadingOutlined />
+									) : (
+										step.icon
+									)
 								}
 							/>
 						))}
@@ -477,89 +838,296 @@ const DeployView = () => {
 
 					<div>
 						{currentStep === 0 && (
-							<Card>
-								<Space
-									direction="vertical"
-									size="middle"
-									style={{ width: '100%' }}
-								>
-									<Title level={4}>
-										<CloudDownloadOutlined /> Downloading
-										Dependencies
-									</Title>
-									<Row gutter={[16, 16]}>
-										<Col span={24}>
-											<Progress
-												percent={downloadProgress}
-												status="active"
-												strokeColor={{
-													'0%': '#108ee9',
-													'100%': '#87d068',
-												}}
-											/>
-										</Col>
-									</Row>
-									<Row gutter={[16, 16]}>
-										<Col span={12}>
-											<Card size="small">
-												<Space direction="vertical">
-													<Text strong>
-														Current Tasks:
-													</Text>
-													<Text type="secondary">
-														• Setting up virtual
-														environment
-													</Text>
-													<Text type="secondary">
-														• Installing required
-														packages
-													</Text>
-													<Text type="secondary">
-														• Configuring model
-														dependencies
-													</Text>
+							<div>
+								<Row gutter={[24, 0]}>
+									<Col xs={24} lg={14}>
+										<Card
+											title={
+												<Space>
+													<span className="text-lg font-bold">
+														Deployment Progress
+													</span>
 												</Space>
-											</Card>
-										</Col>
-									</Row>
-								</Space>
-							</Card>
+											}
+											className="deployment-progress-card"
+											style={{
+												height: '93%',
+												marginTop: 20,
+											}}
+										>
+											<Space
+												direction="vertical"
+												style={{ width: '100%' }}
+											>
+												<Title
+													level={5}
+													style={{ marginTop: '0' }}
+												>
+													{currentAction}
+												</Title>
+
+												<AnimatedProgressBar
+													percent={setupProgress}
+													title="Environment Setup"
+													subtitle="Configuring server environment"
+													color="#1890ff"
+												/>
+
+												<AnimatedProgressBar
+													percent={configProgress}
+													title="Dependencies Installation"
+													subtitle="Installing required packages"
+													color="#52c41a"
+												/>
+
+												<AnimatedProgressBar
+													percent={
+														optimizationProgress
+													}
+													title="Model Configuration"
+													subtitle="Preparing model for inference"
+													color="#faad14"
+												/>
+
+												<AnimatedProgressBar
+													percent={networkProgress}
+													title="API Setup"
+													subtitle="Creating secure endpoints"
+													color="#722ed1"
+												/>
+											</Space>
+										</Card>
+									</Col>
+
+									<Col xs={24} lg={10}>
+										<Card
+											title={
+												<Space>
+													<CodeOutlined
+														style={{
+															color: '#1890ff',
+														}}
+													/>
+													<span>Deployment Logs</span>
+												</Space>
+											}
+											className="deployment-logs-card"
+											style={{
+												height: '93%',
+												marginTop: 20,
+											}}
+										>
+											<div
+												style={{
+													height: '500px',
+													overflowY: 'auto',
+													padding: '8px',
+												}}
+											>
+												<Timeline
+													mode="left"
+													items={deploymentLogs.map(
+														(log, index) => {
+															let color =
+																'#1890ff'
+															let dot = (
+																<InfoCircleOutlined />
+															)
+
+															if (
+																log.type ===
+																'success'
+															) {
+																color =
+																	'#52c41a'
+																dot = (
+																	<CheckCircleOutlined />
+																)
+															} else if (
+																log.type ===
+																'error'
+															) {
+																color =
+																	'#f5222d'
+																dot = (
+																	<InfoCircleOutlined />
+																)
+															}
+
+															return {
+																color: color,
+																dot: dot,
+																children: (
+																	<>
+																		<Text
+																			style={{
+																				fontSize:
+																					'12px',
+																				color: '#8c8c8c',
+																			}}
+																		>
+																			{
+																				log.timestamp
+																			}
+																		</Text>
+																		<br />
+																		<Text>
+																			{
+																				log.message
+																			}
+																		</Text>
+																	</>
+																),
+															}
+														}
+													)}
+												/>
+											</div>
+										</Card>
+									</Col>
+								</Row>
+							</div>
 						)}
 
-						{currentStep === 1 && (
-							<>
-								<Alert
-									message="Deployment Complete"
-									description="Your application has been successfully deployed!"
-									type="success"
-									showIcon
-									style={{ marginTop: '16px' }}
-								/>
-								<div className="flex flex-col items-center gap-4 mt-10">
-									<input
-										type="file"
-										multiple
-										ref={fileInputRef}
-										onChange={handleChange}
-										className="hidden"
-										accept=".csv,.txt,.json,.xlsx,.png,.jpg"
-									/>
-
-									<Button
-										type="primary"
-										onClick={handleClick}
-										loading={uploading}
-										icon={<UploadOutlined />}
-										size="large"
-										className="flex items-center gap-2"
+						{currentStep === 1 && isComplete && (
+							<Row
+								gutter={[24, 24]}
+								style={{ marginTop: '24px' }}
+							>
+								<Col span={24}>
+									<Card
+										title={
+											<Space>
+												<LinkOutlined
+													style={{
+														color: '#1890ff',
+													}}
+												/>
+												<span>
+													Endpoint Information
+												</span>
+											</Space>
+										}
+										style={{
+											borderTop: '3px solid #1890ff',
+										}}
 									>
-										{uploading
-											? 'Predicting...'
-											: 'Upload Files to Predict'}
-									</Button>
-								</div>
-							</>
+										<Row gutter={[24, 24]}>
+											<Col xs={24} md={8}>
+												<Statistic
+													title="Endpoint Status"
+													value="Active"
+													valueStyle={{
+														color: '#52c41a',
+													}}
+													prefix={
+														<CheckCircleOutlined />
+													}
+												/>
+											</Col>
+											<Col xs={24} md={8}>
+												<Statistic
+													title="Response Time"
+													value="75ms"
+													valueStyle={{
+														color: '#1890ff',
+													}}
+													prefix={
+														<ThunderboltOutlined />
+													}
+												/>
+											</Col>
+											<Col xs={24} md={8}>
+												<Statistic
+													title="Success Rate"
+													value="99.9%"
+													valueStyle={{
+														color: '#faad14',
+													}}
+													prefix={
+														<CheckCircleOutlined />
+													}
+												/>
+											</Col>
+
+											<Col span={24}>
+												<Divider orientation="left">
+													API Endpoint URL
+												</Divider>
+												<div className="flex">
+													<Input.Group compact>
+														<Input
+															style={{
+																width: '30%',
+															}}
+															value={
+																instanceURL ||
+																'https://api.example.com/predict/model-123'
+															}
+															readOnly
+														/>
+														<Button
+															type="primary"
+															onClick={() => {
+																navigator.clipboard
+																	.writeText(
+																		instanceURL ||
+																			'https://api.example.com/predict/model-123'
+																	)
+																	.then(() =>
+																		message.success(
+																			'Copied to clipboard',
+																			1
+																		)
+																	)
+																	.catch(
+																		(err) =>
+																			message.err(
+																				'Failed to copy',
+																				1
+																			)
+																	)
+															}}
+														>
+															Copy URL
+														</Button>
+													</Input.Group>
+
+													<Space>
+														<input
+															type="file"
+															multiple
+															ref={fileInputRef}
+															onChange={
+																handleChange
+															}
+															className="hidden"
+															accept=".csv,.txt,.json,.xlsx,.png,.jpg"
+														/>
+														<Button
+															type="primary"
+															onClick={
+																handleClick
+															}
+															loading={uploading}
+															icon={
+																<CloudUploadOutlined />
+															}
+															size="large"
+														>
+															{uploading
+																? 'Predicting...'
+																: 'Upload Files to Predict'}
+														</Button>
+													</Space>
+												</div>
+											</Col>
+										</Row>
+									</Card>
+								</Col>
+							</Row>
 						)}
+
 						{currentStep === 2 && projectInfo && (
 							<>
 								{(() => {

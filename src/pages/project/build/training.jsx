@@ -42,50 +42,6 @@ import {
 
 const { Title, Text, Paragraph } = Typography
 
-// Custom Countdown Component
-const CustomCountdown = ({ remainingMinutes }) => {
-	const [timeLeft, setTimeLeft] = useState(remainingMinutes * 60)
-
-	useEffect(() => {
-		// Update the countdown every second
-		const interval = setInterval(() => {
-			setTimeLeft((prev) => Math.max(0, prev - 1))
-		}, 1000)
-
-		// Initialize with the proper value whenever remainingMinutes changes
-		setTimeLeft(remainingMinutes * 60)
-
-		return () => clearInterval(interval)
-	}, [remainingMinutes])
-
-	// Format seconds to HH:MM:SS
-	const formatTime = (seconds) => {
-		const hours = Math.floor(seconds / 3600)
-		const minutes = Math.floor((seconds % 3600) / 60)
-		const secs = seconds % 60
-
-		return [
-			hours.toString().padStart(2, '0'),
-			minutes.toString().padStart(2, '0'),
-			secs.toString().padStart(2, '0'),
-		].join(':')
-	}
-
-	return (
-		<div className="text-center">
-			<Text
-				style={{
-					fontSize: '24px',
-					color: '#1890ff',
-					fontWeight: 'bold',
-				}}
-			>
-				{formatTime(timeLeft)}
-			</Text>
-		</div>
-	)
-}
-
 // Training Metric Card Component - replacement for AnimatedStatistic
 const TrainingMetricCard = ({
 	title,
@@ -232,30 +188,6 @@ const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
 	)
 }
 
-// Training Time Remaining Component
-const TrainingTimeRemaining = ({ maxTrainingTime, elapsedTime, status }) => {
-	if (!maxTrainingTime || status === 'DONE') {
-		return null
-	}
-
-	const remainingMinutes = Math.max(0, maxTrainingTime - elapsedTime)
-
-	return (
-		<Card className="text-center shadow-md">
-			<Space direction="vertical">
-				<Text type="secondary">Remaining Training Time</Text>
-				{remainingMinutes > 0 ? (
-					<CustomCountdown remainingMinutes={remainingMinutes} />
-				) : (
-					<Text type="warning" strong>
-						Time limit reached
-					</Text>
-				)}
-			</Space>
-		</Card>
-	)
-}
-
 // Training Information Card
 const TrainingInfoCard = ({
 	experimentName,
@@ -264,11 +196,98 @@ const TrainingInfoCard = ({
 	status,
 	maxTrainingTime,
 	onViewResults,
+	trainProgress,
 }) => {
 	// Calculate time-based progress
 	const timeProgress = maxTrainingTime
 		? Math.min((elapsedTime / maxTrainingTime) * 100, 100).toFixed(1)
 		: 0
+	const getProgressStatus = () => {
+		if (status === 'DONE') return 'success'
+		if (trainProgress >= 100) return 'exception'
+		return 'active'
+	}
+	// return (
+	// 	<Card
+	// 		title={
+	// 			<Title level={5}>
+	// 				<DashboardOutlined /> Training Information:{' '}
+	// 				<Tag color="blue" icon={<ExperimentOutlined />}>
+	// 					{experimentName}
+	// 				</Tag>
+	// 			</Title>
+	// 		}
+	// 		className="shadow-md hover:shadow-lg transition-shadow duration-300"
+	// 		extra={
+	// 			<>
+	// 				{status === 'DONE' && (
+	// 					<div className="text-center">
+	// 						<button
+	// 							onClick={onViewResults}
+	// 							className="border border-green-500 bg-green-50 text-green-500 p-2 rounded-md hover:bg-green-500 hover:text-white "
+	// 						>
+	// 							<CheckCircleOutlined className="mr-2" />
+	// 							View Training Results
+	// 						</button>
+	// 					</div>
+	// 				)}
+	// 			</>
+	// 		}
+	// 	>
+	// 		<Space direction="vertical" size="middle" style={{ width: '100%' }}>
+	// 			<Row>
+	// 				<div className="w-[28%]">
+	// 					<TrainingMetricCard
+	// 						title="Current Epoch"
+	// 						value={trainingInfo.latestEpoch}
+	// 						icon={<ExperimentOutlined />}
+	// 						loading={
+	// 							!trainingInfo.latestEpoch &&
+	// 							status === 'TRAINING'
+	// 						}
+	// 					/>
+	// 				</div>
+	// 				<div className="w-[28%] ml-10">
+	// 					<TrainingMetricCard
+	// 						title="Validation Accuracy"
+	// 						value={trainingInfo.accuracy * 100}
+	// 						suffix="%"
+	// 						icon={<BarChartOutlined />}
+	// 						loading={
+	// 							!trainingInfo.accuracy && status === 'TRAINING'
+	// 						}
+	// 					/>
+	// 				</div>
+	// 			</Row>
+
+	// 			<Divider orientation="left">Training Progress</Divider>
+
+	// 			<Row gutter={[16, 16]}>
+	// 				{maxTrainingTime > 0 && (
+	// 					<Col span={24}>
+	// 						<Progress
+	// 							percent={trainProgress}
+	// 							status={
+	// 								trainProgress >= 100 ? 'success' : 'active'
+	// 							}
+	// 							strokeColor={{
+	// 								'0%': '#87d068',
+	// 								'100%': '#fa8c16',
+	// 							}}
+	// 						/>
+	// 						<div className="mt-2">
+	// 							<Text type="secondary">
+	// 								{timeProgress < 100
+	// 									? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(1)} minutes`
+	// 									: 'Maximum training time reached'}
+	// 							</Text>
+	// 						</div>
+	// 					</Col>
+	// 				)}
+	// 			</Row>
+	// 		</Space>
+	// 	</Card>
+	// )
 
 	return (
 		<Card
@@ -278,11 +297,6 @@ const TrainingInfoCard = ({
 					<Tag color="blue" icon={<ExperimentOutlined />}>
 						{experimentName}
 					</Tag>
-					{maxTrainingTime > 0 && (
-						<Tag color="orange" icon={<CalendarOutlined />}>
-							{`Max Duration: ${maxTrainingTime} minutes`}
-						</Tag>
-					)}
 				</Title>
 			}
 			className="shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -292,7 +306,7 @@ const TrainingInfoCard = ({
 						<div className="text-center">
 							<button
 								onClick={onViewResults}
-								className="border border-green-500 bg-green-50 text-green-500 p-2 rounded-md hover:bg-green-500 hover:text-white "
+								className="border border-green-500 bg-green-50 text-green-500 p-2 rounded-md hover:bg-green-500 hover:text-white"
 							>
 								<CheckCircleOutlined className="mr-2" />
 								View Training Results
@@ -326,45 +340,54 @@ const TrainingInfoCard = ({
 							}
 						/>
 					</div>
+					<div className="w-[28%] ml-10">
+						<TrainingMetricCard
+							title="Time Elapsed"
+							value={elapsedTime}
+							suffix="min"
+							icon={<CalendarOutlined />}
+							loading={status === 'PENDING'}
+						/>
+					</div>
 				</Row>
-
-				{status === 'TRAINING' && maxTrainingTime > 0 && (
-					<TrainingTimeRemaining
-						maxTrainingTime={maxTrainingTime}
-						elapsedTime={elapsedTime}
-						status={status}
-					/>
-				)}
 
 				<Divider orientation="left">Training Progress</Divider>
 
 				<Row gutter={[16, 16]}>
 					{maxTrainingTime > 0 && (
 						<Col span={24}>
-							<Card
-								className="shadow-sm"
-								title="Time Utilization"
-							>
-								<Progress
-									percent={timeProgress}
-									status={
-										timeProgress >= 100
-											? 'exception'
-											: 'active'
-									}
-									strokeColor={{
-										'0%': '#87d068',
-										'100%': '#fa8c16',
-									}}
-								/>
-								<div className="mt-2">
-									<Text type="secondary">
-										{timeProgress < 100
-											? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(1)} minutes`
+							<Progress
+								percent={trainProgress}
+								status={getProgressStatus()}
+								strokeColor={{
+									'0%': '#108ee9',
+									'100%': '#87d068',
+								}}
+								format={(percent) =>
+									status === 'DONE'
+										? 'Completed'
+										: `${percent.toFixed(1)}%`
+								}
+							/>
+							<div className="mt-2">
+								<Text type="secondary">
+									{status === 'DONE'
+										? `Training completed in ${elapsedTime.toFixed(2)} minutes`
+										: timeProgress < 100
+											? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(2)} minutes`
 											: 'Maximum training time reached'}
-									</Text>
-								</div>
-							</Card>
+								</Text>
+								{status === 'TRAINING' &&
+									trainProgress >= 100 && (
+										<Alert
+											message="Time limit reached"
+											description="Training has reached the maximum time limit and will complete soon."
+											type="warning"
+											showIcon
+											style={{ marginTop: '8px' }}
+										/>
+									)}
+							</div>
 						</Col>
 					)}
 				</Row>
@@ -391,6 +414,7 @@ const Training = () => {
 	const [loading, setLoading] = useState(true)
 	const [maxTrainingTime, setMaxTrainingTime] = useState(null)
 	const metricExplain = projectInfo.metrics_explain
+	const [trainProgress, setTrainProgress] = useState(0)
 
 	// Handle view results button click
 	const handleViewResults = () => {
@@ -413,11 +437,19 @@ const Training = () => {
 			const timer = setInterval(() => {
 				const elapsed = calculateElapsedTime(startTime)
 				setElapsedTime(parseFloat(elapsed))
+
+				if (maxTrainingTime) {
+					const progress = Math.min(
+						(parseFloat(elapsed) / maxTrainingTime) * 100,
+						100
+					)
+					setTrainProgress(parseFloat(progress.toFixed(1)))
+				}
 			}, 1000)
 
 			return () => clearInterval(timer)
 		}
-	}, [startTime, status])
+	}, [startTime, status, maxTrainingTime])
 
 	// Utility Functions
 	const updateChartData = (data) => {
@@ -468,18 +500,29 @@ const Training = () => {
 						res.data.experiment.max_training_time
 					) {
 						setMaxTrainingTime(
-							res.data.experiment.max_training_time
+							res.data.experiment.max_training_time / 60
 						)
+
+						if (startTime) {
+							const currentElapsed =
+								calculateElapsedTime(startTime)
+							const progress = Math.min(
+								(currentElapsed /
+									(res.data.experiment.max_training_time /
+										60)) *
+									100,
+								100
+							)
+							setTrainProgress(parseFloat(progress.toFixed(1)))
+						}
 					}
 
 					if (res.data.experiment.status === 'DONE') {
+						clearInterval(interval)
 						updateFields({
 							trainingInfo,
-							startTime,
-							chartData,
 							elapsedTime: calculateElapsedTime(startTime),
 						})
-						clearInterval(interval)
 						// Save final data before redirecting
 						if (res.data.trainInfo) {
 							setTrainingInfo({
@@ -489,6 +532,7 @@ const Training = () => {
 									res.data.trainInfo.metrics.val_acc || 0,
 							})
 						}
+						setTrainProgress(100)
 					} else if (res.data.trainInfo.status === 'TRAINING') {
 						setTrainingInfo({
 							latestEpoch: res.data.trainInfo.latest_epoch || 0,
@@ -557,6 +601,7 @@ const Training = () => {
 						status={status}
 						maxTrainingTime={maxTrainingTime}
 						onViewResults={handleViewResults}
+						trainProgress={trainProgress}
 					/>
 
 					<Card

@@ -89,8 +89,8 @@ const columns = [
 ]
 
 const TrainResult = () => {
-	const { projectInfo, trainingInfo, startTime, chartData } =
-		useOutletContext()
+	const { projectInfo, trainingInfo, elapsedTime } = useOutletContext()
+	console.log('Train Info', trainingInfo)
 	const navigate = useNavigate()
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
@@ -138,16 +138,6 @@ const TrainResult = () => {
 		})
 	}, [])
 
-	// Training duration calculation
-	const getTrainingDuration = (startTime) => {
-		const endTime = new Date()
-		const duration = Math.floor((endTime - startTime) / 1000)
-		const hours = Math.floor(duration / 3600)
-		const minutes = Math.floor((duration % 3600) / 60)
-		const seconds = duration % 60
-		return `${hours}h ${minutes}m ${seconds}s`
-	}
-
 	return (
 		<div className="p-6 bg-gray-50 min-h-screen">
 			<Space direction="vertical" size="large" className="w-full">
@@ -171,11 +161,12 @@ const TrainResult = () => {
 						<Card className="shadow-md ">
 							<Statistic
 								title="Training Duration"
-								value={getTrainingDuration(startTime)}
+								value={elapsedTime || 0}
 								valueStyle={{
 									color: '#f0b100',
 								}}
 								prefix={<ClockCircleOutlined />}
+								suffix="m"
 							/>
 						</Card>
 					</Col>
