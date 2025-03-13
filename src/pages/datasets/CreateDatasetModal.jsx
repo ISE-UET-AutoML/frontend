@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd'
 import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons'
+import { TYPES } from 'src/constants/types'
 
 const { Option } = Select
 
@@ -20,7 +21,10 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		const allowedCsvType = 'text/csv'
 
 		return files.filter((file) => {
-			if (datasetType === 'IMAGE_CLASSIFICATION') {
+			if (
+				datasetType === 'IMAGE_CLASSIFICATION' ||
+				datasetType === 'MULTILABEL_CLASSIFICATION'
+			) {
 				return allowedImageTypes.includes(file.type)
 			} else {
 				return file.type === allowedCsvType
@@ -236,18 +240,11 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						placeholder="Select dataset type"
 						onChange={(value) => setDatasetType(value)}
 					>
-						<Option value="IMAGE_CLASSIFICATION">
-							Image Classification
-						</Option>
-						<Option value="TEXT_CLASSIFICATION">
-							Text Classification
-						</Option>
-						<Option value="TABULAR_CLASSIFICATION">
-							Tabular Classification
-						</Option>
-						<Option value="MULTIMODAL_CLASSIFICATION">
-							Multimodal Classification
-						</Option>
+						{Object.entries(TYPES).map(([key, value]) => (
+							<Option key={key} value={key}>
+								{value.type}
+							</Option>
+						))}
 					</Select>
 				</Form.Item>
 

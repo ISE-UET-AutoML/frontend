@@ -31,6 +31,12 @@ const config = {
 		labelingView: LabelingTextClassification,
 		predictView: MultimodalPredict,
 	},
+	MULTILABEL_CLASSIFICATION: {
+		afterUploadURL: 'selectInstance',
+		folder: UploadTypes.CSV_SINGLE,
+		labelingView: LabelingTextClassification,
+		predictView: MultimodalPredict,
+	},
 	// Add more types here as needed
 }
 

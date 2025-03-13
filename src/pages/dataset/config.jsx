@@ -2,6 +2,7 @@ import ImageClassDataView from 'src/components/Dataset/View/ImageClassDataView'
 import TextClassDataView from 'src/components/Dataset/View/TextClassDataView'
 import TabularClassDataView from 'src/components/Dataset/View/TabularClassDataView'
 import MultimodalClassDataView from 'src/components/Dataset/View/MultimodalClassDataView'
+import MultilabelClassDataView from 'src/components/Dataset/View/MultilabelClassDataView'
 
 const config = {
 	IMAGE_CLASSIFICATION: {
@@ -15,6 +16,9 @@ const config = {
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		datasetView: MultimodalClassDataView,
+	},
+	MULTILABEL_CLASSIFICATION: {
+		datasetView: MultilabelClassDataView,
 	},
 }
 

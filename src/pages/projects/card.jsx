@@ -6,26 +6,11 @@ import { PATHS } from 'src/constants/paths'
 import { deleteProject } from 'src/api/project'
 import { Button, Typography, Tag } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
+import { TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
-
-const TAG_COLORS = {
-	IMAGE_CLASSIFICATION: { bg: '#e6f4ff', text: '#1677ff', border: '#1677ff' },
-	TEXT_CLASSIFICATION: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
-	TABULAR_CLASSIFICATION: {
-		bg: '#f9f0ff',
-		text: '#722ed1',
-		border: '#722ed1',
-	},
-	MULTIMODAL_CLASSIFICATION: {
-		bg: '#fffbe6',
-		text: '#faad14',
-		border: '#faad14',
-	},
-	OBJECT_DETECTION: { bg: '#fff7e6', text: '#fa8c16', border: '#fa8c16' },
-}
 
 export default function ProjectCard({ project, getProjects }) {
 	const handleDelete = (e, projectID) => {
@@ -45,7 +30,7 @@ export default function ProjectCard({ project, getProjects }) {
 		}
 	}
 
-	const tagColor = TAG_COLORS[project?.type] || TAG_COLORS.other
+	const tagColor = TYPES[project?.type].card
 
 	const handleCardClick = () => {
 		window.location.href = PATHS.PROJECT_BUILD(project?._id)
