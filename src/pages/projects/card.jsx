@@ -54,7 +54,7 @@ export default function ProjectCard({ project, getProjects }) {
 	return (
 		<div
 			key={project._id}
-			className="group relative rounded-xl bg-white shadow-md transition duration-300 hover:shadow-lg cursor-pointer"
+			className="group relative rounded-lg bg-white shadow-md transition duration-300 hover:shadow-lg cursor-pointer"
 			style={{
 				border: '1px solid #e8e8e8',
 				overflow: 'hidden',
@@ -109,7 +109,7 @@ export default function ProjectCard({ project, getProjects }) {
 			</div>
 
 			<div
-				className="mt-5 p-6 rounded-xl transition duration-300"
+				className="mt-5 p-6 transition duration-300"
 				style={{
 					backgroundColor: '#fafafa',
 				}}
