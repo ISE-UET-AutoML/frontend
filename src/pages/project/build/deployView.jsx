@@ -5,7 +5,6 @@ import {
 	Card,
 	Row,
 	Col,
-	Alert,
 	Typography,
 	Space,
 	Statistic,
@@ -15,12 +14,8 @@ import {
 	message,
 	Progress,
 	Timeline,
-	Spin,
-	Tooltip,
 	Divider,
 	Input,
-	Modal,
-	List,
 } from 'antd'
 import {
 	RocketOutlined,
@@ -29,7 +24,6 @@ import {
 	ThunderboltOutlined,
 	CloudDownloadOutlined,
 	SettingOutlined,
-	UploadOutlined,
 	LineChartOutlined,
 	LoadingOutlined,
 	CheckCircleOutlined,
@@ -37,12 +31,8 @@ import {
 	CloudServerOutlined,
 	CodeOutlined,
 	NodeIndexOutlined,
-	SyncOutlined,
 	CloudUploadOutlined,
 	LinkOutlined,
-	ExpandAltOutlined,
-	CheckOutlined,
-	ClockCircleOutlined,
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import { validateFiles } from 'src/utils/file'

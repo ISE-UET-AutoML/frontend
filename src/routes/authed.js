@@ -22,6 +22,7 @@ import DatasetView from 'src/pages/dataset/DatasetView'
 import UploadData from 'src/pages/project/build/uploadData'
 import SelectInstance from 'src/pages/project/build/selectInstance'
 import SelectTargetColMulti from 'src/pages/project/build/selectTargetColMulti'
+import SelectTargetCol from 'src/pages/project/build/selectTargetCol'
 import Training from 'src/pages/project/build/training'
 import TrainResult from 'src/pages/project/build/trainResult'
 import DeployView from 'src/pages/project/build/deployView'
@@ -65,6 +66,10 @@ const routes = {
 										{
 											path: 'selectTargetColMulti',
 											element: <SelectTargetColMulti />,
+										},
+										{
+											path: 'selectTargetCol',
+											element: <SelectTargetCol />,
 										},
 										{
 											path: 'selectInstance',

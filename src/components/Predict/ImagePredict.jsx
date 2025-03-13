@@ -89,8 +89,6 @@ const ImagePredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 		</Space>
 	)
 
-	console.log('uploadFiles', uploadedFiles)
-
 	// Initialize explanation images
 	useEffect(() => {
 		if (uploadedFiles.length > 0 && explainImageUrl.length === 0) {
@@ -398,11 +396,14 @@ const ImagePredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 												currentPrediction.confidence *
 													100
 											)}
-											status={
-												currentPrediction.confidence >=
-												0.5
-													? 'success'
-													: 'exception'
+											strokeColor={
+												currentPrediction.confidence >
+												0.7
+													? '#52c41a' // green
+													: currentPrediction.confidence >
+														  0.4
+														? '#fa8c16' // orange
+														: '#ff4d4f' // red
 											}
 											format={(percent) => `${percent}%`}
 										/>
