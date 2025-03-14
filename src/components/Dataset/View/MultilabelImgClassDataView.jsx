@@ -29,7 +29,7 @@ const { Title, Text } = Typography
 const { Option } = Select
 const { Search } = Input
 
-const MultilabelClassDataView = ({ dataset, files }) => {
+const MultilabelImgClassDataView = ({ dataset, files }) => {
 	const imagesPerPage = 16
 	const [currentPage, setCurrentPage] = useState(1)
 	const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
@@ -522,4 +522,4 @@ const MultilabelClassDataView = ({ dataset, files }) => {
 	)
 }
 
-export default MultilabelClassDataView
+export default MultilabelImgClassDataView

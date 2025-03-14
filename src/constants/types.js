@@ -31,8 +31,8 @@ const TYPES = {
 			border: '#faad14',
 		},
 	},
-	MULTILABEL_CLASSIFICATION: {
-		type: 'Multilabel Classification',
+	MULTILABEL_IMAGE_CLASSIFICATION: {
+		type: 'Multilabel Image Classification',
 		description: 'We accept JPEG, PNG image format',
 		allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
 		card: {

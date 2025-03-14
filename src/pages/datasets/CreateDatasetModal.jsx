@@ -23,7 +23,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		return files.filter((file) => {
 			if (
 				datasetType === 'IMAGE_CLASSIFICATION' ||
-				datasetType === 'MULTILABEL_CLASSIFICATION'
+				datasetType === 'MULTILABEL_IMAGE_CLASSIFICATION'
 			) {
 				return allowedImageTypes.includes(file.type)
 			} else {
@@ -167,7 +167,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 									<FileOutlined
 										style={{ marginRight: '8px' }}
 									/>
-									<span>{file.name}</span>
+									<span>{file.webkitRelativePath}</span>
 									<span
 										style={{
 											marginLeft: '8px',
