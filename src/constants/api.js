@@ -28,10 +28,6 @@ export const API_URL = {
 		`${API_BASE_URL}/projects/${datasetID}/autolabel`,
 	get_model: (experimentName) =>
 		`${API_BASE_URL}/experiments/model/${experimentName}`,
-	predict_data: (experimentName) =>
-		`${API_BASE_URL}/experiments/predict/?experiment_name=${experimentName}`,
-	explain_data: (experimentName) =>
-		`${API_BASE_URL}/experiments/explain/?experiment_name=${experimentName}`,
 	get_dataset_preview: (projectID, page, pageSize) =>
 		`${API_BASE_URL}/projects/${projectID}/dataset_preview?&page=${page}&page_size=${pageSize}`,
 }

@@ -18,17 +18,17 @@ const getAllExperiments = (projectID) => {
 }
 
 const predictData = (experimentName, files) => {
-	// const options = {
-	// 	headers: { 'Content-Type': 'multipart/form-data' },
-	// }
-	return instance.post(API_URL.predict_data(experimentName), files)
+	return instance.post(
+		`${URL}/predict/?experiment_name=${experimentName}`,
+		files
+	)
 }
 
 const explainData = (experimentName, file) => {
-	// const options = {
-	// 	headers: { 'Content-Type': 'multipart/form-data' },
-	// }
-	return instance.post(API_URL.explain_data(experimentName), file)
+	return instance.post(
+		`${URL}/explain/?experiment_name=${experimentName}`,
+		file
+	)
 }
 
 const deployModel = (experimentName, deployType) => {

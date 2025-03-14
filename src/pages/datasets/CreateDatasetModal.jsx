@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd'
 import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons'
 import { TYPES } from 'src/constants/types'
+import { createDataset } from 'src/api/dataset'
 
 const { Option } = Select
 
@@ -59,8 +60,19 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			formData.append(key, value)
 		})
 
+		// if (values.type === 'MULTILABEL_IMAGE_CLASSIFICATION') {
+		// 	// Cách làm riêng cho MULTILABEL_IMAGE_CLASSIFICATION
+		// 	try {
+		// 		const response = await createDataset(formData)
+		// 		console.log('response', response)
+		// 	} catch (error) {
+		// 		message.error('Failed to create dataset. Please try again.')
+		// 	} finally {
+		// 		setIsLoading(false)
+		// 	}
+		// } else {
+		// Cách làm hiện tại cho các loại khác
 		for (let i = 0; i < files.length; i++) {
-			// Convert file name with relative path to base64 string
 			const fileNameBase64 = btoa(
 				String.fromCharCode(
 					...new TextEncoder().encode(files[i].webkitRelativePath)
@@ -68,27 +80,22 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			)
 			formData.append('files', files[i], fileNameBase64)
 		}
-
 		formData.append('isLabeled', isLabeled)
 		formData.append('service', service)
 		formData.append('selectedUrlOption', selectedUrlOption)
 		formData.append('bucketName', bucketName)
 
 		try {
-			// Set loading state to true
 			setIsLoading(true)
-
-			// Wait for onCreate to complete
 			await onCreate(formData)
-
 			message.success('Dataset created successfully!')
 			resetFormAndState()
 		} catch (error) {
 			message.error('Failed to create dataset. Please try again.')
 		} finally {
-			// Set loading state back to false
 			setIsLoading(false)
 		}
+		// }
 	}
 
 	const handleCancel = () => {

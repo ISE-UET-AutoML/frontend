@@ -23,6 +23,7 @@
     "postcss": "^8.0.9",
     "prop-types": "^15.6.0",
     "react": "^18.0.0",
+    "react-csv": "^2.2.2",
     "react-dom": "^18.0.0",
     "react-is": ">= 16.8.0",
     "react-markdown": "^9.0.3",

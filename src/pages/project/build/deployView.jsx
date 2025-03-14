@@ -132,6 +132,8 @@ const DeployView = () => {
 	const [completedTasks, setCompletedTasks] = useState([])
 	const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
 
+	const object = config[projectInfo.type]
+
 	const deploySteps = [
 		{
 			icon: <SettingOutlined style={{ fontSize: '24px' }} />,
@@ -982,7 +984,9 @@ const DeployView = () => {
 						{currentStep === 1 && isComplete && (
 							<Row
 								gutter={[24, 24]}
-								style={{ marginTop: '24px' }}
+								style={{
+									marginTop: '24px',
+								}}
 							>
 								<Col span={24}>
 									<Card
@@ -998,9 +1002,6 @@ const DeployView = () => {
 												</span>
 											</Space>
 										}
-										style={{
-											borderTop: '3px solid #1890ff',
-										}}
 									>
 										<Row gutter={[24, 24]}>
 											<Col xs={24} md={8}>
@@ -1114,6 +1115,25 @@ const DeployView = () => {
 											</Col>
 										</Row>
 									</Card>
+									<>
+										{(() => {
+											if (object) {
+												const LiveInferComponent =
+													object.liveInferView
+												return (
+													<LiveInferComponent
+														projectInfo={
+															projectInfo
+														}
+														handleUploadFiles={
+															handleUploadFiles
+														}
+													/>
+												)
+											}
+											return null
+										})()}
+									</>
 								</Col>
 							</Row>
 						)}
@@ -1121,7 +1141,7 @@ const DeployView = () => {
 						{currentStep === 2 && projectInfo && (
 							<>
 								{(() => {
-									const object = config[projectInfo.type]
+									// const object = config[projectInfo.type]
 									if (object) {
 										const PredictComponent =
 											object.predictView
