@@ -22,9 +22,9 @@ import {
 	FilterOutlined,
 } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
-import { PATHS } from 'src/constants/paths'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
+import config from './config'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
@@ -71,18 +71,13 @@ const UploadData = () => {
 		updateFields({
 			selectedDataset, // Store selected dataset
 		})
-		if (projectInfo.type === 'MULTIMODAL_CLASSIFICATION') {
-			navigate(
-				`/app/project/${projectInfo._id}/build/selectTargetColMulti`
-			)
-		} else if (
-			projectInfo.type === 'TEXT_CLASSIFICATION' ||
-			projectInfo.type === 'TABULAR_CLASSIFICATION'
-		) {
-			navigate(`/app/project/${projectInfo._id}/build/selectTargetCol`)
-		} else {
-			navigate(`/app/project/${projectInfo._id}/build/selectInstance`)
-		}
+
+		const object = config[projectInfo.type]
+		console.log('object', object)
+
+		navigate(
+			`/app/project/${projectInfo._id}/build/${object.afterUploadURL}`
+		)
 	}
 
 	const showModal = () => {

@@ -1,23 +1,41 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import * as datasetAPI from 'src/api/dataset'
 import * as projectAPI from 'src/api/project'
-import { message } from 'antd'
+import {
+	Select,
+	Card,
+	Row,
+	Col,
+	Button,
+	Typography,
+	Spin,
+	Tooltip,
+	message,
+} from 'antd'
+import { InfoCircleOutlined } from '@ant-design/icons'
 
-const SelectTargetCol = (props) => {
+const { Option } = Select
+const { Title, Text } = Typography
+
+const SelectTargetCol = () => {
+	const { projectInfo, selectedDataset, updateFields } = useOutletContext()
+	const navigate = useNavigate()
 	const [dataset, setDataset] = useState(null)
 	const [colsName, setColsName] = useState([])
 	const [selectedCol, setSelectedCol] = useState(null)
+	const [loading, setLoading] = useState(false)
 	const { id: projectID } = useParams()
 
 	useEffect(() => {
-		if (!props.selectedDataset?._id) return
+		if (!selectedDataset?._id) return
 
 		const fetchDataset = async () => {
+			setLoading(true)
 			try {
 				const { data } = await datasetAPI.getDatasetPreview(
-					props.selectedDataset._id,
-					12
+					selectedDataset._id,
+					10
 				)
 
 				// Xử lý dữ liệu để đảm bảo cấu trúc nhất quán
@@ -37,119 +55,154 @@ const SelectTargetCol = (props) => {
 			} catch (error) {
 				console.error('Error fetching dataset:', error)
 				message.error('Failed to load dataset preview')
+			} finally {
+				setLoading(false)
 			}
 		}
 
 		fetchDataset()
-	}, [props.selectedDataset?._id])
+	}, [selectedDataset?._id])
 
+	// Xác định loại dữ liệu của cột
+	const getColumnType = (value) => {
+		if (value === undefined || value === null || value === '')
+			return 'unknown'
+		if (typeof value === 'number') return 'number'
+		if (!isNaN(Number(value))) return 'number'
+		return 'text'
+	}
+
+	// Hàm gửi thông tin cột mục tiêu và cột văn bản
 	const sendTargetColumn = async () => {
-		if (!selectedCol) return
+		if (!selectedCol) {
+			message.warning('Please select a target column')
+			return
+		}
 
+		// Các cột còn lại sẽ được xếp vào textCols
 		const textCols = colsName.filter((col) => col !== selectedCol)
 
+		setLoading(true)
 		try {
 			const formData = new FormData()
 			formData.append('targetCol', selectedCol)
 			formData.append('textCols', textCols)
-			formData.append('datasetID', props.selectedDataset?._id)
+			formData.append('datasetID', selectedDataset?._id)
 
 			const res = await projectAPI.sendTargetColumn(projectID, formData)
 
 			if (res.status === 200) {
-				message.success('Target Column successfully set')
-				props.updateFields({
-					isDoneSelectTargetCol: true,
-				})
+				message.success('Target Column Set Successfully', 3)
+				navigate(`/app/project/${projectInfo._id}/build/selectInstance`)
 			}
 		} catch (error) {
 			console.error('Error sending target column:', error)
 			message.error('Failed to set target column')
 		} finally {
+			setLoading(false)
 		}
 	}
 
 	return (
-		<>
-			{dataset && (
-				<div className="relative h-full flex flex-col p-4">
-					<div className="flex">
-						<h1 className="w-full text-center text-4xl font-bold">
-							Choose Target Column
-						</h1>
-						<div className="flex justify-end">
-							{selectedCol !== null && (
-								<button
-									className="btn"
-									onClick={sendTargetColumn}
-								>
-									<svg
-										height="24"
-										width="24"
-										fill="#FFFFFF"
-										viewBox="0 0 24 24"
-										data-name="Layer 1"
-										id="Layer_1"
-										className="sparkle"
-									>
-										<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
-									</svg>
-									<span className="text">Next</span>
-								</button>
-							)}
-						</div>
+	<>
+			<Card className="mx-auto w-full border-none">
+				<Title level={2} className="text-center mb-6">
+					Select Target Column
+				</Title>
+				<Text type="secondary" className="block text-center mb-8">
+					Choose the target column for analysis. The remaining columns
+					will be used as text columns.
+				</Text>
+
+				<Spin spinning={loading}>
+					<Row gutter={[24, 24]} className="mb-8">
+						<Col xs={24} md={12} className="mx-auto">
+							<div className="flex items-center mb-2">
+								<label className="text-blue-600 font-medium mr-3">
+									Target Column{' '}
+									<Tooltip title="Select the column that contains the target data for analysis.">
+										<InfoCircleOutlined className="text-gray-500" />
+									</Tooltip>
+								</label>
+							</div>
+							<Select
+								className="w-full"
+								placeholder="Select Target Column"
+								value={selectedCol}
+								onChange={setSelectedCol}
+								optionFilterProp="children"
+								showSearch
+							>
+								{colsName.map((col) => (
+									<Option key={col} value={col}>
+										{col}
+									</Option>
+								))}
+							</Select>
+						</Col>
+					</Row>
+
+					<div className="text-center">
+						<Button
+							type="primary"
+							size="large"
+							onClick={sendTargetColumn}
+							disabled={!selectedCol}
+							className="w-48"
+						>
+							Confirm Selection
+						</Button>
 					</div>
 
-					<div className="flex-1 overflow-auto border mt-10 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
-						<table className="w-full border-collapse border border-black">
-							<thead className="sticky top-0 bg-blue-600">
-								<tr>
-									{colsName.map((col) => (
-										<th
-											key={col}
-											onClick={() => setSelectedCol(col)}
-											className={`
-							px-4 py-3 text-left text-sm font-medium uppercase text-white cursor-pointer border border-black
-							${selectedCol === col ? 'bg-blue-800' : ''}
-						`}
-										>
-											{col}
-										</th>
-									))}
-								</tr>
-							</thead>
-							<tbody className="bg-white">
-								{dataset.map((row, rowIndex) => (
-									<tr
-										key={rowIndex}
-										className="hover:bg-gray-200 transition-colors"
-									>
+					{dataset && (
+						<div className="mt-8 overflow-auto border rounded-lg shadow-sm">
+							<table className="w-full border-collapse text-sm text-gray-700">
+								<thead className="bg-gray-100 text-gray-800 sticky top-0 text-center">
+									<tr>
 										{colsName.map((col) => (
-											<td
-												key={`${rowIndex}-${col}`}
-												className={`px-4 py-2 text-sm text-gray-900 border border-black ${
-													selectedCol === col
-														? 'bg-blue-100'
-														: ''
-												}`}
-												style={{
-													maxWidth: '10%',
-													overflow: 'hidden',
-													textOverflow: 'ellipsis',
-												}}
-											>
-												<div title={row[col]}>
-													{row[col]}
-												</div>
-											</td>
+											<th key={col} className="pt-2 px-4">
+												{col}
+											</th>
 										))}
 									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			)}
+									<tr>
+										{colsName.map((col) => (
+											<th
+												key={col}
+												className="pb-2 px-4 border-b text-xs text-gray-500"
+											>
+												{dataset[0]
+													? getColumnType(
+															dataset[0][col]
+														)
+													: 'unknown'}
+											</th>
+										))}
+									</tr>
+								</thead>
+								<tbody>
+									{dataset.map((row, rowIndex) => (
+										<tr
+											key={rowIndex}
+											className="border-b hover:bg-gray-50 text-center"
+										>
+											{colsName.map((col) => (
+												<td
+													key={col}
+													className={`px-4 py-2 truncate max-w-[150px] ${col === selectedCol ? 'bg-blue-50' : ''}`}
+													title={row[col]}
+												>
+													{row[col]}
+												</td>
+											))}
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					)}
+				</Spin>
+			</Card>
 		</>
 	)
 }

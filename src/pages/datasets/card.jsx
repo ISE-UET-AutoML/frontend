@@ -9,29 +9,14 @@ import {
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
+import { TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
 
-const TAG_COLORS = {
-	IMAGE_CLASSIFICATION: { bg: '#e6f4ff', text: '#1677ff', border: '#1677ff' },
-	TEXT_CLASSIFICATION: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
-	TABULAR_CLASSIFICATION: {
-		bg: '#f9f0ff',
-		text: '#722ed1',
-		border: '#722ed1',
-	},
-	MULTIMODAL_CLASSIFICATION: {
-		bg: '#fffbe6',
-		text: '#faad14',
-		border: '#faad14',
-	},
-	OBJECT_DETECTION: { bg: '#fff7e6', text: '#fa8c16', border: '#fa8c16' },
-}
-
 export default function DatasetCard({ dataset, getDatasets }) {
-	const tagColor = TAG_COLORS[dataset?.type] || TAG_COLORS.other
+	const tagColor = TYPES[dataset?.type].card
 
 	const handleCardClick = () => {
 		window.location.href = PATHS.DATASET_VIEW(dataset?._id)

@@ -240,7 +240,7 @@ const InstanceInfo = ({ formData }) => {
 					style={{ fontSize: '24px', color: '#52c41a' }}
 				/>
 			}
-			className="instance-info-card"
+			className="instance-info-card rounded-lg shadow-sm"
 		>
 			<Space direction="vertical" size="large" style={{ width: '100%' }}>
 				<Row gutter={[16, 16]}>
@@ -438,11 +438,12 @@ const SelectInstance = () => {
 				<Space
 					direction="vertical"
 					size="large"
-					style={{ width: '100%' }}
+					// style={{ width: '100%', borderRadius: '8px' }}
+					className="w-full rounded-lg shadow-sm pb-2"
 				>
 					<Row gutter={[24, 24]}>
 						<Col span={16}>
-							<Card>
+							<Card className="rounded-lg shadow-sm">
 								<Space
 									direction="vertical"
 									size="large"
@@ -621,7 +622,7 @@ const SelectInstance = () => {
 						</div>
 					}
 					open={isModalVisible}
-					// onCancel={handleModalCancel}
+					onCancel={handleModalCancel}
 					footer={null}
 					width={1000}
 				>

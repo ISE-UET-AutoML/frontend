@@ -484,7 +484,6 @@ const Training = () => {
 
 				const res = await getExperiment(experimentName)
 
-				console.log('res', res)
 				if (res.status === 422 || res.status === 500) {
 					clearInterval(interval)
 					setLoading(false)
@@ -523,6 +522,7 @@ const Training = () => {
 							trainingInfo,
 							elapsedTime: calculateElapsedTime(startTime),
 						})
+						console.log('Debug tai sao trainInfo = 0 cho nay')
 						// Save final data before redirecting
 						if (res.data.trainInfo) {
 							setTrainingInfo({
