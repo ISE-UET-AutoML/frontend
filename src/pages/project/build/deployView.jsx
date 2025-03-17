@@ -445,6 +445,11 @@ const DeployView = () => {
 							'Model is now online and ready for predictions',
 							'success'
 						)
+					} else if (deployInfo.status === 'ERROR') {
+						setIsDeploying(false)
+						clearInterval(interval)
+						message.error('Deployment failed:', 5)
+						addDeploymentLog(`Deployment failed`, 'error')
 					} else {
 						setCurrentStep(0)
 					}
