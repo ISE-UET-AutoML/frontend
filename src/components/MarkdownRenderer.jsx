@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { stackoverflowDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -27,7 +28,7 @@ const MarkdownRenderer = ({ markdownText }) => {
               <SyntaxHighlighter
                 PreTag="div"
                 language={language}  // Syntax highlighting with the specified language
-                style={stackoverflowDark}
+                style={vscDarkPlus}
                 {...rest}
               >
                 {code}
@@ -37,7 +38,7 @@ const MarkdownRenderer = ({ markdownText }) => {
               <SyntaxHighlighter
                 PreTag="div"
                 language="text"  // Treating it as plain text (or CSV) in this case
-                style={stackoverflowDark}
+                style={vscDarkPlus}
                 {...rest}
               >
                 {code}
