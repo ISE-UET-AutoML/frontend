@@ -127,6 +127,10 @@ const TrainResult = () => {
 			const data = res.data
 
 			console.log('history', data)
+			if (data.error) {
+				return
+			}
+
 			setGraphJSON(data)
 
 			if (data.fit_history.scalars.val_loss) {

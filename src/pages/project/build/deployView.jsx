@@ -514,6 +514,15 @@ const DeployView = () => {
 				formData
 			)
 			console.log('Fetch prediction successful', data)
+			if (data.status === 'failed') {
+				message.error(
+					'Your Files are not valid. Please select files has the same structure with your training data',
+					5
+				)
+				addDeploymentLog('No predictions found', data.message)
+				setUploading(false)
+				return
+			}
 			const { predictions } = data
 
 			setPredictResult(predictions)
