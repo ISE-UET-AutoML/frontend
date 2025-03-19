@@ -2,7 +2,11 @@ import React, { useState } from 'react'
 import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd'
 import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons'
 import { TYPES } from 'src/constants/types'
-import { createDataset } from 'src/api/dataset'
+import { createImgDataset } from 'src/api/dataset'
+import {
+	uploadZippedFilesToS3,
+	parseAndValidateFiles,
+} from 'src/utils/uploadZipS3'
 
 const { Option } = Select
 
@@ -60,42 +64,65 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			formData.append(key, value)
 		})
 
-		// if (values.type === 'MULTILABEL_IMAGE_CLASSIFICATION') {
-		// 	// Cách làm riêng cho MULTILABEL_IMAGE_CLASSIFICATION
-		// 	try {
-		// 		const response = await createDataset(formData)
-		// 		console.log('response', response)
-		// 	} catch (error) {
-		// 		message.error('Failed to create dataset. Please try again.')
-		// 	} finally {
-		// 		setIsLoading(false)
-		// 	}
-		// } else {
-		// Cách làm hiện tại cho các loại khác
-		for (let i = 0; i < files.length; i++) {
-			const fileNameBase64 = btoa(
-				String.fromCharCode(
-					...new TextEncoder().encode(files[i].webkitRelativePath)
-				)
-			)
-			formData.append('files', files[i], fileNameBase64)
-		}
-		formData.append('isLabeled', isLabeled)
-		formData.append('service', service)
-		formData.append('selectedUrlOption', selectedUrlOption)
-		formData.append('bucketName', bucketName)
+		if (values.type === 'MULTILABEL_IMAGE_CLASSIFICATION') {
+			// Specific handling for MULTILABEL_IMAGE_CLASSIFICATION
 
-		try {
-			setIsLoading(true)
-			await onCreate(formData)
-			message.success('Dataset created successfully!')
-			resetFormAndState()
-		} catch (error) {
-			message.error('Failed to create dataset. Please try again.')
-		} finally {
-			setIsLoading(false)
+			try {
+				// Show loading
+				setIsLoading(true)
+
+				// Parse and validate files
+				const validFiles = parseAndValidateFiles(files)
+
+				formData.append('isLabeled', isLabeled)
+				formData.append('service', service)
+				formData.append('selectedUrlOption', selectedUrlOption)
+				formData.append('bucketName', bucketName)
+
+				// Get presigned URL from backend
+				const { data } = await createImgDataset(formData)
+
+				console.log('validFiles', validFiles)
+
+				// Upload files to S3
+				await uploadZippedFilesToS3(data, validFiles)
+
+				message.success(
+					`Successfully uploaded ${validFiles.length} files`
+				)
+				resetFormAndState()
+			} catch (error) {
+				console.error('Error uploading files:', error)
+				message.error('An error occurred while uploading files')
+			} finally {
+				setIsLoading(false)
+			}
+		} else {
+			// Current handling for other types
+			for (let i = 0; i < files.length; i++) {
+				const fileNameBase64 = btoa(
+					String.fromCharCode(
+						...new TextEncoder().encode(files[i].webkitRelativePath)
+					)
+				)
+				formData.append('files', files[i], fileNameBase64)
+			}
+			formData.append('isLabeled', isLabeled)
+			formData.append('service', service)
+			formData.append('selectedUrlOption', selectedUrlOption)
+			formData.append('bucketName', bucketName)
+
+			try {
+				setIsLoading(true)
+				await onCreate(formData)
+				message.success('Dataset created successfully!')
+				resetFormAndState()
+			} catch (error) {
+				message.error('Failed to create dataset. Please try again.')
+			} finally {
+				setIsLoading(false)
+			}
 		}
-		// }
 	}
 
 	const handleCancel = () => {
