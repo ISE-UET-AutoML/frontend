@@ -4,6 +4,7 @@ import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
+import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
 import TextLiveInfer from 'src/components/LiveInfer/TextLiveInfer'
 import { UploadTypes } from 'src/constants/file'
 
@@ -43,7 +44,7 @@ const config = {
 		afterUploadURL: 'selectInstance',
 		folder: UploadTypes.CSV_SINGLE,
 		labelingView: LabelingTextClassification,
-		predictView: MultimodalPredict,
+		predictView: MultiLabelImgPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 }
