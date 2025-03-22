@@ -1,40 +1,11 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
-import useMultiStepForm from 'src/hooks/useMultiStepForm'
+import { Outlet, useParams } from 'react-router-dom'
 import * as projectAPI from 'src/api/project'
-import PredictData from './predictData'
-import UploadData from './uploadData.jsx'
-import TrainModel from './trainModel'
-import LabelData from './labelData/labelData'
-import SelectInstance from './selectInstance'
 
-export default function ProjectBuild(props) {
-	const location = useLocation()
-	const [data, setData] = useState({})
+export default function ProjectBuild() {
 	const { id: projectID } = useParams()
 	const [projectInfo, setProjectInfo] = useState(null)
-
-	function updateFields(fields) {
-		//TODO: Route to  LabelData
-		if (fields.isDoneUploadData) {
-			goTo(1)
-		}
-		// if (fields.isDoneLabelData) {
-		// 	goTo(2)
-		// }
-		if (fields.isDoneSelectInstance) {
-			goTo(2)
-		}
-		if (fields.isDoneTrainModel) {
-			goTo(3)
-		}
-		if (fields.isDonePredictData) {
-			goTo(4)
-		}
-		setData((prev) => {
-			return { ...prev, ...fields }
-		})
-	}
+	const [data, setData] = useState({})
 
 	useEffect(() => {
 		const fetchProjectInfo = async () => {
@@ -49,49 +20,17 @@ export default function ProjectBuild(props) {
 		fetchProjectInfo()
 	}, [projectID])
 
-	useEffect(() => {
-		const searchParams = new URLSearchParams(location.search)
-		const step = searchParams.get('step')
-		if (step) {
-			goTo(parseInt(step))
-		}
-	}, [])
+	// Function to update data state
+	function updateFields(fields) {
+		setData((prev) => ({ ...prev, ...fields }))
+	}
 
-	const {
-		steps,
-		currentStepIndex,
-		step,
-		isFirstStep,
-		isLastStep,
-		back,
-		next,
-		goTo,
-	} = useMultiStepForm([
-		<UploadData
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-		<SelectInstance
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-		// <LabelData
-		// 	{...data}
-		// 	updateFields={updateFields}
-		// 	projectInfo={projectInfo}
-		// />,
-		<TrainModel
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-		<PredictData
-			{...data}
-			updateFields={updateFields}
-			projectInfo={projectInfo}
-		/>,
-	])
-	return steps[currentStepIndex]
+	return (
+		<div>
+			{/* Pass data and update function via Outlet context */}
+			{projectInfo && (
+				<Outlet context={{ ...data, updateFields, projectInfo }} />
+			)}
+		</div>
+	)
 }

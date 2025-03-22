@@ -8,8 +8,6 @@ export const API_URL = {
 	train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
 	delete_project: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/delete`,
-	all_modelsById: (projectId) =>
-		`${API_BASE_URL}/projects/models?project_id=${projectId}`,
 	upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
 	get_project_dataset: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/datasets`,
@@ -30,14 +28,6 @@ export const API_URL = {
 		`${API_BASE_URL}/projects/${datasetID}/autolabel`,
 	get_model: (experimentName) =>
 		`${API_BASE_URL}/experiments/model/${experimentName}`,
-	get_training_history: (experimentName) =>
-		`${API_BASE_URL}/experiments/train-history/?experiment_name=${experimentName}`,
-	predict_data: (experimentName) =>
-		`${API_BASE_URL}/experiments/predict/?experiment_name=${experimentName}`,
-	explain_data: (experimentName) =>
-		`${API_BASE_URL}/experiments/explain/?experiment_name=${experimentName}`,
 	get_dataset_preview: (projectID, page, pageSize) =>
 		`${API_BASE_URL}/projects/${projectID}/dataset_preview?&page=${page}&page_size=${pageSize}`,
-	deploy_model: (experimentName, deployType) =>
-		`${API_BASE_URL}/experiments/cloud_deploy?experiment_name=${experimentName}&deploy_type=${deployType}`,
 }

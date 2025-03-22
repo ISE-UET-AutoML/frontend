@@ -1,36 +1,54 @@
 import { API_URL, API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
 
+const URL = `${API_BASE_URL}/experiments`
+
 const getTrainingHistory = (experimentName) => {
 	return instance.get(
-		`${API_BASE_URL}/experiments/train-history?experiment_name=${experimentName}`
+		`${URL}/train-history?experiment_name=${experimentName}`
 	)
 }
 
 const getExperiment = (experimentName) => {
-	return instance.get(`${API_BASE_URL}/experiments?name=${experimentName}`)
+	return instance.get(`${URL}?name=${experimentName}`)
+}
+
+const getAllExperiments = (projectID) => {
+	return instance.get(`${URL}/allExperiments?projectID=${projectID}`)
 }
 
 const predictData = (experimentName, files) => {
-	// const options = {
-	// 	headers: { 'Content-Type': 'multipart/form-data' },
-	// }
-	return instance.post(API_URL.predict_data(experimentName), files)
+	return instance.post(
+		`${URL}/predict/?experiment_name=${experimentName}`,
+		files
+	)
 }
 
 const explainData = (experimentName, file) => {
-	// const options = {
-	// 	headers: { 'Content-Type': 'multipart/form-data' },
-	// }
-	return instance.post(API_URL.explain_data(experimentName), file)
+	return instance.post(
+		`${URL}/explain/?experiment_name=${experimentName}`,
+		file
+	)
 }
 
 const deployModel = (experimentName, deployType) => {
-	return instance.get(API_URL.deploy_model(experimentName, deployType))
+	return instance.get(
+		`${URL}/cloud_deploy?experiment_name=${experimentName}&deploy_type=${deployType}`
+	)
 }
 
 const getDeployStatus = (experimentName) => {
-	return instance.get(`${API_BASE_URL}/experiments/cloud_deploy_status?experiment_name=${experimentName}`)
+	return instance.get(
+		`${URL}/cloud_deploy_status?experiment_name=${experimentName}`
+	)
 }
 
-export { getTrainingHistory, predictData, explainData, getExperiment, deployModel, getDeployStatus }
+export {
+	getTrainingHistory,
+	getAllExperiments,
+	predictData,
+	explainData,
+	getExperiment,
+	deployModel,
+	getDeployStatus,
+}

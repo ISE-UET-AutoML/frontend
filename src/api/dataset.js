@@ -7,8 +7,13 @@ const createDataset = (formData) => {
 	const options = {
 		headers: { 'Content-Type': 'multipart/form-data' },
 	}
-
 	return instance.post(`${URL}`, formData, options)
+}
+const createImgDataset = (formData) => {
+	const options = {
+		headers: { 'Content-Type': 'multipart/form-data' },
+	}
+	return instance.post(`${URL}/createImg`, formData, options)
 }
 
 const getDatasets = () => {
@@ -17,6 +22,14 @@ const getDatasets = () => {
 
 const getDataset = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}`)
+}
+
+const getDatasetPreview = (datasetID, size) => {
+	return instance.get(`${URL}/${datasetID}/datasetPreview?size=${size}`)
+}
+
+const getDataTen = (datasetID) => {
+	return instance.get(`${URL}/${datasetID}/dataTen`)
 }
 
 const deleteObjects = (datasetID, formData) => {
@@ -30,4 +43,13 @@ const addNewFiles = (datasetID, formData) => {
 	return instance.post(`${URL}/${datasetID}/addNewFiles`, formData, options)
 }
 
-export { createDataset, getDatasets, getDataset, deleteObjects, addNewFiles }
+export {
+	createDataset,
+	createImgDataset,
+	getDatasets,
+	getDataset,
+	getDataTen,
+	deleteObjects,
+	addNewFiles,
+	getDatasetPreview,
+}

@@ -1,30 +1,33 @@
-import { CubeTransparentIcon } from '@heroicons/react/24/outline'
+import React from 'react'
+import { Tag, Typography } from 'antd'
+import { ExperimentOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
-import { useNavigate } from 'react-router-dom' // For navigation
-import { Tag, Typography } from 'antd' // Use Ant Design components
+import { useNavigate } from 'react-router-dom'
 
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
 
-export default function ModelCard({ model }) {
-	const { _id, name, isDeployed, createdAt, project_id, experimentID } = model
-	const navigate = useNavigate() // Hook for navigation
+// Define status colors
+const statusColors = {
+	DONE: 'green',
+	PROCESSING: 'orange',
+}
+
+export default function ExperimentCard({ experiment }) {
+	const { _id, name, status, createdAt, project_id } = experiment
+	const navigate = useNavigate()
 
 	// Handle card click
 	const handleCardClick = () => {
 		navigate(
-			isDeployed
-				? PATHS.PREDICT(experimentID) // Tmp route
-				: PATHS.PROJECT_TRAININGRESULT(project_id, experimentID)
+			status === 'DONE'
+				? PATHS.PROJECT_TRAININGRESULT(project_id, name)
+				: PATHS.PROJECT_TRAINING(project_id, name)
 		)
 	}
-
-	// Define status and color based on deployment status
-	const status = isDeployed ? 'Deployed' : 'onCloud'
-	const statusColor = isDeployed ? 'green' : 'blue'
 
 	return (
 		<div
@@ -47,8 +50,9 @@ export default function ModelCard({ model }) {
 			<div className="flex justify-between">
 				<span
 					style={{
-						color: isDeployed ? '#52c41a' : '#1890ff',
-						backgroundColor: isDeployed ? '#f6ffed' : '#e6f7ff',
+						color: statusColors[status],
+						backgroundColor:
+							status === 'DONE' ? '#f6ffed' : '#e6f7ff',
 						borderRadius: '12px',
 						padding: '8px',
 						display: 'inline-flex',
@@ -56,13 +60,12 @@ export default function ModelCard({ model }) {
 						justifyContent: 'center',
 					}}
 				>
-					<CubeTransparentIcon
-						className="h-6 w-6"
-						aria-hidden="true"
+					<ExperimentOutlined
+						style={{ fontSize: 24, color: statusColors[status] }}
 					/>
 				</span>
 				<Tag
-					color={statusColor}
+					color={statusColors[status]}
 					style={{ fontSize: 14, padding: '8px' }}
 				>
 					{status}

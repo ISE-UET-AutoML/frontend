@@ -1,23 +1,23 @@
-import ModelCard from './card'
-import { ModelIcon } from 'src/components/icons'
+import ExperimentCard from './card'
+import { RectangleStackIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState } from 'react'
-import { getModels } from 'src/api/project'
+import { getAllExperiments } from 'src/api/experiment'
 import { useParams } from 'react-router-dom'
 import { Row, Col, Empty, Typography } from 'antd' // Use Ant Design components
 
 const { Title, Text } = Typography
 
-export default function ProjectModels() {
+export default function ProjectExperiments() {
 	const { id: projectId } = useParams()
-	const [models, setModels] = useState([])
+	const [experiments, setExperiments] = useState([])
 
-	const getListModels = async () => {
-		const { data } = await getModels(projectId)
-		setModels(data)
+	const getListExperiments = async () => {
+		const { data } = await getAllExperiments(projectId)
+		setExperiments(data.data)
 	}
 
 	useEffect(() => {
-		getListModels()
+		getListExperiments()
 	}, [])
 
 	return (
@@ -25,26 +25,28 @@ export default function ProjectModels() {
 			{/* Header Section */}
 			<div className="flex justify-between items-center mb-4">
 				<div>
-					<Title level={2} style={{ marginBottom: 0 }}>
-						Models
+					<Title level={1} style={{ marginBottom: 0 }}>
+						Experiments
 					</Title>
 					{/* Meta Info */}
 					<div className="mt-2 flex items-center space-x-2">
-						<ModelIcon
+						<RectangleStackIcon
 							className="h-5 w-5 text-gray-400"
 							aria-hidden="true"
 						/>
-						<Text type="secondary">{models.length} Models</Text>
+						<Text type="secondary">
+							{experiments.length} Experiments
+						</Text>
 					</div>
 				</div>
 			</div>
 
-			{/* Models List */}
-			{models.length > 0 ? (
+			{/* Experiments List */}
+			{experiments.length > 0 ? (
 				<Row gutter={[16, 16]}>
-					{models.map((model) => (
-						<Col key={model._id} xs={24} sm={12} md={8} lg={6}>
-							<ModelCard model={model} />
+					{experiments.map((experiment) => (
+						<Col key={experiment._id} xs={24} sm={12} md={8} lg={6}>
+							<ExperimentCard experiment={experiment} />
 						</Col>
 					))}
 				</Row>
@@ -68,14 +70,9 @@ export default function ProjectModels() {
 						</svg>
 					}
 					description={
-						<>
-							<Text
-								type="secondary"
-								className="text-sm font-medium"
-							>
-								No Models
-							</Text>
-						</>
+						<Text type="secondary" className="text-sm font-medium">
+							No Experiments
+						</Text>
 					}
 				/>
 			)}

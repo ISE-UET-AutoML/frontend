@@ -16,10 +16,6 @@ const listData = (projectID, queryString = '&page=1&size=24') => {
 	)
 }
 
-// const trainModel = (projectID) => {
-//     return instance.post(API_URL.train_model(projectID));
-// };
-
 const updateData = (projectID) => {
 	return 'test'
 }
@@ -81,6 +77,14 @@ const trainModel = (projectID, dataset, instanceInfo) => {
 	})
 }
 
+const getModels = (projectID) => {
+	return instance.get(`${URL}/models?project_id=${projectID}`)
+}
+
+const sendTargetColumn = (projectID, formData) => {
+	return instance.post(`${URL}/${projectID}/sendTargetColumn`, formData)
+}
+
 export {
 	updateAnnotation,
 	createLabels,
@@ -97,4 +101,6 @@ export {
 	getProjectFullDataset,
 	autoLabel,
 	getPreviewDataByPage,
+	getModels,
+	sendTargetColumn,
 }
