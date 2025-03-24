@@ -1,9 +1,18 @@
-import { CubeTransparentIcon } from '@heroicons/react/24/outline'
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Typography, Badge, Button, Tooltip, Space } from 'antd'
+import {
+	CloudOutlined,
+	ThunderboltOutlined,
+	CheckCircleOutlined,
+	ClockCircleOutlined,
+	DeploymentUnitOutlined,
+	RocketOutlined,
+	StopOutlined,
+} from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
-import { useNavigate } from 'react-router-dom'
-import { Tag, Typography } from 'antd'
 
 dayjs.extend(relativeTime)
 
@@ -14,14 +23,18 @@ export default function ModelCard({ model }) {
 		model
 	const navigate = useNavigate()
 
-	// Handle card click based on deployStatus
-	const handleCardClick = () => {
-		const deployedStates = ['onCloud', 'inProduction']
-		navigate(
-			deployedStates.includes(deployStatus)
-				? PATHS.PREDICT(experimentID)
-				: PATHS.PROJECT_TRAININGRESULT(project_id, experimentID)
-		)
+	// Get status icon based on deployStatus
+	const getStatusIcon = (status) => {
+		switch (status) {
+			case 'onCloud':
+				return <CloudOutlined />
+			case 'deploying':
+				return <ThunderboltOutlined />
+			case 'inProduction':
+				return <CheckCircleOutlined />
+			default:
+				return <ClockCircleOutlined />
+		}
 	}
 
 	// Define status color based on deployStatus
@@ -33,74 +46,130 @@ export default function ModelCard({ model }) {
 				return 'orange'
 			case 'inProduction':
 				return 'green'
-			case 'shuttingDown':
-				return 'red'
 			default:
 				return 'gray'
 		}
 	}
 
-	// Capitalize first letter of status for display
-	const formatStatus = (status) => {
-		return status
-			? status.charAt(0).toUpperCase() + status.slice(1)
-			: 'Unknown'
+	// Friendly readable status text
+	const getStatusText = (status) => {
+		switch (status) {
+			case 'onCloud':
+				return 'Ready for Deployment'
+			case 'deploying':
+				return 'Deploying to Production'
+			case 'inProduction':
+				return 'Live in Production'
+			default:
+				return 'Processing'
+		}
+	}
+
+	// Handle card click to navigate to details
+	const handleCardClick = () => {
+		navigate(PATHS.PROJECT_TRAININGRESULT(project_id, experimentID))
+	}
+
+	// Handle deploy button click
+	const handleDeploy = (e) => {
+		e.stopPropagation()
+		navigate(
+			`/app/project/${project_id}/build/deployView?experimentName=${experimentID}`
+		)
+	}
+
+	// Handle redeploy button click
+	const handleRedeploy = (e) => {
+		e.stopPropagation()
+		console.log(`Redeploying model ${_id}`)
+	}
+
+	// Handle stop button click
+	const handleStop = (e) => {
+		e.stopPropagation()
+		console.log(`Stopping model ${_id}`)
 	}
 
 	return (
 		<div
-			key={_id}
-			className="relative group p-6 rounded-lg shadow cursor-pointer"
-			style={{
-				transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-			}}
+			className="relative bg-white pt-2 pl-6 pb-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200"
 			onClick={handleCardClick}
-			onMouseEnter={(e) => {
-				e.currentTarget.style.transform = 'translateY(-5px)'
-				e.currentTarget.style.boxShadow =
-					'0 4px 12px rgba(0, 0, 0, 0.1)'
-			}}
-			onMouseLeave={(e) => {
-				e.currentTarget.style.transform = 'translateY(0)'
-				e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-			}}
 		>
-			<div className="flex justify-between">
-				<span
-					style={{
-						color: getStatusColor(deployStatus),
-						backgroundColor: `${getStatusColor(deployStatus)}10`, // Adding transparency
-						borderRadius: '12px',
-						padding: '8px',
-						display: 'inline-flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					<CubeTransparentIcon
-						className="h-6 w-6"
-						aria-hidden="true"
-					/>
-				</span>
-				<Tag
-					color={getStatusColor(deployStatus)}
-					style={{ fontSize: 14, padding: '8px' }}
-				>
-					{formatStatus(deployStatus)}
-				</Tag>
-			</div>
-			<div className="mt-8">
-				<div className="flex w-full justify-between items-center">
-					<Title level={4} style={{ margin: 0, marginRight: 8 }}>
+			{/* Status Badge */}
+			<Badge.Ribbon
+				text={getStatusText(deployStatus)}
+				color={getStatusColor(deployStatus)}
+				className="right-0"
+			>
+				<div className="flex flex-col h-full">
+					{/* Header with icon */}
+					<div className="flex justify-between items-center mb-4">
+						<div
+							className="text-3xl"
+							style={{
+								color: getStatusColor(deployStatus),
+							}}
+						>
+							{getStatusIcon(deployStatus)}
+						</div>
+					</div>
+
+					{/* Model Name */}
+					<Title
+						level={4}
+						className="my-2 pr-2"
+						ellipsis={{ tooltip: name }}
+					>
 						{name}
 					</Title>
-				</div>
-				{createdAt && (
-					<Text type="secondary" style={{ fontSize: 12 }}>
+
+					{/* Creation Time */}
+					<Text type="secondary" className="text-xs">
 						Created {dayjs(createdAt).fromNow()}
 					</Text>
-				)}
-			</div>
+
+					{/* Action Buttons based on status */}
+					<div className="mt-6 pt-4 border-t border-gray-100">
+						<Space>
+							{deployStatus === 'onCloud' && (
+								<Tooltip title="Deploy this model to production">
+									<Button
+										type="primary"
+										icon={<RocketOutlined />}
+										onClick={handleDeploy}
+									>
+										Deploy
+									</Button>
+								</Tooltip>
+							)}
+
+							{deployStatus === 'inProduction' && (
+								<>
+									<Tooltip title="Stop this model in production">
+										<Button
+											type="danger"
+											icon={<StopOutlined />}
+											onClick={handleStop}
+											className="bg-red-100 text-red-800"
+										>
+											Shut down
+										</Button>
+									</Tooltip>
+									<Tooltip title="Redeploy this model">
+										<Button
+											type="primary"
+											icon={<DeploymentUnitOutlined />}
+											onClick={handleRedeploy}
+										>
+											Redeploy
+										</Button>
+									</Tooltip>
+								</>
+							)}
+						</Space>
+					</div>
+				</div>
+			</Badge.Ribbon>
 		</div>
 	)
 }

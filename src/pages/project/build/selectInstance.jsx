@@ -9,6 +9,7 @@ import { getExperiment } from 'src/api/experiment'
 import {
 	Card,
 	Tabs,
+	Slider,
 	InputNumber,
 	Button,
 	Space,
@@ -16,8 +17,6 @@ import {
 	message,
 	Tooltip,
 	Steps,
-	Alert,
-	Progress,
 	Badge,
 	Row,
 	Col,
@@ -301,7 +300,6 @@ const SelectInstance = () => {
 
 	const [currentStep, setCurrentStep] = useState(0)
 	const [isModalVisible, setIsModalVisible] = useState(false)
-
 	const steps = [
 		{
 			title: 'Setting up virtual environment',
@@ -312,6 +310,15 @@ const SelectInstance = () => {
 			icon: <CloudDownloadOutlined />,
 		},
 	]
+
+	const handleTrainingTimeChange = (value) => {
+		if (value >= 1 && value <= 24) {
+			setFormData((prev) => ({
+				...prev,
+				trainingTime: value,
+			}))
+		}
+	}
 
 	const handleFindInstance = async () => {
 		if (!formData.trainingTime) {
@@ -438,7 +445,6 @@ const SelectInstance = () => {
 				<Space
 					direction="vertical"
 					size="large"
-					// style={{ width: '100%', borderRadius: '8px' }}
 					className="w-full rounded-lg shadow-sm pb-2"
 				>
 					<Row gutter={[24, 24]}>
@@ -451,24 +457,44 @@ const SelectInstance = () => {
 								>
 									<div>
 										<Text strong>Training Duration</Text>
-										<InputNumber
+										<div
 											style={{
-												width: '100%',
+												display: 'flex',
+												alignItems: 'center',
 												marginTop: 8,
 											}}
-											min={0.1}
-											max={168} // 1 week
-											step={0.1}
-											value={formData.trainingTime}
-											onChange={(value) =>
-												setFormData((prev) => ({
-													...prev,
-													trainingTime: value,
-												}))
-											}
-											prefix={<ClockCircleOutlined />}
-											addonAfter="hours"
-										/>
+										>
+											<Slider
+												style={{ width: '85%' }}
+												min={1}
+												max={24}
+												step={0.5}
+												value={
+													formData.trainingTime || 1
+												}
+												onChange={
+													handleTrainingTimeChange
+												}
+												tooltip={{
+													formatter: (value) =>
+														`${value} hours`,
+												}}
+											/>
+											<InputNumber
+												style={{
+													width: '15%',
+													marginLeft: '10px',
+												}}
+												min={1}
+												max={24}
+												step={0.5}
+												value={formData.trainingTime}
+												onChange={
+													handleTrainingTimeChange
+												}
+												addonAfter="Hours"
+											/>
+										</div>
 										<Text type="secondary">
 											Recommended: 1-24 hours for most
 											models

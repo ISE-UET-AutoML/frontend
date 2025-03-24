@@ -12,6 +12,7 @@ import {
 	Tag,
 	Button,
 	Tooltip,
+	message,
 } from 'antd'
 import {
 	HistoryOutlined,
@@ -123,23 +124,40 @@ const TrainResult = () => {
 	}
 
 	useEffect(() => {
-		experimentAPI.getTrainingHistory(experimentName).then((res) => {
-			const data = res.data
+		const fetchTrainingHistory = async () => {
+			try {
+				const res =
+					await experimentAPI.getTrainingHistory(experimentName)
+				const data = res.data
 
-			console.log('history', data)
-			if (data.error) {
-				return
-			}
+				console.log('history', data)
+				if (data.error) {
+					message.error(
+						'An error occurred while fetching the training history.'
+					)
+					return
+				}
 
-			setGraphJSON(data)
+				setGraphJSON(data)
 
-			if (data.fit_history.scalars.val_loss) {
-				readChart(data.fit_history.scalars.val_loss, setValLossGraph)
+				if (data.fit_history.scalars.val_loss) {
+					readChart(
+						data.fit_history.scalars.val_loss,
+						setValLossGraph
+					)
+				}
+				if (data.fit_history.scalars.val_acc) {
+					readChart(data.fit_history.scalars.val_acc, setValAccGraph)
+				}
+			} catch (error) {
+				console.error('Error fetching training history:', error)
+				// message.error(
+				// 	'Failed to load training history. Please try again later.'
+				// )
 			}
-			if (data.fit_history.scalars.val_acc) {
-				readChart(data.fit_history.scalars.val_acc, setValAccGraph)
-			}
-		})
+		}
+
+		fetchTrainingHistory()
 	}, [])
 
 	return (

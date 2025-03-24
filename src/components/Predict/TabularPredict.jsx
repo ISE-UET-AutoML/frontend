@@ -1,323 +1,742 @@
 import React, { useState, useEffect } from 'react'
-import 'src/assets/css/chart.css'
-import * as experimentAPI from 'src/api/experiment'
+import {
+	Card,
+	Layout,
+	Typography,
+	Table,
+	Button,
+	Space,
+	Badge,
+	Statistic,
+	Progress,
+	Tag,
+	Tooltip,
+	Drawer,
+	Empty,
+	Pagination,
+	Alert,
+	Divider,
+	Switch,
+	Select,
+	Spin,
+} from 'antd'
+import {
+	LeftOutlined,
+	RightOutlined,
+	QuestionCircleOutlined,
+	CheckCircleOutlined,
+	CloseCircleOutlined,
+	FileTextOutlined,
+	EyeOutlined,
+	EyeInvisibleOutlined,
+	InfoCircleOutlined,
+	ThunderboltOutlined,
+	BarChartOutlined,
+	TableOutlined,
+	ExclamationCircleOutlined,
+	FilterOutlined,
+} from '@ant-design/icons'
 import Papa from 'papaparse'
-import PieGraph from 'src/components/PieGraph'
+const { Title, Text, Paragraph } = Typography
+const { Content, Header } = Layout
+const { Option } = Select
 
-const TabularPredict = ({
-	experimentName,
-	projectInfo,
-	predictDataState,
-	updateProjState,
-}) => {
+const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 	const [csvData, setCsvData] = useState([])
-	const [features, setFeatures] = useState([])
-	const [selectedIndexes, setSelectedIndexes] = useState([0])
-	const [falsePredict, setFalsePredict] = useState([])
-	const [isAllSelected, setIsAllSelected] = useState(false)
-	const [pieData, setPieData] = useState([])
-	const [isShowEff, setIsShowEff] = useState(false)
+	const [currentPage, setCurrentPage] = useState(1)
+	const [incorrectPredictions, setIncorrectPredictions] = useState([])
+	const [statistics, setStatistics] = useState({
+		correct: 0,
+		incorrect: 0,
+		accuracy: 0,
+		totalReviewed: 0,
+	})
+	const [loading, setLoading] = useState(true)
+	const [infoDrawerVisible, setInfoDrawerVisible] = useState(false)
+	const [selectedRowData, setSelectedRowData] = useState(null)
+	const [visibleColumns, setVisibleColumns] = useState([])
+	const [isCompactView, setIsCompactView] = useState(false)
+	const [confidenceFilter, setConfidenceFilter] = useState('all')
 
+	const pageSize = 10
+
+	// Parse CSV and initialize data
 	useEffect(() => {
-		if (
-			predictDataState.uploadedFiles &&
-			predictDataState.uploadedFiles[0].name.endsWith('.csv')
-		) {
+		if (uploadedFiles?.length && uploadedFiles[0]?.name.endsWith('.csv')) {
+			setLoading(true)
 			const reader = new FileReader()
-
 			reader.onload = () => {
 				Papa.parse(reader.result, {
 					header: true,
 					skipEmptyLines: true,
-					complete: ({ data }) => {
+					complete: ({ data, meta }) => {
 						setCsvData(data)
+						// Initialize visible columns (including the target column and prediction)
+						const importantColumns = [
+							projectInfo.target_column,
+							`Predicted ${projectInfo.target_column}`,
+							'Confidence',
+							'Actions',
+						]
 
-						if (data.length > 0) {
-							setFeatures(Object.keys(data[0]))
-						}
+						// Start with most important columns
+						const initialVisibleColumns = meta.fields.filter(
+							(field) =>
+								importantColumns.includes(field) ||
+								meta.fields.indexOf(field) < 3
+						)
+
+						setVisibleColumns(initialVisibleColumns)
+
+						// Initialize incorrect predictions based on confidence
+						const initialIncorrect = predictResult
+							.map((result, idx) =>
+								result.confidence < 0.7 ? idx : null
+							)
+							.filter((idx) => idx !== null)
+
+						setIncorrectPredictions(initialIncorrect)
+						setLoading(false)
 					},
 				})
 			}
-			reader.readAsText(predictDataState.uploadedFiles[0])
+			reader.readAsText(uploadedFiles[0])
 		}
-	}, [predictDataState.uploadedFiles])
+	}, [uploadedFiles, predictResult, projectInfo])
 
-	// Handling Pie Data
+	// Update statistics when predictions change
 	useEffect(() => {
-		const falseValue =
-			csvData.length > 0
-				? ((falsePredict.length / csvData.length) * 100).toFixed(2)
-				: 0
-		const trueValue = (100 - parseFloat(falseValue)).toFixed(2)
+		const incorrect = incorrectPredictions.length
+		const total = csvData.length
+		const reviewed = Math.min(currentPage * pageSize, total)
 
-		setPieData([
-			{ name: 'Correct', value: parseFloat(trueValue) },
-			{ name: 'Incorrect', value: parseFloat(falseValue) },
-		])
-	}, [falsePredict, csvData])
+		setStatistics({
+			correct: total - incorrect,
+			incorrect,
+			accuracy: total
+				? (((total - incorrect) / total) * 100).toFixed(1)
+				: 0,
+			totalReviewed: reviewed,
+		})
+	}, [incorrectPredictions, csvData, currentPage])
 
-	// If confidence score < 50% => false
-	useEffect(() => {
-		if (predictDataState.predictResult) {
-			predictDataState.predictResult.map((row, index) => {
-				if (row.confidence < 0.5 && !falsePredict.includes(index)) {
-					setFalsePredict((prev) => [...prev, index])
-				}
-			})
-		}
-	}, [])
-
-	const handleSelectAllChange = () => {
-		if (isAllSelected) {
-			setSelectedIndexes([]) // Deselect all
-		} else {
-			setSelectedIndexes(csvData.map((_, index) => index)) // Select all
-		}
-		setIsAllSelected(!isAllSelected) // Toggle state
+	const handlePredictionToggle = (index) => {
+		setIncorrectPredictions((prev) =>
+			prev.includes(index)
+				? prev.filter((i) => i !== index)
+				: [...prev, index]
+		)
 	}
 
-	const handleCheckboxChange = (index) => {
-		setSelectedIndexes((prev) => {
-			if (prev.includes(index)) {
-				return prev.filter((i) => i !== index) // Remove index if already selected
-			} else {
-				return [...prev, index] // Add index to selected
-			}
+	const showRowDetails = (record, index) => {
+		setSelectedRowData({ record, index })
+		setInfoDrawerVisible(true)
+	}
+
+	const handleColumnVisibilityToggle = (column) => {
+		setVisibleColumns((prev) =>
+			prev.includes(column)
+				? prev.filter((col) => col !== column)
+				: [...prev, column]
+		)
+	}
+
+	// Filter data based on confidence level
+	const getFilteredData = () => {
+		if (confidenceFilter === 'all') return csvData
+
+		return csvData.filter((_, index) => {
+			const confidence = predictResult[index]?.confidence || 0
+			if (confidenceFilter === 'high') return confidence >= 0.8
+			if (confidenceFilter === 'medium')
+				return confidence >= 0.5 && confidence < 0.8
+			if (confidenceFilter === 'low') return confidence < 0.5
+			return true
 		})
 	}
 
-	const handleExplain = async (event) => {
-		event.preventDefault()
-
-		const formData = new FormData()
-
-		updateProjState({
-			isLoading: true,
-		})
-
-		if (selectedIndexes) {
-			formData.append('data_path', predictDataState.predictFile.url)
-			formData.append('row_indexes', selectedIndexes)
-			formData.append('task', projectInfo.type)
-
-			console.log('Fetching explain text')
-
-			try {
-				const { data } = await experimentAPI.explainData(
-					experimentName,
-					formData
-				)
-
-				console.log('data Explain', data)
-
-				const hl =
-					data.explanation[
-						predictDataState.predictResult[selectedIndexes].class
-					].features
-				const highlightFeatures = hl.map((item) =>
-					item.replace('data-VAL-', '')
-				)
-
-				csvData[selectedIndexes].highlight = highlightFeatures || []
-
-				console.log('Fetch successful')
-
-				updateProjState({ isLoading: false })
-			} catch (error) {
-				console.error('Fetch error:', error.message)
-				updateProjState({ isLoading: false })
+	const getConfidenceStatus = (confidence) => {
+		if (confidence >= 0.8)
+			return {
+				color: 'green',
+				status: 'High',
+				icon: <CheckCircleOutlined />,
 			}
-		}
+		if (confidence >= 0.5)
+			return {
+				color: 'orange',
+				status: 'Medium',
+				icon: <ExclamationCircleOutlined />,
+			}
+		return { color: 'red', status: 'Low', icon: <CloseCircleOutlined /> }
+	}
+
+	// Generate table columns based on CSV data
+	const getColumns = () => {
+		if (!csvData.length) return []
+
+		const allColumns = Object.keys(csvData[0])
+		const targetColumn = projectInfo.target_column
+
+		// Start with basic columns (first 2-3 columns for identification)
+		const baseColumns = allColumns
+			.filter((col) => visibleColumns.includes(col))
+			.map((col) => ({
+				title: col,
+				dataIndex: col,
+				key: col,
+				render: (text) => {
+					if (col === targetColumn) {
+						return <Tag color="blue">{text}</Tag>
+					}
+					return <Text>{text}</Text>
+				},
+				ellipsis: true,
+			}))
+
+		// Add prediction and confidence columns
+		return [
+			...baseColumns,
+			{
+				title: `Predicted ${targetColumn}`,
+				key: 'predictedClass',
+				render: (_, __, index) => {
+					const predicted = predictResult[index]?.class || 'N/A'
+					const actual = csvData[index][targetColumn]
+					const isCorrect = !incorrectPredictions.includes(index)
+
+					return (
+						<Tag color={isCorrect ? 'green' : 'red'}>
+							{predicted}
+							{predicted !== actual && isCorrect && (
+								<Tooltip title="Actual value is different, but marked as correct prediction">
+									<InfoCircleOutlined
+										style={{ marginLeft: 5 }}
+									/>
+								</Tooltip>
+							)}
+						</Tag>
+					)
+				},
+			},
+			{
+				title: 'Confidence',
+				key: 'confidence',
+				width: 160,
+				render: (_, __, index) => {
+					const confidence = predictResult[index]?.confidence || 0
+					const { color, status, icon } =
+						getConfidenceStatus(confidence)
+
+					return (
+						<Space
+							direction="vertical"
+							size="small"
+							style={{ width: '100%' }}
+						>
+							<Progress
+								percent={Math.round(confidence * 100)}
+								size="small"
+								status={
+									confidence >= 0.5 ? 'normal' : 'exception'
+								}
+								strokeColor={color}
+							/>
+							<Text
+								type={confidence < 0.5 ? 'danger' : undefined}
+								style={{ fontSize: '12px' }}
+							>
+								{icon} {status}: {(confidence * 100).toFixed(0)}
+								%
+							</Text>
+						</Space>
+					)
+				},
+			},
+			{
+				title: 'Actions',
+				key: 'actions',
+				fixed: 'right',
+				width: 150,
+				render: (_, record, index) => (
+					<Space>
+						<Tooltip
+							title={
+								incorrectPredictions.includes(index)
+									? 'Mark as correct'
+									: 'Mark as incorrect'
+							}
+						>
+							<Button
+								type={
+									incorrectPredictions.includes(index)
+										? 'default'
+										: 'primary'
+								}
+								size="small"
+								icon={
+									incorrectPredictions.includes(index) ? (
+										<CheckCircleOutlined />
+									) : (
+										<CloseCircleOutlined />
+									)
+								}
+								onClick={() => handlePredictionToggle(index)}
+								danger={!incorrectPredictions.includes(index)}
+							>
+								{incorrectPredictions.includes(index)
+									? 'Correct'
+									: 'Incorrect'}
+							</Button>
+						</Tooltip>
+						<Tooltip title="View details">
+							<Button
+								type="text"
+								size="small"
+								icon={<EyeOutlined />}
+								onClick={() => showRowDetails(record, index)}
+							/>
+						</Tooltip>
+					</Space>
+				),
+			},
+		]
+	}
+
+	const columns = getColumns()
+	const filteredData = getFilteredData()
+
+	// Helper for getting color based on accuracy value
+	const getAccuracyColor = (accuracy) => {
+		if (accuracy >= 80) return '#52c41a'
+		if (accuracy >= 60) return '#faad14'
+		return '#f5222d'
 	}
 
 	return (
-		<>
-			{/* HEADER */}
-			<div className="mt-6 mb-6 flex">
-				<h1 className=" text-5xl font-extrabold leading-none tracking-tight text-gray-900">
-					Model{' '}
-					<mark className="px-2 text-white bg-blue-600 rounded ">
-						Prediction
-					</mark>{' '}
-					results
-				</h1>
-				{/* ACCURACY BUTTON */}
-				<div className="rows-span-1 ml-auto mr-[30px] mt-2">
-					<button
-						type="button"
-						onClick={() => {
-							setIsShowEff(true)
-						}}
-						className="w-full h-full bg-blue-600 rounded-md text-xl px-2 py-1 font-medium  text-white transition-all hover:text-blue-600 hover:bg-white hover:border-2 hover:border-blue-600"
-					>
-						Accuracy
-					</button>
-				</div>
-			</div>
-
-			{csvData.length > 0 && (
-				<div className="relative w-full max-h-[575px] overflow-y-auto  [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
-					{/* TABLE */}
-					<table className=" min-w-full table-auto border-collapse overflow-hidden">
-						<thead className="sticky top-0 z-10 bg-blue-600 text-white rounded-lg">
-							<tr className="border-2">
-								<th className="px-1 py-1 text-center w-[5%] ">
-									<input
-										type="checkbox"
-										className="cursor-pointer"
-										onChange={handleSelectAllChange}
-										checked={isAllSelected}
-									/>
-								</th>
-								{csvData.length > 0 &&
-									features.map((key) => (
-										<th
-											key={key}
-											className="px-2 py-2 text-center"
-										>
-											{key}
-										</th>
-									))}
-								<th className="px-2 py-3 text-center">Label</th>
-								<th className="px-2 py-3 text-center">
-									Confidence
-								</th>
-								<th className="px-2 py-3 text-center">
-									Accurate
-								</th>
-							</tr>
-						</thead>
-
-						<tbody>
-							{csvData.map((row, index) => (
-								<tr
-									key={index}
-									className="hover:bg-gray-100 border-2 border-solid"
+		<Layout className="bg-white">
+			<Header className="bg-white p-0 mb-4">
+				<Card bordered={false} className="shadow-sm">
+					<div className="flex justify-between items-center">
+						<Space>
+							<Title level={4} style={{ margin: 0 }}>
+								<TableOutlined /> Prediction Review Dashboard
+							</Title>
+							<Tag color="blue" icon={<FileTextOutlined />}>
+								{uploadedFiles?.[0]?.name || 'No file uploaded'}
+							</Tag>
+						</Space>
+						<Space>
+							<Tooltip title="Toggle compact view">
+								<Switch
+									checked={isCompactView}
+									onChange={setIsCompactView}
+									checkedChildren={<EyeInvisibleOutlined />}
+									unCheckedChildren={<EyeOutlined />}
+								/>
+							</Tooltip>
+							<Tooltip title="Filter by confidence">
+								<Select
+									defaultValue="all"
+									style={{ width: 120 }}
+									onChange={setConfidenceFilter}
+									dropdownMatchSelectWidth={false}
 								>
-									<td className="px-2 py-3 text-center">
-										<input
-											type="checkbox"
-											className="cursor-pointer"
-											onChange={() =>
-												handleCheckboxChange(index)
-											}
-											checked={selectedIndexes.includes(
-												index
-											)}
-										/>
-									</td>
-									{features.map((feature, i) => (
-										<td
-											key={i}
-											className={`px-6 py-4 text-sm font-medium text-gray-900 text-center ${
-												row.highlight &&
-												row.highlight.includes(feature)
-													? 'bg-yellow-200 font-bold'
-													: ''
-											}`}
-										>
-											{row[feature]}
-										</td>
-									))}
-									<td
-										key={`label-${index}`}
-										className="px-2 py-3 text-sm font-bold text-[#FF5733] text-center"
-									>
-										{predictDataState.predictResult[index]
-											?.class || 'N/A'}
-									</td>
-									<td
-										key={`confidence-${index}`}
-										className="px-2 py-3 text-sm font-bold text-[#FF5733] text-center"
-									>
-										{predictDataState.predictResult[index]
-											?.confidence || 'N/A'}
-									</td>
-									<td
-										key={`accurate-${index}`}
-										className="px-2 py-3 text-center"
-									>
-										<button
-											className={`rounded-md px-2 py-1 font-medium text-white w-fit transition-all ${
-												!falsePredict.includes(index)
-													? 'bg-emerald-400 hover:text-emerald-400 hover:bg-white hover:border-2 hover:border-emerald-400'
-													: 'bg-red-500 hover:text-red-400 hover:bg-white hover:border-2 hover:border-red-400'
-											}`}
-											onClick={() => {
-												if (
-													falsePredict.includes(index)
-												) {
-													setFalsePredict((prev) =>
-														prev.filter(
-															(item) =>
-																item !== index
-														)
-													)
-												} else {
-													setFalsePredict((prev) => [
-														...prev,
-														index,
-													])
-												}
-											}}
-										>
-											{falsePredict.includes(index)
-												? 'Incorrect'
-												: 'Correct'}
-										</button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			)}
-
-			<div className="justify-center flex w-full items-center mt-5">
-				<button className="btn" onClick={handleExplain}>
-					<svg
-						height="24"
-						width="24"
-						fill="#FFFFFF"
-						viewBox="0 0 24 24"
-						data-name="Layer 1"
-						id="Layer_1"
-						className="sparkle"
-					>
-						<path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
-					</svg>
-
-					<span className="text">Explain Selected Row</span>
-				</button>
-			</div>
-			{isShowEff && (
-				<div className="overlay">
-					<div className="modal w-[50%] h-[75%] rounded-xl relative">
-						<h1 className=" mt-6 text-4xl font-extrabold leading-none tracking-tight text-gray-900">
-							Accuracy
-						</h1>
-						<button
-							onClick={() => {
-								setIsShowEff(false)
-							}}
-							className="absolute top-[0.55rem] right-5 p-[6px] rounded-full bg-red-400 hover:bg-gray-300 hover:text-white font-[600] w-[40px] h-[40px]"
-						>
-							<svg
-								className=""
-								focusable="false"
-								viewBox="0 0 24 24"
-								color="#FFFFFF"
-								aria-hidden="true"
-								data-testId="close-upload-media-dialog-btn"
-							>
-								<path d="M18.3 5.71a.9959.9959 0 00-1.41 0L12 10.59 7.11 5.7a.9959.9959 0 00-1.41 0c-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"></path>
-							</svg>
-						</button>
-						<PieGraph data={pieData} />
+									<Option value="all">All predictions</Option>
+									<Option value="high">
+										High confidence
+									</Option>
+									<Option value="medium">
+										Medium confidence
+									</Option>
+									<Option value="low">Low confidence</Option>
+								</Select>
+							</Tooltip>
+							<Tooltip title="Configure visible columns">
+								<Button
+									icon={<FilterOutlined />}
+									onClick={() => setInfoDrawerVisible(true)}
+								>
+									Columns
+								</Button>
+							</Tooltip>
+						</Space>
 					</div>
+				</Card>
+			</Header>
+			<Content className="p-4">
+				{/* Statistics Cards */}
+				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+					<Card size="small" className="border-blue-400 bg-blue-50">
+						<Statistic
+							title={
+								<span className="text-blue-600 font-medium">
+									Total Predictions
+								</span>
+							}
+							value={csvData.length}
+							prefix={
+								<QuestionCircleOutlined className="text-blue-600" />
+							}
+							valueStyle={{ color: '#1890ff' }}
+						/>
+						<Progress
+							percent={
+								Math.round(
+									(statistics.totalReviewed /
+										csvData.length) *
+										100
+								) || 0
+							}
+							showInfo={false}
+							strokeColor="#1890ff"
+							size="small"
+							className="mt-2"
+						/>
+						<Text className="text-xs text-blue-600">
+							{statistics.totalReviewed} of {csvData.length}{' '}
+							reviewed
+						</Text>
+					</Card>
+
+					<Card size="small" className="border-green-400 bg-green-50">
+						<Statistic
+							title={
+								<span className="text-green-600 font-medium">
+									Correct Predictions
+								</span>
+							}
+							value={statistics.correct}
+							prefix={
+								<CheckCircleOutlined className="text-green-600" />
+							}
+							valueStyle={{ color: '#52c41a' }}
+						/>
+						<Progress
+							percent={
+								Math.round(
+									(statistics.correct / csvData.length) * 100
+								) || 0
+							}
+							showInfo={false}
+							strokeColor="#52c41a"
+							size="small"
+							className="mt-2"
+						/>
+					</Card>
+
+					<Card size="small" className="border-red-400 bg-red-50">
+						<Statistic
+							title={
+								<span className="text-red-600 font-medium">
+									Incorrect Predictions
+								</span>
+							}
+							value={statistics.incorrect}
+							prefix={
+								<CloseCircleOutlined className="text-red-600" />
+							}
+							valueStyle={{ color: '#f5222d' }}
+						/>
+						<Progress
+							percent={
+								Math.round(
+									(statistics.incorrect / csvData.length) *
+										100
+								) || 0
+							}
+							showInfo={false}
+							strokeColor="#f5222d"
+							size="small"
+							className="mt-2"
+						/>
+					</Card>
+
+					<Card
+						size="small"
+						className="border-purple-400 bg-purple-50"
+					>
+						<Statistic
+							title={
+								<span className="text-purple-600 font-medium">
+									Accuracy
+								</span>
+							}
+							value={statistics.accuracy}
+							suffix="%"
+							precision={1}
+							prefix={
+								<BarChartOutlined className="text-purple-600" />
+							}
+							valueStyle={{
+								color: getAccuracyColor(
+									parseFloat(statistics.accuracy)
+								),
+							}}
+						/>
+						<Progress
+							percent={parseFloat(statistics.accuracy)}
+							showInfo={false}
+							strokeColor={getAccuracyColor(
+								parseFloat(statistics.accuracy)
+							)}
+							size="small"
+							className="mt-2"
+						/>
+					</Card>
 				</div>
-			)}
-		</>
+
+				{/* Alert for low accuracy */}
+				{parseFloat(statistics.accuracy) < 70 && csvData.length > 0 && (
+					<Alert
+						message="Low Prediction Accuracy Detected"
+						description="The current model accuracy is below 70%. You may want to review more predictions or consider retraining your model with additional data."
+						type="warning"
+						showIcon
+						className="mb-4"
+						icon={<ExclamationCircleOutlined />}
+						action={
+							<Button size="small" type="primary">
+								View Suggestions
+							</Button>
+						}
+					/>
+				)}
+
+				{/* Main Table */}
+				{loading ? (
+					<Card>
+						<div className="flex items-center justify-center p-12">
+							<Spin
+								size="large"
+								tip="Loading prediction data..."
+							/>
+						</div>
+					</Card>
+				) : csvData.length > 0 ? (
+					<Card className="shadow-sm">
+						<Table
+							dataSource={filteredData}
+							columns={columns}
+							rowKey={(_, index) => index}
+							pagination={{
+								pageSize,
+								current: currentPage,
+								onChange: setCurrentPage,
+								showSizeChanger: false,
+								showTotal: (total) => `${total} predictions`,
+							}}
+							size={isCompactView ? 'small' : 'middle'}
+							scroll={{ x: 'max-content' }}
+							rowClassName={(_, index) =>
+								incorrectPredictions.includes(index)
+									? 'bg-red-50'
+									: ''
+							}
+						/>
+					</Card>
+				) : (
+					<Card>
+						<Empty
+							image={Empty.PRESENTED_IMAGE_SIMPLE}
+							description="No prediction data available"
+						>
+							<Button type="primary">
+								Upload a file to start
+							</Button>
+						</Empty>
+					</Card>
+				)}
+			</Content>
+
+			{/* Drawer for showing row details and column visibility */}
+			<Drawer
+				title={
+					selectedRowData ? 'Prediction Details' : 'Column Visibility'
+				}
+				placement="right"
+				onClose={() => {
+					setInfoDrawerVisible(false)
+					setSelectedRowData(null)
+				}}
+				open={infoDrawerVisible}
+				width={400}
+			>
+				{selectedRowData ? (
+					<div>
+						<Alert
+							message={
+								incorrectPredictions.includes(
+									selectedRowData.index
+								)
+									? 'Marked as Incorrect Prediction'
+									: 'Marked as Correct Prediction'
+							}
+							type={
+								incorrectPredictions.includes(
+									selectedRowData.index
+								)
+									? 'error'
+									: 'success'
+							}
+							showIcon
+							className="mb-4"
+						/>
+
+						<div className="mb-4">
+							<Statistic
+								title="Confidence Score"
+								value={(
+									predictResult[selectedRowData.index]
+										?.confidence * 100
+								).toFixed(1)}
+								suffix="%"
+								prefix={<ThunderboltOutlined />}
+							/>
+							<Progress
+								percent={
+									predictResult[selectedRowData.index]
+										?.confidence * 100
+								}
+								status={
+									predictResult[selectedRowData.index]
+										?.confidence >= 0.5
+										? 'normal'
+										: 'exception'
+								}
+								strokeColor={
+									getConfidenceStatus(
+										predictResult[selectedRowData.index]
+											?.confidence
+									).color
+								}
+							/>
+						</div>
+
+						<Divider orientation="left">Data Fields</Divider>
+						{Object.entries(selectedRowData.record).map(
+							([key, value]) => (
+								<div key={key} className="mb-2">
+									<Text strong>{key}: </Text>
+									<Text>
+										{key === projectInfo.target_column ? (
+											<Tag color="blue">{value}</Tag>
+										) : (
+											value
+										)}
+									</Text>
+								</div>
+							)
+						)}
+
+						<Divider orientation="left">Prediction</Divider>
+						<div className="mb-2">
+							<Text strong>
+								Predicted {projectInfo.target_column}:{' '}
+							</Text>
+							<Tag color="purple">
+								{predictResult[selectedRowData.index]?.class ||
+									'N/A'}
+							</Tag>
+						</div>
+
+						<div className="mt-4">
+							<Space>
+								<Button
+									type={
+										incorrectPredictions.includes(
+											selectedRowData.index
+										)
+											? 'default'
+											: 'primary'
+									}
+									danger={
+										!incorrectPredictions.includes(
+											selectedRowData.index
+										)
+									}
+									icon={
+										incorrectPredictions.includes(
+											selectedRowData.index
+										) ? (
+											<CheckCircleOutlined />
+										) : (
+											<CloseCircleOutlined />
+										)
+									}
+									onClick={() =>
+										handlePredictionToggle(
+											selectedRowData.index
+										)
+									}
+								>
+									Mark as{' '}
+									{incorrectPredictions.includes(
+										selectedRowData.index
+									)
+										? 'Correct'
+										: 'Incorrect'}
+								</Button>
+							</Space>
+						</div>
+					</div>
+				) : (
+					<div>
+						<Paragraph>
+							Select which columns to display in the table. Hiding
+							unnecessary columns can make reviewing predictions
+							easier.
+						</Paragraph>
+
+						<Divider orientation="left">Available Columns</Divider>
+
+						{csvData.length > 0 &&
+							Object.keys(csvData[0]).map((column) => (
+								<div key={column} className="mb-2">
+									<Switch
+										checked={visibleColumns.includes(
+											column
+										)}
+										onChange={() =>
+											handleColumnVisibilityToggle(column)
+										}
+										size="small"
+										className="mr-2"
+									/>
+									<Text
+										strong={
+											column === projectInfo.target_column
+										}
+										type={
+											column === projectInfo.target_column
+												? 'success'
+												: undefined
+										}
+									>
+										{column}
+									</Text>
+									{column === projectInfo.target_column && (
+										<Tag color="blue" className="ml-2">
+											Target
+										</Tag>
+									)}
+								</div>
+							))}
+
+						<Divider />
+						<Space direction="vertical" style={{ width: '100%' }}>
+							<Button
+								type="primary"
+								block
+								onClick={() => setInfoDrawerVisible(false)}
+							>
+								Apply Changes
+							</Button>
+						</Space>
+					</div>
+				)}
+			</Drawer>
+		</Layout>
 	)
 }
 
