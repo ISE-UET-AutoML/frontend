@@ -2,29 +2,50 @@ import { CubeTransparentIcon } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
-import { useNavigate } from 'react-router-dom' // For navigation
-import { Tag, Typography } from 'antd' // Use Ant Design components
+import { useNavigate } from 'react-router-dom'
+import { Tag, Typography } from 'antd'
 
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
 
 export default function ModelCard({ model }) {
-	const { _id, name, isDeployed, createdAt, project_id, experimentID } = model
-	const navigate = useNavigate() // Hook for navigation
+	const { _id, name, deployStatus, createdAt, project_id, experimentID } =
+		model
+	const navigate = useNavigate()
 
-	// Handle card click
+	// Handle card click based on deployStatus
 	const handleCardClick = () => {
+		const deployedStates = ['onCloud', 'inProduction']
 		navigate(
-			isDeployed
-				? PATHS.PREDICT(experimentID) // Tmp route
+			deployedStates.includes(deployStatus)
+				? PATHS.PREDICT(experimentID)
 				: PATHS.PROJECT_TRAININGRESULT(project_id, experimentID)
 		)
 	}
 
-	// Define status and color based on deployment status
-	const status = isDeployed ? 'Deployed' : 'onCloud'
-	const statusColor = isDeployed ? 'green' : 'blue'
+	// Define status color based on deployStatus
+	const getStatusColor = (status) => {
+		switch (status) {
+			case 'onCloud':
+				return 'blue'
+			case 'deploying':
+				return 'orange'
+			case 'inProduction':
+				return 'green'
+			case 'shuttingDown':
+				return 'red'
+			default:
+				return 'gray'
+		}
+	}
+
+	// Capitalize first letter of status for display
+	const formatStatus = (status) => {
+		return status
+			? status.charAt(0).toUpperCase() + status.slice(1)
+			: 'Unknown'
+	}
 
 	return (
 		<div
@@ -47,8 +68,8 @@ export default function ModelCard({ model }) {
 			<div className="flex justify-between">
 				<span
 					style={{
-						color: isDeployed ? '#52c41a' : '#1890ff',
-						backgroundColor: isDeployed ? '#f6ffed' : '#e6f7ff',
+						color: getStatusColor(deployStatus),
+						backgroundColor: `${getStatusColor(deployStatus)}10`, // Adding transparency
 						borderRadius: '12px',
 						padding: '8px',
 						display: 'inline-flex',
@@ -62,10 +83,10 @@ export default function ModelCard({ model }) {
 					/>
 				</span>
 				<Tag
-					color={statusColor}
+					color={getStatusColor(deployStatus)}
 					style={{ fontSize: 14, padding: '8px' }}
 				>
-					{status}
+					{formatStatus(deployStatus)}
 				</Tag>
 			</div>
 			<div className="mt-8">
