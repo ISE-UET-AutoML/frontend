@@ -14,6 +14,7 @@ const DatasetView = () => {
 		const fetchDataset = async () => {
 			try {
 				setLoading(true) // Bật loading trước khi fetch dữ liệu
+				// const { data } = await datasetAPI.getImgDataset(id)
 				const { data } = await datasetAPI.getDataset(id)
 
 				console.log('Dataset Response', data)

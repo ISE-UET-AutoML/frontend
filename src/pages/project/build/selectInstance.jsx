@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
 	useSearchParams,
 	useOutletContext,
@@ -9,6 +9,7 @@ import { getExperiment } from 'src/api/experiment'
 import {
 	Card,
 	Tabs,
+	Slider,
 	InputNumber,
 	Button,
 	Space,
@@ -16,14 +17,14 @@ import {
 	message,
 	Tooltip,
 	Steps,
-	Alert,
-	Progress,
 	Badge,
 	Row,
 	Col,
 	Divider,
 	Modal,
 	Collapse,
+	Select,
+	Input,
 } from 'antd'
 import {
 	ClockCircleOutlined,
@@ -38,10 +39,12 @@ import {
 	RocketOutlined,
 	SafetyCertificateOutlined,
 } from '@ant-design/icons'
+import CryptoJS from 'crypto-js'
 
 const { Title, Text } = Typography
 const { Step } = Steps
 const { Panel } = Collapse
+const { Option } = Select
 
 const SERVICES = [
 	{
@@ -162,7 +165,6 @@ const InstanceSizeCard = ({ size, details, selected, onClick }) => (
 		<div
 			style={{
 				display: 'flex',
-				// justifyContent: 'space-between',
 				alignItems: 'center',
 			}}
 		>
@@ -281,6 +283,19 @@ const InstanceInfo = ({ formData }) => {
 	)
 }
 
+const generateRandomKey = () => {
+	// Generate a random string to use as a key
+	const randomString =
+		Math.random().toString(36).substring(2) +
+		Math.random().toString(36).substring(2)
+
+	// Use crypto-js to create a SHA-256 hash of the random string
+	const hash = CryptoJS.SHA256(randomString).toString()
+
+	// Format as an SSH public key (simplified version)
+	return `ssh-rsa ${hash} generated-key`
+}
+
 const SelectInstance = () => {
 	const { projectInfo, updateFields, selectedDataset } = useOutletContext()
 	const navigate = useNavigate()
@@ -301,7 +316,6 @@ const SelectInstance = () => {
 
 	const [currentStep, setCurrentStep] = useState(0)
 	const [isModalVisible, setIsModalVisible] = useState(false)
-
 	const steps = [
 		{
 			title: 'Setting up virtual environment',
@@ -313,6 +327,69 @@ const SelectInstance = () => {
 		},
 	]
 
+	const [sshKey, setSshKey] = useState('')
+	const [infrastructureData, setInfrastructureData] = useState({
+		id: '',
+		sshPort: '',
+		publicIP: '',
+		presets: 'medium_quality',
+		deployPort: '',
+		username: '',
+		datasetPath: './datasets/tabular',
+	})
+
+	// Generate SSH key when switching to userInfras tab
+	useEffect(() => {
+		if (activeTab === 'userInfras' && !sshKey) {
+			const generatedKey = generateRandomKey()
+			setSshKey(generatedKey)
+		}
+	}, [activeTab])
+
+	const handleCopyToClipboard = () => {
+		navigator.clipboard.writeText(sshKey)
+		message.success('SSH Key copied to clipboard')
+	}
+
+	const handleInfrastructureChange = (field) => (value) => {
+		setInfrastructureData((prev) => ({
+			...prev,
+			[field]: value,
+		}))
+	}
+
+	const handleTrainingTimeChange = (value) => {
+		if (value >= 0 && value <= 24) {
+			setFormData((prev) => ({
+				...prev,
+				trainingTime: value,
+			}))
+		}
+	}
+
+	const handleManualConfigChange = (field) => (value) => {
+		setFormData((prev) => ({
+			...prev,
+			[field]: value,
+		}))
+		// Update budget automatically when relevant fields change
+		if (field === 'gpuName' || field === 'trainingTime') {
+			const selectedGPU = GPU_LEVELS.find(
+				(gpu) =>
+					gpu.name ===
+					(field === 'gpuName' ? value : formData.gpuName)
+			)
+			const trainingTime =
+				field === 'trainingTime' ? value : formData.trainingTime
+			if (selectedGPU && trainingTime) {
+				setFormData((prev) => ({
+					...prev,
+					budget: (selectedGPU.cost * trainingTime).toFixed(2),
+				}))
+			}
+		}
+	}
+
 	const handleFindInstance = async () => {
 		if (!formData.trainingTime) {
 			message.error('Please input training time')
@@ -323,10 +400,8 @@ const SelectInstance = () => {
 		setIsProcessing(true)
 
 		try {
-			// Determine the instance size based on the slider value
+			// Automatic configuration logic
 			let instanceSize = formData.instanceSize
-
-			// Find the most suitable GPU configuration
 			let selectedGPU
 			switch (instanceSize) {
 				case 'Weak':
@@ -349,7 +424,6 @@ const SelectInstance = () => {
 					break
 			}
 
-			// Simulate API delay
 			await new Promise((resolve) => setTimeout(resolve, 1500))
 
 			setFormData((prev) => ({
@@ -381,21 +455,29 @@ const SelectInstance = () => {
 			setIsCreatingInstance(true)
 			setIsModalVisible(true)
 
+			// Combine formData with infrastructureData and sshKey for userInfras tab
+			const payload =
+				activeTab === 'userInfras'
+					? {
+							...formData,
+							sshKey,
+							instanceInfo: infrastructureData,
+						}
+					: formData
+
 			const res1 = await projectAPI.trainModel(
 				projectInfo._id,
 				selectedDataset,
-				formData
+				payload
 			)
 
 			const experimentName = res1.data.data.task_id
 
-			// Simulate the progress of instance initialization
 			const interval = setInterval(async () => {
 				try {
 					const res2 = await getExperiment(experimentName)
 					console.log('Status', res2.data.trainInfo.status)
 
-					// Next Page
 					if (res2.data.trainInfo.status === 'TRAINING') {
 						updateFields({
 							instanceInfor: res1.data.instance_info,
@@ -438,8 +520,7 @@ const SelectInstance = () => {
 				<Space
 					direction="vertical"
 					size="large"
-					// style={{ width: '100%', borderRadius: '8px' }}
-					className="w-full rounded-lg shadow-sm pb-2"
+					className="w-full rounded-lg shadow-sm"
 				>
 					<Row gutter={[24, 24]}>
 						<Col span={16}>
@@ -451,24 +532,44 @@ const SelectInstance = () => {
 								>
 									<div>
 										<Text strong>Training Duration</Text>
-										<InputNumber
+										<div
 											style={{
-												width: '100%',
+												display: 'flex',
+												alignItems: 'center',
 												marginTop: 8,
 											}}
-											min={0.1}
-											max={168} // 1 week
-											step={0.1}
-											value={formData.trainingTime}
-											onChange={(value) =>
-												setFormData((prev) => ({
-													...prev,
-													trainingTime: value,
-												}))
-											}
-											prefix={<ClockCircleOutlined />}
-											addonAfter="hours"
-										/>
+										>
+											<Slider
+												style={{ width: '85%' }}
+												min={0}
+												max={24}
+												step={0.5}
+												value={
+													formData.trainingTime || 0
+												}
+												onChange={
+													handleTrainingTimeChange
+												}
+												tooltip={{
+													formatter: (value) =>
+														`${value} hours`,
+												}}
+											/>
+											<InputNumber
+												style={{
+													width: '15%',
+													marginLeft: '10px',
+												}}
+												min={0}
+												max={24}
+												step={0.5}
+												value={formData.trainingTime}
+												onChange={
+													handleTrainingTimeChange
+												}
+												addonAfter="Hours"
+											/>
+										</div>
 										<Text type="secondary">
 											Recommended: 1-24 hours for most
 											models
@@ -567,11 +668,473 @@ const SelectInstance = () => {
 				</Space>
 			),
 		},
+		{
+			key: 'manual',
+			label: <span>🛠️Manual Configuration</span>,
+			children: (
+				<Space
+					direction="vertical"
+					size="large"
+					className="w-full rounded-lg shadow-sm"
+				>
+					<Row gutter={[24, 24]}>
+						<Col span={16}>
+							<Card className="rounded-lg shadow-sm">
+								<Space
+									direction="vertical"
+									size="large"
+									style={{ width: '100%' }}
+								>
+									<div>
+										<Text strong>Training Duration</Text>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												marginTop: 8,
+											}}
+										>
+											<Slider
+												style={{ width: '85%' }}
+												min={0}
+												max={24}
+												step={0.5}
+												value={
+													formData.trainingTime || 0
+												}
+												onChange={
+													handleTrainingTimeChange
+												}
+												tooltip={{
+													formatter: (value) =>
+														`${value} hours`,
+												}}
+											/>
+											<InputNumber
+												style={{
+													width: '15%',
+													marginLeft: '10px',
+												}}
+												min={0}
+												max={24}
+												step={0.5}
+												value={formData.trainingTime}
+												onChange={
+													handleTrainingTimeChange
+												}
+												addonAfter="Hours"
+											/>
+										</div>
+										<Text type="secondary">
+											Recommended: 1-24 hours for most
+											models
+										</Text>
+									</div>
+
+									<div>
+										<Text strong>Manual Configuration</Text>
+										<Space
+											direction="vertical"
+											size="middle"
+											style={{
+												width: '100%',
+												marginTop: 16,
+											}}
+										>
+											<div>
+												<Text>Service Provider</Text>
+												<Select
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+													value={formData.service}
+													onChange={handleManualConfigChange(
+														'service'
+													)}
+												>
+													{SERVICES.map((service) => (
+														<Option
+															key={service.name}
+															value={service.name}
+														>
+															{service.name} -{' '}
+															{
+																service.description
+															}
+														</Option>
+													))}
+												</Select>
+											</div>
+
+											<div>
+												<Text>GPU Type</Text>
+												<Select
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+													value={formData.gpuName}
+													onChange={handleManualConfigChange(
+														'gpuName'
+													)}
+												>
+													{GPU_LEVELS.map((gpu) => (
+														<Option
+															key={gpu.name}
+															value={gpu.name}
+														>
+															{gpu.name} (
+															{gpu.memory})
+														</Option>
+													))}
+												</Select>
+											</div>
+
+											<div>
+												<Text>Number of GPUs</Text>
+												<InputNumber
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+													min={1}
+													max={8}
+													value={formData.gpuNumber}
+													onChange={handleManualConfigChange(
+														'gpuNumber'
+													)}
+													addonAfter="GPUs"
+												/>
+											</div>
+
+											<div>
+												<Text>Disk Space</Text>
+												<InputNumber
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+													min={10}
+													max={1000}
+													value={formData.disk}
+													onChange={handleManualConfigChange(
+														'disk'
+													)}
+													addonAfter="GB"
+												/>
+											</div>
+										</Space>
+									</div>
+								</Space>
+							</Card>
+						</Col>
+
+						<Col span={8}>
+							<Space
+								direction="vertical"
+								size="large"
+								style={{ width: '100%' }}
+							>
+								<InstanceInfo formData={formData} />
+								{formData.trainingTime && (
+									<CostEstimator
+										hours={formData.trainingTime}
+										gpuLevel={GPU_LEVELS.find(
+											(gpu) =>
+												gpu.name === formData.gpuName
+										)}
+									/>
+								)}
+							</Space>
+							<div className="action-container mt-4 w-full justify-between items-center">
+								{formData.gpuNumber &&
+									formData.trainingTime && (
+										<Button
+											type="primary"
+											size="large"
+											icon={<ThunderboltOutlined />}
+											onClick={handleTrainModel}
+											loading={isProcessing}
+											disabled={
+												isProcessing ||
+												!formData.gpuNumber
+											}
+										>
+											{isProcessing
+												? 'Processing...'
+												: 'Start Training'}
+										</Button>
+									)}
+							</div>
+						</Col>
+					</Row>
+				</Space>
+			),
+		},
+		{
+			key: 'userInfras',
+			label: <span>🏗️Your Infrastructure</span>,
+			children: (
+				<Space
+					direction="vertical"
+					size="large"
+					className="w-full rounded-lg shadow-sm"
+				>
+					<Row gutter={[24, 24]}>
+						<Col span={16}>
+							<Card className="rounded-lg shadow-sm">
+								<Space
+									direction="vertical"
+									size="large"
+									style={{ width: '100%' }}
+								>
+									<div>
+										<Text strong>Training Duration</Text>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												marginTop: 8,
+											}}
+										>
+											<Slider
+												style={{ width: '85%' }}
+												min={0}
+												max={24}
+												step={0.5}
+												value={
+													formData.trainingTime || 0
+												}
+												onChange={
+													handleTrainingTimeChange
+												}
+												tooltip={{
+													formatter: (value) =>
+														`${value} hours`,
+												}}
+											/>
+											<InputNumber
+												style={{
+													width: '15%',
+													marginLeft: '10px',
+												}}
+												min={0}
+												max={24}
+												step={0.5}
+												value={formData.trainingTime}
+												onChange={
+													handleTrainingTimeChange
+												}
+												addonAfter="Hours"
+											/>
+										</div>
+										<Text type="secondary">
+											Recommended: 1-24 hours for most
+											models
+										</Text>
+									</div>
+
+									<div>
+										<Space
+											direction="vertical"
+											size="middle"
+											style={{
+												width: '100%',
+											}}
+										>
+											<div>
+												<Text>SSH Public Key</Text>
+												<Input.TextArea
+													value={sshKey}
+													rows={2}
+													readOnly
+													// style={{ marginTop: 8 }}
+												/>
+												<Button
+													onClick={
+														handleCopyToClipboard
+													}
+													type="primary"
+													style={{ marginTop: 8 }}
+												>
+													Copy
+												</Button>
+											</div>
+											<div>
+												<Text>Instance ID</Text>
+												<Input
+													value={
+														infrastructureData.id
+													}
+													onChange={(e) =>
+														handleInfrastructureChange(
+															'id'
+														)(e.target.value)
+													}
+													style={{ marginTop: 8 }}
+													placeholder="Enter instance ID"
+												/>
+											</div>
+											<div>
+												<Text>SSH Port</Text>
+												<InputNumber
+													value={
+														infrastructureData.sshPort
+													}
+													onChange={handleInfrastructureChange(
+														'sshPort'
+													)}
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+													min={1}
+													max={65535}
+													placeholder="Enter SSH port"
+												/>
+											</div>
+											<div>
+												<Text>Public IP</Text>
+												<Input
+													value={
+														infrastructureData.publicIP
+													}
+													onChange={(e) =>
+														handleInfrastructureChange(
+															'publicIP'
+														)(e.target.value)
+													}
+													style={{ marginTop: 8 }}
+													placeholder="Enter public IP"
+												/>
+											</div>
+											<div>
+												<Text>Quality Presets</Text>
+												<Select
+													value={
+														infrastructureData.presets
+													}
+													onChange={handleInfrastructureChange(
+														'presets'
+													)}
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+												>
+													<Option value="low_quality">
+														Low Quality
+													</Option>
+													<Option value="medium_quality">
+														Medium Quality
+													</Option>
+													<Option value="high_quality">
+														High Quality
+													</Option>
+												</Select>
+											</div>
+											<div>
+												<Text>Deploy Port</Text>
+												<InputNumber
+													value={
+														infrastructureData.deployPort
+													}
+													onChange={handleInfrastructureChange(
+														'deployPort'
+													)}
+													style={{
+														width: '100%',
+														marginTop: 8,
+													}}
+													min={1}
+													max={65535}
+													placeholder="Enter deploy port"
+												/>
+											</div>
+											<div>
+												<Text>Username</Text>
+												<Input
+													value={
+														infrastructureData.username
+													}
+													onChange={(e) =>
+														handleInfrastructureChange(
+															'username'
+														)(e.target.value)
+													}
+													style={{ marginTop: 8 }}
+													placeholder="Enter username"
+												/>
+											</div>
+											<div>
+												<Text>Dataset Path</Text>
+												<Input
+													value={
+														infrastructureData.datasetPath
+													}
+													onChange={(e) =>
+														handleInfrastructureChange(
+															'datasetPath'
+														)(e.target.value)
+													}
+													style={{ marginTop: 8 }}
+													placeholder="Enter dataset path"
+												/>
+											</div>
+										</Space>
+									</div>
+								</Space>
+							</Card>
+						</Col>
+
+						<Col span={8}>
+							<Space
+								direction="vertical"
+								size="large"
+								style={{ width: '100%' }}
+							>
+								<InstanceInfo formData={formData} />
+								{formData.trainingTime && (
+									<CostEstimator
+										hours={formData.trainingTime}
+										gpuLevel={GPU_LEVELS.find(
+											(gpu) =>
+												gpu.name === formData.gpuName
+										)}
+									/>
+								)}
+							</Space>
+							<div className="action-container mt-4 w-full justify-between items-center">
+								{formData.gpuNumber &&
+									formData.trainingTime && (
+										<Button
+											type="primary"
+											size="large"
+											icon={<ThunderboltOutlined />}
+											onClick={handleTrainModel}
+											loading={isProcessing}
+											disabled={
+												isProcessing ||
+												!formData.gpuNumber
+											}
+										>
+											{isProcessing
+												? 'Processing...'
+												: 'Start Training'}
+										</Button>
+									)}
+							</div>
+						</Col>
+					</Row>
+				</Space>
+			),
+		},
 	]
 
 	return (
 		<div className="select-instance-container pl-6 pr-6">
-			<Tabs items={items} />
+			<Tabs items={items} onChange={(key) => setActiveTab(key)} />
 
 			{isCreatingInstance && (
 				<Modal

@@ -24,6 +24,10 @@ const getDataset = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}`)
 }
 
+const getImgDataset = (datasetID) => {
+	return instance.get(`${URL}/${datasetID}/getImgDataset`)
+}
+
 const getDatasetPreview = (datasetID, size) => {
 	return instance.get(`${URL}/${datasetID}/datasetPreview?size=${size}`)
 }
@@ -48,6 +52,7 @@ export {
 	createImgDataset,
 	getDatasets,
 	getDataset,
+	getImgDataset,
 	getDataTen,
 	deleteObjects,
 	addNewFiles,

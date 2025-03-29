@@ -82,8 +82,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				// Get presigned URL from backend
 				const { data } = await createImgDataset(formData)
 
-				console.log('validFiles', validFiles)
-
 				// Upload files to S3
 				await uploadZippedFilesToS3(data, validFiles)
 
