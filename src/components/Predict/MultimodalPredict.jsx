@@ -259,14 +259,14 @@ const MultimodalPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 										<Progress
 											percent={Math.round(
 												currentPrediction.confidence *
-													100
+												100
 											)}
 											strokeColor={
 												currentPrediction.confidence >
-												0.7
+													0.7
 													? '#52c41a' // green
 													: currentPrediction.confidence >
-														  0.4
+														0.4
 														? '#fa8c16' // orange
 														: '#ff4d4f' // red
 											}

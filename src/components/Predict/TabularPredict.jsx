@@ -55,10 +55,9 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 	const [infoDrawerVisible, setInfoDrawerVisible] = useState(false)
 	const [selectedRowData, setSelectedRowData] = useState(null)
 	const [visibleColumns, setVisibleColumns] = useState([])
-	const [isCompactView, setIsCompactView] = useState(false)
 	const [confidenceFilter, setConfidenceFilter] = useState('all')
 
-	const pageSize = 10
+	const pageSize = 9
 
 	// Parse CSV and initialize data
 	useEffect(() => {
@@ -74,7 +73,8 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 						// Initialize visible columns (including the target column and prediction)
 						const importantColumns = [
 							projectInfo.target_column,
-							`Predicted ${projectInfo.target_column}`,
+							// `Predicted ${projectInfo.target_column}`,
+							'Predicted Class',
 							'Confidence',
 							'Actions',
 						]
@@ -155,22 +155,6 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 		})
 	}
 
-	const getConfidenceStatus = (confidence) => {
-		if (confidence >= 0.8)
-			return {
-				color: 'green',
-				status: 'High',
-				icon: <CheckCircleOutlined />,
-			}
-		if (confidence >= 0.5)
-			return {
-				color: 'orange',
-				status: 'Medium',
-				icon: <ExclamationCircleOutlined />,
-			}
-		return { color: 'red', status: 'Low', icon: <CloseCircleOutlined /> }
-	}
-
 	// Generate table columns based on CSV data
 	const getColumns = () => {
 		if (!csvData.length) return []
@@ -198,58 +182,46 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 		return [
 			...baseColumns,
 			{
-				title: `Predicted ${targetColumn}`,
+				// title: `Predicted ${targetColumn}`,
+				title: `Predicted Class`,
 				key: 'predictedClass',
+				width: 160,
 				render: (_, __, index) => {
-					const predicted = predictResult[index]?.class || 'N/A'
+					const predicted = predictResult[index + (currentPage - 1) * pageSize]?.class || 'N/A'
 					const actual = csvData[index][targetColumn]
 					const isCorrect = !incorrectPredictions.includes(index)
 
 					return (
 						<Tag color={isCorrect ? 'green' : 'red'}>
 							{predicted}
-							{predicted !== actual && isCorrect && (
-								<Tooltip title="Actual value is different, but marked as correct prediction">
-									<InfoCircleOutlined
-										style={{ marginLeft: 5 }}
-									/>
-								</Tooltip>
-							)}
+
 						</Tag>
 					)
 				},
 			},
 			{
 				title: 'Confidence',
+				dataIndex: 'index',
 				key: 'confidence',
 				width: 160,
-				render: (_, __, index) => {
-					const confidence = predictResult[index]?.confidence || 0
-					const { color, status, icon } =
-						getConfidenceStatus(confidence)
 
+				render: (_, record, index) => {
+					// Tính index toàn cục
+					const globalIndex = index + (currentPage - 1) * pageSize
+					const confidence = predictResult[globalIndex]?.confidence || 0
+					const color =
+						confidence >= 0.7
+							? 'green'
+							: confidence >= 0.5
+								? 'orange'
+								: 'red'
 					return (
-						<Space
-							direction="vertical"
+						<Progress
+							percent={Math.round(confidence * 100)}
 							size="small"
-							style={{ width: '100%' }}
-						>
-							<Progress
-								percent={Math.round(confidence * 100)}
-								size="small"
-								status={
-									confidence >= 0.5 ? 'normal' : 'exception'
-								}
-								strokeColor={color}
-							/>
-							<Text
-								type={confidence < 0.5 ? 'danger' : undefined}
-								style={{ fontSize: '12px' }}
-							>
-								{icon} {status}: {(confidence * 100).toFixed(0)}
-								%
-							</Text>
-						</Space>
+							status={confidence >= 0.4 ? 'normal' : 'exception'}
+							strokeColor={color}
+						/>
 					)
 				},
 			},
@@ -306,13 +278,6 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 	const columns = getColumns()
 	const filteredData = getFilteredData()
 
-	// Helper for getting color based on accuracy value
-	const getAccuracyColor = (accuracy) => {
-		if (accuracy >= 80) return '#52c41a'
-		if (accuracy >= 60) return '#faad14'
-		return '#f5222d'
-	}
-
 	return (
 		<Layout className="bg-white">
 			<Header className="bg-white p-0 mb-4">
@@ -327,14 +292,6 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							</Tag>
 						</Space>
 						<Space>
-							<Tooltip title="Toggle compact view">
-								<Switch
-									checked={isCompactView}
-									onChange={setIsCompactView}
-									checkedChildren={<EyeInvisibleOutlined />}
-									unCheckedChildren={<EyeOutlined />}
-								/>
-							</Tooltip>
 							<Tooltip title="Filter by confidence">
 								<Select
 									defaultValue="all"
@@ -364,144 +321,51 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 					</div>
 				</Card>
 			</Header>
-			<Content className="p-4">
+			<Content className="">
 				{/* Statistics Cards */}
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-					<Card size="small" className="border-blue-400 bg-blue-50">
-						<Statistic
-							title={
-								<span className="text-blue-600 font-medium">
-									Total Predictions
-								</span>
-							}
-							value={csvData.length}
-							prefix={
-								<QuestionCircleOutlined className="text-blue-600" />
-							}
-							valueStyle={{ color: '#1890ff' }}
-						/>
-						<Progress
-							percent={
-								Math.round(
-									(statistics.totalReviewed /
-										csvData.length) *
-										100
-								) || 0
-							}
-							showInfo={false}
-							strokeColor="#1890ff"
-							size="small"
-							className="mt-2"
-						/>
-						<Text className="text-xs text-blue-600">
-							{statistics.totalReviewed} of {csvData.length}{' '}
-							reviewed
-						</Text>
-					</Card>
-
-					<Card size="small" className="border-green-400 bg-green-50">
-						<Statistic
-							title={
-								<span className="text-green-600 font-medium">
-									Correct Predictions
-								</span>
-							}
-							value={statistics.correct}
-							prefix={
-								<CheckCircleOutlined className="text-green-600" />
-							}
-							valueStyle={{ color: '#52c41a' }}
-						/>
-						<Progress
-							percent={
-								Math.round(
-									(statistics.correct / csvData.length) * 100
-								) || 0
-							}
-							showInfo={false}
-							strokeColor="#52c41a"
-							size="small"
-							className="mt-2"
-						/>
-					</Card>
-
-					<Card size="small" className="border-red-400 bg-red-50">
-						<Statistic
-							title={
-								<span className="text-red-600 font-medium">
-									Incorrect Predictions
-								</span>
-							}
-							value={statistics.incorrect}
-							prefix={
-								<CloseCircleOutlined className="text-red-600" />
-							}
-							valueStyle={{ color: '#f5222d' }}
-						/>
-						<Progress
-							percent={
-								Math.round(
-									(statistics.incorrect / csvData.length) *
-										100
-								) || 0
-							}
-							showInfo={false}
-							strokeColor="#f5222d"
-							size="small"
-							className="mt-2"
-						/>
-					</Card>
-
-					<Card
-						size="small"
-						className="border-purple-400 bg-purple-50"
+				<Card
+					size="small"
+					className="mb-4 border-green-500 bg-green-50 border-dashed"
+				>
+					<Space
+						size="large"
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+						}}
 					>
 						<Statistic
-							title={
-								<span className="text-purple-600 font-medium">
-									Accuracy
-								</span>
+							title="Total Predictions"
+							value={csvData.length}
+							prefix={<QuestionCircleOutlined />}
+						/>
+						<Statistic
+							title="Correct Predictions"
+							value={statistics.correct}
+							prefix={
+								<CheckCircleOutlined
+									style={{ color: '#52c41a' }}
+								/>
 							}
+						/>
+						<Statistic
+							title="Incorrect Predictions"
+							value={statistics.incorrect}
+							prefix={
+								<CloseCircleOutlined
+									style={{ color: '#f5222d' }}
+								/>
+							}
+						/>
+						<Statistic
+							title="Accuracy"
 							value={statistics.accuracy}
 							suffix="%"
 							precision={1}
-							prefix={
-								<BarChartOutlined className="text-purple-600" />
-							}
-							valueStyle={{
-								color: getAccuracyColor(
-									parseFloat(statistics.accuracy)
-								),
-							}}
 						/>
-						<Progress
-							percent={parseFloat(statistics.accuracy)}
-							showInfo={false}
-							strokeColor={getAccuracyColor(
-								parseFloat(statistics.accuracy)
-							)}
-							size="small"
-							className="mt-2"
-						/>
-					</Card>
-				</div>
-
-				{/* Alert for low accuracy */}
-				{parseFloat(statistics.accuracy) < 70 && csvData.length > 0 && (
-					<Alert
-						message="Low Prediction Accuracy Detected"
-						description="The current model accuracy is below 70%. You may want to review more predictions or consider retraining your model with additional data."
-						type="warning"
-						showIcon
-						className="mb-4"
-						icon={<ExclamationCircleOutlined />}
-						action={
-							<Button size="small" type="primary">
-								View Suggestions
-							</Button>
-						}
-					/>
-				)}
+					</Space>
+				</Card>
 
 				{/* Main Table */}
 				{loading ? (
@@ -514,7 +378,7 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 						</div>
 					</Card>
 				) : csvData.length > 0 ? (
-					<Card className="shadow-sm">
+					<Card className="shadow-sm [&_.ant-card-body]:p-0">
 						<Table
 							dataSource={filteredData}
 							columns={columns}
@@ -526,7 +390,7 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 								showSizeChanger: false,
 								showTotal: (total) => `${total} predictions`,
 							}}
-							size={isCompactView ? 'small' : 'middle'}
+							size={'small'}
 							scroll={{ x: 'max-content' }}
 							rowClassName={(_, index) =>
 								incorrectPredictions.includes(index)
@@ -564,26 +428,7 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 			>
 				{selectedRowData ? (
 					<div>
-						<Alert
-							message={
-								incorrectPredictions.includes(
-									selectedRowData.index
-								)
-									? 'Marked as Incorrect Prediction'
-									: 'Marked as Correct Prediction'
-							}
-							type={
-								incorrectPredictions.includes(
-									selectedRowData.index
-								)
-									? 'error'
-									: 'success'
-							}
-							showIcon
-							className="mb-4"
-						/>
-
-						<div className="mb-4">
+						<div className="mb-2">
 							<Statistic
 								title="Confidence Score"
 								value={(
@@ -591,29 +436,12 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 										?.confidence * 100
 								).toFixed(1)}
 								suffix="%"
-								prefix={<ThunderboltOutlined />}
+							// prefix={<ThunderboltOutlined />}
 							/>
-							<Progress
-								percent={
-									predictResult[selectedRowData.index]
-										?.confidence * 100
-								}
-								status={
-									predictResult[selectedRowData.index]
-										?.confidence >= 0.5
-										? 'normal'
-										: 'exception'
-								}
-								strokeColor={
-									getConfidenceStatus(
-										predictResult[selectedRowData.index]
-											?.confidence
-									).color
-								}
-							/>
+
 						</div>
 
-						<Divider orientation="left">Data Fields</Divider>
+						<Divider orientation="left" orientationMargin="0">Data Fields</Divider>
 						{Object.entries(selectedRowData.record).map(
 							([key, value]) => (
 								<div key={key} className="mb-2">
@@ -629,7 +457,7 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							)
 						)}
 
-						<Divider orientation="left">Prediction</Divider>
+						<Divider orientation="left" orientationMargin="0">Prediction</Divider>
 						<div className="mb-2">
 							<Text strong>
 								Predicted {projectInfo.target_column}:{' '}

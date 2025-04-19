@@ -10,12 +10,17 @@ function useAuth() {
 	const writeCookies = ({ accessToken, refreshToken }) => {
 		const cookieOptions = {
 			path: '/',
-			secure: true,
-			sameSite: 'none',
+			sameSite: 'lax', // Hỗ trợ môi trường HTTP và bảo vệ CSRF
+			maxAge: 24 * 60 * 60, // Cookie sống 1 ngày
 		};
 		if (process.env.REACT_APP_DOMAIN_NAME) {
 			cookieOptions.domain = process.env.REACT_APP_DOMAIN_NAME;
 		}
+
+		console.log('accessToken', accessToken);
+		console.log('refreshToken', refreshToken);
+		console.log('cookieOptions', cookieOptions);
+
 		cookies.set('accessToken', accessToken, cookieOptions);
 		if (refreshToken) {
 			cookies.set('refreshToken', refreshToken, cookieOptions);
