@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react';
 import {
 	Card,
 	Layout,
@@ -19,202 +19,241 @@ import {
 	Switch,
 	Select,
 	Spin,
+	Menu,
+	Dropdown,
 } from 'antd'
 import {
-	LeftOutlined,
-	RightOutlined,
 	QuestionCircleOutlined,
 	CheckCircleOutlined,
 	CloseCircleOutlined,
 	FileTextOutlined,
 	EyeOutlined,
-	EyeInvisibleOutlined,
-	InfoCircleOutlined,
-	ThunderboltOutlined,
-	BarChartOutlined,
 	TableOutlined,
 	ExclamationCircleOutlined,
 	FilterOutlined,
+	DownOutlined, CheckOutlined,
+	UploadOutlined
 } from '@ant-design/icons'
 import Papa from 'papaparse'
 const { Title, Text, Paragraph } = Typography
 const { Content, Header } = Layout
 const { Option } = Select
 
-const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
-	const [csvData, setCsvData] = useState([])
-	const [currentPage, setCurrentPage] = useState(1)
-	const [incorrectPredictions, setIncorrectPredictions] = useState([])
+
+const TabularPredict = ({ predictResult, uploadedFiles, projectInfo, handleUploadFiles }) => {
+	const [csvData, setCsvData] = useState([]);
+	const [predictionHistory, setPredictionHistory] = useState([]);
+	const [currentFileIndex, setCurrentFileIndex] = useState(-1); // -1 khi chưa có file
+	const [currentPage, setCurrentPage] = useState(1);
+	const [incorrectPredictions, setIncorrectPredictions] = useState([]);
 	const [statistics, setStatistics] = useState({
 		correct: 0,
 		incorrect: 0,
 		accuracy: 0,
 		totalReviewed: 0,
-	})
-	const [loading, setLoading] = useState(true)
-	const [infoDrawerVisible, setInfoDrawerVisible] = useState(false)
-	const [selectedRowData, setSelectedRowData] = useState(null)
-	const [visibleColumns, setVisibleColumns] = useState([])
-	const [confidenceFilter, setConfidenceFilter] = useState('all')
+	});
+	const [loading, setLoading] = useState(false);
+	const [infoDrawerVisible, setInfoDrawerVisible] = useState(false);
+	const [selectedRowData, setSelectedRowData] = useState(null);
+	const [visibleColumns, setVisibleColumns] = useState([]);
+	const [confidenceFilter, setConfidenceFilter] = useState('all');
+	const [uploading, setUploading] = useState(false);
 
-	const pageSize = 9
+	const fileInputRef = useRef(null);
+	const pageSize = 9;
 
-	// Parse CSV and initialize data
+	// Parse CSV và cập nhật dữ liệu
 	useEffect(() => {
 		if (uploadedFiles?.length && uploadedFiles[0]?.name.endsWith('.csv')) {
-			setLoading(true)
-			const reader = new FileReader()
+			setLoading(true);
+			const reader = new FileReader();
 			reader.onload = () => {
 				Papa.parse(reader.result, {
 					header: true,
 					skipEmptyLines: true,
 					complete: ({ data, meta }) => {
-						setCsvData(data)
-						// Initialize visible columns (including the target column and prediction)
 						const importantColumns = [
 							projectInfo.target_column,
-							// `Predicted ${projectInfo.target_column}`,
 							'Predicted Class',
 							'Confidence',
 							'Actions',
-						]
-
-						// Start with most important columns
+						];
 						const initialVisibleColumns = meta.fields.filter(
-							(field) =>
-								importantColumns.includes(field) ||
-								meta.fields.indexOf(field) < 3
-						)
-
-						setVisibleColumns(initialVisibleColumns)
-
-						// Initialize incorrect predictions based on confidence
+							(field) => importantColumns.includes(field) || meta.fields.indexOf(field) < 3
+						);
 						const initialIncorrect = predictResult
-							.map((result, idx) =>
-								result.confidence < 0.7 ? idx : null
-							)
-							.filter((idx) => idx !== null)
+							.map((result, idx) => (result.confidence < 0.7 ? idx : null))
+							.filter((idx) => idx !== null);
 
-						setIncorrectPredictions(initialIncorrect)
-						setLoading(false)
+						// Cập nhật lịch sử
+						setPredictionHistory((prev) => {
+							const existingIndex = prev.findIndex(
+								(item) => item.fileName === uploadedFiles[0].name
+							);
+							const newHistoryItem = {
+								fileName: uploadedFiles[0].name,
+								predictions: predictResult,
+								data,
+								visibleColumns: initialVisibleColumns,
+								incorrectPredictions: initialIncorrect,
+							};
+
+							let newHistory;
+							if (existingIndex >= 0) {
+								// Cập nhật file hiện có
+								newHistory = [...prev];
+								newHistory[existingIndex] = newHistoryItem;
+							} else {
+								// Thêm file mới
+								newHistory = [...prev, newHistoryItem];
+							}
+
+							// Cập nhật currentFileIndex
+							setCurrentFileIndex(existingIndex >= 0 ? existingIndex : newHistory.length - 1);
+
+							return newHistory;
+						});
+
+						// Cập nhật trạng thái hiện tại
+						setCsvData(data);
+						setVisibleColumns(initialVisibleColumns);
+						setIncorrectPredictions(initialIncorrect);
+						setCurrentPage(1); // Reset trang
+						setConfidenceFilter('all'); // Reset bộ lọc
+						setLoading(false);
 					},
-				})
-			}
-			reader.readAsText(uploadedFiles[0])
+				});
+			};
+			reader.readAsText(uploadedFiles[0]);
 		}
-	}, [uploadedFiles, predictResult, projectInfo])
+	}, [uploadedFiles, predictResult, projectInfo]);
 
-	// Update statistics when predictions change
+	// Chuyển đổi giữa các file trong lịch sử
+	const handleFileSelect = (index) => {
+		if (index >= 0 && index < predictionHistory.length) {
+			const selectedItem = predictionHistory[index];
+			setCurrentFileIndex(index);
+			setCsvData(selectedItem.data);
+			setVisibleColumns(selectedItem.visibleColumns);
+			setIncorrectPredictions(selectedItem.incorrectPredictions);
+			setCurrentPage(1); // Reset trang
+			setConfidenceFilter('all'); // Reset bộ lọc
+			setLoading(false);
+		}
+	};
+
+	// Cập nhật thống kê
 	useEffect(() => {
-		const incorrect = incorrectPredictions.length
-		const total = csvData.length
-		const reviewed = Math.min(currentPage * pageSize, total)
+		const incorrect = incorrectPredictions.length;
+		const total = csvData.length;
+		const reviewed = Math.min(currentPage * pageSize, total);
 
 		setStatistics({
 			correct: total - incorrect,
 			incorrect,
-			accuracy: total
-				? (((total - incorrect) / total) * 100).toFixed(1)
-				: 0,
+			accuracy: total ? (((total - incorrect) / total) * 100).toFixed(1) : 0,
 			totalReviewed: reviewed,
-		})
-	}, [incorrectPredictions, csvData, currentPage])
+		});
+	}, [incorrectPredictions, csvData, currentPage]);
 
 	const handlePredictionToggle = (index) => {
 		setIncorrectPredictions((prev) =>
-			prev.includes(index)
-				? prev.filter((i) => i !== index)
-				: [...prev, index]
-		)
-	}
+			prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+		);
+		// Cập nhật predictionHistory
+		setPredictionHistory((prev) => {
+			const newHistory = [...prev];
+			if (newHistory[currentFileIndex]) {
+				newHistory[currentFileIndex].incorrectPredictions = incorrectPredictions.includes(index)
+					? incorrectPredictions.filter((i) => i !== index)
+					: [...incorrectPredictions, index];
+			}
+			return newHistory;
+		});
+	};
 
 	const showRowDetails = (record, index) => {
-		setSelectedRowData({ record, index })
-		setInfoDrawerVisible(true)
-	}
+		setSelectedRowData({ record, index });
+		setInfoDrawerVisible(true);
+	};
+
+	const handleClick = () => {
+		fileInputRef.current?.click();
+	};
+
+	const handleChange = (event) => {
+		const files = event.target.files;
+		if (files && files.length > 0) {
+			setUploading(true);
+			handleUploadFiles(files).finally(() => {
+				setUploading(false);
+			});
+		}
+	};
 
 	const handleColumnVisibilityToggle = (column) => {
 		setVisibleColumns((prev) =>
-			prev.includes(column)
-				? prev.filter((col) => col !== column)
-				: [...prev, column]
-		)
-	}
+			prev.includes(column) ? prev.filter((col) => col !== column) : [...prev, column]
+		);
+		// Cập nhật predictionHistory
+		setPredictionHistory((prev) => {
+			const newHistory = [...prev];
+			if (newHistory[currentFileIndex]) {
+				newHistory[currentFileIndex].visibleColumns = visibleColumns.includes(column)
+					? visibleColumns.filter((col) => col !== column)
+					: [...visibleColumns, column];
+			}
+			return newHistory;
+		});
+	};
 
-	// Filter data based on confidence level
 	const getFilteredData = () => {
-		if (confidenceFilter === 'all') return csvData
-
+		if (confidenceFilter === 'all') return csvData;
 		return csvData.filter((_, index) => {
-			const confidence = predictResult[index]?.confidence || 0
-			if (confidenceFilter === 'high') return confidence >= 0.8
-			if (confidenceFilter === 'medium')
-				return confidence >= 0.5 && confidence < 0.8
-			if (confidenceFilter === 'low') return confidence < 0.5
-			return true
-		})
-	}
+			const confidence = predictResult[index]?.confidence || 0;
+			if (confidenceFilter === 'high') return confidence >= 0.8;
+			if (confidenceFilter === 'medium') return confidence >= 0.5 && confidence < 0.8;
+			if (confidenceFilter === 'low') return confidence < 0.5;
+			return true;
+		});
+	};
 
-	// Generate table columns based on CSV data
 	const getColumns = () => {
-		if (!csvData.length) return []
+		if (!csvData.length) return [];
+		const allColumns = Object.keys(csvData[0]);
+		const targetColumn = projectInfo.target_column;
 
-		const allColumns = Object.keys(csvData[0])
-		const targetColumn = projectInfo.target_column
-
-		// Start with basic columns (first 2-3 columns for identification)
 		const baseColumns = allColumns
 			.filter((col) => visibleColumns.includes(col))
 			.map((col) => ({
 				title: col,
 				dataIndex: col,
 				key: col,
-				render: (text) => {
-					if (col === targetColumn) {
-						return <Tag color="blue">{text}</Tag>
-					}
-					return <Text>{text}</Text>
-				},
+				render: (text) => (col === targetColumn ? <Tag color="blue">{text}</Tag> : <Text>{text}</Text>),
 				ellipsis: true,
-			}))
+			}));
 
-		// Add prediction and confidence columns
 		return [
 			...baseColumns,
 			{
-				// title: `Predicted ${targetColumn}`,
-				title: `Predicted Class`,
+				title: 'Predicted Class',
 				key: 'predictedClass',
 				width: 160,
 				render: (_, __, index) => {
-					const predicted = predictResult[index + (currentPage - 1) * pageSize]?.class || 'N/A'
-					const actual = csvData[index][targetColumn]
-					const isCorrect = !incorrectPredictions.includes(index)
-
-					return (
-						<Tag color={isCorrect ? 'green' : 'red'}>
-							{predicted}
-
-						</Tag>
-					)
+					const globalIndex = index + (currentPage - 1) * pageSize;
+					const predicted = predictResult[globalIndex]?.class || 'N/A';
+					const isCorrect = !incorrectPredictions.includes(globalIndex);
+					return <Tag color={isCorrect ? 'green' : 'red'}>{predicted}</Tag>;
 				},
 			},
 			{
 				title: 'Confidence',
-				dataIndex: 'index',
 				key: 'confidence',
 				width: 160,
-
-				render: (_, record, index) => {
-					// Tính index toàn cục
-					const globalIndex = index + (currentPage - 1) * pageSize
-					const confidence = predictResult[globalIndex]?.confidence || 0
-					const color =
-						confidence >= 0.7
-							? 'green'
-							: confidence >= 0.5
-								? 'orange'
-								: 'red'
+				render: (_, __, index) => {
+					const globalIndex = index + (currentPage - 1) * pageSize;
+					const confidence = predictResult[globalIndex]?.confidence || 0;
+					const color = confidence >= 0.7 ? 'green' : confidence >= 0.5 ? 'orange' : 'red';
 					return (
 						<Progress
 							percent={Math.round(confidence * 100)}
@@ -222,7 +261,7 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							status={confidence >= 0.4 ? 'normal' : 'exception'}
 							strokeColor={color}
 						/>
-					)
+					);
 				},
 			},
 			{
@@ -230,53 +269,38 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 				key: 'actions',
 				fixed: 'right',
 				width: 150,
-				render: (_, record, index) => (
-					<Space>
-						<Tooltip
-							title={
-								incorrectPredictions.includes(index)
-									? 'Mark as correct'
-									: 'Mark as incorrect'
-							}
-						>
-							<Button
-								type={
-									incorrectPredictions.includes(index)
-										? 'default'
-										: 'primary'
-								}
-								size="small"
-								icon={
-									incorrectPredictions.includes(index) ? (
-										<CheckCircleOutlined />
-									) : (
-										<CloseCircleOutlined />
-									)
-								}
-								onClick={() => handlePredictionToggle(index)}
-								danger={!incorrectPredictions.includes(index)}
-							>
-								{incorrectPredictions.includes(index)
-									? 'Correct'
-									: 'Incorrect'}
-							</Button>
-						</Tooltip>
-						<Tooltip title="View details">
-							<Button
-								type="text"
-								size="small"
-								icon={<EyeOutlined />}
-								onClick={() => showRowDetails(record, index)}
-							/>
-						</Tooltip>
-					</Space>
-				),
+				render: (_, record, index) => {
+					const globalIndex = index + (currentPage - 1) * pageSize;
+					return (
+						<Space>
+							<Tooltip title={incorrectPredictions.includes(globalIndex) ? 'Mark as correct' : 'Mark as incorrect'}>
+								<Button
+									type={incorrectPredictions.includes(globalIndex) ? 'default' : 'primary'}
+									size="small"
+									icon={incorrectPredictions.includes(globalIndex) ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+									onClick={() => handlePredictionToggle(globalIndex)}
+									danger={!incorrectPredictions.includes(globalIndex)}
+								>
+									{incorrectPredictions.includes(globalIndex) ? 'Correct' : 'Incorrect'}
+								</Button>
+							</Tooltip>
+							<Tooltip title="View details">
+								<Button
+									type="text"
+									size="small"
+									icon={<EyeOutlined />}
+									onClick={() => showRowDetails(record, globalIndex)}
+								/>
+							</Tooltip>
+						</Space>
+					);
+				},
 			},
-		]
-	}
+		];
+	};
 
-	const columns = getColumns()
-	const filteredData = getFilteredData()
+	const columns = getColumns();
+	const filteredData = getFilteredData();
 
 	return (
 		<Layout className="bg-white">
@@ -287,94 +311,80 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							<Title level={4} style={{ margin: 0 }}>
 								<TableOutlined /> Prediction Review Dashboard
 							</Title>
-							<Tag color="blue" icon={<FileTextOutlined />}>
-								{uploadedFiles?.[0]?.name || 'No file uploaded'}
-							</Tag>
+							<Dropdown
+								overlay={
+									<Menu>
+										{predictionHistory.map((item, index) => (
+											<Menu.Item key={index} onClick={() => handleFileSelect(index)}>
+												<FileTextOutlined /> {item.fileName}
+												{index === currentFileIndex && <CheckOutlined style={{ marginLeft: 8 }} />}
+											</Menu.Item>
+										))}
+									</Menu>
+								}
+								trigger={['click']}
+							>
+								<Tag color="blue" icon={<FileTextOutlined />} style={{ cursor: 'pointer' }}>
+									{predictionHistory[currentFileIndex]?.fileName || 'No file uploaded'} <DownOutlined />
+								</Tag>
+							</Dropdown>
 						</Space>
 						<Space>
 							<Tooltip title="Filter by confidence">
 								<Select
-									defaultValue="all"
+									value={confidenceFilter}
 									style={{ width: 120 }}
 									onChange={setConfidenceFilter}
 									dropdownMatchSelectWidth={false}
 								>
 									<Option value="all">All predictions</Option>
-									<Option value="high">
-										High confidence
-									</Option>
-									<Option value="medium">
-										Medium confidence
-									</Option>
+									<Option value="high">High confidence</Option>
+									<Option value="medium">Medium confidence</Option>
 									<Option value="low">Low confidence</Option>
 								</Select>
 							</Tooltip>
 							<Tooltip title="Configure visible columns">
-								<Button
-									icon={<FilterOutlined />}
-									onClick={() => setInfoDrawerVisible(true)}
-								>
+								<Button icon={<FilterOutlined />} onClick={() => setInfoDrawerVisible(true)}>
 									Columns
 								</Button>
 							</Tooltip>
+							<Tooltip title="Upload new file for prediction">
+								<Button icon={<UploadOutlined />} onClick={handleClick} loading={uploading} type="primary">
+									Upload New File
+								</Button>
+							</Tooltip>
+							<input
+								type="file"
+								ref={fileInputRef}
+								onChange={handleChange}
+								style={{ display: 'none' }}
+								accept=".csv"
+							/>
 						</Space>
 					</div>
 				</Card>
 			</Header>
-			<Content className="">
-				{/* Statistics Cards */}
-				<Card
-					size="small"
-					className="mb-4 border-green-500 bg-green-50 border-dashed"
-				>
-					<Space
-						size="large"
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-						}}
-					>
-						<Statistic
-							title="Total Predictions"
-							value={csvData.length}
-							prefix={<QuestionCircleOutlined />}
-						/>
+			<Content>
+				<Card size="small" className="mb-4 border-green-500 bg-green-50 border-dashed">
+					<Space size="large" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+						<Statistic title="Total Predictions" value={csvData.length} prefix={<QuestionCircleOutlined />} />
 						<Statistic
 							title="Correct Predictions"
 							value={statistics.correct}
-							prefix={
-								<CheckCircleOutlined
-									style={{ color: '#52c41a' }}
-								/>
-							}
+							prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
 						/>
 						<Statistic
 							title="Incorrect Predictions"
 							value={statistics.incorrect}
-							prefix={
-								<CloseCircleOutlined
-									style={{ color: '#f5222d' }}
-								/>
-							}
+							prefix={<CloseCircleOutlined style={{ color: '#f5222d' }} />}
 						/>
-						<Statistic
-							title="Accuracy"
-							value={statistics.accuracy}
-							suffix="%"
-							precision={1}
-						/>
+						<Statistic title="Accuracy" value={statistics.accuracy} suffix="%" precision={1} />
 					</Space>
 				</Card>
-
-				{/* Main Table */}
 				{loading ? (
 					<Card>
 						<div className="flex items-center justify-center p-12">
-							<Spin
-								size="large"
-								tip="Loading prediction data..."
-							/>
+							<Spin size="large" tip="Loading prediction data..." />
 						</div>
 					</Card>
 				) : csvData.length > 0 ? (
@@ -390,38 +400,29 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 								showSizeChanger: false,
 								showTotal: (total) => `${total} predictions`,
 							}}
-							size={'small'}
+							size="small"
 							scroll={{ x: 'max-content' }}
 							rowClassName={(_, index) =>
-								incorrectPredictions.includes(index)
-									? 'bg-red-50'
-									: ''
+								incorrectPredictions.includes(index + (currentPage - 1) * pageSize) ? 'bg-red-50' : ''
 							}
 						/>
 					</Card>
 				) : (
 					<Card>
-						<Empty
-							image={Empty.PRESENTED_IMAGE_SIMPLE}
-							description="No prediction data available"
-						>
-							<Button type="primary">
+						<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No prediction data available">
+							<Button type="primary" onClick={handleClick} loading={uploading}>
 								Upload a file to start
 							</Button>
 						</Empty>
 					</Card>
 				)}
 			</Content>
-
-			{/* Drawer for showing row details and column visibility */}
 			<Drawer
-				title={
-					selectedRowData ? 'Prediction Details' : 'Column Visibility'
-				}
+				title={selectedRowData ? 'Prediction Details' : 'Column Visibility'}
 				placement="right"
 				onClose={() => {
-					setInfoDrawerVisible(false)
-					setSelectedRowData(null)
+					setInfoDrawerVisible(false);
+					setSelectedRowData(null);
 				}}
 				open={infoDrawerVisible}
 				width={400}
@@ -431,115 +432,63 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 						<div className="mb-2">
 							<Statistic
 								title="Confidence Score"
-								value={(
-									predictResult[selectedRowData.index]
-										?.confidence * 100
-								).toFixed(1)}
+								value={(predictResult[selectedRowData.index]?.confidence * 100).toFixed(1)}
 								suffix="%"
-							// prefix={<ThunderboltOutlined />}
 							/>
-
 						</div>
-
-						<Divider orientation="left" orientationMargin="0">Data Fields</Divider>
-						{Object.entries(selectedRowData.record).map(
-							([key, value]) => (
-								<div key={key} className="mb-2">
-									<Text strong>{key}: </Text>
-									<Text>
-										{key === projectInfo.target_column ? (
-											<Tag color="blue">{value}</Tag>
-										) : (
-											value
-										)}
-									</Text>
-								</div>
-							)
-						)}
-
-						<Divider orientation="left" orientationMargin="0">Prediction</Divider>
+						<Divider orientation="left" orientationMargin="0">
+							Data Fields
+						</Divider>
+						{Object.entries(selectedRowData.record).map(([key, value]) => (
+							<div key={key} className="mb-2">
+								<Text strong>{key}: </Text>
+								<Text>
+									{key === projectInfo.target_column ? <Tag color="blue">{value}</Tag> : value}
+								</Text>
+							</div>
+						))}
+						<Divider orientation="left" orientationMargin="0">
+							Prediction
+						</Divider>
 						<div className="mb-2">
-							<Text strong>
-								Predicted {projectInfo.target_column}:{' '}
-							</Text>
-							<Tag color="purple">
-								{predictResult[selectedRowData.index]?.class ||
-									'N/A'}
-							</Tag>
+							<Text strong>Predicted {projectInfo.target_column}: </Text>
+							<Tag color="purple">{predictResult[selectedRowData.index]?.class || 'N/A'}</Tag>
 						</div>
-
 						<div className="mt-4">
 							<Space>
 								<Button
-									type={
-										incorrectPredictions.includes(
-											selectedRowData.index
-										)
-											? 'default'
-											: 'primary'
-									}
-									danger={
-										!incorrectPredictions.includes(
-											selectedRowData.index
-										)
-									}
+									type={incorrectPredictions.includes(selectedRowData.index) ? 'default' : 'primary'}
+									danger={!incorrectPredictions.includes(selectedRowData.index)}
 									icon={
-										incorrectPredictions.includes(
-											selectedRowData.index
-										) ? (
+										incorrectPredictions.includes(selectedRowData.index) ? (
 											<CheckCircleOutlined />
 										) : (
 											<CloseCircleOutlined />
 										)
 									}
-									onClick={() =>
-										handlePredictionToggle(
-											selectedRowData.index
-										)
-									}
+									onClick={() => handlePredictionToggle(selectedRowData.index)}
 								>
-									Mark as{' '}
-									{incorrectPredictions.includes(
-										selectedRowData.index
-									)
-										? 'Correct'
-										: 'Incorrect'}
+									Mark as {incorrectPredictions.includes(selectedRowData.index) ? 'Correct' : 'Incorrect'}
 								</Button>
 							</Space>
 						</div>
 					</div>
 				) : (
 					<div>
-						<Paragraph>
-							Select which columns to display in the table. Hiding
-							unnecessary columns can make reviewing predictions
-							easier.
-						</Paragraph>
-
+						<Text>Select which columns to display in the table.</Text>
 						<Divider orientation="left">Available Columns</Divider>
-
 						{csvData.length > 0 &&
 							Object.keys(csvData[0]).map((column) => (
 								<div key={column} className="mb-2">
 									<Switch
-										checked={visibleColumns.includes(
-											column
-										)}
-										onChange={() =>
-											handleColumnVisibilityToggle(column)
-										}
+										checked={visibleColumns.includes(column)}
+										onChange={() => handleColumnVisibilityToggle(column)}
 										size="small"
 										className="mr-2"
 									/>
 									<Text
-										strong={
-											column === projectInfo.target_column
-										}
-										type={
-											column === projectInfo.target_column
-												? 'success'
-												: undefined
-										}
+										strong={column === projectInfo.target_column}
+										type={column === projectInfo.target_column ? 'success' : undefined}
 									>
 										{column}
 									</Text>
@@ -550,22 +499,15 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 									)}
 								</div>
 							))}
-
 						<Divider />
-						<Space direction="vertical" style={{ width: '100%' }}>
-							<Button
-								type="primary"
-								block
-								onClick={() => setInfoDrawerVisible(false)}
-							>
-								Apply Changes
-							</Button>
-						</Space>
+						<Button type="primary" block onClick={() => setInfoDrawerVisible(false)}>
+							Apply Changes
+						</Button>
 					</div>
 				)}
 			</Drawer>
 		</Layout>
-	)
-}
+	);
+};
 
-export default TabularPredict
+export default TabularPredict;

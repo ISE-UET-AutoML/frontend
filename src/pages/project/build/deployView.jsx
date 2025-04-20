@@ -378,6 +378,112 @@ const DeployView = () => {
 		},
 	]
 
+	// const startDeployment = async () => {
+	// 	if (!selectedOption) {
+	// 		message.error(
+	// 			'Please select a deployment option before proceeding.',
+	// 			5
+	// 		)
+	// 		return
+	// 	}
+
+	// 	if (!experimentName) {
+	// 		message.error('Experiment name is required.', 5)
+	// 		return
+	// 	}
+
+	// 	setIsDeploying(true)
+	// 	setCurrentStep(0)
+	// 	setShouldStopSimulation(false)
+
+	// 	// Reset all progress trackers
+	// 	setSetupProgress(0)
+	// 	setConfigProgress(0)
+	// 	setOptimizationProgress(0)
+	// 	setNetworkProgress(0)
+	// 	setCompletedTasks([])
+	// 	setCurrentTaskIndex(0)
+
+	// 	// Store the selected deployment option details for UI
+	// 	setSelectedDeployOption(
+	// 		deployOptions.find((option) => option.id === selectedOption)
+	// 	)
+
+	// 	// Add initial deployment log
+	// 	addDeploymentLog('Initializing deployment process', 'info')
+	// 	addDeploymentLog(
+	// 		`Selected deployment option: ${selectedOption}`,
+	// 		'info'
+	// 	)
+
+	// 	try {
+	// 		// Simulate different stages of deployment with progress updates
+	// 		simulateDeploymentProgress()
+
+	// 		const { data } = await experimentAPI.deployModel(
+	// 			experimentName,
+	// 			selectedOption
+	// 		)
+	// 		setInstanceURL(data.url)
+	// 		addDeploymentLog(
+	// 			`Deployment endpoint created: ${data.url}`,
+	// 			'success'
+	// 		)
+
+	// 		const interval = setInterval(async () => {
+	// 			try {
+	// 				const statusResponse =
+	// 					await experimentAPI.getDeployStatus(experimentName)
+	// 				const { deployInfo } = statusResponse.data
+
+	// 				if (deployInfo.status === 'ONLINE') {
+	// 					setIsComplete(true)
+	// 					clearInterval(interval)
+	// 					message.success('Deployment completed successfully!', 5)
+	// 					setCurrentStep(1)
+	// 					setShouldStopSimulation(true)
+	// 					setCurrentTaskIndex(deploymentTasks.length - 1)
+	// 					setCurrentAction('Deploy Completely')
+
+	// 					addDeploymentLog(
+	// 						'Deployment successfully completed',
+	// 						'success'
+	// 					)
+	// 					addDeploymentLog(
+	// 						'Model is now online and ready for predictions',
+	// 						'success'
+	// 					)
+	// 				} else if (deployInfo.status === 'ERROR') {
+	// 					setIsDeploying(false)
+	// 					clearInterval(interval)
+	// 					message.error('Deployment failed:', 5)
+	// 					addDeploymentLog(`Deployment failed`, 'error')
+	// 				} else {
+	// 					setCurrentStep(0)
+	// 				}
+	// 			} catch (err) {
+	// 				setIsDeploying(false)
+	// 				clearInterval(interval)
+	// 				message.error(
+	// 					'Error checking deployment status: ' + err.message,
+	// 					5
+	// 				)
+	// 				addDeploymentLog(
+	// 					`Deployment error: ${err.message}`,
+	// 					'error'
+	// 				)
+	// 			}
+	// 		}, 10000)
+	// 	} catch (error) {
+	// 		setIsDeploying(false)
+	// 		message.error('Failed to start deployment: ' + error.message, 5)
+	// 		addDeploymentLog(
+	// 			`Failed to start deployment: ${error.message}`,
+	// 			'error'
+	// 		)
+	// 	}
+	// }
+
 	const startDeployment = async () => {
 		if (!selectedOption) {
 			message.error(
@@ -386,16 +492,13 @@ const DeployView = () => {
 			)
 			return
 		}
-
 		if (!experimentName) {
 			message.error('Experiment name is required.', 5)
 			return
 		}
-
 		setIsDeploying(true)
 		setCurrentStep(0)
 		setShouldStopSimulation(false)
-
 		// Reset all progress trackers
 		setSetupProgress(0)
 		setConfigProgress(0)
@@ -403,23 +506,19 @@ const DeployView = () => {
 		setNetworkProgress(0)
 		setCompletedTasks([])
 		setCurrentTaskIndex(0)
-
 		// Store the selected deployment option details for UI
 		setSelectedDeployOption(
 			deployOptions.find((option) => option.id === selectedOption)
 		)
-
 		// Add initial deployment log
 		addDeploymentLog('Initializing deployment process', 'info')
 		addDeploymentLog(
 			`Selected deployment option: ${selectedOption}`,
 			'info'
 		)
-
 		try {
 			// Simulate different stages of deployment with progress updates
 			simulateDeploymentProgress()
-
 			const { data } = await experimentAPI.deployModel(
 				experimentName,
 				selectedOption
@@ -430,12 +529,14 @@ const DeployView = () => {
 				'success'
 			)
 
+			// Thêm biến đếm số lần gặp lỗi liên tiếp
+			let consecutiveErrorCount = 0;
+
 			const interval = setInterval(async () => {
 				try {
 					const statusResponse =
 						await experimentAPI.getDeployStatus(experimentName)
 					const { deployInfo } = statusResponse.data
-
 					if (deployInfo.status === 'ONLINE') {
 						setIsComplete(true)
 						clearInterval(interval)
@@ -444,7 +545,6 @@ const DeployView = () => {
 						setShouldStopSimulation(true)
 						setCurrentTaskIndex(deploymentTasks.length - 1)
 						setCurrentAction('Deploy Completely')
-
 						addDeploymentLog(
 							'Deployment successfully completed',
 							'success'
@@ -453,25 +553,48 @@ const DeployView = () => {
 							'Model is now online and ready for predictions',
 							'success'
 						)
+						// Reset lỗi khi thành công
+						consecutiveErrorCount = 0;
 					} else if (deployInfo.status === 'ERROR') {
-						setIsDeploying(false)
-						clearInterval(interval)
-						message.error('Deployment failed:', 5)
-						addDeploymentLog(`Deployment failed`, 'error')
+						// Tăng biến đếm lỗi
+						consecutiveErrorCount++;
+
+						// Kiểm tra nếu đã có 3 lỗi liên tiếp
+						if (consecutiveErrorCount >= 3) {
+							setIsDeploying(false)
+							clearInterval(interval)
+							message.error('Deployment failed after 3 consecutive errors', 5)
+							addDeploymentLog(`Deployment failed after 3 consecutive errors`, 'error')
+						} else {
+							// Nếu chưa đủ 3 lỗi, ghi log nhưng không dừng quá trình
+							addDeploymentLog(`Deployment error detected (${consecutiveErrorCount}/3), retrying...`, 'warning')
+						}
 					} else {
+						// Reset biến đếm lỗi khi trạng thái khác ERROR
+						consecutiveErrorCount = 0;
 						setCurrentStep(0)
 					}
 				} catch (err) {
-					setIsDeploying(false)
-					clearInterval(interval)
-					message.error(
-						'Error checking deployment status: ' + err.message,
-						5
-					)
-					addDeploymentLog(
-						`Deployment error: ${err.message}`,
-						'error'
-					)
+					// Xem lỗi này như một trạng thái ERROR
+					consecutiveErrorCount++;
+
+					if (consecutiveErrorCount >= 3) {
+						setIsDeploying(false)
+						clearInterval(interval)
+						message.error(
+							'Error checking deployment status after 3 consecutive failures: ' + err.message,
+							5
+						)
+						addDeploymentLog(
+							`Deployment error after 3 attempts: ${err.message}`,
+							'error'
+						)
+					} else {
+						addDeploymentLog(
+							`Status check error (${consecutiveErrorCount}/3): ${err.message}, retrying...`,
+							'warning'
+						)
+					}
 				}
 			}, 10000)
 		} catch (error) {
@@ -594,84 +717,6 @@ const DeployView = () => {
 			}
 		}
 	}
-
-	// Simulate deployment progress for better visual feedback - SEQUENTIAL VERSION
-	// const simulateDeploymentProgress = () => {
-	// 	// Function to process a specific task
-	// 	const processTask = (taskIndex) => {
-	// 		if (taskIndex >= deploymentTasks.length || shouldStopSimulation) {
-	// 			return // All tasks are complete
-	// 		}
-
-	// 		const currentTask = deploymentTasks[taskIndex]
-	// 		const { id: taskId, subtasks, setProgress } = currentTask
-
-	// 		setCurrentTaskIndex(taskIndex)
-	// 		setCurrentAction(`${currentTask.title} in progress`)
-	// 		addDeploymentLog(
-	// 			`Starting ${currentTask.title.toLowerCase()}`,
-	// 			'info'
-	// 		)
-
-	// 		// Process each subtask sequentially
-	// 		let subtaskCounter = 0
-	// 		const processSubtask = () => {
-	// 			if (subtaskCounter >= subtasks.length || shouldStopSimulation) {
-	// 				// All subtasks for this task are complete or should stop
-	// 				if (!shouldStopSimulation) {
-	// 					setProgress(100)
-	// 					addDeploymentLog(
-	// 						`${currentTask.title} completed`,
-	// 						'success'
-	// 					)
-	// 					setTimeout(() => processTask(taskIndex + 1), 5000)
-	// 				}
-	// 				return
-	// 			}
-
-	// 			const subtask = subtasks[subtaskCounter]
-	// 			updateSubtaskStatus(taskId, subtask.id, 'in-progress')
-	// 			addDeploymentLog(`${subtask.title}`, 'info')
-
-	// 			// Calculate progress increment for this subtask
-	// 			const progressIncrement = 100 / subtasks.length
-
-	// 			// Simulate work on this subtask
-	// 			let progress = 0
-
-	// 			const incrementInterval = setInterval(() => {
-	// 				if (shouldStopSimulation) {
-	// 					clearInterval(incrementInterval)
-	// 					return
-	// 				}
-
-	// 				progress += Math.floor(Math.random() * 5) + 1
-
-	// 				const overallProgress = Math.min(
-	// 					subtaskCounter * progressIncrement +
-	// 					(progress * progressIncrement) / 100,
-	// 					100
-	// 				)
-	// 				setProgress(overallProgress)
-
-	// 				if (progress >= 100) {
-	// 					clearInterval(incrementInterval)
-	// 					updateSubtaskStatus(taskId, subtask.id, 'completed')
-	// 					subtaskCounter++
-	// 					if (!shouldStopSimulation) {
-	// 						setTimeout(processSubtask, 500)
-	// 					}
-	// 				}
-	// 			}, 500)
-	// 		}
-
-	// 		// Start processing subtasks for this task
-	// 		processSubtask()
-	// 	}
-
-	// 	// Start with the first task
-	// 	processTask(0)
-	// }
 
 	// Simulate deployment progress for better visual feedback - SEQUENTIAL VERSION
 	const simulateDeploymentProgress = () => {
@@ -1358,6 +1403,7 @@ const DeployView = () => {
 														handleUploadFiles={
 															handleUploadFiles
 														}
+
 													/>
 												)
 											}
@@ -1380,6 +1426,7 @@ const DeployView = () => {
 												predictResult={predictResult}
 												uploadedFiles={uploadedFiles}
 												projectInfo={projectInfo}
+												handleUploadFiles={handleUploadFiles}
 											/>
 										)
 									}
