@@ -9,9 +9,12 @@ function useAuth() {
 
 	const writeCookies = ({ accessToken, refreshToken }) => {
 		const cookieOptions = {
+			// path: '/',
+			// sameSite: 'lax', // Hỗ trợ môi trường HTTP và bảo vệ CSRF
+			// maxAge: 24 * 60 * 60, // Cookie sống 1 ngày
 			path: '/',
-			sameSite: 'lax', // Hỗ trợ môi trường HTTP và bảo vệ CSRF
-			maxAge: 24 * 60 * 60, // Cookie sống 1 ngày
+			secure: true,
+			sameSite: 'none',
 		};
 		if (process.env.REACT_APP_DOMAIN_NAME) {
 			cookieOptions.domain = process.env.REACT_APP_DOMAIN_NAME;
