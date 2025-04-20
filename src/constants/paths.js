@@ -8,6 +8,7 @@ const PATHS = {
 	PROJECTS: '/app/projects',
 	BUCKETS: '/app/buckets',
 	DATASETS: '/app/datasets',
+	LABELS: '/app/labels',
 	PROFILE: '/profile',
 	SETTINGS: '/settings',
 	MODELS: '/app/models',
@@ -29,6 +30,10 @@ const PATHS = {
 	/*-----------------------------DATASET-------------------------------------*/
 
 	DATASET_VIEW: (datasetID) => `/app/dataset/${datasetID}/view`,
+
+	/*-----------------------------LABEL-------------------------------------*/
+
+	LABEL_VIEW: (datasetID, name) => `/app/label/${datasetID}/${name}`,
 
 	/*-----------------------------OTHER-------------------------------------*/
 	TESTING: '/testing',

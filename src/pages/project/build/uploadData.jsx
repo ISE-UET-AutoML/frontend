@@ -20,11 +20,13 @@ import {
 	ArrowRightOutlined,
 	InfoCircleOutlined,
 	FilterOutlined,
+	TagOutlined,
 } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
 import config from './config'
+import { PATHS } from 'src/constants/paths'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
@@ -64,7 +66,7 @@ const UploadData = () => {
 			item.type === projectInfo?.type
 	)
 
-	const selectDataset = () => {
+	const handleContinue = () => {
 		const selectedDataset = filteredDatasets[selectedRowKeys[0]]
 		if (!selectedDataset) return
 
@@ -73,11 +75,16 @@ const UploadData = () => {
 		})
 
 		const object = config[projectInfo.type]
-		console.log('object', object)
 
-		navigate(
-			`/app/project/${projectInfo._id}/build/${object.afterUploadURL}`
-		)
+		if (selectedDataset.isLabeled) {
+			// If dataset is labeled, navigate to the next step
+			navigate(
+				`/app/project/${projectInfo._id}/build/${object.afterUploadURL}`
+			)
+		} else {
+			// If dataset is not labeled, navigate to labeling page
+			navigate(PATHS.LABEL_VIEW(selectedDataset._id, 'labeling'))
+		}
 	}
 
 	const showModal = () => {
@@ -139,6 +146,11 @@ const UploadData = () => {
 			),
 		},
 	]
+
+	// Check if selected dataset is labeled
+	const selectedDataset =
+		selectedRowKeys.length > 0 ? filteredDatasets[selectedRowKeys[0]] : null
+	const isSelectedDatasetLabeled = selectedDataset?.isLabeled
 
 	return (
 		<div className="pl-6 pr-6">
@@ -241,12 +253,21 @@ const UploadData = () => {
 								<Button
 									type="primary"
 									size="large"
-									onClick={selectDataset}
+									onClick={handleContinue}
 									className="mt-4 flex items-center justify-between"
 									block
 								>
-									Continue with Selected Dataset
-									<ArrowRightOutlined />
+									{isSelectedDatasetLabeled ? (
+										<>
+											Continue with Selected Dataset
+											<ArrowRightOutlined />
+										</>
+									) : (
+										<>
+											Go to Labeling
+											<ArrowRightOutlined />
+										</>
+									)}
 								</Button>
 							)}
 						</Space>
