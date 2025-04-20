@@ -31,12 +31,12 @@ const ProjectSidebar = ({ projectID, className }) => {
 			icon: ModelIcon,
 			current: location.pathname === PATHS.PROJECT_MODEL(projectID),
 		},
-		{
-			name: 'Deploy',
-			href: PATHS.PROJECT_DEPLOY(projectID),
-			icon: DeployIcon,
-			current: location.pathname === PATHS.PROJECT_DEPLOY(projectID),
-		},
+		// {
+		// 	name: 'Deploy',
+		// 	href: PATHS.PROJECT_DEPLOY(projectID),
+		// 	icon: DeployIcon,
+		// 	current: location.pathname === PATHS.PROJECT_DEPLOY(projectID),
+		// },
 	]
 
 	return (

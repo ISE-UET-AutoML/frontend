@@ -132,6 +132,14 @@ const DeployView = () => {
 	const [completedTasks, setCompletedTasks] = useState([])
 	const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
 
+	// Thêm trạng thái mới để kiểm soát hiển thị chi tiết
+	const [showDetails, setShowDetails] = useState(false);
+
+	// Tính toán Progress tổng
+	const totalProgress = Math.floor(
+		(setupProgress + configProgress + optimizationProgress + networkProgress) / 4
+	);
+
 	const object = config[projectInfo.type]
 
 	const deploySteps = [
@@ -370,6 +378,112 @@ const DeployView = () => {
 		},
 	]
 
+	// const startDeployment = async () => {
+	// 	if (!selectedOption) {
+	// 		message.error(
+	// 			'Please select a deployment option before proceeding.',
+	// 			5
+	// 		)
+	// 		return
+	// 	}
+
+	// 	if (!experimentName) {
+	// 		message.error('Experiment name is required.', 5)
+	// 		return
+	// 	}
+
+	// 	setIsDeploying(true)
+	// 	setCurrentStep(0)
+	// 	setShouldStopSimulation(false)
+
+	// 	// Reset all progress trackers
+	// 	setSetupProgress(0)
+	// 	setConfigProgress(0)
+	// 	setOptimizationProgress(0)
+	// 	setNetworkProgress(0)
+	// 	setCompletedTasks([])
+	// 	setCurrentTaskIndex(0)
+
+	// 	// Store the selected deployment option details for UI
+	// 	setSelectedDeployOption(
+	// 		deployOptions.find((option) => option.id === selectedOption)
+	// 	)
+
+	// 	// Add initial deployment log
+	// 	addDeploymentLog('Initializing deployment process', 'info')
+	// 	addDeploymentLog(
+	// 		`Selected deployment option: ${selectedOption}`,
+	// 		'info'
+	// 	)
+
+	// 	try {
+	// 		// Simulate different stages of deployment with progress updates
+	// 		simulateDeploymentProgress()
+
+	// 		const { data } = await experimentAPI.deployModel(
+	// 			experimentName,
+	// 			selectedOption
+	// 		)
+	// 		setInstanceURL(data.url)
+	// 		addDeploymentLog(
+	// 			`Deployment endpoint created: ${data.url}`,
+	// 			'success'
+	// 		)
+
+	// 		const interval = setInterval(async () => {
+	// 			try {
+	// 				const statusResponse =
+	// 					await experimentAPI.getDeployStatus(experimentName)
+	// 				const { deployInfo } = statusResponse.data
+
+	// 				if (deployInfo.status === 'ONLINE') {
+	// 					setIsComplete(true)
+	// 					clearInterval(interval)
+	// 					message.success('Deployment completed successfully!', 5)
+	// 					setCurrentStep(1)
+	// 					setShouldStopSimulation(true)
+	// 					setCurrentTaskIndex(deploymentTasks.length - 1)
+	// 					setCurrentAction('Deploy Completely')
+
+	// 					addDeploymentLog(
+	// 						'Deployment successfully completed',
+	// 						'success'
+	// 					)
+	// 					addDeploymentLog(
+	// 						'Model is now online and ready for predictions',
+	// 						'success'
+	// 					)
+	// 				} else if (deployInfo.status === 'ERROR') {
+	// 					setIsDeploying(false)
+	// 					clearInterval(interval)
+	// 					message.error('Deployment failed:', 5)
+	// 					addDeploymentLog(`Deployment failed`, 'error')
+	// 				} else {
+	// 					setCurrentStep(0)
+	// 				}
+	// 			} catch (err) {
+	// 				setIsDeploying(false)
+	// 				clearInterval(interval)
+	// 				message.error(
+	// 					'Error checking deployment status: ' + err.message,
+	// 					5
+	// 				)
+	// 				addDeploymentLog(
+	// 					`Deployment error: ${err.message}`,
+	// 					'error'
+	// 				)
+	// 			}
+	// 		}, 10000)
+	// 	} catch (error) {
+	// 		setIsDeploying(false)
+	// 		message.error('Failed to start deployment: ' + error.message, 5)
+	// 		addDeploymentLog(
+	// 			`Failed to start deployment: ${error.message}`,
+	// 			'error'
+	// 		)
+	// 	}
+	// }
+
 	const startDeployment = async () => {
 		if (!selectedOption) {
 			message.error(
@@ -378,16 +492,13 @@ const DeployView = () => {
 			)
 			return
 		}
-
 		if (!experimentName) {
 			message.error('Experiment name is required.', 5)
 			return
 		}
-
 		setIsDeploying(true)
 		setCurrentStep(0)
 		setShouldStopSimulation(false)
-
 		// Reset all progress trackers
 		setSetupProgress(0)
 		setConfigProgress(0)
@@ -395,23 +506,19 @@ const DeployView = () => {
 		setNetworkProgress(0)
 		setCompletedTasks([])
 		setCurrentTaskIndex(0)
-
 		// Store the selected deployment option details for UI
 		setSelectedDeployOption(
 			deployOptions.find((option) => option.id === selectedOption)
 		)
-
 		// Add initial deployment log
 		addDeploymentLog('Initializing deployment process', 'info')
 		addDeploymentLog(
 			`Selected deployment option: ${selectedOption}`,
 			'info'
 		)
-
 		try {
 			// Simulate different stages of deployment with progress updates
 			simulateDeploymentProgress()
-
 			const { data } = await experimentAPI.deployModel(
 				experimentName,
 				selectedOption
@@ -422,12 +529,14 @@ const DeployView = () => {
 				'success'
 			)
 
+			// Thêm biến đếm số lần gặp lỗi liên tiếp
+			let consecutiveErrorCount = 0;
+
 			const interval = setInterval(async () => {
 				try {
 					const statusResponse =
 						await experimentAPI.getDeployStatus(experimentName)
 					const { deployInfo } = statusResponse.data
-
 					if (deployInfo.status === 'ONLINE') {
 						setIsComplete(true)
 						clearInterval(interval)
@@ -436,7 +545,6 @@ const DeployView = () => {
 						setShouldStopSimulation(true)
 						setCurrentTaskIndex(deploymentTasks.length - 1)
 						setCurrentAction('Deploy Completely')
-
 						addDeploymentLog(
 							'Deployment successfully completed',
 							'success'
@@ -445,25 +553,48 @@ const DeployView = () => {
 							'Model is now online and ready for predictions',
 							'success'
 						)
+						// Reset lỗi khi thành công
+						consecutiveErrorCount = 0;
 					} else if (deployInfo.status === 'ERROR') {
-						setIsDeploying(false)
-						clearInterval(interval)
-						message.error('Deployment failed:', 5)
-						addDeploymentLog(`Deployment failed`, 'error')
+						// Tăng biến đếm lỗi
+						consecutiveErrorCount++;
+
+						// Kiểm tra nếu đã có 3 lỗi liên tiếp
+						if (consecutiveErrorCount >= 3) {
+							setIsDeploying(false)
+							clearInterval(interval)
+							message.error('Deployment failed after 3 consecutive errors', 5)
+							addDeploymentLog(`Deployment failed after 3 consecutive errors`, 'error')
+						} else {
+							// Nếu chưa đủ 3 lỗi, ghi log nhưng không dừng quá trình
+							addDeploymentLog(`Deployment error detected (${consecutiveErrorCount}/3), retrying...`, 'warning')
+						}
 					} else {
+						// Reset biến đếm lỗi khi trạng thái khác ERROR
+						consecutiveErrorCount = 0;
 						setCurrentStep(0)
 					}
 				} catch (err) {
-					setIsDeploying(false)
-					clearInterval(interval)
-					message.error(
-						'Error checking deployment status: ' + err.message,
-						5
-					)
-					addDeploymentLog(
-						`Deployment error: ${err.message}`,
-						'error'
-					)
+					// Xem lỗi này như một trạng thái ERROR
+					consecutiveErrorCount++;
+
+					if (consecutiveErrorCount >= 3) {
+						setIsDeploying(false)
+						clearInterval(interval)
+						message.error(
+							'Error checking deployment status after 3 consecutive failures: ' + err.message,
+							5
+						)
+						addDeploymentLog(
+							`Deployment error after 3 attempts: ${err.message}`,
+							'error'
+						)
+					} else {
+						addDeploymentLog(
+							`Status check error (${consecutiveErrorCount}/3): ${err.message}, retrying...`,
+							'warning'
+						)
+					}
 				}
 			}, 10000)
 		} catch (error) {
@@ -589,81 +720,66 @@ const DeployView = () => {
 
 	// Simulate deployment progress for better visual feedback - SEQUENTIAL VERSION
 	const simulateDeploymentProgress = () => {
-		// Function to process a specific task
 		const processTask = (taskIndex) => {
 			if (taskIndex >= deploymentTasks.length || shouldStopSimulation) {
-				return // All tasks are complete
+				return;
 			}
 
-			const currentTask = deploymentTasks[taskIndex]
-			const { id: taskId, subtasks, setProgress } = currentTask
+			const currentTask = deploymentTasks[taskIndex];
+			const { id: taskId, subtasks, setProgress } = currentTask;
 
-			setCurrentTaskIndex(taskIndex)
-			setCurrentAction(`${currentTask.title} in progress`)
-			addDeploymentLog(
-				`Starting ${currentTask.title.toLowerCase()}`,
-				'info'
-			)
+			setCurrentTaskIndex(taskIndex);
+			setCurrentAction(`${currentTask.title} in progress`);
+			addDeploymentLog(`Starting ${currentTask.title.toLowerCase()}`, 'info');
 
-			// Process each subtask sequentially
-			let subtaskCounter = 0
+			let subtaskCounter = 0;
 			const processSubtask = () => {
 				if (subtaskCounter >= subtasks.length || shouldStopSimulation) {
-					// All subtasks for this task are complete or should stop
 					if (!shouldStopSimulation) {
-						setProgress(100)
-						addDeploymentLog(
-							`${currentTask.title} completed`,
-							'success'
-						)
-						setTimeout(() => processTask(taskIndex + 1), 1000)
+						setProgress(100);
+						addDeploymentLog(`${currentTask.title} completed`, 'success');
+						setTimeout(() => processTask(taskIndex + 1), 5000);
 					}
-					return
+					return;
 				}
 
-				const subtask = subtasks[subtaskCounter]
-				updateSubtaskStatus(taskId, subtask.id, 'in-progress')
-				addDeploymentLog(`${subtask.title}`, 'info')
+				const subtask = subtasks[subtaskCounter];
+				updateSubtaskStatus(taskId, subtask.id, 'in-progress');
+				addDeploymentLog(`${subtask.title}`, 'info');
 
-				// Calculate progress increment for this subtask
-				const progressIncrement = 100 / subtasks.length
-
-				// Simulate work on this subtask
-				let progress = 0
+				const progressIncrement = 100 / subtasks.length;
+				let progress = 0;
 
 				const incrementInterval = setInterval(() => {
 					if (shouldStopSimulation) {
-						clearInterval(incrementInterval)
-						return
+						clearInterval(incrementInterval);
+						return;
 					}
 
-					progress += Math.floor(Math.random() * 5) + 1
+					progress += 5; // Tăng tiến trình bằng số nguyên
 
 					const overallProgress = Math.min(
-						subtaskCounter * progressIncrement +
-							(progress * progressIncrement) / 100,
+						subtaskCounter * progressIncrement + (progress * progressIncrement) / 100,
 						100
-					)
-					setProgress(overallProgress)
+					);
+					setProgress(Math.floor(overallProgress));
 
 					if (progress >= 100) {
-						clearInterval(incrementInterval)
-						updateSubtaskStatus(taskId, subtask.id, 'completed')
-						subtaskCounter++
+						clearInterval(incrementInterval);
+						updateSubtaskStatus(taskId, subtask.id, 'completed');
+						subtaskCounter++;
 						if (!shouldStopSimulation) {
-							setTimeout(processSubtask, 500)
+							setTimeout(processSubtask, 1000);
 						}
 					}
-				}, 500)
-			}
+				}, 1000); // Cập nhật mỗi 1 giây
+			};
 
-			// Start processing subtasks for this task
-			processSubtask()
-		}
+			processSubtask();
+		};
 
-		// Start with the first task
-		processTask(0)
-	}
+		processTask(0);
+	};
 
 	return (
 		<div style={{ margin: '0 auto' }}>
@@ -844,15 +960,162 @@ const DeployView = () => {
 
 					<div>
 						{currentStep === 0 && (
+							// <div>
+							// 	<Row gutter={[24, 0]}>
+							// 		<Col xs={24} lg={14}>
+							// 			<Card
+							// 				title={
+							// 					<Space>
+							// 						<span className="text-lg font-bold">
+							// 							Deployment Progress
+							// 						</span>
+							// 					</Space>
+							// 				}
+							// 				className="deployment-progress-card"
+							// 				style={{
+							// 					height: '93%',
+							// 					marginTop: 20,
+							// 				}}
+							// 			>
+							// 				<Space
+							// 					direction="vertical"
+							// 					style={{ width: '100%' }}
+							// 				>
+							// 					<Title
+							// 						level={5}
+							// 						style={{ marginTop: '0' }}
+							// 					>
+							// 						{currentAction}
+							// 					</Title>
+
+							// 					<AnimatedProgressBar
+							// 						percent={setupProgress}
+							// 						title="Environment Setup"
+							// 						subtitle="Configuring server environment"
+							// 						color="#1890ff"
+							// 					/>
+
+							// 					<AnimatedProgressBar
+							// 						percent={configProgress}
+							// 						title="Dependencies Installation"
+							// 						subtitle="Installing required packages"
+							// 						color="#52c41a"
+							// 					/>
+
+							// 					<AnimatedProgressBar
+							// 						percent={
+							// 							optimizationProgress
+							// 						}
+							// 						title="Model Configuration"
+							// 						subtitle="Preparing model for inference"
+							// 						color="#faad14"
+							// 					/>
+
+							// 					<AnimatedProgressBar
+							// 						percent={networkProgress}
+							// 						title="API Setup"
+							// 						subtitle="Creating secure endpoints"
+							// 						color="#722ed1"
+							// 					/>
+							// 				</Space>
+							// 			</Card>
+							// 		</Col>
+
+							// 		<Col xs={24} lg={10}>
+							// 			<Card
+							// 				title={
+							// 					<Space>
+							// 						<CodeOutlined
+							// 							style={{
+							// 								color: '#1890ff',
+							// 							}}
+							// 						/>
+							// 						<span>Deployment Logs</span>
+							// 					</Space>
+							// 				}
+							// 				className="deployment-logs-card"
+							// 				style={{
+							// 					height: '93%',
+							// 					marginTop: 20,
+							// 				}}
+							// 			>
+							// 				<div
+							// 					style={{
+							// 						height: '500px',
+							// 						overflowY: 'auto',
+							// 						padding: '8px',
+							// 					}}
+							// 				>
+							// 					<Timeline
+							// 						mode="left"
+							// 						items={deploymentLogs.map(
+							// 							(log, index) => {
+							// 								let color =
+							// 									'#1890ff'
+							// 								let dot = (
+							// 									<InfoCircleOutlined />
+							// 								)
+
+							// 								if (
+							// 									log.type ===
+							// 									'success'
+							// 								) {
+							// 									color =
+							// 										'#52c41a'
+							// 									dot = (
+							// 										<CheckCircleOutlined />
+							// 									)
+							// 								} else if (
+							// 									log.type ===
+							// 									'error'
+							// 								) {
+							// 									color =
+							// 										'#f5222d'
+							// 									dot = (
+							// 										<InfoCircleOutlined />
+							// 									)
+							// 								}
+
+							// 								return {
+							// 									color: color,
+							// 									dot: dot,
+							// 									children: (
+							// 										<>
+							// 											<Text
+							// 												style={{
+							// 													fontSize:
+							// 														'12px',
+							// 													color: '#8c8c8c',
+							// 												}}
+							// 											>
+							// 												{
+							// 													log.timestamp
+							// 												}
+							// 											</Text>
+							// 											<br />
+							// 											<Text>
+							// 												{
+							// 													log.message
+							// 												}
+							// 											</Text>
+							// 										</>
+							// 									),
+							// 								}
+							// 							}
+							// 						)}
+							// 					/>
+							// 				</div>
+							// 			</Card>
+							// 		</Col>
+							// 	</Row>
+							// </div>
 							<div>
 								<Row gutter={[24, 0]}>
 									<Col xs={24} lg={14}>
 										<Card
 											title={
 												<Space>
-													<span className="text-lg font-bold">
-														Deployment Progress
-													</span>
+													<span className="text-lg font-bold">Deployment Progress</span>
 												</Space>
 											}
 											className="deployment-progress-card"
@@ -861,46 +1124,57 @@ const DeployView = () => {
 												marginTop: 20,
 											}}
 										>
-											<Space
-												direction="vertical"
-												style={{ width: '100%' }}
-											>
-												<Title
-													level={5}
-													style={{ marginTop: '0' }}
-												>
+											<Space direction="vertical" style={{ width: '100%' }}>
+												<Typography.Title level={5} style={{ marginTop: '0' }}>
 													{currentAction}
-												</Title>
+												</Typography.Title>
 
+												{/* Thanh Progress tổng */}
 												<AnimatedProgressBar
-													percent={setupProgress}
-													title="Environment Setup"
-													subtitle="Configuring server environment"
+													percent={totalProgress}
+													title="Total Deployment Progress"
+													subtitle="Overall progress of the deployment"
 													color="#1890ff"
 												/>
 
-												<AnimatedProgressBar
-													percent={configProgress}
-													title="Dependencies Installation"
-													subtitle="Installing required packages"
-													color="#52c41a"
-												/>
+												{/* Nút Show/Hide Detail */}
+												<Button
+													type="link"
+													onClick={() => setShowDetails(!showDetails)}
+													style={{ margin: '10px 0' }}
+												>
+													{showDetails ? 'Hide Details' : 'Show Details'}
+												</Button>
 
-												<AnimatedProgressBar
-													percent={
-														optimizationProgress
-													}
-													title="Model Configuration"
-													subtitle="Preparing model for inference"
-													color="#faad14"
-												/>
-
-												<AnimatedProgressBar
-													percent={networkProgress}
-													title="API Setup"
-													subtitle="Creating secure endpoints"
-													color="#722ed1"
-												/>
+												{/* Các subProgress chỉ hiển thị khi showDetails là true */}
+												{showDetails && (
+													<>
+														<AnimatedProgressBar
+															percent={setupProgress}
+															title="Environment Setup"
+															subtitle="Configuring server environment"
+															color="#1890ff"
+														/>
+														<AnimatedProgressBar
+															percent={configProgress}
+															title="Dependencies Installation"
+															subtitle="Installing required packages"
+															color="#52c41a"
+														/>
+														<AnimatedProgressBar
+															percent={optimizationProgress}
+															title="Model Configuration"
+															subtitle="Preparing model for inference"
+															color="#faad14"
+														/>
+														<AnimatedProgressBar
+															percent={networkProgress}
+															title="API Setup"
+															subtitle="Creating secure endpoints"
+															color="#722ed1"
+														/>
+													</>
+												)}
 											</Space>
 										</Card>
 									</Col>
@@ -909,11 +1183,7 @@ const DeployView = () => {
 										<Card
 											title={
 												<Space>
-													<CodeOutlined
-														style={{
-															color: '#1890ff',
-														}}
-													/>
+													<CodeOutlined style={{ color: '#1890ff' }} />
 													<span>Deployment Logs</span>
 												</Space>
 											}
@@ -932,61 +1202,37 @@ const DeployView = () => {
 											>
 												<Timeline
 													mode="left"
-													items={deploymentLogs.map(
-														(log, index) => {
-															let color =
-																'#1890ff'
-															let dot = (
-																<InfoCircleOutlined />
-															)
+													items={deploymentLogs.map((log, index) => {
+														let color = '#1890ff';
+														let dot = <InfoCircleOutlined />;
 
-															if (
-																log.type ===
-																'success'
-															) {
-																color =
-																	'#52c41a'
-																dot = (
-																	<CheckCircleOutlined />
-																)
-															} else if (
-																log.type ===
-																'error'
-															) {
-																color =
-																	'#f5222d'
-																dot = (
-																	<InfoCircleOutlined />
-																)
-															}
-
-															return {
-																color: color,
-																dot: dot,
-																children: (
-																	<>
-																		<Text
-																			style={{
-																				fontSize:
-																					'12px',
-																				color: '#8c8c8c',
-																			}}
-																		>
-																			{
-																				log.timestamp
-																			}
-																		</Text>
-																		<br />
-																		<Text>
-																			{
-																				log.message
-																			}
-																		</Text>
-																	</>
-																),
-															}
+														if (log.type === 'success') {
+															color = '#52c41a';
+															dot = <CheckCircleOutlined />;
+														} else if (log.type === 'error') {
+															color = '#f5222d';
+															dot = <InfoCircleOutlined />;
 														}
-													)}
+
+														return {
+															color: color,
+															dot: dot,
+															children: (
+																<>
+																	<Typography.Text
+																		style={{
+																			fontSize: '12px',
+																			color: '#8c8c8c',
+																		}}
+																	>
+																		{log.timestamp}
+																	</Typography.Text>
+																	<br />
+																	<Typography.Text>{log.message}</Typography.Text>
+																</>
+															),
+														};
+													})}
 												/>
 											</div>
 										</Card>
@@ -1073,26 +1319,41 @@ const DeployView = () => {
 														/>
 														<Button
 															type="primary"
+															// onClick={() => {
+															// 	navigator.clipboard
+															// 		.writeText(
+															// 			instanceURL ||
+															// 				'https://api.example.com/predict/model-123'
+															// 		)
+															// 		.then(() =>
+															// 			message.success(
+															// 				'Copied to clipboard',
+															// 				1
+															// 			)
+															// 		)
+															// 		.catch(
+															// 			(err) =>
+															// 				message.err(
+															// 					'Failed to copy',
+															// 					1
+															// 				)
+															// 		)
+															// }}
 															onClick={() => {
-																navigator.clipboard
-																	.writeText(
-																		instanceURL ||
-																			'https://api.example.com/predict/model-123'
-																	)
-																	.then(() =>
-																		message.success(
-																			'Copied to clipboard',
-																			1
-																		)
-																	)
-																	.catch(
-																		(err) =>
-																			message.err(
-																				'Failed to copy',
-																				1
-																			)
-																	)
+																const textToCopy = instanceURL || 'https://api.example.com/predict/model-123';
+																try {
+																	const textarea = document.createElement('textarea');
+																	textarea.value = textToCopy;
+																	document.body.appendChild(textarea);
+																	textarea.select();
+																	document.execCommand('copy');
+																	document.body.removeChild(textarea);
+																	message.success('Copied to clipboard', 1);
+																} catch (err) {
+																	message.error('Failed to copy', 1);
+																}
 															}}
+
 														>
 															Copy URL
 														</Button>
@@ -1142,6 +1403,7 @@ const DeployView = () => {
 														handleUploadFiles={
 															handleUploadFiles
 														}
+
 													/>
 												)
 											}
@@ -1164,6 +1426,7 @@ const DeployView = () => {
 												predictResult={predictResult}
 												uploadedFiles={uploadedFiles}
 												projectInfo={projectInfo}
+												handleUploadFiles={handleUploadFiles}
 											/>
 										)
 									}

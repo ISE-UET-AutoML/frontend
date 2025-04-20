@@ -68,12 +68,12 @@ const NavBar = () => {
 										to={PATHS.PROJECTS}
 										defaultclassname={defaultclassname}
 										activeclassname={activeclassname}
-										// className={({ isActive }) => (isActive ? activeClassName : defaultClassName)}
+									// className={({ isActive }) => (isActive ? activeClassName : defaultClassName)}
 									>
 										Projects
 									</ActiveLink>
 								</div>
-								<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+								{/* <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
 									<ActiveLink
 										to={PATHS.BUCKETS}
 										defaultclassname={defaultclassname}
@@ -82,13 +82,13 @@ const NavBar = () => {
 									>
 										Buckets
 									</ActiveLink>
-								</div>
+								</div> */}
 								<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
 									<ActiveLink
 										to={PATHS.DATASETS}
 										defaultclassname={defaultclassname}
 										activeclassname={activeclassname}
-										// className={({ isActive }) => (isActive ? activeClassName : defaultClassName)}
+									// className={({ isActive }) => (isActive ? activeClassName : defaultClassName)}
 									>
 										Datasets
 									</ActiveLink>
