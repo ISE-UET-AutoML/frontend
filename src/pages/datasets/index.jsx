@@ -34,7 +34,12 @@ export default function Datasets() {
 			const response = await datasetAPI.createDataset(formData)
 			if (response.status === 201) {
 				updateDataState({ showUploader: false })
-				window.location = PATHS.DATASET_VIEW(response.data._id)
+				if (response.data.label_studio_id) {
+					console.log('heloo', process.env.REACT_APP_LBS_ADDR)
+					const url = `http://${process.env.REACT_APP_LBS_ADDR}/projects/${response.data.label_studio_id}/data?tab=9`
+					window.open(url, '_blank', 'noopener,noreferrer');
+				}
+				// window.location = PATHS.DATASET_VIEW(response.data._id)
 			}
 		} catch (error) {
 			console.error('Error creating dataset:', error)

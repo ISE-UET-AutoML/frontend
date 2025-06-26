@@ -36,6 +36,7 @@ const LabelingImageClassification = ({
 	const rootRef = useRef()
 	const lsf = useRef(null)
 	const [currentIndex, setIndex] = useState(0)
+	const [currentConfig, setConfig] = useState(ImageConfig(currentSavedLabel))
 
 	const updateData = (labelWithID) => {
 		currentLabelWithID.current = labelWithID
@@ -44,7 +45,6 @@ const LabelingImageClassification = ({
 		setCurrentSavedLabel(savedLabels)
 	}
 
-	const [currentConfig, setConfig] = useState(ImageConfig(currentSavedLabel))
 	console.log(currentConfig)
 
 	useEffect(() => {
@@ -207,7 +207,7 @@ const LabelingImageClassification = ({
 				console.info('Destroying LSF')
 				try {
 					lsf.current.destroy()
-				} catch (e) {}
+				} catch (e) { }
 				lsf.current = null
 			}
 		}

@@ -64,6 +64,15 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			formData.append(key, value)
 		})
 
+		// if (!values.isLabeled) {
+		// 	setIsLoading(true)
+		// 	formData.append('isLabeled', isLabeled)
+		// 	formData.append('service', service)
+		// 	formData.append('selectedUrlOption', selectedUrlOption)
+		// 	formData.append('bucketName', bucketName)
+		// }
+
+		// TODO: WRITE THE LOGIO FOR OTHERS TASK TO USING PRESIGNED URL
 		if (values.type === 'MULTILABEL_IMAGE_CLASSIFICATION') {
 			// Specific handling for MULTILABEL_IMAGE_CLASSIFICATION
 
@@ -114,7 +123,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				setIsLoading(true)
 				await onCreate(formData)
 				message.success('Dataset created successfully!')
-				resetFormAndState()
+				// resetFormAndState()
 			} catch (error) {
 				message.error('Failed to create dataset. Please try again.')
 			} finally {

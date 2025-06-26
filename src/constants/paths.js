@@ -8,7 +8,7 @@ const PATHS = {
 	PROJECTS: '/app/projects',
 	BUCKETS: '/app/buckets',
 	DATASETS: '/app/datasets',
-	LABELS: '/app/labels',
+	LABELS: '/app/label-projects',
 	PROFILE: '/profile',
 	SETTINGS: '/settings',
 	MODELS: '/app/models',
@@ -34,6 +34,15 @@ const PATHS = {
 	/*-----------------------------LABEL-------------------------------------*/
 
 	LABEL_VIEW: (datasetID, name) => `/app/label/${datasetID}/${name}`,
+
+	// Label Project paths
+	LABEL_PROJECTS: '/label-projects',
+	LABEL_PROJECT_VIEW: (id) => `/app/label-projects/${id}`,
+	LABEL_PROJECT_EDIT: (id) => `/app/label-projects/${id}/edit`,
+	LABEL_PROJECT_LABEL: (id) => `/app/label-projects/${id}/label`,
+	LABEL_PROJECT_STATS: (id) => `/app/label-projects/${id}/stats`,
+	LABEL_PROJECT_EXPORT: (id) => `/app/label-projects/${id}/export`,
+	LABEL_PROJECT_COLLABORATORS: (id) => `/app/label-projects/${id}/collaborators`,
 
 	/*-----------------------------OTHER-------------------------------------*/
 	TESTING: '/testing',

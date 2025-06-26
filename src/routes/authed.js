@@ -20,7 +20,7 @@ import Datasets from 'src/pages/datasets'
 import DatasetLayout from 'src/layouts/DatasetLayout'
 import DatasetView from 'src/pages/dataset/DatasetView'
 
-import Labels from 'src/pages/labels'
+import LabelProjects from 'src/pages/labels'
 import LabelView from 'src/pages/label/LabelView'
 
 import UploadData from 'src/pages/project/build/uploadData'
@@ -150,13 +150,13 @@ const routes = {
 				/*-----------------LABELS' PATH---------------*/
 				{
 					path: PATHS.LABELS,
-					element: <Labels />,
+					element: <LabelProjects />,
 				},
 				{
 					path: '/app/',
 					children: [
 						{
-							path: 'label/:datasetID/:name',
+							path: 'label-projects/:id',
 							element: <LabelView />,
 						},
 					],
