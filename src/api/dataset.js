@@ -1,5 +1,6 @@
 import { API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
+// const BASE_URL = process.env.REACT_APP_BE_GATEWAY_ADD
 
 const URL = `${API_BASE_URL}/datasets`
 
@@ -14,6 +15,13 @@ const createImgDataset = (formData) => {
 		headers: { 'Content-Type': 'multipart/form-data' },
 	}
 	return instance.post(`${URL}/createImg`, formData, options)
+}
+
+const getPresignedUrl = (formData) => {
+	const options = {
+		headers: { 'Content-Type': 'multipart/form-data' },
+	}
+	return instance.post(`${URL}/getPresignedUrl`, formData, options)
 }
 
 const getDatasets = () => {
@@ -57,4 +65,5 @@ export {
 	deleteObjects,
 	addNewFiles,
 	getDatasetPreview,
+	getPresignedUrl,
 }

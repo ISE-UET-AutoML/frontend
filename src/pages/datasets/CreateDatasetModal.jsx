@@ -6,7 +6,9 @@ import { createImgDataset } from 'src/api/dataset'
 import {
 	uploadZippedFilesToS3,
 	parseAndValidateFiles,
+	uploadFilesToS3,
 } from 'src/utils/uploadZipS3'
+import * as datasetAPI from 'src/api/dataset'
 
 const { Option } = Select
 
@@ -64,14 +66,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			formData.append(key, value)
 		})
 
-		// if (!values.isLabeled) {
-		// 	setIsLoading(true)
-		// 	formData.append('isLabeled', isLabeled)
-		// 	formData.append('service', service)
-		// 	formData.append('selectedUrlOption', selectedUrlOption)
-		// 	formData.append('bucketName', bucketName)
-		// }
-
 		// TODO: WRITE THE LOGIO FOR OTHERS TASK TO USING PRESIGNED URL
 		if (values.type === 'MULTILABEL_IMAGE_CLASSIFICATION') {
 			// Specific handling for MULTILABEL_IMAGE_CLASSIFICATION
@@ -106,20 +100,30 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			}
 		} else {
 			// Current handling for other types
-			for (let i = 0; i < files.length; i++) {
-				const fileNameBase64 = btoa(
-					String.fromCharCode(
-						...new TextEncoder().encode(files[i].webkitRelativePath)
-					)
-				)
-				formData.append('files', files[i], fileNameBase64)
-			}
+			// for (let i = 0; i < files.length; i++) {
+			// 	const fileNameBase64 = btoa(
+			// 		String.fromCharCode(
+			// 			...new TextEncoder().encode(files[i].webkitRelativePath)
+			// 		)
+			// 	)
+			// 	formData.append('files', files[i], fileNameBase64)
+			// }
+
 			formData.append('isLabeled', isLabeled)
 			formData.append('service', service)
 			formData.append('selectedUrlOption', selectedUrlOption)
 			formData.append('bucketName', bucketName)
+			let fileNames = []
+			for (let i = 0; i < files.length; i++) {
+				fileNames[i] = files[i].webkitRelativePath
+			}
+
+			formData.append('fileNames', fileNames)
 
 			try {
+				// const { data } = await datasetAPI.getPresignedUrl(formData)
+				// console.log(data)
+				// await uploadFilesToS3(data, files)
 				setIsLoading(true)
 				await onCreate(formData)
 				message.success('Dataset created successfully!')
