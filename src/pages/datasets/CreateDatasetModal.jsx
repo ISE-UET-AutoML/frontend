@@ -11,6 +11,7 @@ import {
 import * as datasetAPI from 'src/api/dataset'
 
 const { Option } = Select
+const { TextArea } = Input
 
 const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	const [form] = Form.useForm()
@@ -22,6 +23,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION')
 	const [totalKbytes, setTotalKbytes] = useState(0)
 	const [isLoading, setIsLoading] = useState(false)
+	const [expectedLabels, setExpectedLabels] = useState('')
 
 	const validateFiles = (files, datasetType) => {
 		const allowedImageTypes = ['image/jpeg', 'image/png']
@@ -67,72 +69,62 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		})
 
 		// TODO: WRITE THE LOGIO FOR OTHERS TASK TO USING PRESIGNED URL
-		if (values.type === 'MULTILABEL_IMAGE_CLASSIFICATION') {
-			// Specific handling for MULTILABEL_IMAGE_CLASSIFICATION
+		// Current handling for other types
+		// for (let i = 0; i < files.length; i++) {
+		// 	const fileNameBase64 = btoa(
+		// 		String.fromCharCode(
+		// 			...new TextEncoder().encode(files[i].webkitRelativePath)
+		// 		)
+		// 	)
+		// 	formData.append('files', files[i], fileNameBase64)
+		// }
 
-			try {
-				// Show loading
-				setIsLoading(true)
+		formData.append('isLabeled', isLabeled)
+		formData.append('service', service)
+		formData.append('selectedUrlOption', selectedUrlOption)
+		formData.append('bucketName', bucketName)
 
-				// Parse and validate files
-				const validFiles = parseAndValidateFiles(files)
+		// // Add expected labels if unlabeled
+		// if (!isLabeled && expectedLabels.trim()) {
+		// 	const labelsArray = expectedLabels
+		// 		.split('\n')
+		// 		.map(label => label.trim())
+		// 		.filter(label => label.length > 0)
+		// 	// formData.append('expectedLabels', JSON.stringify(labelsArray))
+		// 	formData.append('expectedLabels', labelsArray)
+		// }
 
-				formData.append('isLabeled', isLabeled)
-				formData.append('service', service)
-				formData.append('selectedUrlOption', selectedUrlOption)
-				formData.append('bucketName', bucketName)
+		// if (!isLabeled && expectedLabels.trim()) {
+		// 	const labelsArray = expectedLabels
+		// 		.split(/\r?\n/)
+		// 		.map(label => label.trim())
+		// 		.filter(label => label.length > 0)
 
-				// Get presigned URL from backend
-				const { data } = await createImgDataset(formData)
 
-				// Upload files to S3
-				await uploadZippedFilesToS3(data, validFiles)
+		// 	labelsArray.forEach(label => {
+		// 		formData.append('expectedLabels[]', label)
+		// 	})
+		// }
 
-				message.success(
-					`Successfully uploaded ${validFiles.length} files`
-				)
-				resetFormAndState()
-			} catch (error) {
-				console.error('Error uploading files:', error)
-				message.error('An error occurred while uploading files')
-			} finally {
-				setIsLoading(false)
-			}
-		} else {
-			// Current handling for other types
-			// for (let i = 0; i < files.length; i++) {
-			// 	const fileNameBase64 = btoa(
-			// 		String.fromCharCode(
-			// 			...new TextEncoder().encode(files[i].webkitRelativePath)
-			// 		)
-			// 	)
-			// 	formData.append('files', files[i], fileNameBase64)
-			// }
+		let fileNames = []
+		for (let i = 0; i < files.length; i++) {
+			fileNames[i] = files[i].webkitRelativePath
+		}
 
-			formData.append('isLabeled', isLabeled)
-			formData.append('service', service)
-			formData.append('selectedUrlOption', selectedUrlOption)
-			formData.append('bucketName', bucketName)
-			let fileNames = []
-			for (let i = 0; i < files.length; i++) {
-				fileNames[i] = files[i].webkitRelativePath
-			}
+		formData.append('fileNames', fileNames)
 
-			formData.append('fileNames', fileNames)
-
-			try {
-				// const { data } = await datasetAPI.getPresignedUrl(formData)
-				// console.log(data)
-				// await uploadFilesToS3(data, files)
-				setIsLoading(true)
-				await onCreate(formData)
-				message.success('Dataset created successfully!')
-				// resetFormAndState()
-			} catch (error) {
-				message.error('Failed to create dataset. Please try again.')
-			} finally {
-				setIsLoading(false)
-			}
+		try {
+			// const { data } = await datasetAPI.getPresignedUrl(formData)
+			// console.log(data)
+			// await uploadFilesToS3(data, files)
+			setIsLoading(true)
+			await onCreate(formData)
+			message.success('Dataset created successfully!')
+			// resetFormAndState()
+		} catch (error) {
+			message.error('Failed to create dataset. Please try again.')
+		} finally {
+			setIsLoading(false)
 		}
 	}
 
@@ -151,6 +143,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		setBucketName('user-private-dataset')
 		setDatasetType('IMAGE_CLASSIFICATION')
 		setIsLoading(false)
+		setExpectedLabels('')
 	}
 
 	const tabItems = [
@@ -302,6 +295,21 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						<Radio value={false}>Unlabeled</Radio>
 					</Radio.Group>
 				</Form.Item>
+
+				{!isLabeled && (
+					<Form.Item
+						label="Expected Labels"
+						name="expectedLabels"
+						extra="Enter each label on a new line (e.g., horse, cat, dog)"
+					>
+						<TextArea
+							rows={4}
+							placeholder="horse&#10;cat&#10;dog"
+							value={expectedLabels}
+							onChange={(e) => setExpectedLabels(e.target.value)}
+						/>
+					</Form.Item>
+				)}
 
 				<Form.Item label="Service">
 					<Radio.Group
