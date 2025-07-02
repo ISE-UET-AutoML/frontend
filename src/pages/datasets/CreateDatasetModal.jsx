@@ -92,12 +92,12 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		formData.append('fileNames', fileNames)
 
 		try {
-			// const { data } = await datasetAPI.getPresignedUrl(formData)
-			// console.log(data)
-			// await uploadFilesToS3(data, files)
-			// setIsLoading(true)
+			setIsLoading(true)
+			const { data } = await datasetAPI.createPresignedUrls(formData)
+			console.log(data)
+			await uploadFilesToS3(data, files)
 			await onCreate(formData)
-			message.success('Dataset created successfully!')
+			// message.success('Dataset created successfully!')
 			// resetFormAndState()
 		} catch (error) {
 			message.error('Failed to create dataset. Please try again.')

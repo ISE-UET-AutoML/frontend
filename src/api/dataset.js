@@ -3,7 +3,7 @@ import instance from './axios'
 const BASE_URL = process.env.REACT_APP_BE_GATEWAY_ADD
 
 // const URL = `${API_BASE_URL}/datasets`
-const URL = `${BASE_URL}/api/data/createDataset`
+const URL = `${BASE_URL}/api/data`
 
 const createDataset = (formData) => {
 	const options = {
@@ -15,7 +15,7 @@ const createDataset = (formData) => {
 		withCredentials: true,
 	}
 	console.log('formData', formData)
-	return instance.post(`${URL}`, formData, options)
+	return instance.post(`${URL}/createDataset`, formData, options)
 }
 const createImgDataset = (formData) => {
 	const options = {
@@ -24,11 +24,11 @@ const createImgDataset = (formData) => {
 	return instance.post(`${URL}/createImg`, formData, options)
 }
 
-const getPresignedUrl = (formData) => {
+const createPresignedUrls = (formData) => {
 	const options = {
 		headers: { 'Content-Type': 'multipart/form-data' },
 	}
-	return instance.post(`${URL}/getPresignedUrl`, formData, options)
+	return instance.post(`${URL}/createPresignedUrls`, formData, options)
 }
 
 const getDatasets = () => {
@@ -72,5 +72,5 @@ export {
 	deleteObjects,
 	addNewFiles,
 	getDatasetPreview,
-	getPresignedUrl,
+	createPresignedUrls,
 }

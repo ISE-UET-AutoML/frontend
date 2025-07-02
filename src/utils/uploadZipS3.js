@@ -116,36 +116,51 @@ const uploadZippedFilesToS3 = async (presignedUrl, files) => {
 	}
 }
 
+
 async function uploadFilesToS3(presignedUrls, files) {
 	const results = [];
 
 	for (const file of files) {
-		// Tìm URL tương ứng với file theo tên (hoặc theo key nếu có mapping rõ ràng hơn)
-		const match = presignedUrls.find(p => p.key.endsWith(file.name));
-		if (!match) {
+
+		// Tìm key trong presignedUrls object bằng cách kiểm tra tên file
+		const matchingKey = Object.keys(presignedUrls).find(key =>
+			key.endsWith(file.name) || key.includes(file.name)
+		);
+
+		if (!matchingKey) {
 			console.warn(`Không tìm thấy URL cho file ${file.name}`);
-			continue;
-		}
-
-		try {
-			const response = await axios.put(match.presignedUrl, file, {
-				headers: {
-					"Content-Type": file.type || "application/octet-stream",
-				},
-			});
-
-			// Axios tự động throw error cho status codes >= 400, nên không cần kiểm tra response.ok
-			results.push({
-				fileName: file.name,
-				s3Key: match.key,
-				status: "success",
-			});
-		} catch (err) {
-			console.error("Lỗi khi upload:", err);
+			console.log('Available keys:', Object.keys(presignedUrls));
 			results.push({
 				fileName: file.name,
 				status: "error",
-				error: err.message,
+				error: "Không tìm thấy presigned URL"
+			});
+			continue;
+		}
+
+		const presignedUrl = presignedUrls[matchingKey];
+
+		try {
+			// Gửi file như binary data, không có headers tự động
+			const response = await axios.put(presignedUrl, file, {
+				headers: {
+					'Content-Type': file.type || 'application/octet-stream'
+				},
+				transformRequest: [(data) => data]
+			});
+
+			console.log(`Upload thành công: ${file.name}`);
+			results.push({
+				fileName: file.name,
+				s3Key: matchingKey,
+				status: "success",
+			});
+		} catch (err) {
+			console.error(`Lỗi khi upload ${file.name}:`, err.response?.data || err.message);
+			results.push({
+				fileName: file.name,
+				status: "error",
+				error: err.response?.data || err.message,
 			});
 		}
 	}
