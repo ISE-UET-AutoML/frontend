@@ -1,12 +1,20 @@
 import { API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
+const BASE_URL = process.env.REACT_APP_BE_GATEWAY_ADD
 
-const URL = `${API_BASE_URL}/datasets`
+// const URL = `${API_BASE_URL}/datasets`
+const URL = `${BASE_URL}/api/data/createDataset`
 
 const createDataset = (formData) => {
 	const options = {
-		headers: { 'Content-Type': 'multipart/form-data' },
+		headers: {
+			'Content-Type': 'multipart/form-data',
+			'x-user-id': 'e2b9c065-69c3-4d21-b198-5b0b9eead5cd',
+			'Authorization': '<Bearer> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyYjljMDY1LTY5YzMtNGQyMS1iMTk4LTViMGI5ZWVhZDVjZCIsImVtYWlsIjoiaGlldTEyMzRAZ21haWwuY29tIiwiZnVsbF9uYW1lIjoiaGlldWxvbCIsImlhdCI6MTc1MTQyODQzMiwiZXhwIjoxNzUxNTE0ODMyfQ.kO_CtqT-f6Aiw0H0JZetu911-ADL9hb9DtuuCtKxS5g'
+		},
+		withCredentials: true,
 	}
+	console.log('formData', formData)
 	return instance.post(`${URL}`, formData, options)
 }
 const createImgDataset = (formData) => {
@@ -14,6 +22,13 @@ const createImgDataset = (formData) => {
 		headers: { 'Content-Type': 'multipart/form-data' },
 	}
 	return instance.post(`${URL}/createImg`, formData, options)
+}
+
+const getPresignedUrl = (formData) => {
+	const options = {
+		headers: { 'Content-Type': 'multipart/form-data' },
+	}
+	return instance.post(`${URL}/getPresignedUrl`, formData, options)
 }
 
 const getDatasets = () => {
@@ -57,4 +72,5 @@ export {
 	deleteObjects,
 	addNewFiles,
 	getDatasetPreview,
+	getPresignedUrl,
 }

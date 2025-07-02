@@ -32,11 +32,12 @@ export default function Datasets() {
 	const handleCreateDataset = async (formData) => {
 		try {
 			const response = await datasetAPI.createDataset(formData)
+			console.log('response', response)
 			if (response.status === 201) {
 				updateDataState({ showUploader: false })
 				if (response.data.label_studio_id) {
-					console.log('heloo', process.env.REACT_APP_LBS_ADDR)
-					const url = `http://${process.env.REACT_APP_LBS_ADDR}/projects/${response.data.label_studio_id}/data?tab=9`
+					console.log('url', process.env.REACT_APP_LBS_ADDR)
+					const url = `${process.env.REACT_APP_LBS_ADDR}/projects/${response.data.label_studio_id}/data`
 					window.open(url, '_blank', 'noopener,noreferrer');
 				}
 				// window.location = PATHS.DATASET_VIEW(response.data._id)

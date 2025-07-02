@@ -116,4 +116,40 @@ const uploadZippedFilesToS3 = async (presignedUrl, files) => {
 	}
 }
 
-export { uploadZippedFilesToS3, parseAndValidateFiles }
+async function uploadFilesToS3(presignedUrls, files) {
+	const results = [];
+
+	for (const file of files) {
+		// Tìm URL tương ứng với file theo tên (hoặc theo key nếu có mapping rõ ràng hơn)
+		const match = presignedUrls.find(p => p.key.endsWith(file.name));
+		if (!match) {
+			console.warn(`Không tìm thấy URL cho file ${file.name}`);
+			continue;
+		}
+
+		try {
+			const response = await axios.put(match.presignedUrl, file, {
+				headers: {
+					"Content-Type": file.type || "application/octet-stream",
+				},
+			});
+
+			// Axios tự động throw error cho status codes >= 400, nên không cần kiểm tra response.ok
+			results.push({
+				fileName: file.name,
+				s3Key: match.key,
+				status: "success",
+			});
+		} catch (err) {
+			console.error("Lỗi khi upload:", err);
+			results.push({
+				fileName: file.name,
+				status: "error",
+				error: err.message,
+			});
+		}
+	}
+
+	return results;
+}
+export { uploadZippedFilesToS3, parseAndValidateFiles, uploadFilesToS3 }
