@@ -14,7 +14,6 @@ const createDataset = (formData) => {
 		},
 		withCredentials: true,
 	}
-	console.log('formData', formData)
 	return instance.post(`${URL}/createDataset`, formData, options)
 }
 const createImgDataset = (formData) => {

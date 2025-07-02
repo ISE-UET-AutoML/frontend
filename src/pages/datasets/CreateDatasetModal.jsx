@@ -1,128 +1,145 @@
-import React, { useState } from 'react'
-import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd'
-import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons'
-import { TYPES } from 'src/constants/types'
-import { createImgDataset } from 'src/api/dataset'
-import {
-	uploadZippedFilesToS3,
-	parseAndValidateFiles,
-	uploadFilesToS3,
-} from 'src/utils/uploadZipS3'
-import * as datasetAPI from 'src/api/dataset'
+import React, { useState } from 'react';
+import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd';
+import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons';
+import { TYPES } from 'src/constants/types';
+import * as datasetAPI from 'src/api/dataset';
+import { uploadFilesToS3 } from 'src/utils/uploadZipS3';
 
-const { Option } = Select
-const { TextArea } = Input
+const { Option } = Select;
+const { TextArea } = Input;
 
 const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
-	const [form] = Form.useForm()
-	const [files, setFiles] = useState([])
-	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
-	const [isLabeled, setIsLabeled] = useState(true)
-	const [service, setService] = useState('GCP_STORAGE')
-	const [bucketName, setBucketName] = useState('user-private-dataset')
-	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION')
-	const [totalKbytes, setTotalKbytes] = useState(0)
-	const [isLoading, setIsLoading] = useState(false)
-	const [expectedLabels, setExpectedLabels] = useState('')
+	const [form] = Form.useForm();
+	const [files, setFiles] = useState([]);
+	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
+	const [isLabeled, setIsLabeled] = useState(true);
+	const [service, setService] = useState('AWS_S3'); // Default to AWS_S3 since backend uses S3
+	const [bucketName, setBucketName] = useState('user-private-dataset');
+	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION');
+	const [totalKbytes, setTotalKbytes] = useState('0.00');
+	const [isLoading, setIsLoading] = useState(false);
+	const [expectedLabels, setExpectedLabels] = useState('');
 
 	const validateFiles = (files, datasetType) => {
-		const allowedImageTypes = ['image/jpeg', 'image/png']
-		const allowedCsvType = 'text/csv'
+		const allowedImageTypes = ['image/jpeg', 'image/png'];
+		const allowedTextTypes = ['text/plain', 'text/csv'];
+		const allowedTypes = {
+			IMAGE_CLASSIFICATION: allowedImageTypes,
+			MULTILABEL_IMAGE_CLASSIFICATION: allowedImageTypes,
+			OBJECT_DETECTION: allowedImageTypes,
+			TEXT_CLASSIFICATION: allowedTextTypes,
+		};
 
 		return files.filter((file) => {
-			if (
-				datasetType === 'IMAGE_CLASSIFICATION' ||
-				datasetType === 'MULTILABEL_IMAGE_CLASSIFICATION'
-			) {
-				return allowedImageTypes.includes(file.type)
-			} else {
-				return file.type === allowedCsvType
-			}
-		})
-	}
+			if (!file || !file.type) return false;
+			return allowedTypes[datasetType]?.includes(file.type) || false;
+		});
+	};
 
 	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files)
-		const validatedFiles = validateFiles(files, datasetType)
+		const files = Array.from(event.target.files || []);
+		const validatedFiles = validateFiles(files, datasetType);
 
-		const totalSize = validatedFiles.reduce(
-			(sum, file) => sum + file.size,
-			0
-		)
-		const totalSizeInKB = (totalSize / 1024).toFixed(2)
+		const totalSize = validatedFiles.reduce((sum, file) => {
+			return sum + (file.size || 0);
+		}, 0);
 
-		setFiles(validatedFiles)
-		setTotalKbytes(totalSizeInKB)
-	}
+		const totalSizeInKB = totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00';
+
+		const fileMetadata = validatedFiles.map((file) => {
+			const pathParts = file.webkitRelativePath ? file.webkitRelativePath.split('/') : [];
+			const label = pathParts.length > 1 ? pathParts[pathParts.length - 2] : null;
+			return {
+				file: file,
+				path: file.webkitRelativePath || file.name,
+				label: label,
+				// Placeholder for OBJECT_DETECTION (can be extended later)
+				boundingBox: datasetType === 'OBJECT_DETECTION' ? { x: 10, y: 10, width: 80, height: 80 } : null,
+			};
+		});
+
+		setFiles(fileMetadata);
+		setTotalKbytes(totalSizeInKB);
+	};
 
 	const handleDeleteFile = (webkitRelativePath) => {
 		const updatedFiles = files.filter(
-			(file) => file.webkitRelativePath !== webkitRelativePath
-		)
-		setFiles(updatedFiles)
-	}
+			(file) => file.path !== webkitRelativePath
+		);
+		setFiles(updatedFiles);
+
+		const totalSize = updatedFiles.reduce((sum, file) => sum + (file.file.size || 0), 0);
+		setTotalKbytes(totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00');
+	};
 
 	const handleSubmit = async (values) => {
-		const formData = new FormData()
+		const formData = new FormData();
 		Object.entries(values).forEach(([key, value]) => {
-			formData.append(key, value)
-		})
+			formData.append(key, value);
+		});
 
-		// TODO: WRITE THE LOGIO FOR OTHERS TASK TO USING PRESIGNED URL
-		// Current handling for other types
-		// for (let i = 0; i < files.length; i++) {
-		// 	const fileNameBase64 = btoa(
-		// 		String.fromCharCode(
-		// 			...new TextEncoder().encode(files[i].webkitRelativePath)
-		// 		)
-		// 	)
-		// 	formData.append('files', files[i], fileNameBase64)
-		// }
+		formData.append('isLabeled', isLabeled);
+		formData.append('service', service);
+		formData.append('selectedUrlOption', selectedUrlOption);
+		formData.append('bucketName', bucketName);
 
-		formData.append('isLabeled', isLabeled)
-		formData.append('service', service)
-		formData.append('selectedUrlOption', selectedUrlOption)
-		formData.append('bucketName', bucketName)
+		const updatedFileMetadata = files.map((f) => {
+			let newPath = f.path;
 
-		let fileNames = []
-		for (let i = 0; i < files.length; i++) {
-			fileNames[i] = files[i].webkitRelativePath
-		}
+			if (f.path.includes('/')) {
+				const pathParts = f.path.split('/');
 
-		formData.append('fileNames', fileNames)
+				pathParts[0] = values.title;
+				newPath = pathParts.join('/');
+			} else {
+				newPath = `${values.title}/${f.path}`;
+			}
+
+			return {
+				path: newPath,
+				label: f.label,
+				boundingBox: f.boundingBox, // For OBJECT_DETECTION
+			};
+		});
+
+		formData.append('fileMetadata', JSON.stringify(updatedFileMetadata));
+
+		const fileNames = files.map((f) => f.path);
+		formData.append('fileNames', JSON.stringify(fileNames));
 
 		try {
-			setIsLoading(true)
-			const { data } = await datasetAPI.createPresignedUrls(formData)
-			console.log(data)
-			await uploadFilesToS3(data, files)
-			await onCreate(formData)
-			// message.success('Dataset created successfully!')
-			// resetFormAndState()
+			setIsLoading(true);
+			// const { data } = await datasetAPI.createPresignedUrls(formData);
+			// console.log(data)
+			// await uploadFilesToS3(data, files.map((f) => f.file));
+			await onCreate(formData);
+			message.success('Dataset created successfully!');
+			// resetFormAndState();
 		} catch (error) {
-			message.error('Failed to create dataset. Please try again.')
+			console.error('Error in handleSubmit:', error);
+			message.error('Failed to create dataset. Please try again.');
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}
+	};
 
 	const handleCancel = () => {
-		resetFormAndState()
-		onCancel()
-	}
+		resetFormAndState();
+		onCancel();
+	};
 
 	const resetFormAndState = () => {
-		form.resetFields()
-		setFiles([])
-		setTotalKbytes(0)
-		setSelectedUrlOption('remote-url')
-		setIsLabeled(true)
-		setService('GCP_STORAGE')
-		setBucketName('user-private-dataset')
-		setDatasetType('IMAGE_CLASSIFICATION')
-		setIsLoading(false)
-		setExpectedLabels('')
-	}
+		form.resetFields();
+		setFiles([]);
+		setTotalKbytes('0.00');
+		setSelectedUrlOption('remote-url');
+		setIsLabeled(true);
+		setService('AWS_S3');
+		setBucketName('user-private-dataset');
+		setDatasetType('IMAGE_CLASSIFICATION');
+		setIsLoading(false);
+		setExpectedLabels('');
+	};
 
 	const tabItems = [
 		{
@@ -144,9 +161,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						}}
 					>
 						<div style={{ textAlign: 'center' }}>
-							<FolderOutlined
-								style={{ fontSize: '48px', color: '#1890ff' }}
-							/>
+							<FolderOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
 							<p style={{ marginTop: '8px' }}>
 								Drag and drop a folder or click to upload
 							</p>
@@ -169,37 +184,26 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					</div>
 
 					{files.length > 0 && (
-						<div style={{ maxHeight: '40px', overflowY: 'auto' }}>
+						<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
 							{files.map((file) => (
 								<div
-									key={file.webkitRelativePath}
+									key={file.path}
 									style={{
 										display: 'flex',
 										alignItems: 'center',
-										// padding: '8px',
 										borderBottom: '1px solid #f0f0f0',
+										padding: '8px 0',
 									}}
 								>
-									<FileOutlined
-										style={{ marginRight: '8px' }}
-									/>
-									<span>{file.webkitRelativePath}</span>
-									<span
-										style={{
-											marginLeft: '8px',
-											color: '#8c8c8c',
-										}}
-									>
-										({(file.size / 1024).toFixed(2)} kB)
+									<FileOutlined style={{ marginRight: '8px' }} />
+									<span>{file.path}</span>
+									<span style={{ marginLeft: '8px', color: '#8c8c8c' }}>
+										({(file.file.size / 1024).toFixed(2)} kB)
 									</span>
 									<Button
 										type="text"
 										icon={<DeleteOutlined />}
-										onClick={() =>
-											handleDeleteFile(
-												file.webkitRelativePath
-											)
-										}
+										onClick={() => handleDeleteFile(file.path)}
 									/>
 								</div>
 							))}
@@ -221,7 +225,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				</Form.Item>
 			),
 		},
-	]
+	];
 
 	return (
 		<Modal
@@ -238,9 +242,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Form.Item
 					label="Title"
 					name="title"
-					rules={[
-						{ required: true, message: 'Please enter a title' },
-					]}
+					rules={[{ required: true, message: 'Please enter a title' }]}
 				>
 					<Input placeholder="Enter dataset title" />
 				</Form.Item>
@@ -248,9 +250,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Form.Item
 					label="Type"
 					name="type"
-					rules={[
-						{ required: true, message: 'Please select a type' },
-					]}
+					rules={[{ required: true, message: 'Please select a type' }]}
 				>
 					<Select
 						placeholder="Select dataset type"
@@ -282,7 +282,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					>
 						<TextArea
 							rows={4}
-							placeholder="horse&#10;cat&#10;dog"
+							placeholder="horse\ncat\ndog"
 							value={expectedLabels}
 							onChange={(e) => setExpectedLabels(e.target.value)}
 						/>
@@ -294,8 +294,8 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						value={service}
 						onChange={(e) => setService(e.target.value)}
 					>
-						<Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
 						<Radio value="AWS_S3">AWS S3</Radio>
+						<Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
 					</Radio.Group>
 				</Form.Item>
 
@@ -304,9 +304,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						value={bucketName}
 						onChange={(value) => setBucketName(value)}
 					>
-						<Option value="user-private-dataset">
-							user-private-dataset
-						</Option>
+						<Option value="user-private-dataset">user-private-dataset</Option>
 						<Option value="bucket-2">bucket-2</Option>
 					</Select>
 				</Form.Item>
@@ -314,11 +312,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Tabs defaultActiveKey="file" items={tabItems} />
 
 				<Form.Item>
-					<Button
-						type="primary"
-						htmlType="submit"
-						loading={isLoading}
-					>
+					<Button type="primary" htmlType="submit" loading={isLoading}>
 						Create Dataset
 					</Button>
 					<Button
@@ -331,7 +325,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				</Form.Item>
 			</Form>
 		</Modal>
-	)
-}
+	);
+};
 
-export default CreateDatasetModal
+export default CreateDatasetModal;
