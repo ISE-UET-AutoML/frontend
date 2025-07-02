@@ -84,28 +84,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		formData.append('selectedUrlOption', selectedUrlOption)
 		formData.append('bucketName', bucketName)
 
-		// // Add expected labels if unlabeled
-		// if (!isLabeled && expectedLabels.trim()) {
-		// 	const labelsArray = expectedLabels
-		// 		.split('\n')
-		// 		.map(label => label.trim())
-		// 		.filter(label => label.length > 0)
-		// 	// formData.append('expectedLabels', JSON.stringify(labelsArray))
-		// 	formData.append('expectedLabels', labelsArray)
-		// }
-
-		// if (!isLabeled && expectedLabels.trim()) {
-		// 	const labelsArray = expectedLabels
-		// 		.split(/\r?\n/)
-		// 		.map(label => label.trim())
-		// 		.filter(label => label.length > 0)
-
-
-		// 	labelsArray.forEach(label => {
-		// 		formData.append('expectedLabels[]', label)
-		// 	})
-		// }
-
 		let fileNames = []
 		for (let i = 0; i < files.length; i++) {
 			fileNames[i] = files[i].webkitRelativePath
@@ -117,7 +95,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			// const { data } = await datasetAPI.getPresignedUrl(formData)
 			// console.log(data)
 			// await uploadFilesToS3(data, files)
-			setIsLoading(true)
+			// setIsLoading(true)
 			await onCreate(formData)
 			message.success('Dataset created successfully!')
 			// resetFormAndState()
