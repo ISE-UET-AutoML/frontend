@@ -15,7 +15,7 @@ const Login = () => {
     const onLogin = async (credential) => {
         try {
             const { data } = await auth.login(credential);
-            login({ accessToken: data.access_token, refreshToken: data.refresh_token }).then(() => {
+            login({ accessToken: data.access_token, refreshToken: data.refresh_token, userId: data.user.id }).then(() => {
                 navigate(state?.path || PATHS.PROJECTS, { replace: true });
             });
         } catch (error) {
