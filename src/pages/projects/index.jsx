@@ -199,7 +199,7 @@ export default function Projects() {
 			setProjectName(givenName)
 			let task = -1
 			task = Object.values(TYPES).findIndex(
-				(value) => value.type === givenTask
+				(value) => value.task_type === givenTask
 			)
 			if (task !== -1) selectType(undefined, task)
 		}
@@ -231,7 +231,7 @@ export default function Projects() {
 	}
 
 	useEffect(() => {
-		getChatHistory()
+		// getChatHistory()
 	}, [])
 
 	const userChat = async (input, confirmed = false, projectList = []) => {
@@ -322,7 +322,7 @@ export default function Projects() {
 		const formData = new FormData(event.target)
 		const data = Object.fromEntries(formData)
 		isSelected.forEach((el, idx) => {
-			if (el) data.type = projType[idx]
+			if (el) data.task_type = projType[idx]
 		})
 
 		if (jsonSumm) {
@@ -340,10 +340,10 @@ export default function Projects() {
 			})
 
 			console.log('create Project response', { response })
-			await newChat()
+			// await newChat()
 
 			if (response.status === 200) {
-				navigate(PATHS.PROJECT_BUILD(response.data._id))
+				navigate(PATHS.PROJECT_BUILD(response.data.id))
 			}
 		} catch (error) {
 			message.error('Project already existed')
@@ -352,7 +352,10 @@ export default function Projects() {
 
 	const getProjects = async () => {
 		const response = await instance.get(API_URL.all_projects)
-		updateProjState({ projects: response.data })
+		console.log(response.data)
+		const proj = response.data.owned
+		
+		updateProjState({ projects: proj })
 		console.log('Project List', response.data)
 
 		return response.data
@@ -419,7 +422,7 @@ export default function Projects() {
 				{projectState.projects.length > 0 ? (
 					<Row gutter={[16, 16]} className="">
 						{projectState.projects.map((project) => (
-							<Col xs={24} sm={12} xl={8} key={project._id}>
+							<Col xs={24} sm={12} xl={8} key={project.id}>
 								<ProjectCard
 									project={project}
 									getProjects={getProjects}

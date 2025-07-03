@@ -6,8 +6,9 @@ export const API_URL = {
 	all_projects: `${API_BASE_URL}/api/service/users/projects`,
 	all_models: `${API_BASE_URL}/projects/models`,
 	train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
+	get_project_by_id: (projectID) => `${API_BASE_URL}/api/service/users/projects/${projectID}`,
 	delete_project: (projectID) =>
-		`${API_BASE_URL}/projects/${projectID}/delete`,
+		`${API_BASE_URL}/api/service/users/projects/${projectID}/delete`,
 	upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
 	get_project_dataset: (projectID) =>
 		`${API_BASE_URL}/projects/${projectID}/datasets`,
