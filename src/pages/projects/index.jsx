@@ -570,7 +570,7 @@ export default function Projects() {
 										<Tooltip title="Set your desired model accuracy target">
 											<Input
 												type="number"
-												name="expectation_accuracy"
+												name="expected_accuracy"
 												min={0}
 												max={100}
 												defaultValue={100}
