@@ -18,11 +18,11 @@ const createDataset = (formData) => {
 }
 
 
-const createPresignedUrls = (formData) => {
+const createPresignedUrls = async (payload) => {
 	const options = {
-		headers: { 'Content-Type': 'multipart/form-data' },
+		headers: { 'Content-Type': 'application/json' },
 	}
-	return instance.post(`${URL}/createPresignedUrls`, formData, options)
+	return instance.post(`${URL}/createPresignedUrls`, payload, options)
 }
 
 const getDatasets = () => {

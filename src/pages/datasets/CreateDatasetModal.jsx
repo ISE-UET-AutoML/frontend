@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd';
 import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons';
 import { TYPES } from 'src/constants/types';
 import * as datasetAPI from 'src/api/dataset';
-import { uploadFilesToS3 } from 'src/utils/uploadZipS3';
+import { organizeFiles, createChunks } from 'src/utils/file';
+import { uploadToS3 } from 'src/utils/s3';
+import JSZip from 'jszip';
+import { IMG_NUM_IN_ZIP } from 'src/constants/file'
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -13,12 +16,13 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	const [files, setFiles] = useState([]);
 	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
 	const [isLabeled, setIsLabeled] = useState(true);
-	const [service, setService] = useState('AWS_S3'); // Default to AWS_S3 since backend uses S3
+	const [service, setService] = useState('AWS_S3');
 	const [bucketName, setBucketName] = useState('user-private-dataset');
 	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION');
 	const [totalKbytes, setTotalKbytes] = useState('0.00');
 	const [isLoading, setIsLoading] = useState(false);
 	const [expectedLabels, setExpectedLabels] = useState('');
+	const fileRefs = useRef(new Map());
 
 	const validateFiles = (files, datasetType) => {
 		const allowedImageTypes = ['image/jpeg', 'image/png'];
@@ -30,91 +34,172 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			TEXT_CLASSIFICATION: allowedTextTypes,
 		};
 
-		return files.filter((file) => {
-			if (!file || !file.type) return false;
-			return allowedTypes[datasetType]?.includes(file.type) || false;
+		const validFiles = files.filter((file) => {
+			if (!file || !file.type) {
+				console.log(`Invalid file (no type): ${file?.name || 'unknown'}`);
+				return false;
+			}
+
+			const isValid = allowedTypes[datasetType]?.includes(file.type) || false;
+			return isValid;
 		});
+		return validFiles;
 	};
 
 	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files || []);
-		const validatedFiles = validateFiles(files, datasetType);
+		const uploadedFiles = Array.from(event.target.files || []);
+		const validatedFiles = validateFiles(uploadedFiles, datasetType);
 
-		const totalSize = validatedFiles.reduce((sum, file) => {
-			return sum + (file.size || 0);
-		}, 0);
-
+		const totalSize = validatedFiles.reduce((sum, file) => sum + (file.size || 0), 0);
 		const totalSizeInKB = totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00';
 
 		const fileMetadata = validatedFiles.map((file) => {
-			const pathParts = file.webkitRelativePath ? file.webkitRelativePath.split('/') : [];
-			const label = pathParts.length > 1 ? pathParts[pathParts.length - 2] : null;
+			const pathParts = file.webkitRelativePath ? file.webkitRelativePath.split('/') : [file.name];
+			const label = isLabeled && pathParts.length > 1 ? pathParts[pathParts.length - 2] : null;
+
+			const fileId = file.webkitRelativePath || file.name;
+			const relativePath = file.webkitRelativePath || file.name;
+
+			// Lưu file object vào fileRefs để có thể truy cập sau này
+			fileRefs.current.set(fileId, file);
+
 			return {
-				file: file,
-				path: file.webkitRelativePath || file.name,
+				path: relativePath,
 				label: label,
-				// Placeholder for OBJECT_DETECTION (can be extended later)
 				boundingBox: datasetType === 'OBJECT_DETECTION' ? { x: 10, y: 10, width: 80, height: 80 } : null,
+				fileId,
+				fileObject: file, // Đảm bảo file object được lưu trực tiếp
 			};
 		});
 
 		setFiles(fileMetadata);
 		setTotalKbytes(totalSizeInKB);
+
+		console.log(`Total files: ${fileMetadata.length}`);
+		console.log('First file metadata:', fileMetadata[0]);
 	};
 
-	const handleDeleteFile = (webkitRelativePath) => {
-		const updatedFiles = files.filter(
-			(file) => file.path !== webkitRelativePath
-		);
+	const handleDeleteFile = (fileId) => {
+		const updatedFiles = files.filter((file) => file.fileId !== fileId);
+		fileRefs.current.delete(fileId);
 		setFiles(updatedFiles);
 
-		const totalSize = updatedFiles.reduce((sum, file) => sum + (file.file.size || 0), 0);
+		const totalSize = updatedFiles.reduce((sum, file) => {
+			const fileObj = fileRefs.current.get(file.fileId);
+			return sum + (fileObj?.size || 0);
+		}, 0);
 		setTotalKbytes(totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00');
 	};
 
 	const handleSubmit = async (values) => {
-		const formData = new FormData();
-		Object.entries(values).forEach(([key, value]) => {
-			formData.append(key, value);
-		});
-
-		formData.append('isLabeled', isLabeled);
-		formData.append('service', service);
-		formData.append('selectedUrlOption', selectedUrlOption);
-		formData.append('bucketName', bucketName);
-
-		const updatedFileMetadata = files.map((f) => {
-			let newPath = f.path;
-
-			if (f.path.includes('/')) {
-				const pathParts = f.path.split('/');
-
-				pathParts[0] = values.title;
-				newPath = pathParts.join('/');
-			} else {
-				newPath = `${values.title}/${f.path}`;
-			}
-
-			return {
-				path: newPath,
-				label: f.label,
-				boundingBox: f.boundingBox, // For OBJECT_DETECTION
-			};
-		});
-
-		formData.append('fileMetadata', JSON.stringify(updatedFileMetadata));
-
-		const fileNames = files.map((f) => f.path);
-		formData.append('fileNames', JSON.stringify(fileNames));
-
 		try {
 			setIsLoading(true);
-			// const { data } = await datasetAPI.createPresignedUrls(formData);
-			// console.log(data)
-			// await uploadFilesToS3(data, files.map((f) => f.file));
-			await onCreate(formData);
+
+			const fileMap = organizeFiles(files, isLabeled);
+			const chunks = createChunks(fileMap, IMG_NUM_IN_ZIP);
+
+			const fileToChunkMap = new Map();
+			chunks.forEach((chunk) => {
+				chunk.files.forEach((file) => {
+					fileToChunkMap.set(file.path, chunk.name);
+				});
+			});
+
+			const indexData = {
+				dataset_title: values.title,
+				dataset_type: datasetType,
+				is_labeled: isLabeled,
+				files: files.map((file) => {
+					const pathParts = file.path.split('/');
+					const simplifiedPath = pathParts.length > 1 ? pathParts.slice(1).join('/') : file.path;
+
+					return {
+						path: `${values.title}/${simplifiedPath}`,
+						label: file.label,
+						chunk: fileToChunkMap.get(file.path) || null,
+						bounding_box: file.boundingBox,
+					};
+				}),
+				chunks: chunks.map((chunk) => ({
+					name: chunk.name,
+					label: chunk.label,
+					file_count: chunk.files.length,
+				})),
+			};
+
+			const s3Files = [
+				{
+					key: `${values.title}/index.json`,
+					type: 'application/json',
+					content: JSON.stringify(indexData, null, 2),
+				},
+				...chunks.map((chunk) => ({
+					key: `${values.title}/zip/${chunk.name}`,
+					type: 'application/zip',
+					files: chunk.files,
+				})),
+			];
+
+			const presignPayload = {
+				dataset_title: values.title,
+				files: s3Files.map((file) => ({
+					key: file.key,
+					type: file.type,
+				})),
+			};
+			const { data: presignedUrls } = await datasetAPI.createPresignedUrls(presignPayload);
+
+			if (!presignedUrls || presignedUrls.length !== s3Files.length) {
+				throw new Error('Invalid presigned URLs received');
+			}
+
+			// Upload các file lên S3
+			for (const fileInfo of s3Files) {
+				const presignedUrl = presignedUrls.find((url) => url.key === fileInfo.key).url;
+				if (!presignedUrl) {
+					throw new Error(`No presigned URL for key: ${fileInfo.key}`);
+				}
+
+				if (fileInfo.type === 'application/json') {
+					const blob = new Blob([fileInfo.content], { type: 'application/json' });
+					await uploadToS3(presignedUrl, blob);
+				} else {
+					const zip = new JSZip();
+
+					console.log(`Creating zip ${fileInfo.key} with ${fileInfo.files.length} files`);
+
+					for (const file of fileInfo.files) {
+						console.log(`Processing file: ${file.path}`);
+						const pathParts = file.path.split('/');
+						const newPath = pathParts.slice(1).join('/');
+
+						if (file.fileObject && file.fileObject instanceof File) {
+							zip.file(newPath, file.fileObject);
+						} else {
+							console.error(`Invalid file object for: ${file.path}`);
+							console.error(`File object:`, file.fileObject);
+
+							// Thử tìm file từ fileRefs
+							const fileFromRefs = fileRefs.current.get(file.fileId);
+							if (fileFromRefs) {
+								console.log(`Found file in refs: ${fileFromRefs.name}`);
+								zip.file(newPath, fileFromRefs);
+							} else {
+								console.error(`File not found in refs either: ${file.fileId}`);
+								throw new Error(`File object not found: ${file.path}`);
+							}
+						}
+					}
+
+					const zipBlob = await zip.generateAsync({ type: 'blob' });
+					console.log(`Zip size: ${zipBlob.size} bytes`);
+
+					await uploadToS3(presignedUrl, zipBlob);
+				}
+			}
+
 			message.success('Dataset created successfully!');
-			// resetFormAndState();
+			// onCreate();
 		} catch (error) {
 			console.error('Error in handleSubmit:', error);
 			message.error('Failed to create dataset. Please try again.');
@@ -139,6 +224,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		setDatasetType('IMAGE_CLASSIFICATION');
 		setIsLoading(false);
 		setExpectedLabels('');
+		fileRefs.current.clear();
 	};
 
 	const tabItems = [
@@ -187,7 +273,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
 							{files.map((file) => (
 								<div
-									key={file.path}
+									key={file.fileId}
 									style={{
 										display: 'flex',
 										alignItems: 'center',
@@ -198,12 +284,12 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 									<FileOutlined style={{ marginRight: '8px' }} />
 									<span>{file.path}</span>
 									<span style={{ marginLeft: '8px', color: '#8c8c8c' }}>
-										({(file.file.size / 1024).toFixed(2)} kB)
+										({(file.fileObject?.size / 1024 || 0).toFixed(2)} kB)
 									</span>
 									<Button
 										type="text"
 										icon={<DeleteOutlined />}
-										onClick={() => handleDeleteFile(file.path)}
+										onClick={() => handleDeleteFile(file.fileId)}
 									/>
 								</div>
 							))}

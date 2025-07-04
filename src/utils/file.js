@@ -38,4 +38,61 @@ const validateFiles = (files, projectType) => {
 	return validFiles
 }
 
-export { validateFiles }
+const organizeFiles = (files, isLabeled) => {
+	const fileMap = new Map();
+
+	files.forEach((file) => {
+		const pathParts = file.path.split('/');
+		if (isLabeled && pathParts.length > 1) {
+			const label = pathParts[pathParts.length - 2];
+
+			if (!fileMap.has(label)) {
+				fileMap.set(label, []);
+			}
+			fileMap.get(label).push({
+				path: file.path,
+				label,
+				fileId: file.fileId,
+				fileObject: file.fileObject, // Sử dụng fileObject từ metadata
+				boundingBox: file.boundingBox,
+			});
+		} else {
+			if (!fileMap.has('unlabeled')) {
+				fileMap.set('unlabeled', []);
+			}
+			fileMap.get('unlabeled').push({
+				path: file.path,
+				label: null,
+				fileId: file.fileId,
+				fileObject: file.fileObject, // Sử dụng fileObject từ metadata
+				boundingBox: file.boundingBox,
+			});
+		}
+	});
+
+	return fileMap;
+};
+
+const createChunks = (fileMap, chunkSize) => {
+	const chunks = [];
+
+	for (const [label, files] of fileMap.entries()) {
+		for (let i = 0; i < files.length; i += chunkSize) {
+			const chunkFiles = files.slice(i, i + chunkSize);
+			const chunkName =
+				label === 'unlabeled'
+					? `chunk_${i / chunkSize}.zip`
+					: `chunk_${label}_${i / chunkSize}.zip`;
+
+			chunks.push({
+				name: chunkName,
+				files: chunkFiles,
+				label: label === 'unlabeled' ? null : label,
+			});
+		}
+	}
+
+	return chunks;
+};
+
+export { validateFiles, organizeFiles, createChunks }

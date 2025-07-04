@@ -1,4 +1,4 @@
-const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp','csv','json'];
+const ALLOWED_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'csv', 'json'];
 
 const UploadTypes = Object.freeze({
 	MULTIPLE: 0,
@@ -10,4 +10,6 @@ const UploadTypes = Object.freeze({
 	CSV_TIMESERIES: 'CSV_TIMESERIES',
 });
 
-export { UploadTypes, ALLOWED_FILE_EXTENSIONS };
+const IMG_NUM_IN_ZIP = 50
+
+export { UploadTypes, ALLOWED_FILE_EXTENSIONS, IMG_NUM_IN_ZIP };
