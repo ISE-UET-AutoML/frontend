@@ -16,12 +16,7 @@ const createDataset = (formData) => {
 	}
 	return instance.post(`${URL}/createDataset`, formData, options)
 }
-const createImgDataset = (formData) => {
-	const options = {
-		headers: { 'Content-Type': 'multipart/form-data' },
-	}
-	return instance.post(`${URL}/createImg`, formData, options)
-}
+
 
 const createPresignedUrls = (formData) => {
 	const options = {
@@ -63,7 +58,6 @@ const addNewFiles = (datasetID, formData) => {
 
 export {
 	createDataset,
-	createImgDataset,
 	getDatasets,
 	getDataset,
 	getImgDataset,

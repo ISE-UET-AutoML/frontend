@@ -23,7 +23,8 @@ export default function Datasets() {
 	const getDatasets = async () => {
 		try {
 			const response = await datasetAPI.getDatasets()
-			updateDataState({ datasets: response.data })
+			console.log(response)
+			// updateDataState({ datasets: response.data })
 		} catch (error) {
 			console.error('Error fetching datasets:', error)
 		}
