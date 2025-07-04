@@ -7,7 +7,7 @@ function useAuth() {
 	const [authed, setAuthed] = useState(false);
 	const cookies = new Cookies();
 
-	const writeCookies = ({ accessToken, refreshToken }) => {
+	const writeCookies = ({ accessToken, refreshToken, userId }) => {
 		const cookieOptions = {
 			// path: '/',
 			// sameSite: 'lax', // Hỗ trợ môi trường HTTP và bảo vệ CSRF
@@ -22,9 +22,13 @@ function useAuth() {
 
 		console.log('accessToken', accessToken);
 		console.log('refreshToken', refreshToken);
+		console.log('x-user-id', userId)
 		console.log('cookieOptions', cookieOptions);
 
-		cookies.set('accessToken', accessToken, cookieOptions);
+		cookies.set('accessToken', `<Bearer> ${accessToken}`, cookieOptions);
+		cookies.set('Authorization', `<Bearer> ${accessToken}`, cookieOptions);
+		cookies.set('x-user-id', userId, cookieOptions);
+		console.log(cookies)
 		if (refreshToken) {
 			cookies.set('refreshToken', refreshToken, cookieOptions);
 		}
@@ -35,14 +39,14 @@ function useAuth() {
 		refresh() {
 			return new Promise((res) => {
 				setAuthed(
-					cookies.get('accessToken') && cookies.get('refreshToken')
+					cookies.get('accessToken') && cookies.get('refreshToken') && cookies.get('Authorization') && cookies.get('x-user-id')
 				);
 				res();
 			});
 		},
-		login({ accessToken, refreshToken }) {
+		login({ accessToken, refreshToken, userId }) {
 			return new Promise((res) => {
-				writeCookies({ accessToken, refreshToken });
+				writeCookies({ accessToken, refreshToken, userId });
 				setAuthed(true);
 				res();
 			});
@@ -52,6 +56,8 @@ function useAuth() {
 				setAuthed(false);
 				cookies.remove('accessToken', { path: '/' });
 				cookies.remove('refreshToken', { path: '/' });
+				cookies.remove('Authorization', { path: '/'});
+				cookies.remove('x-user-id', { path: '/'});
 				res();
 			});
 		},

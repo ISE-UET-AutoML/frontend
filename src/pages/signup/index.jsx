@@ -23,7 +23,7 @@ const SignUp = () => {
 			error: '',
 			touched: false,
 		},
-		name: {
+		full_name: {
 			value: '',
 			error: '',
 			touched: false,
@@ -35,8 +35,8 @@ const SignUp = () => {
 		const formData = new FormData(e.target);
 		const email = formData.get('email');
 		const password = formData.get('password');
-		const name = formData.get('name');
-		await signup({ name, email, password });
+		const full_name = formData.get('full_name');
+		await signup({ full_name, email, password });
 		navigate('/', { replace: false });
 	};
 
@@ -181,7 +181,7 @@ const SignUp = () => {
 							<label className="font-medium">Name</label>
 							<input
 								type="text"
-								name="name"
+								name="full_name"
 								required
 								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
 							/>
@@ -192,7 +192,7 @@ const SignUp = () => {
 							<input
 								type="email"
 								name="email"
-								value={formState.name.email}
+								value={formState.full_name.email}
 								required
 								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
 							/>

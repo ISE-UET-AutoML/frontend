@@ -24,7 +24,7 @@ const getProjectDataset = (projectID) => {
 }
 
 const getProjectById = (projectID) => {
-	return instance.get(`${API_BASE_URL}/projects/${projectID}`)
+	return instance.get(API_URL.get_project_by_id(projectID))
 }
 
 const getProjectFullDataset = (projectID) => {
