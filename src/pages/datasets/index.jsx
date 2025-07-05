@@ -23,15 +23,16 @@ export default function Datasets() {
 	const getDatasets = async () => {
 		try {
 			const response = await datasetAPI.getDatasets()
-			updateDataState({ datasets: response.data })
+			console.log(response)
+			// updateDataState({ datasets: response.data })
 		} catch (error) {
 			console.error('Error fetching datasets:', error)
 		}
 	}
 
-	const handleCreateDataset = async (formData) => {
+	const handleCreateDataset = async (payload) => {
 		try {
-			const response = await datasetAPI.createDataset(formData)
+			const response = await datasetAPI.createDataset(payload)
 			console.log('response', response)
 			if (response.status === 201) {
 				updateDataState({ showUploader: false })

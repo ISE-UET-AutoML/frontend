@@ -1,150 +1,251 @@
-import React, { useState } from 'react'
-import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd'
-import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons'
-import { TYPES } from 'src/constants/types'
-import { createImgDataset } from 'src/api/dataset'
-import {
-	uploadZippedFilesToS3,
-	parseAndValidateFiles,
-	uploadFilesToS3,
-} from 'src/utils/uploadZipS3'
-import * as datasetAPI from 'src/api/dataset'
+import React, { useState, useRef } from 'react';
+import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd';
+import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DATASET_TYPES } from 'src/constants/types';
+import * as datasetAPI from 'src/api/dataset';
+import { organizeFiles, createChunks } from 'src/utils/file';
+import { uploadToS3 } from 'src/utils/s3';
+import JSZip from 'jszip';
+import { IMG_NUM_IN_ZIP } from 'src/constants/file'
 
-const { Option } = Select
-const { TextArea } = Input
+const { Option } = Select;
+const { TextArea } = Input;
 
 const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
-	const [form] = Form.useForm()
-	const [files, setFiles] = useState([])
-	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
-	const [isLabeled, setIsLabeled] = useState(true)
-	const [service, setService] = useState('GCP_STORAGE')
-	const [bucketName, setBucketName] = useState('user-private-dataset')
-	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION')
-	const [totalKbytes, setTotalKbytes] = useState(0)
-	const [isLoading, setIsLoading] = useState(false)
-	const [expectedLabels, setExpectedLabels] = useState('')
+	const [form] = Form.useForm();
+	const [files, setFiles] = useState([]);
+	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
+	const [service, setService] = useState('AWS_S3');
+	const [bucketName, setBucketName] = useState('user-private-dataset');
+	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION');
+	const [totalKbytes, setTotalKbytes] = useState('0.00');
+	const [isLoading, setIsLoading] = useState(false);
+	const fileRefs = useRef(new Map());
 
 	const validateFiles = (files, datasetType) => {
-		const allowedImageTypes = ['image/jpeg', 'image/png']
-		const allowedCsvType = 'text/csv'
+		const allowedImageTypes = ['image/jpeg', 'image/png'];
+		const allowedTextTypes = ['text/plain', 'text/csv'];
+		const allowedTypes = {
+			IMAGE: allowedImageTypes,
+			TEXT: allowedTextTypes,
+			TABULAR: allowedTextTypes,
+		};
 
-		return files.filter((file) => {
-			if (
-				datasetType === 'IMAGE_CLASSIFICATION' ||
-				datasetType === 'MULTILABEL_IMAGE_CLASSIFICATION'
-			) {
-				return allowedImageTypes.includes(file.type)
-			} else {
-				return file.type === allowedCsvType
+		const validFiles = files.filter((file) => {
+			if (!file || !file.type) {
+				console.log(`Invalid file (no type): ${file?.name || 'unknown'}`);
+				return false;
 			}
-		})
-	}
+
+			const isValid = allowedTypes[datasetType]?.includes(file.type) || false;
+			return isValid;
+		});
+		return validFiles;
+	};
 
 	const handleFileChange = (event) => {
-		const files = Array.from(event.target.files)
-		const validatedFiles = validateFiles(files, datasetType)
+		const uploadedFiles = Array.from(event.target.files || []);
+		const validatedFiles = validateFiles(uploadedFiles, datasetType);
 
-		const totalSize = validatedFiles.reduce(
-			(sum, file) => sum + file.size,
-			0
-		)
-		const totalSizeInKB = (totalSize / 1024).toFixed(2)
+		const totalSize = validatedFiles.reduce((sum, file) => sum + (file.size || 0), 0);
+		const totalSizeInKB = totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00';
 
-		setFiles(validatedFiles)
-		setTotalKbytes(totalSizeInKB)
-	}
+		const fileMetadata = validatedFiles.map((file) => {
+			const pathParts = file.webkitRelativePath ? file.webkitRelativePath.split('/') : [file.name];
+			const relativePath = file.webkitRelativePath || file.name;
 
-	const handleDeleteFile = (webkitRelativePath) => {
-		const updatedFiles = files.filter(
-			(file) => file.webkitRelativePath !== webkitRelativePath
-		)
-		setFiles(updatedFiles)
-	}
+			return {
+				path: relativePath,
+				fileObject: file,
+			};
+		});
+
+		setFiles(fileMetadata);
+		setTotalKbytes(totalSizeInKB);
+
+		console.log(`Total files: ${fileMetadata.length}`);
+		console.log('First file metadata:', fileMetadata[0]);
+	};
+
+	const handleDeleteFile = (fileId) => {
+		const updatedFiles = files.filter((file) => file.fileId !== fileId);
+		fileRefs.current.delete(fileId);
+		setFiles(updatedFiles);
+
+		const totalSize = updatedFiles.reduce((sum, file) => {
+			const fileObj = fileRefs.current.get(file.fileId);
+			return sum + (fileObj?.size || 0);
+		}, 0);
+		setTotalKbytes(totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00');
+	};
+
+	const createDatasetPayload = (values, files, chunks, datasetType, service, bucketName) => {
+		const processedFiles = files.map((file) => {
+			const pathParts = file.path.split('/');
+			const simplifiedPath = pathParts.length > 1 ? pathParts.slice(1).join('/') : file.path;
+
+			return {
+				path: simplifiedPath,
+				bounding_box: file.boundingBox,
+			};
+		});
+
+		const payload = {
+			title: values.title,
+			description: values.description || '',
+			dataset_type: datasetType,
+			service: service,
+			bucket_name: bucketName,
+
+			total_files: files.length,
+			total_size_kb: parseFloat(totalKbytes) || 0,
+
+			index_path: `${values.title}/index.json`,
+
+			chunks: chunks.map((chunk) => ({
+				name: chunk.name,
+				file_count: chunk.files.length,
+				s3_path: `${values.title}/zip/${chunk.name}`,
+			})),
+
+			status: 'active',
+		};
+
+		return payload;
+	};
 
 	const handleSubmit = async (values) => {
-		const formData = new FormData()
-		Object.entries(values).forEach(([key, value]) => {
-			formData.append(key, value)
-		})
-
-		// TODO: WRITE THE LOGIO FOR OTHERS TASK TO USING PRESIGNED URL
-		// Current handling for other types
-		// for (let i = 0; i < files.length; i++) {
-		// 	const fileNameBase64 = btoa(
-		// 		String.fromCharCode(
-		// 			...new TextEncoder().encode(files[i].webkitRelativePath)
-		// 		)
-		// 	)
-		// 	formData.append('files', files[i], fileNameBase64)
-		// }
-
-		formData.append('isLabeled', isLabeled)
-		formData.append('service', service)
-		formData.append('selectedUrlOption', selectedUrlOption)
-		formData.append('bucketName', bucketName)
-
-		// // Add expected labels if unlabeled
-		// if (!isLabeled && expectedLabels.trim()) {
-		// 	const labelsArray = expectedLabels
-		// 		.split('\n')
-		// 		.map(label => label.trim())
-		// 		.filter(label => label.length > 0)
-		// 	// formData.append('expectedLabels', JSON.stringify(labelsArray))
-		// 	formData.append('expectedLabels', labelsArray)
-		// }
-
-		// if (!isLabeled && expectedLabels.trim()) {
-		// 	const labelsArray = expectedLabels
-		// 		.split(/\r?\n/)
-		// 		.map(label => label.trim())
-		// 		.filter(label => label.length > 0)
-
-
-		// 	labelsArray.forEach(label => {
-		// 		formData.append('expectedLabels[]', label)
-		// 	})
-		// }
-
-		let fileNames = []
-		for (let i = 0; i < files.length; i++) {
-			fileNames[i] = files[i].webkitRelativePath
-		}
-
-		formData.append('fileNames', fileNames)
-
 		try {
-			const { data } = await datasetAPI.getPresignedUrl(formData)
-			console.log(data)
-			await uploadFilesToS3(data, files)
-			setIsLoading(true)
-			await onCreate(formData)
-			message.success('Dataset created successfully!')
-			// resetFormAndState()
+			setIsLoading(true);
+
+			const fileMap = organizeFiles(files);
+			const chunks = createChunks(fileMap, IMG_NUM_IN_ZIP);
+
+			const fileToChunkMap = new Map();
+			chunks.forEach((chunk) => {
+				chunk.files.forEach((file) => {
+					fileToChunkMap.set(file.path, chunk.name);
+				});
+			});
+
+			const indexData = {
+				dataset_title: values.title,
+				dataset_type: datasetType,
+				files: files.map((file) => {
+					const pathParts = file.path.split('/');
+					const simplifiedPath = pathParts.length > 1 ? pathParts.slice(1).join('/') : file.path;
+
+					return {
+						path: `${values.title}/${simplifiedPath}`,
+						chunk: fileToChunkMap.get(file.path) || null,
+						bounding_box: file.boundingBox,
+					};
+				}),
+				chunks: chunks.map((chunk) => ({
+					name: chunk.name,
+					file_count: chunk.files.length,
+				})),
+			};
+
+			const s3Files = [
+				{
+					key: `${values.title}/index.json`,
+					type: 'application/json',
+					content: JSON.stringify(indexData, null, 2),
+				},
+				...chunks.map((chunk) => ({
+					key: `${values.title}/zip/${chunk.name}`,
+					type: 'application/zip',
+					files: chunk.files,
+				})),
+			];
+
+			// const presignPayload = {
+			// 	dataset_title: values.title,
+			// 	files: s3Files.map((file) => ({
+			// 		key: file.key,
+			// 		type: file.type,
+			// 	})),
+			// };
+			// const { data: presignedUrls } = await datasetAPI.createPresignedUrls(presignPayload);
+
+			// if (!presignedUrls || presignedUrls.length !== s3Files.length) {
+			// 	throw new Error('Invalid presigned URLs received');
+			// }
+
+			// // Upload các file lên S3
+			// for (const fileInfo of s3Files) {
+			// 	const presignedUrl = presignedUrls.find((url) => url.key === fileInfo.key).url;
+			// 	if (!presignedUrl) {
+			// 		throw new Error(`No presigned URL for key: ${fileInfo.key}`);
+			// 	}
+
+			// 	if (fileInfo.type === 'application/json') {
+			// 		const blob = new Blob([fileInfo.content], { type: 'application/json' });
+			// 		await uploadToS3(presignedUrl, blob);
+			// 	} else {
+			// 		const zip = new JSZip();
+
+			// 		console.log(`Creating zip ${fileInfo.key} with ${fileInfo.files.length} files`);
+
+			// 		for (const file of fileInfo.files) {
+			// 			console.log(`Processing file: ${file.path}`);
+			// 			const pathParts = file.path.split('/');
+			// 			const newPath = pathParts.slice(1).join('/');
+
+			// 			if (file.fileObject && file.fileObject instanceof File) {
+			// 				zip.file(newPath, file.fileObject);
+			// 			} else {
+			// 				console.error(`Invalid file object for: ${file.path}`);
+			// 				console.error(`File object:`, file.fileObject);
+			// 			}
+			// 		}
+
+			// 		const zipBlob = await zip.generateAsync({ type: 'blob' });
+			// 		console.log(`Zip size: ${zipBlob.size} bytes`);
+
+			// 		await uploadToS3(presignedUrl, zipBlob);
+			// 	}
+			// }
+
+			const payload = createDatasetPayload(
+				values,
+				files,
+				chunks,
+				datasetType,
+				service,
+				bucketName,
+			);
+
+			console.log('Dataset payload:', payload);
+
+			await onCreate(payload);
+			message.success('Dataset created successfully!');
+			// handleCancel();
 		} catch (error) {
-			message.error('Failed to create dataset. Please try again.')
+			console.error('Error in handleSubmit:', error);
+			message.error('Failed to create dataset. Please try again.');
 		} finally {
-			setIsLoading(false)
+			setIsLoading(false);
 		}
-	}
+	};
 
 	const handleCancel = () => {
-		resetFormAndState()
-		onCancel()
-	}
+		resetFormAndState();
+		onCancel();
+	};
 
 	const resetFormAndState = () => {
-		form.resetFields()
-		setFiles([])
-		setTotalKbytes(0)
-		setSelectedUrlOption('remote-url')
-		setIsLabeled(true)
-		setService('GCP_STORAGE')
-		setBucketName('user-private-dataset')
-		setDatasetType('IMAGE_CLASSIFICATION')
-		setIsLoading(false)
-		setExpectedLabels('')
-	}
+		form.resetFields();
+		setFiles([]);
+		setTotalKbytes('0.00');
+		setSelectedUrlOption('remote-url');
+		setService('AWS_S3');
+		setBucketName('user-private-dataset');
+		setDatasetType('IMAGE_CLASSIFICATION');
+		setIsLoading(false);
+		fileRefs.current.clear();
+	};
 
 	const tabItems = [
 		{
@@ -166,9 +267,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						}}
 					>
 						<div style={{ textAlign: 'center' }}>
-							<FolderOutlined
-								style={{ fontSize: '48px', color: '#1890ff' }}
-							/>
+							<FolderOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
 							<p style={{ marginTop: '8px' }}>
 								Drag and drop a folder or click to upload
 							</p>
@@ -191,37 +290,26 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					</div>
 
 					{files.length > 0 && (
-						<div style={{ maxHeight: '40px', overflowY: 'auto' }}>
+						<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
 							{files.map((file) => (
 								<div
-									key={file.webkitRelativePath}
+									key={file.path}
 									style={{
 										display: 'flex',
 										alignItems: 'center',
-										// padding: '8px',
 										borderBottom: '1px solid #f0f0f0',
+										padding: '8px 0',
 									}}
 								>
-									<FileOutlined
-										style={{ marginRight: '8px' }}
-									/>
-									<span>{file.webkitRelativePath}</span>
-									<span
-										style={{
-											marginLeft: '8px',
-											color: '#8c8c8c',
-										}}
-									>
-										({(file.size / 1024).toFixed(2)} kB)
+									<FileOutlined style={{ marginRight: '8px' }} />
+									<span>{file.path}</span>
+									<span style={{ marginLeft: '8px', color: '#8c8c8c' }}>
+										({(file.fileObject?.size / 1024 || 0).toFixed(2)} kB)
 									</span>
 									<Button
 										type="text"
 										icon={<DeleteOutlined />}
-										onClick={() =>
-											handleDeleteFile(
-												file.webkitRelativePath
-											)
-										}
+										onClick={() => handleDeleteFile(file.fileId)}
 									/>
 								</div>
 							))}
@@ -243,7 +331,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				</Form.Item>
 			),
 		},
-	]
+	];
 
 	return (
 		<Modal
@@ -260,9 +348,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Form.Item
 					label="Title"
 					name="title"
-					rules={[
-						{ required: true, message: 'Please enter a title' },
-					]}
+					rules={[{ required: true, message: 'Please enter a title' }]}
 				>
 					<Input placeholder="Enter dataset title" />
 				</Form.Item>
@@ -270,15 +356,13 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Form.Item
 					label="Type"
 					name="type"
-					rules={[
-						{ required: true, message: 'Please select a type' },
-					]}
+					rules={[{ required: true, message: 'Please select a type' }]}
 				>
 					<Select
 						placeholder="Select dataset type"
 						onChange={(value) => setDatasetType(value)}
 					>
-						{Object.entries(TYPES).map(([key, value]) => (
+						{Object.entries(DATASET_TYPES).map(([key, value]) => (
 							<Option key={key} value={key}>
 								{value.type}
 							</Option>
@@ -286,38 +370,13 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 					</Select>
 				</Form.Item>
 
-				<Form.Item label="Labeled Data">
-					<Radio.Group
-						value={isLabeled}
-						onChange={(e) => setIsLabeled(e.target.value)}
-					>
-						<Radio value={true}>Labeled</Radio>
-						<Radio value={false}>Unlabeled</Radio>
-					</Radio.Group>
-				</Form.Item>
-
-				{!isLabeled && (
-					<Form.Item
-						label="Expected Labels"
-						name="expectedLabels"
-						extra="Enter each label on a new line (e.g., horse, cat, dog)"
-					>
-						<TextArea
-							rows={4}
-							placeholder="horse&#10;cat&#10;dog"
-							value={expectedLabels}
-							onChange={(e) => setExpectedLabels(e.target.value)}
-						/>
-					</Form.Item>
-				)}
-
 				<Form.Item label="Service">
 					<Radio.Group
 						value={service}
 						onChange={(e) => setService(e.target.value)}
 					>
-						<Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
 						<Radio value="AWS_S3">AWS S3</Radio>
+						<Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
 					</Radio.Group>
 				</Form.Item>
 
@@ -326,9 +385,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						value={bucketName}
 						onChange={(value) => setBucketName(value)}
 					>
-						<Option value="user-private-dataset">
-							user-private-dataset
-						</Option>
+						<Option value="user-private-dataset">user-private-dataset</Option>
 						<Option value="bucket-2">bucket-2</Option>
 					</Select>
 				</Form.Item>
@@ -336,11 +393,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				<Tabs defaultActiveKey="file" items={tabItems} />
 
 				<Form.Item>
-					<Button
-						type="primary"
-						htmlType="submit"
-						loading={isLoading}
-					>
+					<Button type="primary" htmlType="submit" loading={isLoading}>
 						Create Dataset
 					</Button>
 					<Button
@@ -353,7 +406,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				</Form.Item>
 			</Form>
 		</Modal>
-	)
-}
+	);
+};
 
-export default CreateDatasetModal
+export default CreateDatasetModal;

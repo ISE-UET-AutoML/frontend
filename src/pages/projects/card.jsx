@@ -6,7 +6,7 @@ import { PATHS } from 'src/constants/paths'
 import { deleteProject } from 'src/api/project'
 import { Button, Typography, Tag } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
 
@@ -30,15 +30,16 @@ export default function ProjectCard({ project, getProjects }) {
 		}
 	}
 
-	const tagColor = TYPES[project?.type].card
+	const taskType = project?.task_type
+	const tagColor = TASK_TYPES[taskType]?.card || TASK_TYPES["IMAGE_CLASSIFICATION"].card  // in case of no task assigned
 
 	const handleCardClick = () => {
-		window.location.href = PATHS.PROJECT_BUILD(project?._id)
+		window.location.href = PATHS.PROJECT_BUILD(project?.id)
 	}
 
 	return (
 		<div
-			key={project._id}
+			key={project.id}
 			className="group relative rounded-lg bg-white shadow-md transition duration-300 hover:shadow-lg cursor-pointer"
 			style={{
 				border: '1px solid #e8e8e8',
@@ -76,7 +77,7 @@ export default function ProjectCard({ project, getProjects }) {
 							style={{ fontSize: 18, color: '#ff4d4f' }}
 						/>
 					}
-					onClick={(e) => handleDelete(e, project._id)}
+					onClick={(e) => handleDelete(e, project.id)}
 					className="ml-auto hover:bg-red-100"
 					style={{
 						width: 48,
@@ -121,7 +122,7 @@ export default function ProjectCard({ project, getProjects }) {
 							border: `1px solid ${tagColor.border}`,
 						}}
 					>
-						{project?.type}
+						{project?.task_type}
 					</Tag>
 				</div>
 			</div>

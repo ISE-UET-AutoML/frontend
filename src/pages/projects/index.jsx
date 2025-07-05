@@ -34,7 +34,7 @@ import { motion } from 'framer-motion'
 import instance from 'src/api/axios'
 import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 import ProjectCard from './card'
 import * as datasetAPI from 'src/api/dataset'
 import AIAssistantModal from './AIAssistantModal' // Import component mới
@@ -57,7 +57,7 @@ const { Title, Text, Paragraph } = Typography
 const { Content } = Layout
 const { TextArea } = Input
 
-const projType = Object.keys(TYPES)
+const projType = Object.keys(TASK_TYPES)
 
 const imgArray = [
 	class_img,
@@ -145,13 +145,13 @@ export default function Projects() {
 		if (chatContainerRef.current) {
 			const lastMessage =
 				chatContainerRef.current.lastElementChild?.children[
-					chatContainerRef.current.lastElementChild.children.length -
-						1
+				chatContainerRef.current.lastElementChild.children.length -
+				1
 				]
 			const secondLastMessage =
 				chatContainerRef.current.lastElementChild?.children[
-					chatContainerRef.current.lastElementChild.children.length -
-						2
+				chatContainerRef.current.lastElementChild.children.length -
+				2
 				]
 			let height = 0
 			if (secondLastMessage) {
@@ -198,8 +198,8 @@ export default function Projects() {
 			setDescription(givenDescription)
 			setProjectName(givenName)
 			let task = -1
-			task = Object.values(TYPES).findIndex(
-				(value) => value.type === givenTask
+			task = Object.values(TASK_TYPES).findIndex(
+				(value) => value.task_type === givenTask
 			)
 			if (task !== -1) selectType(undefined, task)
 		}
@@ -231,7 +231,7 @@ export default function Projects() {
 	}
 
 	useEffect(() => {
-		getChatHistory()
+		// getChatHistory()
 	}, [])
 
 	const userChat = async (input, confirmed = false, projectList = []) => {
@@ -322,7 +322,7 @@ export default function Projects() {
 		const formData = new FormData(event.target)
 		const data = Object.fromEntries(formData)
 		isSelected.forEach((el, idx) => {
-			if (el) data.type = projType[idx]
+			if (el) data.task_type = projType[idx]
 		})
 
 		if (jsonSumm) {
@@ -340,10 +340,10 @@ export default function Projects() {
 			})
 
 			console.log('create Project response', { response })
-			await newChat()
+			// await newChat()
 
 			if (response.status === 200) {
-				navigate(PATHS.PROJECT_BUILD(response.data._id))
+				navigate(PATHS.PROJECT_BUILD(response.data.id))
 			}
 		} catch (error) {
 			message.error('Project already existed')
@@ -352,7 +352,10 @@ export default function Projects() {
 
 	const getProjects = async () => {
 		const response = await instance.get(API_URL.all_projects)
-		updateProjState({ projects: response.data })
+		console.log(response.data)
+		const proj = response.data.owned
+
+		updateProjState({ projects: proj })
 		console.log('Project List', response.data)
 
 		return response.data
@@ -419,7 +422,7 @@ export default function Projects() {
 				{projectState.projects.length > 0 ? (
 					<Row gutter={[16, 16]} className="">
 						{projectState.projects.map((project) => (
-							<Col xs={24} sm={12} xl={8} key={project._id}>
+							<Col xs={24} sm={12} xl={8} key={project.id}>
 								<ProjectCard
 									project={project}
 									getProjects={getProjects}
@@ -567,7 +570,7 @@ export default function Projects() {
 										<Tooltip title="Set your desired model accuracy target">
 											<Input
 												type="number"
-												name="expectation_accuracy"
+												name="expected_accuracy"
 												min={0}
 												max={100}
 												defaultValue={100}
@@ -596,11 +599,10 @@ export default function Projects() {
 										<Col span={24} key={type}>
 											<Card
 												hoverable
-												className={` border-blue-500 border hover:shadow-none hover:bg-blue-50 ${
-													isSelected[idx]
-														? ' bg-purple-50 border-purple-400'
-														: ''
-												}
+												className={` border-blue-500 border hover:shadow-none hover:bg-blue-50 ${isSelected[idx]
+													? ' bg-purple-50 border-purple-400'
+													: ''
+													}
                         `}
 												onClick={(e) =>
 													selectType(e, idx)
@@ -616,12 +618,12 @@ export default function Projects() {
 													</Col>
 													<Col span={16}>
 														<Title level={4}>
-															{TYPES[type].type}
+															{TASK_TYPES[type].type}
 														</Title>
 														<Text type="secondary">
 															{
 																typeDescription[
-																	idx
+																idx
 																]
 															}
 														</Text>

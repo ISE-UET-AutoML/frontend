@@ -201,7 +201,7 @@ export default function LabelProjects() {
 	const handleDeleteProject = async (projectId) => {
 		try {
 			// Simulate API call
-			const updatedProjects = sampleProjects.filter(p => p._id !== projectId)
+			const updatedProjects = sampleProjects.filter(p => p.id !== projectId)
 			sampleProjects.length = 0
 			sampleProjects.push(...updatedProjects)
 			updateProjectState({ projects: [...sampleProjects] })

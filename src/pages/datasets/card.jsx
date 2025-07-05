@@ -9,14 +9,14 @@ import {
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
 
 export default function DatasetCard({ dataset, getDatasets }) {
-	const tagColor = TYPES[dataset?.type].card
+	const tagColor = TASK_TYPES[dataset?.type].card
 
 	const handleCardClick = () => {
 		window.location.href = PATHS.DATASET_VIEW(dataset?._id)
