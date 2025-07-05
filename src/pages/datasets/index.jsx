@@ -30,9 +30,9 @@ export default function Datasets() {
 		}
 	}
 
-	const handleCreateDataset = async (formData) => {
+	const handleCreateDataset = async (payload) => {
 		try {
-			const response = await datasetAPI.createDataset(formData)
+			const response = await datasetAPI.createDataset(payload)
 			console.log('response', response)
 			if (response.status === 201) {
 				updateDataState({ showUploader: false })

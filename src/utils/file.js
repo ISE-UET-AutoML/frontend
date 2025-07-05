@@ -1,5 +1,5 @@
 import { ALLOWED_FILE_EXTENSIONS } from 'src/constants/file'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 
 const isAllowedExtension = (fileName, allowedExtensions) => {
 	const idx = fileName.lastIndexOf('.')
@@ -11,7 +11,7 @@ const isAllowedExtension = (fileName, allowedExtensions) => {
 }
 
 const validateFiles = (files, projectType) => {
-	const projectInfo = TYPES[projectType]
+	const projectInfo = TASK_TYPES[projectType]
 	if (!projectInfo) {
 		alert('Unsupported project type.')
 		return []
@@ -38,12 +38,15 @@ const validateFiles = (files, projectType) => {
 	return validFiles
 }
 
-const organizeFiles = (files, isLabeled) => {
+const organizeFiles = (files) => {
 	const fileMap = new Map();
 
 	files.forEach((file) => {
 		const pathParts = file.path.split('/');
-		if (isLabeled && pathParts.length > 1) {
+
+		// Auto-detect if files are organized in folders (labeled)
+		// If path has more than 1 part (folder/file.ext), treat as labeled
+		if (pathParts.length > 1) {
 			const label = pathParts[pathParts.length - 2];
 
 			if (!fileMap.has(label)) {
@@ -52,19 +55,18 @@ const organizeFiles = (files, isLabeled) => {
 			fileMap.get(label).push({
 				path: file.path,
 				label,
-				fileId: file.fileId,
-				fileObject: file.fileObject, // Sử dụng fileObject từ metadata
+				fileObject: file.fileObject,
 				boundingBox: file.boundingBox,
 			});
 		} else {
+			// Files are directly in root, treat as unlabeled
 			if (!fileMap.has('unlabeled')) {
 				fileMap.set('unlabeled', []);
 			}
 			fileMap.get('unlabeled').push({
 				path: file.path,
 				label: null,
-				fileId: file.fileId,
-				fileObject: file.fileObject, // Sử dụng fileObject từ metadata
+				fileObject: file.fileObject,
 				boundingBox: file.boundingBox,
 			});
 		}

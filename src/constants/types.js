@@ -1,4 +1,4 @@
-const TYPES = {
+const TASK_TYPES = {
 	IMAGE_CLASSIFICATION: {
 		type: 'Image Classification',
 		description: 'We accept JPEG, PNG image format',
@@ -53,4 +53,29 @@ const TYPES = {
 	},
 }
 
-export { TYPES }
+const DATASET_TYPES = {
+	IMAGE: {
+		type: 'Image',
+		description: 'We accept JPEG, PNG image format',
+		allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
+		card: { bg: '#e6f4ff', text: '#1677ff', border: '#1677ff' },
+	},
+	TEXT: {
+		type: 'Text',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		card: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
+	},
+	TABULAR: {
+		type: 'Tabular',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		card: {
+			bg: '#f9f0ff',
+			text: '#722ed1',
+			border: '#722ed1',
+		},
+	},
+}
+
+export { DATASET_TYPES, TASK_TYPES }
