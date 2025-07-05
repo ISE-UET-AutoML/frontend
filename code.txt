@@ -1,0 +1,1289 @@
+[
+  {
+    "id": 31,
+    "title": "test4",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T15:10:43.673164Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 10,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 10,
+    "queue_done": 0
+  },
+  {
+    "id": 30,
+    "title": "test4",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T15:05:08.596026Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 10,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 10,
+    "queue_done": 0
+  },
+  {
+    "id": 29,
+    "title": "test3",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T15:02:30.648957Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 10,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 10,
+    "queue_done": 0
+  },
+  {
+    "id": 28,
+    "title": "test222",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T14:59:35.483961Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 10,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 10,
+    "queue_done": 0
+  },
+  {
+    "id": 27,
+    "title": "test222",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T14:56:37.464125Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 25,
+    "title": "blabla",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T14:40:46.210066Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 10,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 10,
+    "queue_done": 0
+  },
+  {
+    "id": 24,
+    "title": "blabla",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n    <Choice value=\"horse\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T14:12:45.205204Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1,
+          "horse": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog",
+          "horse"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          },
+          "horse": {
+            "value": "horse"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 23,
+    "title": "blabla",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n    <Choice value=\"horse\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T14:11:56.552750Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "cat": 1,
+          "dog": 1,
+          "horse": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "cat",
+          "dog",
+          "horse"
+        ],
+        "labels_attrs": {
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          },
+          "horse": {
+            "value": "horse"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 22,
+    "title": "blabla",
+    "description": "Project for TaskType.IMAGE_CLASSIFICATION task",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$url\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"horse\"/>\n    <Choice value=\"cat\"/>\n    <Choice value=\"dog\"/>\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-02T11:01:51.892380Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "horse": 1,
+          "cat": 1,
+          "dog": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "value": "url",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "horse",
+          "cat",
+          "dog"
+        ],
+        "labels_attrs": {
+          "horse": {
+            "value": "horse"
+          },
+          "cat": {
+            "value": "cat"
+          },
+          "dog": {
+            "value": "dog"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 18,
+    "title": "New Project #6",
+    "description": "",
+    "label_config": "<View>\n  <Text name=\"text\" value=\"$text\"/>\n  <View style=\"box-shadow: 2px 2px 5px #999;\n               padding: 20px; margin-top: 2em;\n               border-radius: 5px;\">\n    <Header value=\"Choose text sentiment\"/>\n    <Choices name=\"sentiment\" toName=\"text\"\n             choice=\"single\" showInLine=\"true\">\n      <Choice value=\"Positive\"/>\n      <Choice value=\"Negative\"/>\n      <Choice value=\"Neutral\"/>\n    </Choices>\n  </View>\n</View>\n\n<!-- {\n  \"data\": {\"text\": \"This is a great 3D movie that delivers everything almost right in your face.\"}\n} -->",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-07-01T05:16:07.462803Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "sentiment": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "Positive": 1,
+          "Negative": 1,
+          "Neutral": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "sentiment": {
+        "type": "Choices",
+        "to_name": [
+          "text"
+        ],
+        "inputs": [
+          {
+            "type": "Text",
+            "value": "text",
+            "valueType": null
+          }
+        ],
+        "labels": [
+          "Positive",
+          "Negative",
+          "Neutral"
+        ],
+        "labels_attrs": {
+          "Positive": {
+            "value": "Positive"
+          },
+          "Negative": {
+            "value": "Negative"
+          },
+          "Neutral": {
+            "value": "Neutral"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 13,
+    "title": "New Project #5",
+    "description": "",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$image\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    <Choice value=\"Adult content\"/>\n    <Choice value=\"Weapons\" />\n    <Choice value=\"Violence\" />\n  </Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 3,
+      "first_name": "",
+      "last_name": "",
+      "email": "cogai7554@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-06-25T09:14:17.660960Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "Adult content": 1,
+          "Weapons": 1,
+          "Violence": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "valueType": null,
+            "value": "image"
+          }
+        ],
+        "labels": [
+          "Adult content",
+          "Weapons",
+          "Violence"
+        ],
+        "labels_attrs": {
+          "Adult content": {
+            "value": "Adult content"
+          },
+          "Weapons": {
+            "value": "Weapons"
+          },
+          "Violence": {
+            "value": "Violence"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 7,
+    "title": "New Project #4",
+    "description": "",
+    "label_config": "<View></View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 1,
+      "first_name": "",
+      "last_name": "",
+      "email": "ngtvu278@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-06-12T03:06:55.037068Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 0,
+    "task_number": 0,
+    "useful_annotation_number": 0,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 0,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {},
+    "parsed_label_config": {},
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": false,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 0,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 6,
+    "title": "New Project #3",
+    "description": "",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$image\"/>\n  <RectangleLabels name=\"label\" toName=\"image\">\n    \n    <Label value=\"Car\" background=\"blue\"/>\n  <Label value=\"Building\" background=\"#e85c54\"/></RectangleLabels>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 2,
+      "first_name": "",
+      "last_name": "",
+      "email": "vuu@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-06-11T18:47:11.445556Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 3,
+    "task_number": 3,
+    "useful_annotation_number": 9,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 9,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "label": {
+        "overall": 1,
+        "type": "RectangleLabels",
+        "labels": {
+          "Car": 1,
+          "Building": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "label": {
+        "type": "RectangleLabels",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "valueType": null,
+            "value": "image"
+          }
+        ],
+        "labels": [
+          "Car",
+          "Building"
+        ],
+        "labels_attrs": {
+          "Car": {
+            "value": "Car",
+            "background": "blue"
+          },
+          "Building": {
+            "value": "Building",
+            "background": "#e85c54"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 3,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 2,
+    "title": "Image classifier #2",
+    "description": "",
+    "label_config": "<View>\n  <Image name=\"image\" value=\"$image\"/>\n  <Choices name=\"choice\" toName=\"image\">\n    \n    \n    \n  <Choice value=\"Dog\"/><Choice value=\"Cat\"/><Choice value=\"Deer\"/></Choices>\n</View>",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 1,
+      "first_name": "",
+      "last_name": "",
+      "email": "ngtvu278@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-06-11T17:59:55.163066Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 30,
+    "task_number": 30,
+    "useful_annotation_number": 31,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 31,
+    "total_predictions_number": 0,
+    "sampling": "Uniform sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "choice": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "Dog": 1,
+          "Cat": 1,
+          "Deer": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "choice": {
+        "type": "Choices",
+        "to_name": [
+          "image"
+        ],
+        "inputs": [
+          {
+            "type": "Image",
+            "valueType": null,
+            "value": "image"
+          }
+        ],
+        "labels": [
+          "Dog",
+          "Cat",
+          "Deer"
+        ],
+        "labels_attrs": {
+          "Dog": {
+            "value": "Dog"
+          },
+          "Cat": {
+            "value": "Cat"
+          },
+          "Deer": {
+            "value": "Deer"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 30,
+    "queue_total": 0,
+    "queue_done": 0
+  },
+  {
+    "id": 1,
+    "title": "Text #1",
+    "description": "",
+    "label_config": "<View>\n  <Text name=\"text\" value=\"$text\"/>\n  <View style=\"box-shadow: 2px 2px 5px #999;                padding: 20px; margin-top: 2em;                border-radius: 5px;\">\n    <Header value=\"Choose text sentiment\"/>\n    <Choices name=\"sentiment\" toName=\"text\" choice=\"single\" showInLine=\"true\">\n      <Choice value=\"Positive\"/>\n      <Choice value=\"Negative\"/>\n      \n    </Choices>\n  </View>\n</View><!-- {\n  \"data\": {\"text\": \"This is a great 3D movie that delivers everything almost right in your face.\"}\n} -->",
+    "expert_instruction": "",
+    "show_instruction": false,
+    "show_skip_button": true,
+    "enable_empty_annotation": true,
+    "show_annotation_history": false,
+    "organization": 1,
+    "color": "#FFFFFF",
+    "maximum_annotations": 1,
+    "is_published": false,
+    "model_version": "",
+    "is_draft": false,
+    "created_by": {
+      "id": 1,
+      "first_name": "",
+      "last_name": "",
+      "email": "ngtvu278@gmail.com",
+      "avatar": null
+    },
+    "created_at": "2025-06-11T15:09:35.655320Z",
+    "min_annotations_to_start_training": 0,
+    "start_training_on_annotation_update": false,
+    "show_collab_predictions": true,
+    "num_tasks_with_annotations": 26,
+    "task_number": 26,
+    "useful_annotation_number": 43,
+    "ground_truth_number": 0,
+    "skipped_annotations_number": 0,
+    "total_annotations_number": 43,
+    "total_predictions_number": 0,
+    "sampling": "Sequential sampling",
+    "show_ground_truth_first": false,
+    "show_overlap_first": false,
+    "overlap_cohort_percentage": 100,
+    "task_data_login": null,
+    "task_data_password": null,
+    "control_weights": {
+      "sentiment": {
+        "overall": 1,
+        "type": "Choices",
+        "labels": {
+          "Positive": 1,
+          "Negative": 1
+        }
+      }
+    },
+    "parsed_label_config": {
+      "sentiment": {
+        "type": "Choices",
+        "to_name": [
+          "text"
+        ],
+        "inputs": [
+          {
+            "type": "Text",
+            "valueType": null,
+            "value": "text"
+          }
+        ],
+        "labels": [
+          "Positive",
+          "Negative"
+        ],
+        "labels_attrs": {
+          "Positive": {
+            "value": "Positive"
+          },
+          "Negative": {
+            "value": "Negative"
+          }
+        }
+      }
+    },
+    "evaluate_predictions_automatically": false,
+    "config_has_control_tags": true,
+    "skip_queue": "REQUEUE_FOR_OTHERS",
+    "reveal_preannotations_interactively": false,
+    "pinned_at": null,
+    "finished_task_number": 26,
+    "queue_total": 0,
+    "queue_done": 0
+  }
+]

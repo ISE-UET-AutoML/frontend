@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL = 'http://localhost:3000/api'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -19,10 +19,27 @@ api.interceptors.request.use((config) => {
     return config
 })
 
+export const getProjects = async () => {
+    try {
+        // Gọi đến endpoint /data/label-projects của Gateway
+        const response = await fetch(`${API_BASE_URL}/data/label-projects`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Failed to fetch projects via Gateway:", error);
+        throw error;
+    }
+};
 // Label Project API endpoints
 export const getLabelProjects = async (params = {}) => {
-    const response = await api.get('/label-projects', { params })
-    return response
+    // Thêm /data/ vào trước URL
+    const response = await api.get('/data/label-projects', { params });
+    // Trả về dữ liệu từ response
+    return response.data; 
 }
 
 export const getLabelProjectById = async (id) => {

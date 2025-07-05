@@ -113,6 +113,33 @@ const initialState = {
 	isLoading: false,
 	showCreator: false,
 }
+const typeRegex = /TaskType\.(\w+)\s+task/;
+
+const mapApiProjectToSampleProject = (apiProject) => {
+    return {
+        _id: apiProject.id, // Map 'id' sang '_id'
+        title: apiProject.title, // Map 'title' sang 'title'
+        description: apiProject.description,
+        type: apiProject.description.match(typeRegex)?.[1] || 'Unknown', // Giữ giá trị mặc định, vì API không có trường này
+        status: 'active', // Giữ giá trị mặc định
+        labels: apiProject.parsed_label_config?.choice?.labels || [], // Lấy danh sách nhãn
+        dataset: {
+            _id: `dataset_${apiProject.id}`, // Tạo ID giả
+            name: `Dataset for ${apiProject.title}`,
+            totalRecords: apiProject.task_number
+        },
+        totalItems: apiProject.task_number,
+        labeledItems: apiProject.finished_task_number,
+        createdBy: {
+            _id: apiProject.created_by.id,
+            name: apiProject.created_by.email.split('@')[0], // Tách tên từ email
+            email: apiProject.created_by.email
+        },
+        collaborators: [], // API không có dữ liệu này, để mảng rỗng
+        createdAt: apiProject.created_at,
+        updatedAt: apiProject.created_at // Dùng tạm created_at
+    };
+};
 
 export default function LabelProjects() {
 	const [projectState, updateProjectState] = useReducer(
@@ -123,10 +150,13 @@ export default function LabelProjects() {
 	const getLabelProjects = async () => {
 		try {
 			updateProjectState({ isLoading: true })
+			const response = await labelProjectAPI.getLabelProjects()
+			const projects = response.map(mapApiProjectToSampleProject)
+			console.log(">>> Dữ liệu nhận được từ API:", projects)
 			// Simulate API call delay
 			setTimeout(() => {
 				updateProjectState({
-					projects: sampleProjects,
+					projects: projects,
 					isLoading: false
 				})
 			}, 500)

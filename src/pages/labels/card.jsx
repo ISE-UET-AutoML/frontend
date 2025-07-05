@@ -22,8 +22,16 @@ export default function LabelProjectCard({ project, onDelete }) {
     }
 
     const handleEdit = () => {
-        window.location = PATHS.LABEL_PROJECT_EDIT(project._id)
-    }
+    // URL gốc của Label Studio, bạn nên đặt trong tệp .env của frontend để dễ quản lý
+    const labelStudioBaseUrl = process.env.REACT_APP_LBS_ADDR || 'http://127.0.0.1:8080'
+
+    // Xây dựng URL đầy đủ đến trang project của Label Studio
+    // Dùng `project.id` thay vì `project._id`
+    const projectUrl = `${labelStudioBaseUrl}/projects/${project._id}`;
+
+    // Mở URL này trong một tab mới
+    window.open(projectUrl, '_blank', 'noopener,noreferrer');
+    };
 
     const handleDelete = () => {
         if (window.confirm(`Are you sure you want to delete "${project.name}"?`)) {

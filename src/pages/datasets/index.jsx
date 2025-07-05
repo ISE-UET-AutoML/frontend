@@ -38,6 +38,7 @@ export default function Datasets() {
 				if (response.data.label_studio_id) {
 					console.log('url', process.env.REACT_APP_LBS_ADDR)
 					const url = `${process.env.REACT_APP_LBS_ADDR}/projects/${response.data.label_studio_id}/data`
+					console.log('Opening URL:', url)
 					window.open(url, '_blank', 'noopener,noreferrer');
 				}
 				// window.location = PATHS.DATASET_VIEW(response.data._id)
