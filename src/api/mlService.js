@@ -10,10 +10,23 @@ const getTrainingProgress = (experimentId, instanceInfo) => {
     )
 }
 
+const createModel = (experimentId, instanceInfo) => {
+    return instance.post(
+        `${URL}/experiment/${experimentId}/model/create`,
+        { instanceInfo }
+    )
+}
+
 const getTrainingMetrics = (payload) => {
     return instance.post(
         `${proxyURL}/model_service/train/training_metrics`,
         payload
+    )
+}
+
+const getFinalMetrics = (experimentId) => {
+    return instance.get(
+        `${URL}/experiment/${experimentId}/model/metrics`
     )
 }
 
@@ -25,6 +38,8 @@ const trainCloudModel = (projectId, payload) => {
 
 export {
     getTrainingProgress,
+    createModel,
     getTrainingMetrics,
+    getFinalMetrics,
     trainCloudModel
 }

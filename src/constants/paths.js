@@ -16,10 +16,10 @@ const PATHS = {
     /*-----------------------------PROJECT-------------------------------------*/
 
     PROJECT_BUILD: (projectID) => `/app/project/${projectID}/build/uploadData`,
-    PROJECT_TRAINING: (projectID, experimentId) =>
-        `/app/project/${projectID}/build/training?experimentId=${experimentId}`,
-    PROJECT_TRAININGRESULT: (projectID, experimentName) =>
-        `/app/project/${projectID}/build/trainResult?experimentName=${experimentName}`,
+    PROJECT_TRAINING: (projectID, experimentId, experimentName) =>
+        `/app/project/${projectID}/build/training?experimentId=${experimentId}&experimentName=${experimentName}`,
+    PROJECT_TRAININGRESULT: (projectID, experimentId, experimentName) =>
+        `/app/project/${projectID}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}`,
     PROJECT_MODEL: (projectID) => `/app/project/${projectID}/model`,
     PROJECT_EXPERIMENT: (projectID) => `/app/project/${projectID}/experiments`,
     PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,

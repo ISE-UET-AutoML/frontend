@@ -17,15 +17,15 @@ const statusColors = {
 }
 
 export default function ExperimentCard({ experiment }) {
-    const { id, project_id, name, start_time, end_time, status } = experiment
+    const { id, project_id, name, start_time, end_time, status, framework } = experiment
     const navigate = useNavigate()
 
     // Handle card click
     const handleCardClick = () => {
         navigate(
             status === 'DONE'
-                ? PATHS.PROJECT_TRAININGRESULT(project_id, name)
-                : PATHS.PROJECT_TRAINING(project_id, id)
+                ? PATHS.PROJECT_TRAININGRESULT(project_id, id, name)
+                : PATHS.PROJECT_TRAINING(project_id, id, name)
         )
     }
 
@@ -77,11 +77,10 @@ export default function ExperimentCard({ experiment }) {
                         {name}
                     </Title>
                 </div>
-                {start_time && (
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                        Created {dayjs(start_time).fromNow()}
-                    </Text>
-                )}
+                <Text type="secondary" style={{ fontSize: 12, whiteSpace: 'pre-line' }}>
+                    {start_time && `Created ${dayjs(start_time).fromNow()}\n`}
+                    {framework && `Framework: ${framework.toLowerCase()}`}
+                </Text>
             </div>
         </div>
     )

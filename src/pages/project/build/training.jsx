@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
 import { getExperiment } from 'src/api/experiment'
-import { getTrainingProgress, getTrainingMetrics } from 'src/api/mlService'
+import { getTrainingProgress, getTrainingMetrics, createModel } from 'src/api/mlService'
 import {
     Card,
     Row,
@@ -400,7 +400,7 @@ const TrainingInfoCard = ({
 // Main Component
 const Training = () => {
     const { projectInfo, updateFields } = useOutletContext()
-    // Currently hard coded this for testing. Later can get by accessing projectInfo.instanceInfor
+    // Currently hard coded this for testing.
     const instanceInfo = {
         "id": 22712659,
         "ssh_port": "50311",
@@ -410,7 +410,7 @@ const Training = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const searchParams = new URLSearchParams(location.search)
-    // const experimentName = searchParams.get('experimentName')
+    const experimentName = searchParams.get('experimentName')
     const experimentId = searchParams.get('experimentId')
     const [trainingInfo, setTrainingInfo] = useState({
         latestEpoch: 0,
@@ -428,7 +428,7 @@ const Training = () => {
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
-            `/app/project/${projectInfo.id}/build/trainResult?experimentName=${experimentName}`
+            `/app/project/${projectInfo.id}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}`
         )
     }
 
@@ -532,6 +532,7 @@ const Training = () => {
                             trainingInfo,
                             elapsedTime: calculateElapsedTime(startTime),
                         })
+                        console.log("Final training info:", trainingInfo)
                         console.log('Debug tai sao trainInfo = 0 cho nay')
                         // Save final data before redirecting
                         if (res.data.trainInfo) {
@@ -542,6 +543,9 @@ const Training = () => {
                                     res.data.trainInfo.metrics.val_acc || 0,
                             })
                         }
+                        // Create model after finish training (ONLY 1 TIME)
+                        const createModelRequest = await createModel(experimentId, instanceInfo)
+                        console.log(createModelRequest)
                         setTrainProgress(100)
                     } else if (res.data.status === 'TRAINING') {
                         const metricRequestPayload = {
@@ -557,10 +561,10 @@ const Training = () => {
                         //     latestEpoch: res.data.trainInfo.latest_epoch || 0,
                         //     accuracy: res.data.trainInfo.metrics.val_acc || 0,
                         // })
-                        setTrainingInfo({
-                            latestEpoch: metricRequest.data.step[metricRequest.data.step.length() - 1] || 0,
-                            accuracy: metricRequest.data.val_score[metricRequest.data.val_score.length() - 1] || 0
-                        })
+                        setTrainingInfo((prev) => ({
+                            latestEpoch: metricRequest.data.step[metricRequest.data.step.length - 1] || 0,
+                            accuracy: metricRequest.data.val_score[metricRequest.data.val_score.length - 1] || 0
+                        }))
 
                         // Ensure startTime is set once at the beginning
                         setStartTime(
@@ -570,7 +574,7 @@ const Training = () => {
                             ...res.data,
                             trainInfo: {
                                 metrics: {
-                                    val_acc: metricRequest.data.val_score[metricRequest.data.val_score.length() - 1] || 0
+                                    val_acc: metricRequest.data.val_score[metricRequest.data.val_score.length - 1] || 0
                                 }
                             }
                         })
@@ -591,7 +595,7 @@ const Training = () => {
                 clearInterval(interval)
                 setLoading(false)
             }
-        }, 10000)
+        }, 15000)
 
         return () => {
             clearInterval(interval)
@@ -625,7 +629,7 @@ const Training = () => {
                     style={{ width: '100%' }}
                 >
                     <TrainingInfoCard
-                        // experimentName={experimentName}
+                        experimentName={experimentName}
                         experimentId={experimentId}
                         trainingInfo={trainingInfo}
                         elapsedTime={elapsedTime}
