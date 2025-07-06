@@ -37,3 +37,11 @@ instance.interceptors.response.use(
 );
 
 export default instance;
+
+
+const LsAxios = axios.create({
+    baseURL: process.env.REACT_APP_LBS_API_URL || 'http://127.0.0.1:8080/', 
+    withCredentials: true,
+});
+
+export {LsAxios};

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import Cookies from 'universal-cookie'
+import { LsAxios } from './axios'
 const API_BASE_URL = 'http://localhost:3001/api'
 
 // Create axios instance with base configuration
@@ -34,6 +35,11 @@ api.interceptors.request.use((config) => {
         throw error;
     }
 };*/
+
+export const logoutLabelStudio = () => {
+    return LsAxios.post('/user/logout/')
+};
+
 // Label Project API endpoints
 export const getLabelProjects = async (params = {}) => {
     // Thêm /data/ vào trước URL
