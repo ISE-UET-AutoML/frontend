@@ -114,7 +114,6 @@ const TrainResult = () => {
 
             parsedData.push(item)
         }
-
         setGraph(parsedData)
     }
 
@@ -160,7 +159,8 @@ const TrainResult = () => {
         const fetchTrainingHistory = async () => {
             try {
                 const res =
-                    await experimentAPI.getTrainingHistory(experimentName)
+                    // await experimentAPI.getTrainingHistory(experimentName)
+                    await mlServiceAPI.getFitHistory(projectInfo.id, experimentName)
                 const data = res.data
 
                 console.log('history', data)
@@ -170,7 +170,6 @@ const TrainResult = () => {
                     )
                     return
                 }
-
                 setGraphJSON(data)
 
                 if (data.fit_history.scalars.val_loss) {
@@ -179,8 +178,8 @@ const TrainResult = () => {
                         setValLossGraph
                     )
                 }
-                if (data.fit_history.scalars.val_acc) {
-                    readChart(data.fit_history.scalars.val_acc, setValAccGraph)
+                if (data.fit_history.scalars.val_accuracy) {
+                    readChart(data.fit_history.scalars.val_accuracy, setValAccGraph)
                 }
             } catch (error) {
                 console.error('Error fetching training history:', error)

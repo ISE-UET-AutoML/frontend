@@ -36,10 +36,17 @@ const trainCloudModel = (projectId, payload) => {
     )
 }
 
+const getFitHistory = (projectId, experimentName) => {
+    return instance.get(
+        `${URL}/experiment/${experimentName}/fit-history?projectId=${projectId}`
+    )
+}
+
 export {
     getTrainingProgress,
     createModel,
     getTrainingMetrics,
     getFinalMetrics,
-    trainCloudModel
+    trainCloudModel,
+    getFitHistory
 }
