@@ -1,6 +1,6 @@
 import axios from 'axios'
-
-const API_BASE_URL = 'http://localhost:3000/api'
+import Cookies from 'universal-cookie'
+const API_BASE_URL = 'http://localhost:3001/api'
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -9,17 +9,17 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 })
-
+const cookies = new Cookies()
 // Add auth token to requests if available
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('authToken')
+    const token = cookies.get('accessToken') || localStorage.getItem('accessToken')
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+        config.headers.Authorization = token;
     }
-    return config
+    return config   
 })
 
-export const getProjects = async () => {
+/*export const getProjects = async () => {
     try {
         // Gọi đến endpoint /data/label-projects của Gateway
         const response = await fetch(`${API_BASE_URL}/data/label-projects`);
@@ -33,7 +33,7 @@ export const getProjects = async () => {
         console.error("Failed to fetch projects via Gateway:", error);
         throw error;
     }
-};
+};*/
 // Label Project API endpoints
 export const getLabelProjects = async (params = {}) => {
     // Thêm /data/ vào trước URL

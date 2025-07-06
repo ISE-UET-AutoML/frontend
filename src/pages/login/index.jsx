@@ -15,11 +15,21 @@ const Login = () => {
     const onLogin = async (credential) => {
         try {
             const { data } = await auth.login(credential);
+            console.log('Login response:', data);
             login({ accessToken: data.access_token, refreshToken: data.refresh_token, userId: data.user.id }).then(() => {
                 navigate(state?.path || PATHS.PROJECTS, { replace: true });
             });
+
+            if(data.user && data.user.ls_token){
+                console.log("Found ls_token, redirecting to Label Studio...");
+                const labelStudioBaseUrl = process.env.REACT_APP_LABEL_STUDIO_URL || 'http://127.0.0.1:8080';
+                const labelStudioLoginUrl = `${labelStudioBaseUrl}/user/login?user_token=${data.user.ls_token}`;
+                window.open(labelStudioLoginUrl, '_blank', 'noreferrer');
+            }
         } catch (error) {
             console.error(error);
+            message.error(error.message || 'Login failed. Please try again.');
+
         }
     };
 
