@@ -151,8 +151,10 @@ export default function LabelProjects() {
 		try {
 			updateProjectState({ isLoading: true })
 			const response = await labelProjectAPI.getLabelProjects()
-			const projects = response.map(mapApiProjectToSampleProject)
-			console.log(">>> Dữ liệu nhận được từ API:", projects)
+			const allprojects = response.map(mapApiProjectToSampleProject)
+			console.log(">>> All projects:", allprojects)
+			console.log(">>> Email:", localStorage.getItem('email'))
+			const projects = allprojects.filter(project => project.createdBy.email === localStorage.getItem('email'))
 			// Simulate API call delay
 			setTimeout(() => {
 				updateProjectState({

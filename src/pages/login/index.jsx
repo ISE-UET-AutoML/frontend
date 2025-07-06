@@ -15,7 +15,13 @@ const Login = () => {
     const onLogin = async (credential) => {
         try {
             const { data } = await auth.login(credential);
-            console.log('Login response:', data);
+            // Lưu email vào localStorage trước khi làm bất cứ điều gì khác
+            if (data.user && data.user.email) {
+                localStorage.setItem('email', data.user.email);
+                console.log('Email saved to localStorage:', data.user.email);
+                console.log('Email from localStorage:', localStorage.getItem('email'));
+            }
+
             login({ accessToken: data.access_token, refreshToken: data.refresh_token, userId: data.user.id }).then(() => {
                 navigate(state?.path || PATHS.PROJECTS, { replace: true });
             });
