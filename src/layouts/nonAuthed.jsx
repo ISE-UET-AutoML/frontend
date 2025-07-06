@@ -8,33 +8,53 @@ import { Outlet } from 'react-router-dom';
 export default function NonAuthed() {
     const { authed, refresh } = useAuth();
     const location = useLocation();
-
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const refreshAuth = async () => {
-            await refresh();
-            setLoading(false);
+            if (!authed) return; // Don't refresh if not authenticated
+            
+            try {
+                setLoading(true);
+                await refresh();
+            } catch (error) {
+                console.error('Auth refresh failed:', error);
+            } finally {
+                if (mounted) {
+                    setLoading(false);
+                }
+            }
         };
 
         refreshAuth();
 
         return () => {
-            setLoading(true);
+            mounted = false;
         };
-    }, [refresh]);
+    }, [refresh, authed]);
 
+    // Only show loading when we're actually refreshing auth
     if (loading) {
-        return <Loading />;
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loading />
+            </div>
+        );
     }
 
+    // If authenticated, redirect to projects
     if (authed) {
-        return <Navigate
-            to={PATHS.PROJECTS}
-            replace
-            state={{ path: location.pathname }}
-        />;
+        return (
+            <Navigate
+                to={PATHS.PROJECTS}
+                replace
+                state={{ path: location.pathname }}
+            />
+        );
     }
 
-    return <Outlet className="outlet" />;
+    // Not authenticated, show the requested page
+    return <Outlet />;
 }

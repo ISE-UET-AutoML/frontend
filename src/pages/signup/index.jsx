@@ -160,8 +160,15 @@ const SignUp = () => {
 				></div>
 			</div>
 
-			<div className="flex-1 flex items-center justify-center h-screen bg-white">
-				<div className="w-full max-w-md space-y-8 px-4 bg-white text-gray-600 sm:px-0">
+			<div className="flex-1 flex items-center justify-center h-screen">
+				<div
+					className="absolute inset-0"
+					style={{
+						background: 'linear-gradient(152.92deg, rgba(192, 132, 252, 0.2) 4.54%, rgba(232, 121, 249, 0.26) 34.2%, rgba(192, 132, 252, 0.1) 77.55%)',
+						filter: 'blur(118px)'
+					}}
+				></div>
+				<div className="relative z-10 w-full max-w-md space-y-8 px-4 text-gray-600 sm:px-0">
 					<div className="">
 						<img
 							src="https://floatui.com/logo.svg"
@@ -178,35 +185,35 @@ const SignUp = () => {
 
 					<form onSubmit={handleSignUp} className="space-y-5">
 						<div>
-							<label className="font-medium">Name</label>
+							<label className="font-medium text-gray-700">Name</label>
 							<input
 								type="text"
 								name="full_name"
 								required
-								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
+								className="w-full mt-2 px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+								placeholder="Enter your name"
 							/>
-							{/* {formError.name && <p className="text-red-500 mt-1">{formError.name}</p>} */}
 						</div>
 						<div>
-							<label className="font-medium">Email</label>
+							<label className="font-medium text-gray-700">Email</label>
 							<input
 								type="email"
 								name="email"
 								value={formState.full_name.email}
 								required
-								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
+								className="w-full mt-2 px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+								placeholder="Enter your email"
 							/>
-							{/* {formError.email && <p className="text-red-500 mt-1">{formError.email}</p>} */}
 						</div>
 						<div>
-							<label className="font-medium">Password</label>
+							<label className="font-medium text-gray-700">Password</label>
 							<input
 								type="password"
 								name="password"
-								// value={formState.name.password}
 								required
 								onChange={handlePasswordChange}
-								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
+								className="w-full mt-2 px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+								placeholder="Enter your password"
 							/>
 							{formState.password.touched && (
 								<p className="text-red-500 mt-1">
@@ -215,16 +222,14 @@ const SignUp = () => {
 							)}
 						</div>
 						<div>
-							<label className="font-medium">
-								Confirm password
-							</label>
+							<label className="font-medium text-gray-700">Confirm password</label>
 							<input
 								type="password"
 								name="confirmPassword"
-								// value={formState.name.confirmPassword}
 								required
 								onChange={handleConfirmPasswordChange}
-								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
+								className="w-full mt-2 px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+								placeholder="Confirm your password"
 							/>
 							{formState.confirmPassword.touched && (
 								<p className="text-red-500 mt-1">
@@ -232,7 +237,7 @@ const SignUp = () => {
 								</p>
 							)}
 						</div>
-						<button className="w-full px-4 py-2 text-white font-medium bg-blue-600 hover:bg-blue-500 active:bg-blue-600 rounded-lg duration-150">
+						<button className="w-full px-4 py-3 text-black font-medium bg-gradient-to-r from-[#C2E9FB] to-[#E0D1F7] hover:from-[#E0D1F7] hover:to-[#C2E9FB] rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
 							Create account
 						</button>
 					</form>
