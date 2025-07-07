@@ -20,31 +20,57 @@ api.interceptors.request.use((config) => {
     return config   
 })
 
-/*export const getProjects = async () => {
-    try {
-        // Gọi đến endpoint /data/label-projects của Gateway
-        const response = await fetch(`${API_BASE_URL}/data/label-projects`);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("Failed to fetch projects via Gateway:", error);
-        throw error;
-    }
-};*/
-
 export const logoutLabelStudio = () => {
-    return LsAxios.post('/user/logout/')
+    const cookies = new Cookies();
+    const csrfToken = cookies.get('csrftoken');
+
+    if (!csrfToken) {
+        console.warn("Label Studio csrftoken không tìm thấy, bỏ qua.");
+        return Promise.resolve();
+    }
+
+    // Tạo một AbortController để có thể hủy yêu cầu
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    return fetch(`${process.env.REACT_APP_LABEL_STUDIO_URL}/user/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
+        body: JSON.stringify({}),
+        signal: signal // Gắn signal vào yêu cầu
+    })
+    .then(response => {
+        // Xóa timeout nếu yêu cầu thành công
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .catch(error => {
+        // Xóa timeout và xử lý lỗi
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
+        } else {
+            console.error('Lỗi khi logout khỏi Label Studio:', error);
+        }
+        throw error;
+    });
 };
+//export const logoutLabelStudio = () => {
+  //  return LsAxios.post('/user/logout/')
+//};
 
 // Label Project API endpoints
 export const getLabelProjects = async (params = {}) => {
-    // Thêm /data/ vào trước URL
     const response = await api.get('/data/label-projects', { params });
-    // Trả về dữ liệu từ response
     return response.data; 
 }
 
