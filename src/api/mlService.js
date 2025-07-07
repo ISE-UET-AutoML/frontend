@@ -37,6 +37,7 @@ const trainCloudModel = (projectId, payload) => {
 }
 
 const getFitHistory = (projectId, experimentName) => {
+    console.log(`${URL}/experiment/${experimentName}/fit-history?projectId=${projectId}`)
     return instance.get(
         `${URL}/experiment/${experimentName}/fit-history?projectId=${projectId}`
     )

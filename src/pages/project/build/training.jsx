@@ -402,10 +402,10 @@ const Training = () => {
     const { projectInfo, updateFields } = useOutletContext()
     // Currently hard coded this for testing.
     const instanceInfo = {
-        "id": 22712659,
-        "ssh_port": "50311",
-        "public_ip": "185.62.108.226",
-        "deploy_port": "50081"
+        "id": 22736719,
+        "ssh_port": "32192",
+        "public_ip": "116.43.148.85",
+        "deploy_port": "32164"
     }
     const navigate = useNavigate()
     const location = useLocation()

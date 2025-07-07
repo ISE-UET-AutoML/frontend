@@ -1,9 +1,10 @@
 import ModelCard from './card'
 import { ModelIcon } from 'src/components/icons'
 import { useEffect, useState } from 'react'
-import { getModels } from 'src/api/project'
+import { getModels } from 'src/api/model'
 import { useParams } from 'react-router-dom'
 import { Row, Col, Empty, Typography } from 'antd' // Use Ant Design components
+import { mode } from 'crypto-js'
 
 const { Title, Text } = Typography
 
@@ -13,6 +14,7 @@ export default function ProjectModels() {
 
     const getListModels = async () => {
         const { data } = await getModels(projectId)
+        console.log(data)
         setModels(data)
     }
 
@@ -43,8 +45,8 @@ export default function ProjectModels() {
             {models.length > 0 ? (
                 <Row gutter={[16, 16]}>
                     {models.map((model) => (
-                        <Col key={model._id} xs={24} sm={12} md={8} lg={6}>
-                            <ModelCard model={model} />
+                        <Col key={model.id} xs={24} sm={12} md={8} lg={6}>
+                            <ModelCard model={{ ...model, project_id: projectId }} />
                         </Col>
                     ))}
                 </Row>

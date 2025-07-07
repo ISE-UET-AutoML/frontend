@@ -90,6 +90,7 @@ const TrainResult = () => {
     const searchParams = new URLSearchParams(location.search)
     const experimentName = searchParams.get('experimentName')
     const experimentId = searchParams.get('experimentId')
+    const modelId = searchParams.get('modelId')
     const [experiment, setExperiment] = useState({})
     const [metrics, setMetrics] = useState([])
     const [GraphJSON, setGraphJSON] = useState({})
@@ -120,7 +121,7 @@ const TrainResult = () => {
     useEffect(() => {
         const fetchExperiment = async () => {
             try {
-                const experimentRes = await experimentAPI.getExperiment(experimentName, projectInfo.id)
+                const experimentRes = await experimentAPI.getExperimentById(experimentId)
                 if (experimentRes.status !== 200) {
                     throw new Error("Cannot get experiment")
                 }
@@ -161,6 +162,7 @@ const TrainResult = () => {
                 const res =
                     // await experimentAPI.getTrainingHistory(experimentName)
                     await mlServiceAPI.getFitHistory(projectInfo.id, experimentName)
+                console.log(res)
                 const data = res.data
 
                 console.log('history', data)
@@ -256,7 +258,7 @@ const TrainResult = () => {
                                 icon={<RocketOutlined />}
                                 onClick={() => {
                                     navigate(
-                                        `/app/project/${projectInfo._id}/build/deployView?experimentName=${experimentName}`
+                                        `/app/project/${projectInfo.id}/build/deployView?experimentId=${experimentId}&experimentName=${experimentName}&modelId=${modelId}`
                                     )
                                 }}
                                 size="large"

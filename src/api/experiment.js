@@ -9,6 +9,10 @@ const getTrainingHistory = (experimentName) => {
     )
 }
 
+const getExperimentById = (experimentId) => {
+    return instance.get(`${URL}/find?experiment_id=${experimentId}`)
+}
+
 const getExperiment = (experimentName, projectID) => {
     return instance.get(`${URL}/find_by_name?project_id=${projectID}&name=${experimentName}`)
 }
@@ -51,4 +55,5 @@ export {
     getExperiment,
     deployModel,
     getDeployStatus,
+    getExperimentById
 }
