@@ -1,17 +1,17 @@
-import React, { useReducer, useEffect, useState } from 'react'
-import { Button, Card, Typography } from 'antd'
+import React, { useReducer, useEffect, useRef } from 'react'
+import { Button, Card, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
 import DatasetCard from './card'
 import CreateDatasetModal from './CreateDatasetModal'
-import { PATHS } from 'src/constants/paths'
+import { POLL_DATASET_PROCESSING_STATUS_TIME } from 'src/constants/time'
 
 const { Title } = Typography
 
 const initialState = {
 	datasets: [],
 	isLoading: false,
-	showUploader: false,
+	showCreator: false,
 }
 
 export default function Datasets() {
@@ -20,28 +20,97 @@ export default function Datasets() {
 		initialState
 	)
 
+	const pollingRef = useRef(null)
+	const hasProcessingDatasets = (datasets) => {
+		return datasets.some(ds =>
+			ds.processingStatus === 'PROCESSING'
+		)
+	}
+
+	const updateDatasetStatus = async (datasetId) => {
+		try {
+			const statusData = await datasetAPI.getProcessingStatus(datasetId).then(response => response.data);
+			updateDataState(state => ({
+				datasets: state.datasets.map(ds =>
+					ds.id === datasetId
+						? { ...ds, processingStatus: statusData.processingStatus }
+						: ds
+				)
+			}))
+			return statusData.processingStatus
+		} catch (error) {
+			console.error(`Error updating status for dataset ${datasetId}:`, error)
+			return null
+		}
+	}
+
+	// Bắt đầu polling cho các dataset đang xử lý
+	const startPolling = () => {
+		if (pollingRef.current) clearInterval(pollingRef.current)
+
+		pollingRef.current = setInterval(async () => {
+			const processingDatasets = datasetState.datasets.filter(
+				ds => ds.processingStatus === 'PROCESSING'
+			)
+
+			// Nếu không còn dataset nào đang xử lý thì dừng polling
+			if (processingDatasets.length === 0) {
+				clearInterval(pollingRef.current)
+				return
+			}
+
+			// Cập nhật trạng thái cho từng dataset đang xử lý
+			for (const dataset of processingDatasets) {
+				const newStatus = await updateDatasetStatus(dataset.id)
+
+				// Nếu trạng thái đã hoàn thành, không cần kiểm tra nữa
+				if (newStatus === 'COMPLETED' || newStatus === 'FAILED') {
+					// Có thể trigger các hành động khác ở đây nếu cần
+				}
+			}
+		}, POLL_DATASET_PROCESSING_STATUS_TIME) // Poll mỗi 5 giây
+	}
+
+	useEffect(() => {
+		getDatasets()
+	}, [])
+
+	// Bắt đầu polling khi datasets thay đổi và có dataset đang xử lý
+	useEffect(() => {
+		if (datasetState.datasets.length > 0 &&
+			hasProcessingDatasets(datasetState.datasets)) {
+			startPolling()
+		}
+
+		// Dọn dẹp khi component unmount
+		return () => {
+			if (pollingRef.current) {
+				clearInterval(pollingRef.current)
+			}
+		}
+	}, [datasetState.datasets])
+
 	const getDatasets = async () => {
 		try {
+			updateDataState({ isLoading: true })
 			const response = await datasetAPI.getDatasets()
-			console.log(response)
-			// updateDataState({ datasets: response.data })
+			updateDataState({
+				datasets: response.data,
+				isLoading: false
+			})
 		} catch (error) {
 			console.error('Error fetching datasets:', error)
+			updateDataState({ isLoading: false })
 		}
 	}
 
 	const handleCreateDataset = async (payload) => {
 		try {
 			const response = await datasetAPI.createDataset(payload)
-			console.log('response', response)
 			if (response.status === 201) {
-				updateDataState({ showUploader: false })
-				if (response.data.label_studio_id) {
-					console.log('url', process.env.REACT_APP_LBS_ADDR)
-					const url = `${process.env.REACT_APP_LBS_ADDR}/projects/${response.data.label_studio_id}/data`
-					window.open(url, '_blank', 'noopener,noreferrer');
-				}
-				// window.location = PATHS.DATASET_VIEW(response.data._id)
+				message.success('Dataset created successfully!');
+				updateDataState({ showCreator: false })
+				getDatasets() // Refresh list after creation
 			}
 		} catch (error) {
 			console.error('Error creating dataset:', error)
@@ -59,16 +128,18 @@ export default function Datasets() {
 				<Button
 					type="primary"
 					icon={<PlusOutlined />}
-					onClick={() => updateDataState({ showUploader: true })}
+					onClick={() => updateDataState({ showCreator: true })}
 				>
 					New Dataset
 				</Button>
 			</div>
 
-			{datasetState.datasets.length > 0 ? (
+			{datasetState.isLoading ? (
+				<Card loading={true} className="text-center" />
+			) : datasetState.datasets.length > 0 ? (
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{datasetState.datasets.map((dataset) => (
-						<DatasetCard key={dataset._id} dataset={dataset} />
+						<DatasetCard key={dataset.id} dataset={dataset} />
 					))}
 				</div>
 			) : (
@@ -79,8 +150,8 @@ export default function Datasets() {
 			)}
 
 			<CreateDatasetModal
-				visible={datasetState.showUploader}
-				onCancel={() => updateDataState({ showUploader: false })}
+				visible={datasetState.showCreator}
+				onCancel={() => updateDataState({ showCreator: false })}
 				onCreate={handleCreateDataset}
 			/>
 		</div>

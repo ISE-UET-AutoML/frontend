@@ -160,53 +160,53 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				})),
 			];
 
-			// const presignPayload = {
-			// 	dataset_title: values.title,
-			// 	files: s3Files.map((file) => ({
-			// 		key: file.key,
-			// 		type: file.type,
-			// 	})),
-			// };
-			// const { data: presignedUrls } = await datasetAPI.createPresignedUrls(presignPayload);
+			const presignPayload = {
+				dataset_title: values.title,
+				files: s3Files.map((file) => ({
+					key: file.key,
+					type: file.type,
+				})),
+			};
+			const { data: presignedUrls } = await datasetAPI.createPresignedUrls(presignPayload);
 
-			// if (!presignedUrls || presignedUrls.length !== s3Files.length) {
-			// 	throw new Error('Invalid presigned URLs received');
-			// }
+			if (!presignedUrls || presignedUrls.length !== s3Files.length) {
+				throw new Error('Invalid presigned URLs received');
+			}
 
-			// // Upload các file lên S3
-			// for (const fileInfo of s3Files) {
-			// 	const presignedUrl = presignedUrls.find((url) => url.key === fileInfo.key).url;
-			// 	if (!presignedUrl) {
-			// 		throw new Error(`No presigned URL for key: ${fileInfo.key}`);
-			// 	}
+			// Upload các file lên S3
+			for (const fileInfo of s3Files) {
+				const presignedUrl = presignedUrls.find((url) => url.key === fileInfo.key).url;
+				if (!presignedUrl) {
+					throw new Error(`No presigned URL for key: ${fileInfo.key}`);
+				}
 
-			// 	if (fileInfo.type === 'application/json') {
-			// 		const blob = new Blob([fileInfo.content], { type: 'application/json' });
-			// 		await uploadToS3(presignedUrl, blob);
-			// 	} else {
-			// 		const zip = new JSZip();
+				if (fileInfo.type === 'application/json') {
+					const blob = new Blob([fileInfo.content], { type: 'application/json' });
+					await uploadToS3(presignedUrl, blob);
+				} else {
+					const zip = new JSZip();
 
-			// 		console.log(`Creating zip ${fileInfo.key} with ${fileInfo.files.length} files`);
+					console.log(`Creating zip ${fileInfo.key} with ${fileInfo.files.length} files`);
 
-			// 		for (const file of fileInfo.files) {
-			// 			console.log(`Processing file: ${file.path}`);
-			// 			const pathParts = file.path.split('/');
-			// 			const newPath = pathParts.slice(1).join('/');
+					for (const file of fileInfo.files) {
+						console.log(`Processing file: ${file.path}`);
+						const pathParts = file.path.split('/');
+						const newPath = pathParts.slice(1).join('/');
 
-			// 			if (file.fileObject && file.fileObject instanceof File) {
-			// 				zip.file(newPath, file.fileObject);
-			// 			} else {
-			// 				console.error(`Invalid file object for: ${file.path}`);
-			// 				console.error(`File object:`, file.fileObject);
-			// 			}
-			// 		}
+						if (file.fileObject && file.fileObject instanceof File) {
+							zip.file(newPath, file.fileObject);
+						} else {
+							console.error(`Invalid file object for: ${file.path}`);
+							console.error(`File object:`, file.fileObject);
+						}
+					}
 
-			// 		const zipBlob = await zip.generateAsync({ type: 'blob' });
-			// 		console.log(`Zip size: ${zipBlob.size} bytes`);
+					const zipBlob = await zip.generateAsync({ type: 'blob' });
+					console.log(`Zip size: ${zipBlob.size} bytes`);
 
-			// 		await uploadToS3(presignedUrl, zipBlob);
-			// 	}
-			// }
+					await uploadToS3(presignedUrl, zipBlob);
+				}
+			}
 
 			const payload = createDatasetPayload(
 				values,
@@ -220,8 +220,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			console.log('Dataset payload:', payload);
 
 			await onCreate(payload);
-			message.success('Dataset created successfully!');
-			// handleCancel();
+			handleCancel();
 		} catch (error) {
 			console.error('Error in handleSubmit:', error);
 			message.error('Failed to create dataset. Please try again.');
