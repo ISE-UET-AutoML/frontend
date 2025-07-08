@@ -78,7 +78,7 @@ const TrainingMetricCard = ({
 }
 
 // Enhanced Line Graph Component
-const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
+const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64 w-full">
@@ -139,7 +139,7 @@ const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
                 />
                 <YAxis
                     label={{
-                        value: 'Accuracy',
+                        value: valMetric,
                         angle: -90,
                         position: 'insideLeft',
                     }}
@@ -150,7 +150,7 @@ const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
                 <RechartsTooltip
                     formatter={(value) => [
                         `${(value * 100).toFixed(2)}%`,
-                        'Accuracy',
+                        valMetric,
                     ]}
                     labelFormatter={(label) => `Time: ${label} min`}
                     contentStyle={{
@@ -173,7 +173,7 @@ const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
                         strokeWidth: 2,
                         fill: '#fff',
                     }}
-                    name="Validation Accuracy"
+                    name={`Validation ${valMetric}`}
                 />
                 {maxTrainingTime && (
                     <Line
@@ -191,6 +191,7 @@ const EnhancedLineGraph = ({ data, loading, maxTrainingTime }) => {
 
 // Training Information Card
 const TrainingInfoCard = ({
+    valMetric,
     experimentName,
     trainingInfo,
     elapsedTime,
@@ -332,7 +333,7 @@ const TrainingInfoCard = ({
                     </div>
                     <div className="w-[28%] ml-10">
                         <TrainingMetricCard
-                            title="Validation Accuracy"
+                            title={`Validation ${valMetric}`}
                             value={trainingInfo.accuracy * 100}
                             suffix="%"
                             icon={<BarChartOutlined />}
@@ -402,10 +403,10 @@ const Training = () => {
     const { projectInfo, updateFields } = useOutletContext()
     // Currently hard coded this for testing.
     const instanceInfo = {
-        "id": 22736719,
-        "ssh_port": "32192",
-        "public_ip": "116.43.148.85",
-        "deploy_port": "32164"
+        "id": 22759499,
+        "ssh_port": "33893",
+        "public_ip": "136.59.129.136",
+        "deploy_port": "33811"
     }
     const navigate = useNavigate()
     const location = useLocation()
@@ -416,6 +417,7 @@ const Training = () => {
         latestEpoch: 0,
         accuracy: 0,
     })
+    const [valMetric, setValMetric] = useState("Accuracy")
     const [chartData, setChartData] = useState([])
     const [startTime, setStartTime] = useState(null)
     const [elapsedTime, setElapsedTime] = useState(0)
@@ -565,6 +567,7 @@ const Training = () => {
                             latestEpoch: metricRequest.data.step[metricRequest.data.step.length - 1] || 0,
                             accuracy: metricRequest.data.val_score[metricRequest.data.val_score.length - 1] || 0
                         }))
+                        setValMetric((prev) => metricRequest.data.val_metric)
 
                         // Ensure startTime is set once at the beginning
                         setStartTime(
@@ -629,6 +632,7 @@ const Training = () => {
                     style={{ width: '100%' }}
                 >
                     <TrainingInfoCard
+                        valMetric={valMetric}
                         experimentName={experimentName}
                         experimentId={experimentId}
                         trainingInfo={trainingInfo}
@@ -642,7 +646,7 @@ const Training = () => {
                     <Card
                         title={
                             <Title level={5}>
-                                <LineChartOutlined /> Accuracy Trend
+                                <LineChartOutlined /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
                             </Title>
                         }
                         className="shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -658,6 +662,7 @@ const Training = () => {
                         }
                     >
                         <EnhancedLineGraph
+                            valMetric={valMetric}
                             data={enhancedChartData}
                             loading={loading && chartData.length === 0}
                             maxTrainingTime={maxTrainingTime}

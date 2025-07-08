@@ -352,7 +352,7 @@ const TrainResult = () => {
                                             height={300}
                                         >
                                             <LineGraph
-                                                data={val_lossGraph}
+                                                data={val_accGraph}
                                                 label="Validation Accuracy Over Epochs"
                                             />
                                         </ResponsiveContainer>
@@ -363,11 +363,12 @@ const TrainResult = () => {
                                             height={300}
                                         >
                                             <LineGraph
-                                                data={val_accGraph}
+                                                data={val_lossGraph}
                                                 label="Validation Loss Over Epochs"
                                             />
                                         </ResponsiveContainer>
                                     </Col>
+
                                 </Row>
                             </Card>
 
