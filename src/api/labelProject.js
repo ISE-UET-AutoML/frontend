@@ -23,3 +23,7 @@ export const getLbProjects = () => {
     }
     return instance.get(`${URL_SERVICE}/ls-projects/`, options)
 }
+
+export const deleteProject = async (projectID) => {
+    return instance.delete(`${URL_SERVICE}/ls-projects/${projectID}`)
+}

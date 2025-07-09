@@ -3,7 +3,8 @@ import { Button, Card, Typography } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import LabelProjectCard from './card'
 import CreateLabelProjectModal from './CreateLabelProjectModal'
-import { createLbProject, getLbProjects } from 'src/api/labelProject'
+import { createLbProject, getLbProjects, deleteProject } from 'src/api/labelProject'
+import { snakeToCamel } from 'src/utils/mapper'
 
 const { Title } = Typography
 
@@ -22,9 +23,10 @@ export default function LabelProjects() {
 	const getLabelProjects = async () => {
 		try {
 			const response = await getLbProjects()
-			console.log(response.data)
+			console.log(snakeToCamel(response.data))
+
 			updateProjectState({
-				projects: response.data,
+				projects: snakeToCamel(response.data),
 				isLoading: false
 			})
 		} catch (error) {
@@ -38,9 +40,9 @@ export default function LabelProjects() {
 			const response = await createLbProject(payload)
 			if (response.status === 201) {
 				updateProjectState({ showCreator: false })
-				getLabelProjects // Refresh list after creation
+				getLabelProjects() // Refresh list after creation
 			}
-			console.log('Project created:', response.data)
+			console.log('Project created:', snakeToCamel(response.data))
 		} catch (error) {
 			console.error('Error creating label project:', error)
 		}
@@ -79,7 +81,7 @@ export default function LabelProjects() {
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{projectState.projects.map((project) => (
 						<LabelProjectCard
-							key={project._id}
+							key={project.id}
 							project={project}
 							onDelete={handleDeleteProject}
 						/>
