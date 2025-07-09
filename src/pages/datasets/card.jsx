@@ -64,7 +64,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	}
 
 	const handleDeleteClick = (e) => {
-		e.stopPropagation() // Prevent card click when deleting
+		e.stopPropagation()
 		onDelete()
 	}
 

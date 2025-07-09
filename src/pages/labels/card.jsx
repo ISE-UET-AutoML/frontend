@@ -1,17 +1,15 @@
 import React from 'react'
 import { Typography, Tag, Button, Dropdown, Menu, Tooltip, Progress } from 'antd'
 import {
-    EyeOutlined,
     DeleteOutlined,
-    MoreOutlined,
-    TagOutlined
+    IdcardOutlined
 } from '@ant-design/icons'
 import { PATHS } from 'src/constants/paths'
 import dayjs from 'dayjs'
 
 const { Title, Text } = Typography
 
-export default function LabelProjectCard({ project, onDelete }) {
+export default function LabelProjectCard({ project, onDelete, isDeleting }) {
     const {
         id,
         name,
@@ -23,24 +21,14 @@ export default function LabelProjectCard({ project, onDelete }) {
     } = project
 
     const handleViewProject = () => {
-        window.location.href = PATHS.LABEL_PROJECT_VIEW(id)
+        // window.location.href = PATHS.LABEL_PROJECT_VIEW(id)
+        console.log('hello')
     }
 
     const handleDeleteClick = (e) => {
         e.stopPropagation()
-        onDelete(id)
+        onDelete()
     }
-
-    const menu = (
-        <Menu>
-            <Menu.Item key="view" icon={<EyeOutlined />} onClick={handleViewProject}>
-                View Project
-            </Menu.Item>
-            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={handleDeleteClick}>
-                Delete
-            </Menu.Item>
-        </Menu>
-    )
 
     return (
         <div
@@ -51,14 +39,21 @@ export default function LabelProjectCard({ project, onDelete }) {
         >
             <div className="p-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <TagOutlined className="text-2xl text-blue-600" />
-                    <Title level={4} className="!m-0 !text-gray-900 truncate max-w-[75%]" title={name}>
+                    <IdcardOutlined className="text-2xl text-blue-600" />
+                    <Title level={4} className="!m-0 !text-gray-900" title={name}>
                         {name}
                     </Title>
                 </div>
-                <Dropdown overlay={menu} trigger={['click']}>
-                    <Button type="text" icon={<MoreOutlined />} />
-                </Dropdown>
+                <Button
+                    type="text"
+                    icon={<DeleteOutlined className="text-red-500 text-lg" />}
+                    className="ml-auto rounded-lg hover:bg-red-500 hover:!text-white transition-all duration-200"
+                    onClick={handleDeleteClick}
+                    disabled={isDeleting}
+                    loading={isDeleting}
+                    aria-label="Delete project"
+                />
+
             </div>
 
             <div className="p-5 bg-gray-50 rounded-b-2xl space-y-2">

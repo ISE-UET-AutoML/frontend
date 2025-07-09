@@ -147,8 +147,8 @@ export default function Datasets() {
 						<DatasetCard
 							key={dataset.id}
 							dataset={dataset}
-							onDelete={() => handleDelete(dataset.id)} // Pass function with ID
-							isDeleting={deletingIds.has(dataset.id)} // Pass deleting state
+							onDelete={() => handleDelete(dataset.id)}
+							isDeleting={deletingIds.has(dataset.id)}
 						/>
 					))}
 				</div>

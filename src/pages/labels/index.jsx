@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useState } from 'react'
-import { Button, Card, Typography } from 'antd'
+import { Button, Card, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import LabelProjectCard from './card'
 import CreateLabelProjectModal from './CreateLabelProjectModal'
@@ -19,6 +19,8 @@ export default function LabelProjects() {
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
+
+	const [deletingIds, setDeletingIds] = useState(new Set())
 
 	const getLabelProjects = async () => {
 		try {
@@ -49,10 +51,20 @@ export default function LabelProjects() {
 	}
 
 	const handleDeleteProject = async (projectId) => {
+		setDeletingIds(prev => new Set(prev).add(projectId))
 		try {
-			console.log('Project deleted:', projectId)
+			await deleteProject(projectId)
+			message.success('Project deleted successfully!')
+			await getLabelProjects()
 		} catch (error) {
 			console.error('Error deleting label project:', error)
+			message.error('Failed to project')
+		} finally {
+			setDeletingIds(prev => {
+				const newSet = new Set(prev)
+				newSet.delete(projectId)
+				return newSet
+			})
 		}
 	}
 
@@ -83,7 +95,8 @@ export default function LabelProjects() {
 						<LabelProjectCard
 							key={project.id}
 							project={project}
-							onDelete={handleDeleteProject}
+							onDelete={() => handleDeleteProject(project.id)}
+							isDeleting={deletingIds.has(project.id)}
 						/>
 					))}
 				</div>
