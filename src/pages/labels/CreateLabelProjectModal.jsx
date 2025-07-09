@@ -234,7 +234,14 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                             </div>
                         ) : (
                             <Alert
-                                message="At least one expected label is required to create a project"
+                                message={
+                                    <ul>
+                                        <li> - At least one expected label is required to create a project.</li>
+                                        <li>
+                                            - <b>For text-related tasks</b>, the expected labels typically correspond to the <b>label</b> column in your dataset.
+                                        </li>
+                                    </ul>
+                                }
                                 type="info"
                                 showIcon
                                 className="text-sm"

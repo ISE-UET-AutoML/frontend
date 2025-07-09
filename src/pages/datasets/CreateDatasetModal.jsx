@@ -43,6 +43,29 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		return validFiles;
 	};
 
+	const processTextDataset = async (file, datasetTitle) => {
+		const text = await file.fileObject.text();
+		const lines = text.split(/\r?\n/);
+		const header = lines[0];
+		const dataLines = lines.slice(1);
+
+		// Xáo trộn dữ liệu ngẫu nhiên
+		const shuffled = [...dataLines].sort(() => Math.random() - 0.5);
+		const splitIndex = Math.floor(shuffled.length * 0.8);
+
+		const trainContent = [header, ...shuffled.slice(0, splitIndex)].join('\n');
+		const testContent = [header, ...shuffled.slice(splitIndex)].join('\n');
+
+		const zip = new JSZip();
+		zip.file('train.csv', trainContent);
+		zip.file('test.csv', testContent);
+
+		return {
+			zipBlob: await zip.generateAsync({ type: 'blob' }),
+			fileCount: 2
+		};
+	};
+
 	const handleFileChange = (event) => {
 		const uploadedFiles = Array.from(event.target.files || []);
 		const validatedFiles = validateFiles(uploadedFiles, datasetType);
@@ -117,6 +140,87 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	const handleSubmit = async (values) => {
 		try {
 			setIsLoading(true);
+
+			if (datasetType === 'TEXT') {
+				if (files.length !== 1) {
+					throw new Error('Please upload exactly one CSV file for TEXT dataset');
+				}
+
+				const csvFile = files[0];
+				const { zipBlob, fileCount } = await processTextDataset(csvFile, values.title);
+				const zipSizeKB = (zipBlob.size / 1024).toFixed(2);
+
+				const indexData = {
+					dataset_title: values.title,
+					dataset_type: datasetType,
+					files: [
+						{ path: `${values.title}/train.csv`, chunk: 'data.zip' },
+						{ path: `${values.title}/test.csv`, chunk: 'data.zip' }
+					],
+					chunks: [
+						{ name: 'data.zip', file_count: fileCount }
+					]
+				};
+
+				const s3Files = [
+					{
+						key: `${values.title}/index.json`,
+						type: 'application/json',
+						content: JSON.stringify(indexData, null, 2)
+					},
+					{
+						key: `${values.title}/zip/data.zip`,
+						type: 'application/zip',
+						blob: zipBlob
+					}
+				];
+
+				const presignPayload = {
+					dataset_title: values.title,
+					files: s3Files.map(file => ({
+						key: file.key,
+						type: file.type
+					}))
+				};
+
+				const { data: presignedUrls } = await datasetAPI.createPresignedUrls(presignPayload);
+
+				// Upload files to S3
+				for (const fileInfo of s3Files) {
+					const presignedUrl = presignedUrls.find(url => url.key === fileInfo.key)?.url;
+					if (!presignedUrl) throw new Error(`Missing presigned URL for: ${fileInfo.key}`);
+
+					if (fileInfo.type === 'application/json') {
+						const blob = new Blob([fileInfo.content], { type: 'application/json' });
+						await uploadToS3(presignedUrl, blob);
+					} else {
+						await uploadToS3(presignedUrl, fileInfo.blob);
+					}
+				}
+
+				const payload = {
+					title: values.title,
+					description: values.description || '',
+					dataset_type: datasetType,
+					service: service,
+					bucket_name: bucketName,
+					total_files: fileCount,
+					total_size_kb: zipSizeKB,
+					index_path: `${values.title}/index.json`,
+					chunks: [
+						{
+							name: 'data.zip',
+							file_count: fileCount,
+							s3_path: `${values.title}/zip/data.zip`
+						}
+					],
+					status: 'active'
+				};
+
+				await onCreate(payload);
+				handleCancel();
+				return;
+			}
 
 			const fileMap = organizeFiles(files);
 			const chunks = createChunks(fileMap, IMG_NUM_IN_ZIP);

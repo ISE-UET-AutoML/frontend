@@ -22,6 +22,13 @@ const createPresignedUrls = async (payload) => {
 	return instance.post(`${URL}/createPresignedUrls`, payload, options)
 }
 
+const createDownPresignedUrls = async (key) => {
+	const options = {
+		headers: { 'Content-Type': 'application/json' },
+	}
+	return instance.fetch(`${URL_SERVICE}/presigned-urls/download?key=${key}`, options)
+}
+
 const getDatasets = () => {
 	return instance.get(URL)
 }
