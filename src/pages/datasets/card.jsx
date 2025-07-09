@@ -1,126 +1,151 @@
 import React from 'react'
-import { Button, Typography, Tag } from 'antd'
+import { Button, Typography, Tag, Tooltip } from 'antd'
 import {
 	DeleteOutlined,
 	DatabaseOutlined,
+	SyncOutlined,
 	CheckCircleOutlined,
-	CloseCircleOutlined,
+	ExclamationCircleOutlined
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
-import { TYPES } from 'src/constants/types'
+import { DATASET_TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
 
-export default function DatasetCard({ dataset, getDatasets }) {
-	const tagColor = TYPES[dataset?.type].card
+const PROCESSING_STATUS = {
+	COMPLETED: {
+		color: 'success',
+		icon: <CheckCircleOutlined />,
+		text: 'Completed',
+		bgColor: 'bg-green-100',
+		borderColor: 'border-green-500'
+	},
+	PROCESSING: {
+		color: 'processing',
+		icon: <SyncOutlined spin />,
+		text: 'Processing',
+		bgColor: 'bg-blue-50',
+		borderColor: 'border-blue-200'
+	},
+	FAILED: {
+		color: 'error',
+		icon: <ExclamationCircleOutlined />,
+		text: 'Failed',
+		bgColor: 'bg-red-50',
+		borderColor: 'border-red-200'
+	}
+}
 
-	const handleCardClick = () => {
-		window.location.href = PATHS.DATASET_VIEW(dataset?._id)
+export default function DatasetCard({ dataset, onDelete, isDeleting }) {
+	const createdAt = dataset.createdAt
+	const bucketName = dataset.metaData?.bucketName || 'N/A'
+	const dataType = dataset.dataType || 'UNKNOWN'
+	const processingStatus = dataset.processingStatus || 'PROCESSING'
+	const totalFiles = dataset.metaData?.totalFiles || 0
+	const totalSizeKb = dataset.metaData?.totalSizeKb || 0
+
+	const isClickable = processingStatus === 'COMPLETED'
+	const statusConfig = PROCESSING_STATUS[processingStatus] || PROCESSING_STATUS.PROCESSING
+
+	const tagColor = DATASET_TYPES[dataType]?.card || {
+		bg: '#f0f0f0',
+		text: '#000',
+		border: '#d9d9d9'
 	}
 
-	return (
+	const handleCardClick = () => {
+		if (isClickable) {
+			window.location.href = PATHS.DATASET_VIEW(dataset.id)
+		}
+	}
+
+	const handleDeleteClick = (e) => {
+		e.stopPropagation() // Prevent card click when deleting
+		onDelete()
+	}
+
+	const CardContent = (
 		<div
-			key={dataset._id}
-			className="group relative rounded-xl bg-white shadow-md transition duration-300 hover:shadow-lg cursor-pointer"
-			style={{
-				border: `1px solid ${dataset.isLabeled ? '#e8e8e8' : '#faad14'}`,
-				overflow: 'hidden',
-			}}
+			className={`relative rounded-2xl bg-white shadow-sm border ${statusConfig.borderColor} 
+        transition-all duration-300 transform hover:-translate-y-1 hover:shadow-md
+        ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed'}`}
 			onClick={handleCardClick}
-			onMouseEnter={(e) => {
-				e.currentTarget.style.transform = 'translateY(-5px)'
-				e.currentTarget.style.boxShadow =
-					'0 4px 12px rgba(0, 0, 0, 0.1)'
-			}}
-			onMouseLeave={(e) => {
-				e.currentTarget.style.transform = 'translateY(0)'
-				e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-			}}
+			role="button"
+			aria-label={`Dataset card for ${dataset.title || 'Untitled Dataset'}`}
 		>
-			<div className="p-6 flex items-center">
-				<div
-					className="group rounded-[12px] p-3 ring-4 ring-white transition duration-450"
-					style={{
-						color: dataset.isLabeled ? '#1677ff' : '#faad14',
-					}}
-				>
-					<DatabaseOutlined
-						style={{
-							fontSize: 48,
-							transition: 'transform 0.3s ease',
-						}}
-						className="transition-transform "
-					/>
+			<div className="p-5 flex items-center gap-4">
+				<div className={`rounded-xl p-3 ${statusConfig.bgColor} ring-4 ring-white transition-all duration-300`}>
+					<DatabaseOutlined className="text-4xl text-blue-600 transform transition-transform group-hover:scale-110" />
 				</div>
 
 				<Button
 					type="text"
-					icon={
-						<DeleteOutlined
-							style={{ fontSize: 18, color: '#ff4d4f' }}
-						/>
-					}
-					// onClick={(e) => handleDelete(e, dataset._id)}
-					className="ml-auto hover:bg-red-100"
-					style={{
-						width: 48,
-						height: 48,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						borderRadius: 12,
-						backgroundColor: '#fff1f0',
-						transition:
-							'transform 0.2s ease, background-color 0.3s ease',
-						zIndex: 1,
-					}}
+					icon={<DeleteOutlined className="text-red-500 text-lg" />}
+					className="ml-auto rounded-lg hover:bg-red-500 hover:!text-white transition-all duration-200"
+					onClick={handleDeleteClick}
+					disabled={isDeleting}
+					loading={isDeleting}
+					aria-label="Delete dataset"
 				/>
 			</div>
 
-			<div
-				className="mt-5 p-6 rounded-xl transition duration-300"
-				style={{
-					backgroundColor: '#fafafa',
-				}}
-			>
-				<div className="flex w-full justify-between items-center">
-					<Title level={4} style={{ margin: 0, color: '#000000' }}>
-						{dataset?.title}
+			<div className="p-5 bg-gray-50 rounded-b-2xl">
+				<div className="flex items-center justify-between mb-3">
+					<Title level={4} className="!m-0 !text-gray-900 truncate max-w-[70%]" title={dataset.title}>
+						{dataset.title || 'Untitled Dataset'}
 					</Title>
-					{dataset.createdAt && (
-						<Text style={{ fontSize: 12, color: '#666666' }}>
+					{createdAt && (
+						<Text className="text-xs text-gray-500">
 							Created {dayjs(dataset.createdAt).fromNow()}
 						</Text>
 					)}
 				</div>
-				<div className="flex w-full justify-between items-center mt-2">
-					<Text style={{ fontSize: 14, color: '#444444' }}>
-						{dataset?.bucketName}
+
+				<div className="flex items-center justify-between mb-3">
+					<Text className="text-sm text-gray-600 truncate max-w-[60%]" title={bucketName}>
+						{bucketName}
 					</Text>
-					<div className="flex items-center gap-2">
-						<Tag
-							style={{
-								fontSize: 12,
-								backgroundColor: tagColor.bg,
-								color: tagColor.text,
-								border: `1px solid ${tagColor.border}`,
-							}}
-						>
-							{dataset?.type || 'Unknown Type'}
-						</Tag>
-						<Tag
-							color={dataset.isLabeled ? 'success' : 'warning'}
-							style={{ fontSize: 12 }}
-						>
-							{dataset.isLabeled ? 'Labeled' : 'Unlabeled'}
-						</Tag>
+					<Tag
+						className="text-xs font-medium"
+						style={{
+							backgroundColor: tagColor.bg,
+							color: tagColor.text,
+							border: `1px solid ${tagColor.border}`,
+							borderRadius: '6px'
+						}}
+					>
+						{dataType}
+					</Tag>
+				</div>
+
+				<div className="flex items-center justify-between">
+					<Tag
+						icon={statusConfig.icon}
+						color={statusConfig.color}
+						className="flex items-center text-[16px] font-medium px-2 py-1"
+					>
+						{statusConfig.text}
+					</Tag>
+					<div className="text-right">
+						<div className="text-xs text-gray-500">Files: {totalFiles}</div>
+						<div className="text-xs text-gray-500">
+							Size: {totalSizeKb ? (totalSizeKb / 1024).toFixed(2) + ' MB' : 'N/A'}
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	)
+
+	return isClickable ? (
+		CardContent
+	) : (
+		<Tooltip title="Dataset is not ready for viewing details">
+			{CardContent}
+		</Tooltip>
 	)
 }

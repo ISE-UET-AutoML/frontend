@@ -1,20 +1,17 @@
 import { API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
-const BASE_URL = process.env.REACT_APP_BE_GATEWAY_ADD
 
-// const URL = `${API_BASE_URL}/datasets`
-const URL = `${BASE_URL}/api/data`
+const URL = `${API_BASE_URL}/api/data`
+const URL_SERVICE = `${API_BASE_URL}/api/service/data`
 
-const createDataset = (formData) => {
+const createDataset = (payload) => {
 	const options = {
 		headers: {
-			'Content-Type': 'multipart/form-data',
-			'x-user-id': 'e2b9c065-69c3-4d21-b198-5b0b9eead5cd',
-			'Authorization': '<Bearer> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUyYjljMDY1LTY5YzMtNGQyMS1iMTk4LTViMGI5ZWVhZDVjZCIsImVtYWlsIjoiaGlldTEyMzRAZ21haWwuY29tIiwiZnVsbF9uYW1lIjoiaGlldWxvbCIsImlhdCI6MTc1MTQyODQzMiwiZXhwIjoxNzUxNTE0ODMyfQ.kO_CtqT-f6Aiw0H0JZetu911-ADL9hb9DtuuCtKxS5g'
+			'Content-Type': 'application/json',
 		},
 		withCredentials: true,
 	}
-	return instance.post(`${URL}/createDataset`, formData, options)
+	return instance.post(`${URL}/createDataset`, payload, options)
 }
 
 
@@ -33,20 +30,21 @@ const getDataset = (datasetID) => {
 	return instance.get(`${URL}/${datasetID}`)
 }
 
-const getImgDataset = (datasetID) => {
-	return instance.get(`${URL}/${datasetID}/getImgDataset`)
-}
+const getProcessingStatus = (datasetId) => {
+	return instance.get(`${URL}/${datasetId}/processing_status`)
+};
 
 const getDatasetPreview = (datasetID, size) => {
 	return instance.get(`${URL}/${datasetID}/datasetPreview?size=${size}`)
 }
 
-const getDataTen = (datasetID) => {
-	return instance.get(`${URL}/${datasetID}/dataTen`)
-}
 
 const deleteObjects = (datasetID, formData) => {
 	return instance.post(`${URL}/${datasetID}/deleteObjects`, formData)
+}
+
+const deleteDataset = (datasetID) => {
+	return instance.delete(`${URL_SERVICE}/datasets/${datasetID}`)
 }
 
 const addNewFiles = (datasetID, formData) => {
@@ -60,9 +58,9 @@ export {
 	createDataset,
 	getDatasets,
 	getDataset,
-	getImgDataset,
-	getDataTen,
+	getProcessingStatus,
 	deleteObjects,
+	deleteDataset,
 	addNewFiles,
 	getDatasetPreview,
 	createPresignedUrls,

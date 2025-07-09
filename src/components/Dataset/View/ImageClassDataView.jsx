@@ -5,7 +5,7 @@ import { PlusIcon, TrashIcon, CheckIcon } from '@heroicons/react/24/solid'
 import { DocumentIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import database from 'src/assets/images/background.png'
 import databaseList from 'src/assets/images/listData.png'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 import { message } from 'antd'
 import * as datasetAPI from 'src/api/dataset'
 import { validateFiles } from 'src/utils/file'
@@ -163,10 +163,9 @@ const ImageClassDataView = ({ dataset, files }) => {
 								src={file.content}
 								alt=""
 								className={`h-full w-full m-0 object-cover rounded-md
-                                    ${
-										selectedImgs.includes(file.fileName)
-											? `border-blue-600 border-2`
-											: ``
+                                    ${selectedImgs.includes(file.fileName)
+										? `border-blue-600 border-2`
+										: ``
 									}`}
 							/>
 						</div>
@@ -198,7 +197,7 @@ const ImageClassDataView = ({ dataset, files }) => {
 
 								<p className="text-center text-[15px] font-[300]">
 									{(dataset.type &&
-										TYPES[dataset.type]?.description) ||
+										TASK_TYPES[dataset.type]?.description) ||
 										'No description available'}
 								</p>
 							</div>

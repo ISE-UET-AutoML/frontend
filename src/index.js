@@ -5,6 +5,7 @@ import { AuthProvider } from 'src/hooks/useAuth';
 import { Router } from 'src/routes';
 import { LibraryProvider } from './utils/LibProvider';
 import { MultiProvider } from './utils/MultiProvider';
+import { message } from 'antd';
 
 
 const libraries = {
@@ -15,13 +16,12 @@ const libraries = {
     }
 };
 
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <MultiProvider
         providers={[
             <LibraryProvider key="lsf" libraries={libraries} />,
-            <AuthProvider/>
+            <AuthProvider />
         ]}>
         <Router />
     </MultiProvider>

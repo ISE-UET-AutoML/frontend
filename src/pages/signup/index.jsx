@@ -3,6 +3,7 @@ import logo from 'src/assets/images/logo.png';
 import { validatePassword } from 'src/utils/validate';
 import { signup } from 'src/api/auth';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 
 const SignUp = () => {
 	const navigate = useNavigate();
@@ -32,12 +33,41 @@ const SignUp = () => {
 
 	const handleSignUp = async (e) => {
 		e.preventDefault();
+		
 		const formData = new FormData(e.target);
 		const email = formData.get('email');
 		const password = formData.get('password');
 		const full_name = formData.get('full_name');
-		await signup({ full_name, email, password });
-		navigate('/', { replace: false });
+
+		try {
+			const response = await signup({ full_name, email, password });
+			
+			if (response) {
+				message.success('Đăng ký tài khoản thành công!');
+				navigate('/login', { replace: true });
+			}
+		} catch (error) {
+			// Ngăn chặn error propagation
+			if (error.response?.status === 400 && error.response?.data?.error) {
+				if (error.response.data.error === "Đã có người sử dụng email này.") {
+					setFormState(prev => ({
+						...prev,
+						email: {
+							...prev.email,
+							error: error.response.data.error,
+							touched: true,
+							value: email
+						}
+					}));
+					message.warning('Email này đã được sử dụng, vui lòng chọn email khác.');
+				} else {
+					message.warning(error.response.data.error);
+				}
+			} else {
+				message.error('Có lỗi xảy ra, vui lòng thử lại sau.');
+			}
+			// Quan trọng: không throw lại error để tránh uncaught error
+		}
 	};
 
 	const handlePasswordChange = (event) => {
@@ -103,6 +133,18 @@ const SignUp = () => {
 				},
 			}));
 		}
+	};
+
+	const handleEmailChange = (event) => {
+		const email = event.target.value;
+		setFormState(prev => ({
+			...prev,
+			email: {
+				value: email,
+				error: '',
+				touched: true
+			}
+		}));
 	};
 
 	return (
@@ -192,11 +234,16 @@ const SignUp = () => {
 							<input
 								type="email"
 								name="email"
-								value={formState.full_name.email}
+								value={formState.email.value}
+								onChange={handleEmailChange}
 								required
-								className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
+								className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${
+									formState.email.error ? 'border-red-500' : 'focus:border-blue-600'
+								} shadow-sm rounded-lg`}
 							/>
-							{/* {formError.email && <p className="text-red-500 mt-1">{formError.email}</p>} */}
+							{formState.email.touched && formState.email.error && (
+								<p className="text-red-500 mt-1">{formState.email.error}</p>
+							)}
 						</div>
 						<div>
 							<label className="font-medium">Password</label>

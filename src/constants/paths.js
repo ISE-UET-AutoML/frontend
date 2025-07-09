@@ -27,6 +27,9 @@ const PATHS = {
     PREDICT: (projectID, experimentName) =>
         `/app/project/${projectID}/build?step=4&experiment_name=${experimentName}`,
 
+    /*-----------------------------MODEL-------------------------------------*/
+    MODEL_VIEW: (projectId, experimentId, experimentName, modelId) =>
+        `/app/project/${projectId}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}&modelId=${modelId}`,
     /*-----------------------------DATASET-------------------------------------*/
 
     DATASET_VIEW: (datasetID) => `/app/dataset/${datasetID}/view`,

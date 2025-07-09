@@ -6,7 +6,7 @@ import { PATHS } from 'src/constants/paths'
 import { deleteProject } from 'src/api/project'
 import { Button, Typography, Tag } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
 
@@ -29,9 +29,9 @@ export default function ProjectCard({ project, getProjects }) {
 				})
 		}
 	}
-	
+
 	const taskType = project?.task_type
-	const tagColor = TYPES[taskType]?.card || TYPES["IMAGE_CLASSIFICATION"].card  // in case of no task assigned
+	const tagColor = TASK_TYPES[taskType]?.card || TASK_TYPES["IMAGE_CLASSIFICATION"].card  // in case of no task assigned
 
 	const handleCardClick = () => {
 		window.location.href = PATHS.PROJECT_BUILD(project?.id)

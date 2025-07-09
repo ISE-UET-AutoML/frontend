@@ -1,5 +1,5 @@
 import { ALLOWED_FILE_EXTENSIONS } from 'src/constants/file'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 
 const isAllowedExtension = (fileName, allowedExtensions) => {
 	const idx = fileName.lastIndexOf('.')
@@ -11,7 +11,7 @@ const isAllowedExtension = (fileName, allowedExtensions) => {
 }
 
 const validateFiles = (files, projectType) => {
-	const projectInfo = TYPES[projectType]
+	const projectInfo = TASK_TYPES[projectType]
 	if (!projectInfo) {
 		alert('Unsupported project type.')
 		return []
@@ -38,12 +38,14 @@ const validateFiles = (files, projectType) => {
 	return validFiles
 }
 
-const organizeFiles = (files, isLabeled) => {
+const organizeFiles = (files) => {
 	const fileMap = new Map();
 
 	files.forEach((file) => {
 		const pathParts = file.path.split('/');
-		if (isLabeled && pathParts.length > 1) {
+
+		if (pathParts.length >= 3) {
+			// Ex: path = 'train/dog/dog_10.jpg' → label = 'dog'
 			const label = pathParts[pathParts.length - 2];
 
 			if (!fileMap.has(label)) {
@@ -52,26 +54,25 @@ const organizeFiles = (files, isLabeled) => {
 			fileMap.get(label).push({
 				path: file.path,
 				label,
-				fileId: file.fileId,
-				fileObject: file.fileObject, // Sử dụng fileObject từ metadata
+				fileObject: file.fileObject,
 				boundingBox: file.boundingBox,
 			});
 		} else {
+			// Ex: path = 'train/dog_10.jpg' OR 'dog_10.jpg' → unlabeled
 			if (!fileMap.has('unlabeled')) {
 				fileMap.set('unlabeled', []);
 			}
 			fileMap.get('unlabeled').push({
 				path: file.path,
 				label: null,
-				fileId: file.fileId,
-				fileObject: file.fileObject, // Sử dụng fileObject từ metadata
+				fileObject: file.fileObject,
 				boundingBox: file.boundingBox,
 			});
 		}
 	});
-
 	return fileMap;
 };
+
 
 const createChunks = (fileMap, chunkSize) => {
 	const chunks = [];
@@ -79,10 +80,12 @@ const createChunks = (fileMap, chunkSize) => {
 	for (const [label, files] of fileMap.entries()) {
 		for (let i = 0; i < files.length; i += chunkSize) {
 			const chunkFiles = files.slice(i, i + chunkSize);
-			const chunkName =
-				label === 'unlabeled'
-					? `chunk_${i / chunkSize}.zip`
-					: `chunk_${label}_${i / chunkSize}.zip`;
+			const chunkIndex = Math.floor(i / chunkSize);
+
+			// Updated naming logic for unlabeled data
+			const chunkName = label === 'unlabeled'
+				? `chunk_unlabel_${chunkIndex}.zip`
+				: `chunk_${label}_${chunkIndex}.zip`;
 
 			chunks.push({
 				name: chunkName,
