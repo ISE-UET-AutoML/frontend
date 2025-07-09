@@ -39,6 +39,7 @@ import { validateFiles } from 'src/utils/file'
 import * as experimentAPI from 'src/api/experiment'
 import * as modelAPI from 'src/api/model'
 import * as mlServiceAPI from 'src/api/mlService'
+import * as resourceAPI from 'src/api/resource'
 import config from './config'
 
 const { Step } = Steps
@@ -104,17 +105,10 @@ const AnimatedProgressBar = ({ percent, title, subtitle, color }) => {
 }
 
 const DeployView = () => {
-    // Currently hard coded
-    const instanceInfo = {
-        "id": 22737894,
-        "ssh_port": "44078",
-        "public_ip": "122.96.206.191",
-        "deploy_port": "44188"
-    }
     const { projectInfo } = useOutletContext()
     // console.log(projectInfo)
     const navigate = useNavigate()
-
+    const [instanceInfo, setInstanceInfo] = useState({})
     const location = useLocation()
     const searchParams = new URLSearchParams(location.search)
     const experimentName = searchParams.get('experimentName')
@@ -534,9 +528,16 @@ const DeployView = () => {
             //     experimentName,
             //     selectedOption
             // )
+            const createInstanceRequest = await resourceAPI.createInstance()
+            console.log(createInstanceRequest)
+            if (createInstanceRequest.status !== 200) {
+                throw new Error("Failed to create instance.")
+            }
+            const instanceData = createInstanceRequest.data
+            setInstanceInfo(prev => instanceData)
             const deployRequest = await modelAPI.deployModel(
                 modelId,
-                instanceInfo
+                instanceData
             )
 
             if (deployRequest.status !== 200) {
@@ -547,9 +548,9 @@ const DeployView = () => {
             console.log(deployModel)
 
             // setInstanceURL(data.url)
-            setInstanceURL(`http://${instanceInfo.public_ip}:${instanceInfo.deploy_port}`)
+            setInstanceURL(`http://${instanceData.public_ip}:${instanceData.deploy_port}`)
             addDeploymentLog(
-                `Deployment endpoint created: http://${instanceInfo.public_ip}:${instanceInfo.deploy_port}`,
+                `Deployment endpoint created: http://${instanceData.public_ip}:${instanceData.deploy_port}`,
                 'success'
             )
 
@@ -560,7 +561,7 @@ const DeployView = () => {
                 try {
                     // const statusResponse = await experimentAPI.getDeployStatus(experimentName)
                     // const { deployInfo } = statusResponse.data
-                    const deployStatusResponse = await modelAPI.getDeployStatus(modelId, deployModel.id, instanceInfo)
+                    const deployStatusResponse = await modelAPI.getDeployStatus(modelId, deployModel.id, instanceData)
                     const deployInfo = deployStatusResponse.data
                     console.log("Res:", deployStatusResponse)
                     console.log(deployInfo)
@@ -656,7 +657,7 @@ const DeployView = () => {
         setUploadedFiles(validFiles)
         setUploading(true)
         addDeploymentLog('Uploading files for prediction', 'info')
-
+        console.log("Instance info: ", instanceInfo)
         const formData = new FormData()
         formData.append('task', projectInfo.task_type)
 
@@ -677,7 +678,8 @@ const DeployView = () => {
 
             // Upload file
             await modelAPI.uploadData(formData)
-            const predictRequest = await modelAPI.modelPredict(instanceURL, projectInfo.task_type, experimentName, `/root/uploadedFile/${files[0].name}`, 'sentence')
+            // Make predictions
+            const predictRequest = await modelAPI.modelPredict(instanceURL, projectInfo.task_type, experimentName, validFiles, 'sentence')
             const data = predictRequest.data
             console.log('Fetch prediction successful', data)
             if (data.status === 'failed') {

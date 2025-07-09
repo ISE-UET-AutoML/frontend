@@ -19,20 +19,33 @@ const getDeployStatus = (modelId, deployModelId, instanceInfo) => {
 
 // Currently hard coded
 const uploadData = (formData) => {
-    return instance.post(`http://localhost:10551/model_service/train/file_upload`, formData)
+    return instance.post(`http://localhost:10550/model_service/train/file_upload`, formData)
 }
 
 // Currently hard coded
-const modelPredict = (base_url, task, task_id, text_file_path, text_col) => {
-    return axios.post(`${base_url}/predict`, {
-        "userEmail": "string",
-        "projectName": "string",
-        "runName": "string",
-        "task": task,
-        "task_id": task_id,
-        "text_file_path": text_file_path,
-        "text_col": text_col
-    })
+const modelPredict = (base_url, task, task_id, files, text_col) => {
+    if (task == 'TEXT_CLASSIFICATION') {
+        return axios.post(`${base_url}/predict`, {
+            "userEmail": "string",
+            "projectName": "string",
+            "runName": "string",
+            "task": task,
+            "task_id": task_id,
+            "text_file_path": `/root/UploadedFile/${task_id}/${files[0].name}`,
+            "text_col": text_col || "sentence"
+        })
+    }
+    else if (task === "IMAGE_CLASSIFICATION") {
+        const file_path = files.map((file) => `/root/UploadedFile/${task_id}/${file.name}`)
+        return axios.post(`${base_url}/predict`, {
+            "userEmail": "string",
+            "projectName": "string",
+            "runName": "string",
+            "task": task,
+            "task_id": task_id,
+            "images": file_path
+        })
+    }
 }
 
 export {
