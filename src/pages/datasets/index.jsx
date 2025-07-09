@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef } from 'react'
+import React, { useReducer, useEffect, useRef, useState } from 'react' // Added useState
 import { Button, Card, Typography, message } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
@@ -19,24 +19,23 @@ export default function Datasets() {
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
+	const [deletingIds, setDeletingIds] = useState(new Set()) // Added to track deleting datasets
 
 	const pollingRef = useRef(null)
 	const hasProcessingDatasets = (datasets) => {
-		return datasets.some(ds =>
-			ds.processingStatus === 'PROCESSING'
-		)
+		return datasets.some(ds => ds.processingStatus === 'PROCESSING')
 	}
 
 	const updateDatasetStatus = async (datasetId) => {
 		try {
-			const statusData = await datasetAPI.getProcessingStatus(datasetId).then(response => response.data);
-			updateDataState(state => ({
-				datasets: state.datasets.map(ds =>
+			const statusData = await datasetAPI.getProcessingStatus(datasetId).then(response => response.data)
+			updateDataState({
+				datasets: datasetState.datasets.map(ds =>
 					ds.id === datasetId
 						? { ...ds, processingStatus: statusData.processingStatus }
 						: ds
 				)
-			}))
+			})
 			return statusData.processingStatus
 		} catch (error) {
 			console.error(`Error updating status for dataset ${datasetId}:`, error)
@@ -44,7 +43,6 @@ export default function Datasets() {
 		}
 	}
 
-	// Bắt đầu polling cho các dataset đang xử lý
 	const startPolling = () => {
 		if (pollingRef.current) clearInterval(pollingRef.current)
 
@@ -53,36 +51,29 @@ export default function Datasets() {
 				ds => ds.processingStatus === 'PROCESSING'
 			)
 
-			// Nếu không còn dataset nào đang xử lý thì dừng polling
 			if (processingDatasets.length === 0) {
 				clearInterval(pollingRef.current)
 				return
 			}
 
-			// Cập nhật trạng thái cho từng dataset đang xử lý
 			for (const dataset of processingDatasets) {
 				const newStatus = await updateDatasetStatus(dataset.id)
-
-				// Nếu trạng thái đã hoàn thành, không cần kiểm tra nữa
 				if (newStatus === 'COMPLETED' || newStatus === 'FAILED') {
-					// Có thể trigger các hành động khác ở đây nếu cần
+					// Additional actions if needed
 				}
 			}
-		}, POLL_DATASET_PROCESSING_STATUS_TIME) // Poll mỗi 5 giây
+		}, POLL_DATASET_PROCESSING_STATUS_TIME)
 	}
 
 	useEffect(() => {
 		getDatasets()
 	}, [])
 
-	// Bắt đầu polling khi datasets thay đổi và có dataset đang xử lý
 	useEffect(() => {
-		if (datasetState.datasets.length > 0 &&
-			hasProcessingDatasets(datasetState.datasets)) {
+		if (datasetState.datasets.length > 0 && hasProcessingDatasets(datasetState.datasets)) {
 			startPolling()
 		}
 
-		// Dọn dẹp khi component unmount
 		return () => {
 			if (pollingRef.current) {
 				clearInterval(pollingRef.current)
@@ -108,18 +99,32 @@ export default function Datasets() {
 		try {
 			const response = await datasetAPI.createDataset(payload)
 			if (response.status === 201) {
-				message.success('Dataset created successfully!');
+				message.success('Dataset created successfully!')
 				updateDataState({ showCreator: false })
-				getDatasets() // Refresh list after creation
+				getDatasets()
 			}
 		} catch (error) {
 			console.error('Error creating dataset:', error)
 		}
 	}
 
-	useEffect(() => {
-		getDatasets()
-	}, [])
+	const handleDelete = async (datasetId) => {
+		setDeletingIds(prev => new Set(prev).add(datasetId)) // Add to deleting set
+		try {
+			await datasetAPI.deleteDataset(datasetId)
+			message.success('Dataset deleted successfully!') // Added user feedback
+			await getDatasets() // Refresh list after deletion
+		} catch (err) {
+			console.error('Failed to delete dataset:', err)
+			message.error('Failed to delete dataset') // Added error feedback
+		} finally {
+			setDeletingIds(prev => {
+				const newSet = new Set(prev)
+				newSet.delete(datasetId)
+				return newSet
+			}) // Remove from deleting set
+		}
+	}
 
 	return (
 		<div className="p-6">
@@ -139,7 +144,12 @@ export default function Datasets() {
 			) : datasetState.datasets.length > 0 ? (
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{datasetState.datasets.map((dataset) => (
-						<DatasetCard key={dataset.id} dataset={dataset} />
+						<DatasetCard
+							key={dataset.id}
+							dataset={dataset}
+							onDelete={() => handleDelete(dataset.id)} // Pass function with ID
+							isDeleting={deletingIds.has(dataset.id)} // Pass deleting state
+						/>
 					))}
 				</div>
 			) : (

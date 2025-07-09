@@ -2,6 +2,7 @@ import { API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
 
 const URL = `${API_BASE_URL}/api/data`
+const URL_SERVICE = `${API_BASE_URL}/api/service/data`
 
 const createDataset = (payload) => {
 	const options = {
@@ -42,6 +43,10 @@ const deleteObjects = (datasetID, formData) => {
 	return instance.post(`${URL}/${datasetID}/deleteObjects`, formData)
 }
 
+const deleteDataset = (datasetID) => {
+	return instance.delete(`${URL_SERVICE}/datasets/${datasetID}`)
+}
+
 const addNewFiles = (datasetID, formData) => {
 	const options = {
 		headers: { 'Content-Type': 'multipart/form-data' },
@@ -55,6 +60,7 @@ export {
 	getDataset,
 	getProcessingStatus,
 	deleteObjects,
+	deleteDataset,
 	addNewFiles,
 	getDatasetPreview,
 	createPresignedUrls,
