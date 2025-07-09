@@ -34,7 +34,7 @@ import { motion } from 'framer-motion'
 import instance from 'src/api/axios'
 import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
-import { TYPES } from 'src/constants/types'
+import { TASK_TYPES } from 'src/constants/types'
 import ProjectCard from './card'
 import * as datasetAPI from 'src/api/dataset'
 import AIAssistantModal from './AIAssistantModal' // Import component mới
@@ -57,7 +57,7 @@ const { Title, Text, Paragraph } = Typography
 const { Content } = Layout
 const { TextArea } = Input
 
-const projType = Object.keys(TYPES)
+const projType = Object.keys(TASK_TYPES)
 
 const imgArray = [
 	class_img,
@@ -145,13 +145,13 @@ export default function Projects() {
 		if (chatContainerRef.current) {
 			const lastMessage =
 				chatContainerRef.current.lastElementChild?.children[
-					chatContainerRef.current.lastElementChild.children.length -
-						1
+				chatContainerRef.current.lastElementChild.children.length -
+				1
 				]
 			const secondLastMessage =
 				chatContainerRef.current.lastElementChild?.children[
-					chatContainerRef.current.lastElementChild.children.length -
-						2
+				chatContainerRef.current.lastElementChild.children.length -
+				2
 				]
 			let height = 0
 			if (secondLastMessage) {
@@ -198,7 +198,7 @@ export default function Projects() {
 			setDescription(givenDescription)
 			setProjectName(givenName)
 			let task = -1
-			task = Object.values(TYPES).findIndex(
+			task = Object.values(TASK_TYPES).findIndex(
 				(value) => value.task_type === givenTask
 			)
 			if (task !== -1) selectType(undefined, task)
@@ -354,7 +354,7 @@ export default function Projects() {
 		const response = await instance.get(API_URL.all_projects)
 		console.log(response.data)
 		const proj = response.data.owned
-		
+
 		updateProjState({ projects: proj })
 		console.log('Project List', response.data)
 
@@ -599,11 +599,10 @@ export default function Projects() {
 										<Col span={24} key={type}>
 											<Card
 												hoverable
-												className={` border-blue-500 border hover:shadow-none hover:bg-blue-50 ${
-													isSelected[idx]
-														? ' bg-purple-50 border-purple-400'
-														: ''
-												}
+												className={` border-blue-500 border hover:shadow-none hover:bg-blue-50 ${isSelected[idx]
+													? ' bg-purple-50 border-purple-400'
+													: ''
+													}
                         `}
 												onClick={(e) =>
 													selectType(e, idx)
@@ -619,12 +618,12 @@ export default function Projects() {
 													</Col>
 													<Col span={16}>
 														<Title level={4}>
-															{TYPES[type].type}
+															{TASK_TYPES[type].type}
 														</Title>
 														<Text type="secondary">
 															{
 																typeDescription[
-																	idx
+																idx
 																]
 															}
 														</Text>

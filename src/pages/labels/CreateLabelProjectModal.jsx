@@ -11,7 +11,8 @@ import {
     Alert
 } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import * as datasetAPI from 'src/api/dataset'
+import { getDatasets } from 'src/api/dataset'
+import { TASK_TYPES } from 'src/constants/types'
 
 const { Option } = Select
 const { TextArea } = Input
@@ -19,53 +20,57 @@ const { TextArea } = Input
 export default function CreateLabelProjectModal({ visible, onCancel, onCreate }) {
     const [form] = Form.useForm()
     const [datasets, setDatasets] = useState([])
-    const [labels, setLabels] = useState([])
+    const [expectedLabels, setLabels] = useState([])
     const [newLabel, setNewLabel] = useState('')
     const [loading, setLoading] = useState(false)
 
-    const projectTypes = [
-        { value: 'text_classification', label: 'Text Classification' },
-        { value: 'named_entity_recognition', label: 'Named Entity Recognition' },
-        { value: 'text_summarization', label: 'Text Summarization' },
-        { value: 'image_classification', label: 'Image Classification' },
-        { value: 'object_detection', label: 'Object Detection' },
-        { value: 'sentiment_analysis', label: 'Sentiment Analysis' }
-    ]
+    const taskType = Form.useWatch('taskType', form)
+    const selectedDatasetId = Form.useWatch('datasetId', form)
+
+    useEffect(() => {
+        form.setFieldsValue({ datasetId: undefined })
+    }, [taskType, form])
 
     useEffect(() => {
         if (visible) {
             fetchDatasets()
+            setLabels([]) // Reset labels when modal opens
         }
     }, [visible])
 
     const fetchDatasets = async () => {
         try {
-            const response = await datasetAPI.getDatasets()
+            const response = await getDatasets()
             setDatasets(response.data)
         } catch (error) {
             console.error('Error fetching datasets:', error)
         }
     }
 
+    // Auto-fill expected labels when a dataset is selected
+    useEffect(() => {
+        const selectedDataset = datasets.find(ds => ds.id === selectedDatasetId)
+        if (selectedDataset?.detectedLabels?.length > 0) {
+            setLabels(selectedDataset.detectedLabels)
+        }
+    }, [selectedDatasetId, datasets])
+
     const handleAddLabel = () => {
-        if (newLabel.trim() && !labels.includes(newLabel.trim())) {
-            setLabels([...labels, newLabel.trim()])
+        const v = newLabel.trim()
+        if (v && !expectedLabels.includes(v)) {
+            setLabels(prev => [...prev, v])
             setNewLabel('')
         }
     }
 
-    const handleRemoveLabel = (labelToRemove) => {
-        setLabels(labels.filter(label => label !== labelToRemove))
+    const handleRemoveLabel = labelToRemove => {
+        setLabels(prev => prev.filter(l => l !== labelToRemove))
     }
 
-    const handleSubmit = async (values) => {
+    const handleSubmit = async values => {
+        setLoading(true)
         try {
-            setLoading(true)
-            const formData = {
-                ...values,
-                labels: labels
-            }
-            await onCreate(formData)
+            await onCreate({ ...values, expectedLabels })
         } catch (error) {
             console.error('Error creating project:', error)
         } finally {
@@ -79,6 +84,11 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
         setNewLabel('')
         onCancel()
     }
+
+    const projectTypes = Object.entries(TASK_TYPES).map(([key, cfg]) => ({
+        value: key,
+        label: cfg.type
+    }))
 
     return (
         <Modal
@@ -117,47 +127,86 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                 </Form.Item>
 
                 <Form.Item
-                    name="type"
-                    label="Project Type"
-                    rules={[{ required: true, message: 'Please select project type' }]}
+                    name="taskType"
+                    label="Task Type"
+                    rules={[{ required: true, message: 'Please select task type' }]}
                 >
-                    <Select placeholder="Select project type">
-                        {projectTypes.map(type => (
-                            <Option key={type.value} value={type.value}>
-                                {type.label}
+                    <Select placeholder="Select task type">
+                        {projectTypes.map(pt => (
+                            <Option key={pt.value} value={pt.value}>
+                                {pt.label}
                             </Option>
                         ))}
                     </Select>
                 </Form.Item>
 
                 <Form.Item
-                    name="datasetId"
-                    label="Dataset"
-                    rules={[{ required: true, message: 'Please select a dataset' }]}
+                    noStyle
+                    shouldUpdate={(prev, curr) => prev.taskType !== curr.taskType}
                 >
-                    <Select
-                        placeholder="Select dataset to label"
-                        showSearch
-                        optionFilterProp="children"
-                    >
-                        {datasets.map(dataset => (
-                            <Option key={dataset._id} value={dataset._id}>
-                                {dataset.name} ({dataset.totalRecords} items)
-                            </Option>
-                        ))}
-                    </Select>
+                    {({ getFieldValue }) => {
+                        const selectedType = getFieldValue('taskType')
+                        const requiredDataType = selectedType
+                            ? TASK_TYPES[selectedType]?.dataType
+                            : null
+                        const filtered = datasets.filter(ds =>
+                            ds.dataType === requiredDataType
+                        )
+
+                        const getStatusColor = status => {
+                            switch (status) {
+                                case 'COMPLETED': return 'green'
+                                case 'PROCESSING': return 'blue'
+                                case 'FAILED': return 'red'
+                                default: return 'default'
+                            }
+                        }
+
+                        return (
+                            <Form.Item
+                                name="datasetId"
+                                label="Dataset"
+                                rules={[{ required: true, message: 'Please select a dataset' }]}
+                            >
+                                <Select
+                                    placeholder={
+                                        requiredDataType
+                                            ? `Select a ${requiredDataType.toLowerCase()} dataset`
+                                            : 'Please select project type first'
+                                    }
+                                    showSearch
+                                    optionFilterProp="label"
+                                    disabled={!requiredDataType}
+                                >
+                                    {filtered.map(ds => (
+                                        <Option
+                                            key={ds.id}
+                                            value={ds.id}
+                                            disabled={ds.processingStatus !== 'COMPLETED'}
+                                            label={`${ds.title} (${ds.quantity} items)`}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span>{ds.title} ({ds.quantity} items)</span>
+                                                <Tag color={getStatusColor(ds.processingStatus)} style={{ marginLeft: 8 }}>
+                                                    {ds.processingStatus}
+                                                </Tag>
+                                            </div>
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        )
+                    }}
                 </Form.Item>
 
-                <Form.Item
-                    label="Labels"
-                    required
-                >
+                {/* Expected Labels */}
+                <Form.Item label="Expected Labels" required>
                     <div className="space-y-3">
                         <div className="flex gap-2">
                             <Input
                                 placeholder="Enter label name"
                                 value={newLabel}
-                                onChange={(e) => setNewLabel(e.target.value)}
+                                onChange={e => setNewLabel(e.target.value)}
                                 onPressEnter={handleAddLabel}
                             />
                             <Button
@@ -170,9 +219,9 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                             </Button>
                         </div>
 
-                        {labels.length > 0 && (
+                        {expectedLabels.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
-                                {labels.map(label => (
+                                {expectedLabels.map(label => (
                                     <Tag
                                         key={label}
                                         closable
@@ -183,11 +232,9 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                                     </Tag>
                                 ))}
                             </div>
-                        )}
-
-                        {labels.length === 0 && (
+                        ) : (
                             <Alert
-                                message="Please add at least one label for your project"
+                                message="At least one expected label is required to create a project"
                                 type="info"
                                 showIcon
                                 className="text-sm"
@@ -207,7 +254,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                             type="primary"
                             htmlType="submit"
                             loading={loading}
-                            disabled={labels.length === 0}
+                            disabled={expectedLabels.length === 0}
                         >
                             Create Project
                         </Button>

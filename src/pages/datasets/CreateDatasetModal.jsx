@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Form, Input, Select, Radio, Button, message, Modal, Tabs } from 'antd';
 import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons';
-import { TYPES } from 'src/constants/types';
+import { DATASET_TYPES } from 'src/constants/types';
 import * as datasetAPI from 'src/api/dataset';
 import { organizeFiles, createChunks } from 'src/utils/file';
 import { uploadToS3 } from 'src/utils/s3';
@@ -15,23 +15,20 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	const [form] = Form.useForm();
 	const [files, setFiles] = useState([]);
 	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
-	const [isLabeled, setIsLabeled] = useState(true);
 	const [service, setService] = useState('AWS_S3');
 	const [bucketName, setBucketName] = useState('user-private-dataset');
 	const [datasetType, setDatasetType] = useState('IMAGE_CLASSIFICATION');
 	const [totalKbytes, setTotalKbytes] = useState('0.00');
 	const [isLoading, setIsLoading] = useState(false);
-	const [expectedLabels, setExpectedLabels] = useState('');
 	const fileRefs = useRef(new Map());
 
 	const validateFiles = (files, datasetType) => {
 		const allowedImageTypes = ['image/jpeg', 'image/png'];
 		const allowedTextTypes = ['text/plain', 'text/csv'];
 		const allowedTypes = {
-			IMAGE_CLASSIFICATION: allowedImageTypes,
-			MULTILABEL_IMAGE_CLASSIFICATION: allowedImageTypes,
-			OBJECT_DETECTION: allowedImageTypes,
-			TEXT_CLASSIFICATION: allowedTextTypes,
+			IMAGE: allowedImageTypes,
+			TEXT: allowedTextTypes,
+			TABULAR: allowedTextTypes,
 		};
 
 		const validFiles = files.filter((file) => {
@@ -55,20 +52,11 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 
 		const fileMetadata = validatedFiles.map((file) => {
 			const pathParts = file.webkitRelativePath ? file.webkitRelativePath.split('/') : [file.name];
-			const label = isLabeled && pathParts.length > 1 ? pathParts[pathParts.length - 2] : null;
-
-			const fileId = file.webkitRelativePath || file.name;
 			const relativePath = file.webkitRelativePath || file.name;
-
-			// Lưu file object vào fileRefs để có thể truy cập sau này
-			fileRefs.current.set(fileId, file);
 
 			return {
 				path: relativePath,
-				label: label,
-				boundingBox: datasetType === 'OBJECT_DETECTION' ? { x: 10, y: 10, width: 80, height: 80 } : null,
-				fileId,
-				fileObject: file, // Đảm bảo file object được lưu trực tiếp
+				fileObject: file,
 			};
 		});
 
@@ -91,11 +79,46 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		setTotalKbytes(totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00');
 	};
 
+	const createDatasetPayload = (values, files, chunks, datasetType, service, bucketName) => {
+		const processedFiles = files.map((file) => {
+			const pathParts = file.path.split('/');
+			const simplifiedPath = pathParts.length > 1 ? pathParts.slice(1).join('/') : file.path;
+
+			return {
+				path: simplifiedPath,
+				bounding_box: file.boundingBox,
+			};
+		});
+
+		const payload = {
+			title: values.title,
+			description: values.description || '',
+			dataset_type: datasetType,
+			service: service,
+			bucket_name: bucketName,
+
+			total_files: files.length,
+			total_size_kb: parseFloat(totalKbytes) || 0,
+
+			index_path: `${values.title}/index.json`,
+
+			chunks: chunks.map((chunk) => ({
+				name: chunk.name,
+				file_count: chunk.files.length,
+				s3_path: `${values.title}/zip/${chunk.name}`,
+			})),
+
+			status: 'active',
+		};
+
+		return payload;
+	};
+
 	const handleSubmit = async (values) => {
 		try {
 			setIsLoading(true);
 
-			const fileMap = organizeFiles(files, isLabeled);
+			const fileMap = organizeFiles(files);
 			const chunks = createChunks(fileMap, IMG_NUM_IN_ZIP);
 
 			const fileToChunkMap = new Map();
@@ -108,21 +131,18 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			const indexData = {
 				dataset_title: values.title,
 				dataset_type: datasetType,
-				is_labeled: isLabeled,
 				files: files.map((file) => {
 					const pathParts = file.path.split('/');
 					const simplifiedPath = pathParts.length > 1 ? pathParts.slice(1).join('/') : file.path;
 
 					return {
 						path: `${values.title}/${simplifiedPath}`,
-						label: file.label,
 						chunk: fileToChunkMap.get(file.path) || null,
 						bounding_box: file.boundingBox,
 					};
 				}),
 				chunks: chunks.map((chunk) => ({
 					name: chunk.name,
-					label: chunk.label,
 					file_count: chunk.files.length,
 				})),
 			};
@@ -178,16 +198,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						} else {
 							console.error(`Invalid file object for: ${file.path}`);
 							console.error(`File object:`, file.fileObject);
-
-							// Thử tìm file từ fileRefs
-							const fileFromRefs = fileRefs.current.get(file.fileId);
-							if (fileFromRefs) {
-								console.log(`Found file in refs: ${fileFromRefs.name}`);
-								zip.file(newPath, fileFromRefs);
-							} else {
-								console.error(`File not found in refs either: ${file.fileId}`);
-								throw new Error(`File object not found: ${file.path}`);
-							}
 						}
 					}
 
@@ -198,8 +208,19 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				}
 			}
 
-			message.success('Dataset created successfully!');
-			// onCreate();
+			const payload = createDatasetPayload(
+				values,
+				files,
+				chunks,
+				datasetType,
+				service,
+				bucketName,
+			);
+
+			console.log('Dataset payload:', payload);
+
+			await onCreate(payload);
+			handleCancel();
 		} catch (error) {
 			console.error('Error in handleSubmit:', error);
 			message.error('Failed to create dataset. Please try again.');
@@ -218,12 +239,10 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 		setFiles([]);
 		setTotalKbytes('0.00');
 		setSelectedUrlOption('remote-url');
-		setIsLabeled(true);
 		setService('AWS_S3');
 		setBucketName('user-private-dataset');
 		setDatasetType('IMAGE_CLASSIFICATION');
 		setIsLoading(false);
-		setExpectedLabels('');
 		fileRefs.current.clear();
 	};
 
@@ -273,7 +292,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
 							{files.map((file) => (
 								<div
-									key={file.fileId}
+									key={file.path}
 									style={{
 										display: 'flex',
 										alignItems: 'center',
@@ -342,38 +361,13 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 						placeholder="Select dataset type"
 						onChange={(value) => setDatasetType(value)}
 					>
-						{Object.entries(TYPES).map(([key, value]) => (
+						{Object.entries(DATASET_TYPES).map(([key, value]) => (
 							<Option key={key} value={key}>
 								{value.type}
 							</Option>
 						))}
 					</Select>
 				</Form.Item>
-
-				<Form.Item label="Labeled Data">
-					<Radio.Group
-						value={isLabeled}
-						onChange={(e) => setIsLabeled(e.target.value)}
-					>
-						<Radio value={true}>Labeled</Radio>
-						<Radio value={false}>Unlabeled</Radio>
-					</Radio.Group>
-				</Form.Item>
-
-				{!isLabeled && (
-					<Form.Item
-						label="Expected Labels"
-						name="expectedLabels"
-						extra="Enter each label on a new line (e.g., horse, cat, dog)"
-					>
-						<TextArea
-							rows={4}
-							placeholder="horse\ncat\ndog"
-							value={expectedLabels}
-							onChange={(e) => setExpectedLabels(e.target.value)}
-						/>
-					</Form.Item>
-				)}
 
 				<Form.Item label="Service">
 					<Radio.Group
