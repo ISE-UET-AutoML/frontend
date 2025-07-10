@@ -19,7 +19,7 @@ const getDeployStatus = (modelId, deployModelId, instanceInfo) => {
 
 // Currently hard coded
 const uploadData = (formData) => {
-    return instance.post(`http://localhost:3008/model_service/train/file_upload`, formData)
+    return instance.post(`${URL}/model_service/train/file_upload`, formData)
 }
 
 // Currently hard coded

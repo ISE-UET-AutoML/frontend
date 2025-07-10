@@ -9,12 +9,12 @@ const createInstance = () => {
         "training_time": 0,
         "presets": "string"
     }
-    // return instance.post(`${URL}/instances`, body)
+    return instance.post(`${URL}/instances`, body)
     // For testing
-    return {
-        "status": 200,
-        "data": { 'id': 22812439, 'ssh_port': '54709', 'public_ip': '171.101.232.45', 'deploy_port': '54846' }
-    }
+    // return {
+    //     "status": 200,
+    //     "data": { 'id': 22812439, 'ssh_port': '54709', 'public_ip': '171.101.232.45', 'deploy_port': '54846' }
+    // }
 }
 
 export {
