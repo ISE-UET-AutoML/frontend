@@ -27,3 +27,17 @@ export const getLbProjects = () => {
 export const deleteProject = async (projectID) => {
     return instance.delete(`${URL_SERVICE}/ls-projects/${projectID}`)
 }
+
+export const getLbProjByTask = (taskType) => {
+    const options = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+        params: {
+            task_type: taskType,
+        },
+    }
+
+    return instance.get(`${URL_SERVICE}/ls-projects/by-task-type`, options)
+}

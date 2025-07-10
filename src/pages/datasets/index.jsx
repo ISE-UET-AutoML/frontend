@@ -85,6 +85,7 @@ export default function Datasets() {
 		try {
 			updateDataState({ isLoading: true })
 			const response = await datasetAPI.getDatasets()
+			console.log('resDa', response)
 			updateDataState({
 				datasets: response.data,
 				isLoading: false

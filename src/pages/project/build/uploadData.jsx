@@ -20,11 +20,10 @@ import {
 	ArrowRightOutlined,
 	InfoCircleOutlined,
 	FilterOutlined,
-	TagOutlined,
 } from '@ant-design/icons'
-import * as datasetAPI from 'src/api/dataset'
+import { createLbProject, getLbProjByTask } from 'src/api/labelProject'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
+import CreateLabelProjectModal from 'src/pages/labels/CreateLabelProjectModal'
 import config from './config'
 import { PATHS } from 'src/constants/paths'
 
@@ -34,56 +33,64 @@ const { Option } = Select
 const UploadData = () => {
 	const { updateFields, projectInfo } = useOutletContext()
 	const navigate = useNavigate()
-	const [datasets, setDatasets] = useState([])
+	const [labelProjects, setLabelProjects] = useState([])
 	const [serviceFilter, setServiceFilter] = useState('')
 	const [bucketFilter, setBucketFilter] = useState('')
 	const [labeledFilter, setLabeledFilter] = useState('')
 	const [selectedRowKeys, setSelectedRowKeys] = useState([])
-	const [loading, setLoading] = useState(false)
+	const [tableLoading, setTableLoading] = useState(false)
 	const [isModalVisible, setIsModalVisible] = useState(false)
 
-	useEffect(() => {
-		const fetchDatasets = async () => {
-			setLoading(true)
-			try {
-				const response = await datasetAPI.getDatasets()
-				setDatasets(Array.isArray(response.data) ? response.data : [])
-			} catch (error) {
-				console.error('Error fetching datasets:', error)
-			} finally {
-				setLoading(false)
-			}
+	const fetchProjects = async () => {
+		setTableLoading(true)
+		try {
+			const response = await getLbProjByTask(projectInfo.task_type)
+			setLabelProjects(
+				Array.isArray(response.data)
+					? response.data.map((item) => ({
+						...item,
+						title: item.name,
+						bucketName: item.bucket_name,
+						isLabeled: item.annotated_nums > 0,
+						service: item.service,
+					}))
+					: []
+			)
+		} catch (error) {
+			console.error('Error fetching label projects by task type:', error)
+		} finally {
+			setTableLoading(false)
 		}
-		fetchDatasets()
-	}, [])
+	}
 
-	const filteredDatasets = datasets.filter(
+	useEffect(() => {
+		if (!projectInfo?.task_type) return
+		fetchProjects()
+	}, [projectInfo?.task_type])
+
+	const filteredProjects = labelProjects.filter(
 		(item) =>
 			(!serviceFilter || item.service === serviceFilter) &&
 			(!bucketFilter || item.bucketName === bucketFilter) &&
 			(!labeledFilter ||
 				(labeledFilter === 'yes' ? item.isLabeled : !item.isLabeled)) &&
-			item.type === projectInfo?.type
+			item.task_type === projectInfo?.task_type
 	)
 
 	const handleContinue = () => {
-		const selectedDataset = filteredDatasets[selectedRowKeys[0]]
-		if (!selectedDataset) return
+		const selectedProject = filteredProjects[selectedRowKeys[0]]
+		if (!selectedProject) return
 
 		updateFields({
-			selectedDataset, // Store selected dataset
+			selectedProject,
 		})
 
-		const object = config[projectInfo.type]
+		const object = config[projectInfo.task_type]
 
-		if (selectedDataset.isLabeled) {
-			// If dataset is labeled, navigate to the next step
-			navigate(
-				`/app/project/${projectInfo._id}/build/${object.afterUploadURL}`
-			)
+		if (selectedProject.isLabeled) {
+			navigate(`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`)
 		} else {
-			// If dataset is not labeled, navigate to labeling page
-			navigate(PATHS.LABEL_VIEW(selectedDataset._id, 'labeling'))
+			navigate(PATHS.LABEL_VIEW(selectedProject.project_id, 'labeling'))
 		}
 	}
 
@@ -95,19 +102,21 @@ const UploadData = () => {
 		setIsModalVisible(false)
 	}
 
-	const handleCreateDataset = async (formData) => {
-		setLoading(true)
+	const handleCreateLabelProject = async (payload) => {
+		setTableLoading(true)
 		try {
-			const response = await datasetAPI.createDataset(formData)
-			// Add the new dataset to the list
-			setDatasets([...datasets, response.data])
-			setIsModalVisible(false)
+			const response = await createLbProject(payload)
+			if (response.status === 201) {
+				hideModal() // Đóng modal
+				await fetchProjects() // Refresh bảng
+			}
 		} catch (error) {
-			console.error('Error creating dataset:', error)
+			console.error('Error creating label project:', error)
 		} finally {
-			setLoading(false)
+			setTableLoading(false)
 		}
 	}
+
 
 	const columns = [
 		{
@@ -147,21 +156,19 @@ const UploadData = () => {
 		},
 	]
 
-	// Check if selected dataset is labeled
-	const selectedDataset =
-		selectedRowKeys.length > 0 ? filteredDatasets[selectedRowKeys[0]] : null
-	const isSelectedDatasetLabeled = selectedDataset?.isLabeled
+	const selectedProject =
+		selectedRowKeys.length > 0 ? filteredProjects[selectedRowKeys[0]] : null
+	const isSelectedProjectLabeled = selectedProject?.isLabeled
 
 	return (
 		<div className="pl-6 pr-6">
-			<Row justify="center" className="">
+			<Row justify="center">
 				<Col xs={24} md={16}>
 					<Title level={1} className="text-center">
-						Choose Your Dataset
+						Choose Your Label Project
 					</Title>
 					<Paragraph className="text-center text-gray-600">
-						Select an existing dataset or create a new one for your
-						project
+						Select an existing label project or create a new one for your labeling task
 					</Paragraph>
 				</Col>
 			</Row>
@@ -181,7 +188,7 @@ const UploadData = () => {
 							<div>
 								<Title level={5}>
 									Cloud Service
-									<Tooltip title="Choose the cloud storage service where your dataset is stored">
+									<Tooltip title="Choose the cloud storage service where your label project is stored">
 										<InfoCircleOutlined className="ml-2 text-gray-400" />
 									</Tooltip>
 								</Title>
@@ -193,16 +200,14 @@ const UploadData = () => {
 								>
 									<Option value="">All Services</Option>
 									<Option value="AWS_S3">Amazon S3</Option>
-									<Option value="GCP_STORAGE">
-										Google Cloud Storage
-									</Option>
+									<Option value="GCP_STORAGE">Google Cloud Storage</Option>
 								</Select>
 							</div>
 
 							<div>
 								<Title level={5}>
 									Storage Bucket
-									<Tooltip title="Select the specific storage bucket containing your dataset">
+									<Tooltip title="Select the specific storage bucket containing your label project">
 										<InfoCircleOutlined className="ml-2 text-gray-400" />
 									</Tooltip>
 								</Title>
@@ -213,38 +218,27 @@ const UploadData = () => {
 									placeholder="Select Bucket"
 								>
 									<Option value="">All Buckets</Option>
-									<Option value="user-private-dataset">
-										User Private Dataset
-									</Option>
+									<Option value="user-private-project">User Private Project</Option>
 									<Option value="bucket-1">Bucket 1</Option>
 								</Select>
 							</div>
 
 							<div>
 								<Title level={5}>
-									Dataset Status
-									<Tooltip title="Filter datasets based on whether they're already labeled">
+									Project Status
+									<Tooltip title="Filter projects based on whether they're already labeled">
 										<InfoCircleOutlined className="ml-2 text-gray-400" />
 									</Tooltip>
 								</Title>
 								<Radio.Group
 									value={labeledFilter}
-									onChange={(e) =>
-										setLabeledFilter(e.target.value)
-									}
+									onChange={(e) => setLabeledFilter(e.target.value)}
 									className="w-full"
 								>
-									<Space
-										direction="vertical"
-										className="w-full"
-									>
-										<Radio value="">All Datasets</Radio>
-										<Radio value="yes">
-											Labeled Datasets
-										</Radio>
-										<Radio value="no">
-											Unlabeled Datasets
-										</Radio>
+									<Space direction="vertical" className="w-full">
+										<Radio value="">All Projects</Radio>
+										<Radio value="yes">Labeled Projects</Radio>
+										<Radio value="no">Unlabeled Projects</Radio>
 									</Space>
 								</Radio.Group>
 							</div>
@@ -257,15 +251,13 @@ const UploadData = () => {
 									className="mt-4 flex items-center justify-between"
 									block
 								>
-									{isSelectedDatasetLabeled ? (
+									{isSelectedProjectLabeled ? (
 										<>
-											Continue with Selected Dataset
-											<ArrowRightOutlined />
+											Continue with Selected Project <ArrowRightOutlined />
 										</>
 									) : (
 										<>
-											Go to Labeling
-											<ArrowRightOutlined />
+											Go to Labeling <ArrowRightOutlined />
 										</>
 									)}
 								</Button>
@@ -277,17 +269,17 @@ const UploadData = () => {
 				<Col xs={24} lg={18}>
 					<Card className="shadow-md rounded-lg mb-6">
 						<Alert
-							message="Need help choosing a dataset?"
-							description="If you're unsure about which dataset to select, look for one that matches your project type and is already labeled (marked with 'Yes'). This will help you get started faster."
+							message="Need help choosing a label project?"
+							description="If you're unsure about which project to select, look for one that matches your task type and is already labeled (marked with 'Yes'). This will help you get started faster."
 							type="info"
 							showIcon
 							className="mb-4"
 						/>
 
-						<Spin spinning={loading}>
+						<Spin spinning={tableLoading} tip="Processing label project creation...">
 							<Table
 								columns={columns}
-								dataSource={filteredDatasets}
+								dataSource={filteredProjects}
 								rowSelection={{
 									type: 'radio',
 									selectedRowKeys,
@@ -300,7 +292,7 @@ const UploadData = () => {
 									emptyText: (
 										<Empty
 											image={Empty.PRESENTED_IMAGE_SIMPLE}
-											description="No datasets match your current filters"
+											description="No label projects match your current filters"
 										/>
 									),
 								}}
@@ -313,17 +305,12 @@ const UploadData = () => {
 						className="shadow-md rounded-lg text-center cursor-pointer"
 						onClick={showModal}
 					>
-						<Space
-							direction="vertical"
-							size="medium"
-							className="w-full py-6"
-						>
+						<Space direction="vertical" size="medium" className="w-full py-6">
 							<CloudUploadOutlined className="text-5xl text-blue-500" />
 							<div>
-								<Title level={4}>Create a New Dataset</Title>
+								<Title level={4}>Create a New Label Project</Title>
 								<Text type="secondary">
-									Don't see what you need? Click here to
-									upload and create your own dataset
+									Don't see what you need? Click here to create a new label project
 								</Text>
 							</div>
 						</Space>
@@ -331,10 +318,10 @@ const UploadData = () => {
 				</Col>
 			</Row>
 
-			<CreateDatasetModal
+			<CreateLabelProjectModal
 				visible={isModalVisible}
 				onCancel={hideModal}
-				onCreate={handleCreateDataset}
+				onCreate={handleCreateLabelProject}
 			/>
 		</div>
 	)

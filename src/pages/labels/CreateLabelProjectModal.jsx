@@ -71,6 +71,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
         setLoading(true)
         try {
             await onCreate({ ...values, expectedLabels })
+            handleCancel()
         } catch (error) {
             console.error('Error creating project:', error)
         } finally {
