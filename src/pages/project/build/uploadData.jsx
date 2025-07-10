@@ -81,6 +81,7 @@ const UploadData = () => {
 		const selectedProject = filteredProjects[selectedRowKeys[0]]
 		if (!selectedProject) return
 
+		console.log('selectedProject', selectedProject)
 		updateFields({
 			selectedProject,
 		})

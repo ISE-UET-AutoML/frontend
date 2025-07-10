@@ -26,7 +26,7 @@ const createDownPresignedUrls = async (key) => {
 	const options = {
 		headers: { 'Content-Type': 'application/json' },
 	}
-	return instance.fetch(`${URL_SERVICE}/presigned-urls/download?key=${key}`, options)
+	return instance.get(`${URL_SERVICE}/presigned-urls/download?key=${key}`, options)
 }
 
 const getDatasets = () => {
@@ -71,4 +71,5 @@ export {
 	addNewFiles,
 	getDatasetPreview,
 	createPresignedUrls,
+	createDownPresignedUrls,
 }
