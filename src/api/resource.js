@@ -13,7 +13,7 @@ const createInstance = () => {
     // For testing
     return {
         "status": 200,
-        "data": { 'id': 22808891, 'ssh_port': '62081', 'public_ip': '116.43.148.85', 'deploy_port': '62013' }
+        "data": { 'id': 22812439, 'ssh_port': '54709', 'public_ip': '171.101.232.45', 'deploy_port': '54846' }
     }
 }
 

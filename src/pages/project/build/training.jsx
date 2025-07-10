@@ -40,6 +40,7 @@ import {
     Area,
     AreaChart,
 } from 'recharts'
+import { calcGeneratorDuration } from 'framer-motion'
 
 const { Title, Text, Paragraph } = Typography
 
@@ -400,14 +401,9 @@ const TrainingInfoCard = ({
 
 // Main Component
 const Training = () => {
-    const { projectInfo, updateFields } = useOutletContext()
+    const { projectInfo, updateFields, instanceInfo } = useOutletContext()
     // Currently hard coded this for testing.
-    const instanceInfo = {
-        "id": 22774288,
-        "ssh_port": "54209",
-        "public_ip": "171.101.232.45",
-        "deploy_port": "54577"
-    }
+    console.log('in Training', instanceInfo)
     const navigate = useNavigate()
     const location = useLocation()
     const searchParams = new URLSearchParams(location.search)

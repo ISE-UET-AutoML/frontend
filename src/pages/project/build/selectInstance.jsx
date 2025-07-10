@@ -5,8 +5,8 @@ import {
 	useNavigate,
 } from 'react-router-dom'
 import * as projectAPI from 'src/api/project'
-import { getExperiment } from 'src/api/experiment'
-import { trainCloudModel } from 'src/api/mlService'
+import { getExperiment, } from 'src/api/experiment'
+import { trainCloudModel, getTrainingProgress } from 'src/api/mlService'
 import { createDownPresignedUrls } from 'src/api/dataset'
 import {
 	Card,
@@ -212,65 +212,49 @@ const SelectInstance = () => {
 			console.log('projectInfo', projectInfo)
 			console.log('selectedProject', selectedProject)
 
-			const presignUrl = await createDownPresignedUrls(`${selectedProject.bucketName}/${selectedProject.title}/zip/data.zip`)
+			const presignUrl = await createDownPresignedUrls(`${selectedProject.title}/zip/data.zip`)
 			console.log('presignUrl', presignUrl)
-			const instanceInfo = await createInstance()
+
+			const { data } = await createInstance()
+			const instanceInfo = data
 			updateFields({
 				instanceInfo,
 			})
-			console.log('instanceInfo', instanceInfo.data)
+			console.log('instanceInfo', instanceInfo)
+			const time = formData.trainingTime
+			console.log('time', time)
 
 			const payload = {
-				...formData,
-				instanceInfo: instanceInfo.data,
+				trainingTime: time * 3600,
+				instanceInfo: instanceInfo,
 				presets: 'medium_quality',
-				datasetUrl: presignUrl,
+				datasetUrl: presignUrl.data.url,
 				datasetLabelUrl: 'hello',
-				problemType: 'BINARY',
+				problemType: selectedProject.meta_data.is_binary_class ? 'BINARY' : 'MULTICLASS',
 				framework: 'autogluon',
-				target_column: 'negative',
-				text_column: 'sentence',
+				target_column: selectedProject.meta_data.target_column,
+				text_column: selectedProject.meta_data.text_columns[0],
 			}
 			console.log('payloadTrain', payload)
-			const res1 = await trainCloudModel(payload)
+			const res1 = await trainCloudModel(projectInfo.id, payload)
 
+			console.log('res1', res1)
 
-			// Combine formData with infrastructureData and sshKey for userInfras tab
-			// const payload =
-			// 	activeTab === 'userInfras'
-			// 		? {
-			// 			...formData,
-			// 			sshKey,
-			// 			instanceInfo: infrastructureData,
-			// 		}
-			// 		: formData
-
-
-
-			// const res1 = await projectAPI.trainModel(
-			// 	projectInfo._id,
-			// 	selectedProject,
-			// 	payload
-			// )
-
-			const experimentName = res1.data.data.task_id
+			const experimentName = res1.data.experimentName
 
 			const interval = setInterval(async () => {
 				try {
-					const res2 = await getExperiment(experimentName)
-					console.log('Status', res2.data.trainInfo.status)
+					const res2 = await getTrainingProgress(res1.data.experimentId, instanceInfo)
+					console.log('res2', res2)
 
-					if (res2.data.trainInfo.status === 'TRAINING') {
-						updateFields({
-							instanceInfor: res1.data.instance_info,
-						})
+					if (res2.data.status === 'TRAINING') {
 						clearInterval(interval)
 						message.success('Starting training process')
 						navigate(
-							`/app/project/${projectInfo._id}/build/training?experimentName=${experimentName}`,
+							`/app/project/${projectInfo.id}/build/training?experimentName=${experimentName}&experimentId=${res2.data.id}`,
 							{ replace: true }
 						)
-					} else if (res2.data.trainInfo.status === 'SETTING_UP') {
+					} else if (res2.data.status === 'SETTING_UP') {
 						setCurrentStep(0)
 					} else {
 						setCurrentStep(1)
