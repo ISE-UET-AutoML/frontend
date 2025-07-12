@@ -29,6 +29,13 @@ const createDownPresignedUrls = async (key) => {
 	return instance.get(`${URL_SERVICE}/presigned-urls/download?key=${key}`, options)
 }
 
+const createDownZipPU = async (datasetTitle) => {
+	const options = {
+		headers: { 'Content-Type': 'application/json' },
+	}
+	return instance.get(`${URL_SERVICE}/presigned-urls/download-zip-files/${datasetTitle}`, options)
+}
+
 const getDatasets = () => {
 	return instance.get(URL)
 }
@@ -72,4 +79,5 @@ export {
 	getDatasetPreview,
 	createPresignedUrls,
 	createDownPresignedUrls,
+	createDownZipPU,
 }
