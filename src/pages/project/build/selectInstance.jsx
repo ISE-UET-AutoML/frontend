@@ -68,6 +68,7 @@ const SelectInstance = () => {
 		budget: '',
 		instanceSize: 'Weak',
 	})
+	const [instanceInfo, setInstanceInfo] = useState(null)
 
 	const [currentStep, setCurrentStep] = useState(0)
 	const [isModalVisible, setIsModalVisible] = useState(false)
@@ -152,7 +153,8 @@ const SelectInstance = () => {
 		}
 
 		setIsLoading(true)
-		setIsProcessing(true)
+		// setIsProcessing(true)
+		setIsCreatingInstance(true)
 
 		try {
 			// Automatic configuration logic
@@ -181,6 +183,7 @@ const SelectInstance = () => {
 
 			await new Promise((resolve) => setTimeout(resolve, 1500))
 
+			// cập nhật formData với instance được chọn
 			setFormData((prev) => ({
 				...prev,
 				service: SERVICES[0].name,
@@ -190,14 +193,53 @@ const SelectInstance = () => {
 				budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
 			}))
 
+			const presignUrl = await createDownPresignedUrls(`${selectedProject.title}/zip/data.zip`)
+			console.log('presignUrl', presignUrl)
+
+			const time = formData.trainingTime
+			const cost = formData.budget
+			console.log("Cost:", cost)
+
+			const createInstancePayload = {
+				task: "",
+				training_time: time,
+				presets: "medium_quality",
+				data: {
+					"num_samples": 100,
+				},
+				cost: 2,
+				dataset_url: "https://ise-automl-platform.s3.amazonaws.com/fake_data/sst-text-classification.zip?AWSAccessKeyId=AKIATCKAQVWFT6VKIRQE&Signature=cJRMjPcImD6SLn2P10eiSYCZE3o%3D&Expires=1752322458",
+				datasetLabelUrl: 'hello',
+				target_column: 'label',
+				image_column: "Image",
+				text_column: selectedProject.meta_data.text_columns[0],
+				dataset_download_method: "",
+				problemType: selectedProject.meta_data.is_binary_class ? 'BINARY' : 'MULTICLASS',
+				framework: 'autogluon',
+				select_best_machine: true,
+				projectID: projectInfo.id
+			}
+			console.log("createInstancePayload:", createInstancePayload)
+
+			const instance = await createInstance(createInstancePayload)
+			const instanceInfo = instance.data
+			setInstanceInfo(instanceInfo)
+			updateFields({
+				instanceInfo,
+			})
+			console.log('instanceInfo', instanceInfo)
 			message.success('Found suitable instance')
+
 		} catch (error) {
-			message.error('Error finding instance')
+			console.error(error)
+			message.error('Error finding and creating instance')
 		} finally {
 			setIsLoading(false)
-			setIsProcessing(false)
+			// setIsProcessing(false)
+			setIsCreatingInstance(false)
 		}
 	}
+
 
 	const handleTrainModel = async () => {
 		const confirmed = window.confirm(
@@ -215,14 +257,9 @@ const SelectInstance = () => {
 			const presignUrl = await createDownPresignedUrls(`${selectedProject.title}/zip/data.zip`)
 			console.log('presignUrl', presignUrl)
 
-			const { data } = await createInstance()
-			const instanceInfo = data
-			updateFields({
-				instanceInfo,
-			})
-			console.log('instanceInfo', instanceInfo)
 			const time = formData.trainingTime
 			console.log('time', time)
+			console.log('instanceInfo', instanceInfo)
 
 			const payload = {
 				trainingTime: time * 3600,
