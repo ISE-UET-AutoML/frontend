@@ -401,9 +401,7 @@ const TrainingInfoCard = ({
 
 // Main Component
 const Training = () => {
-    const { projectInfo, updateFields, instanceInfo } = useOutletContext()
-    // Currently hard coded this for testing.
-    console.log('in Training', instanceInfo)
+    const { projectInfo, updateFields } = useOutletContext()
     const navigate = useNavigate()
     const location = useLocation()
     const searchParams = new URLSearchParams(location.search)
@@ -490,7 +488,7 @@ const Training = () => {
                 setLoading(true)
 
                 // const res = await getExperiment(experimentName, projectInfo.id)
-                const res = await getTrainingProgress(experimentId, instanceInfo)
+                const res = await getTrainingProgress(experimentId)
                 console.log(res)
                 if (res.status === 422 || res.status === 500) {
                     clearInterval(interval)
@@ -542,17 +540,11 @@ const Training = () => {
                             })
                         }
                         // Create model after finish training (ONLY 1 TIME)
-                        const createModelRequest = await createModel(experimentId, instanceInfo)
+                        const createModelRequest = await createModel(experimentId)
                         console.log(createModelRequest)
                         setTrainProgress(100)
                     } else if (res.data.status === 'TRAINING') {
-                        const metricRequestPayload = {
-                            task_id: res.data.name,
-                            instance_info: instanceInfo,
-                            framework: res.data.framework
-                        }
-
-                        const metricRequest = await getTrainingMetrics(metricRequestPayload)
+                        const metricRequest = await getTrainingMetrics(experimentId)
                         console.log(metricRequest)
 
                         // setTrainingInfo({

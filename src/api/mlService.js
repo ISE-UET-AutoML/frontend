@@ -4,23 +4,21 @@ import instance from "./axios";
 const URL = `${API_BASE_URL}/api/ml`
 const proxyURL = `${API_BASE_URL}/api/service/ml`
 
-const getTrainingProgress = (experimentId, instanceInfo) => {
-    return instance.post(
-        `${URL}/experiment/${experimentId}/training-progress`, { instanceInfo }
+const getTrainingProgress = (experimentId) => {
+    return instance.get(
+        `${URL}/experiment/${experimentId}/training-progress`
     )
 }
 
-const createModel = (experimentId, instanceInfo) => {
+const createModel = (experimentId) => {
     return instance.post(
-        `${URL}/experiment/${experimentId}/model/create`,
-        { instanceInfo }
+        `${URL}/experiment/${experimentId}/model/create`
     )
 }
 
-const getTrainingMetrics = (payload) => {
-    return instance.post(
-        `${proxyURL}/model_service/train/training_metrics`,
-        payload
+const getTrainingMetrics = (experimentId) => {
+    return instance.get(
+        `${URL}/experiment/${experimentId}/training-metrics`
     )
 }
 
