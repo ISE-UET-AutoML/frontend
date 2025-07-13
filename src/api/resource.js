@@ -12,8 +12,13 @@ const createInstance = () => {
     return instance.post(`${URL}/instances`, body)
     // For testing
     // return {
-    //     "status": 200,
-    //     "data": { 'id': 22812439, 'ssh_port': '54709', 'public_ip': '171.101.232.45', 'deploy_port': '54846' }
+    //     "data": {
+    //         "id": 22922951,
+    //         "ssh_port": "10242",
+    //         "public_ip": "142.214.185.62",
+    //         "deploy_port": "23685"
+    //     },
+    //     "status": 200
     // }
 }
 
