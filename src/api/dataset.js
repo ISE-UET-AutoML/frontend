@@ -41,7 +41,7 @@ const getDatasets = () => {
 }
 
 const getDataset = (datasetID) => {
-	return instance.get(`${URL}/${datasetID}`)
+	return instance.get(`${URL_SERVICE}/datasets/${datasetID}`)
 }
 
 const getProcessingStatus = (datasetId) => {
