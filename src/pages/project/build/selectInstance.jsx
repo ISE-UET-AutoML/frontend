@@ -201,16 +201,16 @@ const SelectInstance = () => {
 			console.log("Cost:", cost)
 
 			const createInstancePayload = {
-				task: "",
 				training_time: time,
 				presets: "medium_quality",
 				data: {
-					"num_samples": 100,
+					"num_samples": selectedProject.meta_data.train_samples
 				},
-				cost: 2,
-				dataset_url: "https://ise-automl-platform.s3.amazonaws.com/fake_data/sst-text-classification.zip?AWSAccessKeyId=AKIATCKAQVWFT6VKIRQE&Signature=cJRMjPcImD6SLn2P10eiSYCZE3o%3D&Expires=1752322458",
-				datasetLabelUrl: 'hello',
-				target_column: 'label',
+				// cost: cost
+				cost: 0.2,
+				dataset_url: presignUrl.data.url,
+				dataset_label_url: 'hello',
+				target_column: selectedProject.meta_data.target_column,
 				image_column: "Image",
 				text_column: selectedProject.meta_data.text_columns[0],
 				dataset_download_method: "",
@@ -221,7 +221,8 @@ const SelectInstance = () => {
 			}
 			console.log("createInstancePayload:", createInstancePayload)
 
-			const instance = await createInstance(createInstancePayload)
+			const is_retry = false
+			const instance = await createInstance(is_retry, createInstancePayload)
 			const instanceInfo = instance.data
 			setInstanceInfo(instanceInfo)
 			updateFields({
