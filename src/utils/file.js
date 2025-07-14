@@ -1,5 +1,6 @@
 import { ALLOWED_FILE_EXTENSIONS } from 'src/constants/file'
 import { TASK_TYPES } from 'src/constants/types'
+import Papa from 'papaparse';
 
 const isAllowedExtension = (fileName, allowedExtensions) => {
 	const idx = fileName.lastIndexOf('.')
@@ -98,4 +99,37 @@ const createChunks = (fileMap, chunkSize) => {
 	return chunks;
 };
 
-export { validateFiles, organizeFiles, createChunks }
+const extractCSVMetaData = async (file) => {
+	return new Promise((resolve, reject) => {
+		Papa.parse(file, {
+			header: true,
+			skipEmptyLines: true,
+			complete: function (results) {
+				const rows = results.data;
+				if (rows.length === 0) return resolve({ rowCount: 0, columnCount: 0, columns: {} });
+
+				const columns = {};
+				Object.keys(rows[0]).forEach((col) => {
+					const uniqueValues = new Set();
+					rows.forEach((row) => {
+						if (row[col] !== '') uniqueValues.add(row[col]);
+					});
+					columns[col] = {
+						unique_class_count: uniqueValues.size,
+					};
+				});
+
+				resolve({
+					rowCount: rows.length,
+					columnCount: Object.keys(rows[0]).length,
+					columns,
+				});
+			},
+			error: function (error) {
+				reject(error);
+			},
+		});
+	});
+};
+
+export { validateFiles, organizeFiles, createChunks, extractCSVMetaData }

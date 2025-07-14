@@ -230,7 +230,7 @@ const SelectInstance = () => {
                 datasetLabelUrl: 'hello',
                 problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
                 framework: 'autogluon',
-                target_column: selectedProject.meta_data?.target_column,
+                target_column: selectedProject.meta_data?.target_column[0],
                 text_column: selectedProject.meta_data?.text_columns[0],
             }
             console.log('payloadTrain', payload)

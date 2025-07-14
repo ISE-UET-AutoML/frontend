@@ -42,7 +42,7 @@ const PROCESSING_STATUS = {
 
 export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	const createdAt = dataset.createdAt
-	const bucketName = dataset.metaData?.bucketName || 'N/A'
+	const bucketName = dataset?.bucketName || 'N/A'
 	const dataType = dataset.dataType || 'UNKNOWN'
 	const processingStatus = dataset.processingStatus || 'PROCESSING'
 	const totalFiles = dataset.metaData?.totalFiles || 0

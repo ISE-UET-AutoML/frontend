@@ -23,6 +23,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
     const [expectedLabels, setLabels] = useState([])
     const [newLabel, setNewLabel] = useState('')
     const [loading, setLoading] = useState(false)
+    const [columnOptions, setColumnOptions] = useState([])
 
     const taskType = Form.useWatch('taskType', form)
     const selectedDatasetId = Form.useWatch('datasetId', form)
@@ -34,7 +35,9 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
     useEffect(() => {
         if (visible) {
             fetchDatasets()
-            setLabels([]) // Reset labels when modal opens
+            setLabels([])
+            setNewLabel('')
+            setColumnOptions([])
         }
     }, [visible])
 
@@ -47,13 +50,30 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
         }
     }
 
-    // Auto-fill expected labels when a dataset is selected
     useEffect(() => {
         const selectedDataset = datasets.find(ds => ds.id === selectedDatasetId)
-        if (selectedDataset?.detectedLabels?.length > 0) {
+
+        setLabels([])
+
+        if (selectedDataset?.dataType === 'IMAGE' && selectedDataset?.detectedLabels?.length > 0) {
             setLabels(selectedDataset.detectedLabels)
         }
+
+        if (
+            (selectedDataset?.dataType === 'TEXT' || selectedDataset?.dataType === 'TABULAR') &&
+            selectedDataset?.metaData?.columns
+        ) {
+            const columns = selectedDataset.metaData.columns
+            const options = Object.entries(columns).map(([key, val]) => ({
+                value: key,
+                label: `${key} (${val.uniqueClassCount} classes)`
+            }))
+            setColumnOptions(options)
+        } else {
+            setColumnOptions([])
+        }
     }, [selectedDatasetId, datasets])
+
 
     const handleAddLabel = () => {
         const v = newLabel.trim()
@@ -83,6 +103,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
         form.resetFields()
         setLabels([])
         setNewLabel('')
+        setColumnOptions([])
         onCancel()
     }
 
@@ -99,60 +120,32 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
             footer={null}
             width={600}
         >
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-            >
-                <Form.Item
-                    name="name"
-                    label="Project Name"
-                    rules={[
-                        { required: true, message: 'Please enter project name' },
-                        { min: 3, message: 'Project name must be at least 3 characters' }
-                    ]}
-                >
+            <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                {/* --- Basic Fields --- */}
+                <Form.Item name="name" label="Project Name" rules={[
+                    { required: true, message: 'Please enter project name' },
+                    { min: 3, message: 'Project name must be at least 3 characters' }
+                ]}>
                     <Input placeholder="Enter project name" />
                 </Form.Item>
 
-                <Form.Item
-                    name="description"
-                    label="Description"
-                >
-                    <TextArea
-                        placeholder="Enter project description"
-                        rows={3}
-                        maxLength={500}
-                        showCount
-                    />
+                <Form.Item name="description" label="Description">
+                    <TextArea rows={3} maxLength={500} showCount />
                 </Form.Item>
 
-                <Form.Item
-                    name="taskType"
-                    label="Task Type"
-                    rules={[{ required: true, message: 'Please select task type' }]}
-                >
+                <Form.Item name="taskType" label="Task Type" rules={[{ required: true, message: 'Please select task type' }]}>
                     <Select placeholder="Select task type">
                         {projectTypes.map(pt => (
-                            <Option key={pt.value} value={pt.value}>
-                                {pt.label}
-                            </Option>
+                            <Option key={pt.value} value={pt.value}>{pt.label}</Option>
                         ))}
                     </Select>
                 </Form.Item>
 
-                <Form.Item
-                    noStyle
-                    shouldUpdate={(prev, curr) => prev.taskType !== curr.taskType}
-                >
+                <Form.Item noStyle shouldUpdate={(prev, curr) => prev.taskType !== curr.taskType}>
                     {({ getFieldValue }) => {
                         const selectedType = getFieldValue('taskType')
-                        const requiredDataType = selectedType
-                            ? TASK_TYPES[selectedType]?.dataType
-                            : null
-                        const filtered = datasets.filter(ds =>
-                            ds.dataType === requiredDataType
-                        )
+                        const requiredDataType = selectedType ? TASK_TYPES[selectedType]?.dataType : null
+                        const filtered = datasets.filter(ds => ds.dataType === requiredDataType)
 
                         const getStatusColor = status => {
                             switch (status) {
@@ -164,17 +157,11 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                         }
 
                         return (
-                            <Form.Item
-                                name="datasetId"
-                                label="Dataset"
-                                rules={[{ required: true, message: 'Please select a dataset' }]}
-                            >
+                            <Form.Item name="datasetId" label="Dataset" rules={[{ required: true, message: 'Please select a dataset' }]}>
                                 <Select
-                                    placeholder={
-                                        requiredDataType
-                                            ? `Select a ${requiredDataType.toLowerCase()} dataset`
-                                            : 'Please select project type first'
-                                    }
+                                    placeholder={requiredDataType
+                                        ? `Select a ${requiredDataType.toLowerCase()} dataset`
+                                        : 'Please select project type first'}
                                     showSearch
                                     optionFilterProp="label"
                                     disabled={!requiredDataType}
@@ -188,9 +175,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                                         >
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <span>{ds.title} ({ds.quantity} items)</span>
-                                                <Tag color={getStatusColor(ds.processingStatus)} style={{ marginLeft: 8 }}>
-                                                    {ds.processingStatus}
-                                                </Tag>
+                                                <Tag color={getStatusColor(ds.processingStatus)}>{ds.processingStatus}</Tag>
                                             </div>
                                         </Option>
                                     ))}
@@ -200,70 +185,77 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                     }}
                 </Form.Item>
 
-                {/* Expected Labels */}
+                {/* --- Expected Labels --- */}
                 <Form.Item label="Expected Labels" required>
-                    <div className="space-y-3">
-                        <div className="flex gap-2">
-                            <Input
-                                placeholder="Enter label name"
-                                value={newLabel}
-                                onChange={e => setNewLabel(e.target.value)}
-                                onPressEnter={handleAddLabel}
-                            />
-                            <Button
-                                type="dashed"
-                                icon={<PlusOutlined />}
-                                onClick={handleAddLabel}
-                                disabled={!newLabel.trim()}
-                            >
-                                Add
-                            </Button>
-                        </div>
-
-                        {expectedLabels.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                                {expectedLabels.map(label => (
-                                    <Tag
-                                        key={label}
-                                        closable
-                                        onClose={() => handleRemoveLabel(label)}
-                                        color="blue"
-                                    >
-                                        {label}
-                                    </Tag>
-                                ))}
+                    {columnOptions.length > 0 ? (
+                        <Select
+                            placeholder="Select label column"
+                            value={expectedLabels[0]}
+                            onChange={v => setLabels([v])}
+                        >
+                            {columnOptions.map(col => (
+                                <Option key={col.value} value={col.value}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>{col.value}</span>
+                                        <i style={{ fontSize: '0.8em', color: '#999' }}>{col.label.match(/\(([^)]+)\)/)?.[1]}</i>
+                                    </div>
+                                </Option>
+                            ))}
+                        </Select>
+                    ) : (
+                        <>
+                            <div className="flex gap-2">
+                                <Input
+                                    placeholder="Enter label name"
+                                    value={newLabel}
+                                    onChange={e => setNewLabel(e.target.value)}
+                                    onPressEnter={handleAddLabel}
+                                />
+                                <Button
+                                    type="dashed"
+                                    icon={<PlusOutlined />}
+                                    onClick={handleAddLabel}
+                                    disabled={!newLabel.trim()}
+                                >
+                                    Add
+                                </Button>
                             </div>
-                        ) : (
-                            <Alert
-                                message={
-                                    <ul>
-                                        <li> - At least one expected label is required to create a project.</li>
-                                        <li>
-                                            - <b>For text-related tasks</b>, the expected labels typically correspond to the <b>label</b> column in your dataset.
-                                        </li>
-                                    </ul>
-                                }
-                                type="info"
-                                showIcon
-                                className="text-sm"
-                            />
-                        )}
-                    </div>
+
+                            {expectedLabels.length > 0 ? (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {expectedLabels.map(label => (
+                                        <Tag
+                                            key={label}
+                                            closable
+                                            onClose={() => handleRemoveLabel(label)}
+                                            color="blue"
+                                        >
+                                            {label}
+                                        </Tag>
+                                    ))}
+                                </div>
+                            ) : (
+                                <Alert
+                                    message={
+                                        <ul>
+                                            <li>At least one expected label is required to create a project.</li>
+                                        </ul>
+                                    }
+                                    type="info"
+                                    showIcon
+                                    className="text-sm mt-2"
+                                />
+                            )}
+                        </>
+                    )}
                 </Form.Item>
 
                 <Divider />
 
                 <Form.Item className="mb-0">
                     <Space className="w-full justify-end">
-                        <Button onClick={handleCancel}>
-                            Cancel
-                        </Button>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            loading={loading}
-                            disabled={expectedLabels.length === 0}
-                        >
+                        <Button onClick={handleCancel}>Cancel</Button>
+                        <Button type="primary" htmlType="submit" loading={loading} disabled={expectedLabels.length === 0}>
                             Create Project
                         </Button>
                     </Space>
