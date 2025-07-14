@@ -27,9 +27,10 @@ const Login = () => {
                 navigate(state?.path || PATHS.PROJECTS, { replace: true });
             });
 
-            if(data.user && data.user.ls_token){
-                console.log("Found ls_token, redirecting to Label Studio...");
+            if (data.user && data.user.ls_token) {
+                console.log("Found ls_token, redirecting to Label Studio...", data);
                 const labelStudioBaseUrl = process.env.REACT_APP_LABEL_STUDIO_URL || 'http://127.0.0.1:8080';
+                console.log("ls_token", data.user.ls_token)
                 const labelStudioLoginUrl = `${labelStudioBaseUrl}/user/login?user_token=${data.user.ls_token}`;
                 window.open(
                     labelStudioLoginUrl,
