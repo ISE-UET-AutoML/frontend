@@ -44,9 +44,8 @@ const organizeFiles = (files) => {
 	files.forEach((file) => {
 		const pathParts = file.path.split('/');
 
-		// Auto-detect if files are organized in folders (labeled)
-		// If path has more than 1 part (folder/file.ext), treat as labeled
-		if (pathParts.length > 1) {
+		if (pathParts.length >= 3) {
+			// Ex: path = 'train/dog/dog_10.jpg' → label = 'dog'
 			const label = pathParts[pathParts.length - 2];
 
 			if (!fileMap.has(label)) {
@@ -59,7 +58,7 @@ const organizeFiles = (files) => {
 				boundingBox: file.boundingBox,
 			});
 		} else {
-			// Files are directly in root, treat as unlabeled
+			// Ex: path = 'train/dog_10.jpg' OR 'dog_10.jpg' → unlabeled
 			if (!fileMap.has('unlabeled')) {
 				fileMap.set('unlabeled', []);
 			}
@@ -71,9 +70,9 @@ const organizeFiles = (files) => {
 			});
 		}
 	});
-
 	return fileMap;
 };
+
 
 const createChunks = (fileMap, chunkSize) => {
 	const chunks = [];
@@ -81,10 +80,12 @@ const createChunks = (fileMap, chunkSize) => {
 	for (const [label, files] of fileMap.entries()) {
 		for (let i = 0; i < files.length; i += chunkSize) {
 			const chunkFiles = files.slice(i, i + chunkSize);
-			const chunkName =
-				label === 'unlabeled'
-					? `chunk_${i / chunkSize}.zip`
-					: `chunk_${label}_${i / chunkSize}.zip`;
+			const chunkIndex = Math.floor(i / chunkSize);
+
+			// Updated naming logic for unlabeled data
+			const chunkName = label === 'unlabeled'
+				? `chunk_unlabel_${chunkIndex}.zip`
+				: `chunk_${label}_${chunkIndex}.zip`;
 
 			chunks.push({
 				name: chunkName,

@@ -4,12 +4,14 @@ const TASK_TYPES = {
 		description: 'We accept JPEG, PNG image format',
 		allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
 		card: { bg: '#e6f4ff', text: '#1677ff', border: '#1677ff' },
+		dataType: 'IMAGE',
 	},
 	TEXT_CLASSIFICATION: {
 		type: 'Text Classification',
 		description: 'We accept CSV text format',
 		allowedExtensions: ['csv'],
 		card: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
+		dataType: 'TEXT',
 	},
 	TABULAR_CLASSIFICATION: {
 		type: 'Tabular Classification',
@@ -20,6 +22,7 @@ const TASK_TYPES = {
 			text: '#722ed1',
 			border: '#722ed1',
 		},
+		dataType: 'TABULAR',
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',
@@ -30,6 +33,7 @@ const TASK_TYPES = {
 			text: '#faad14',
 			border: '#faad14',
 		},
+		dataType: 'TABULAR',
 	},
 	MULTILABEL_IMAGE_CLASSIFICATION: {
 		type: 'Multilabel Image Classification',
@@ -40,16 +44,19 @@ const TASK_TYPES = {
 			text: '#fa8c16',
 			border: '#fa8c16',
 		},
+		dataType: 'IMAGE',
 	},
 	OBJECT_DETECTION: {
 		type: 'Object Detection',
 		description: 'We accept JPEG, PNG image format',
 		allowedExtensions: ['jpg', 'jpeg', 'png'],
+		dataType: 'IMAGE',
 	},
-	SEGMENTATION: {
-		type: 'Segmentation',
+	IMAGE_SEGMENTATION: {
+		type: 'Image Segmentation',
 		description: 'We accept JPEG, PNG image format',
 		allowedExtensions: ['jpg', 'jpeg', 'png'],
+		dataType: 'IMAGE',
 	},
 }
 

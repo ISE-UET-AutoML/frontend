@@ -21,7 +21,7 @@ const config = {
 	},
 	TEXT_CLASSIFICATION: {
 		folder: UploadTypes.CSV_SINGLE,
-		afterUploadURL: 'selectTargetCol',
+		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
 		predictView: TextPredict,
 		liveInferView: TextLiveInfer,

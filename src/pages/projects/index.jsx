@@ -335,7 +335,7 @@ export default function Projects() {
 		try {
 			const response = await instance.post(API_URL.all_projects, data, {
 				headers: {
-					'Content-Type': 'multipart/form-data',
+					'Content-Type': 'application/json',
 				},
 			})
 

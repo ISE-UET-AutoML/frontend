@@ -15,6 +15,7 @@ const Login = () => {
     const onLogin = async (credential) => {
         try {
             const { data } = await auth.login(credential);
+            message.success('Login successfully');
             // Lưu email vào localStorage trước khi làm bất cứ điều gì khác
             if (data.user && data.user.email) {
                 localStorage.setItem('email', data.user.email);
