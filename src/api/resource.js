@@ -3,8 +3,8 @@ import instance from './axios'
 
 const URL = `${API_BASE_URL}/api/resource`
 
-const createInstance = (is_retry, createInstancePayload) => {
-    return instance.post(`${URL}/select_instance/${is_retry}`, createInstancePayload)
+const createInstance = (createInstancePayload) => {
+    return instance.post(`${URL}/select_instance/`, createInstancePayload)
     // For testing
     // return {
     //     "status": 200,
