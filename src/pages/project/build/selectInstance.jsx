@@ -193,11 +193,11 @@ const SelectInstance = () => {
 				budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
 			}))
 
-			const presignUrl = await createDownPresignedUrls(`${selectedProject.title}/zip/data.zip`)
+			const presignUrl = await createDownZipPU(selectedProject.dataset_title)
 			console.log('presignUrl', presignUrl)
 
 			const time = formData.trainingTime
-			const cost = formData.budget
+			const cost = (selectedGPU.cost * formData.trainingTime).toFixed(2)
 			console.log("Cost:", cost)
 			console.log("selectedProject:", selectedProject)
 			console.log("projectInfo:", projectInfo)
@@ -205,16 +205,11 @@ const SelectInstance = () => {
 			const createInstancePayload = {
 				training_time: time,
 				presets: "medium_quality",
-				data_info: {
-					"num_samples": selectedProject.meta_data.train_samples
-				},
-				// cost: cost
-				cost: 0.2,
-				// dataset_url: presignUrl.data.url,
-				dataset_url: "https://ise-automl-platform.s3.amazonaws.com/fake_data/sst-text-classification.zip?AWSAccessKeyId=AKIATCKAQVWFT6VKIRQE&Signature=mcSTTMTkWadbIyaiQrYZ7LqYZm4%3D&Expires=1752597443",
+				dataset_meta_data: selectedProject.dataset_meta_data,
+				cost: cost,
+				dataset_url: presignUrl.data[0],
 				dataset_label_url: 'hello',
-				target_column: "label",
-				// target_column: selectedProject.meta_data.target_column,
+				target_column: selectedProject.meta_data.target_column,
 				image_column: "Image",
 				text_column: selectedProject.meta_data.text_columns[0],
 				dataset_download_method: "",
@@ -253,7 +248,6 @@ const SelectInstance = () => {
 
         try {
             setIsProcessing(true)
-            setIsCreatingInstance(true)
             setIsModalVisible(true)
             console.log('projectInfo', projectInfo)
             console.log('selectedProject', selectedProject)
@@ -311,8 +305,8 @@ const SelectInstance = () => {
 
             return () => clearInterval(interval)
         } catch (error) {
-            console.error('Can not create instance:', error)
-            message.error('Can not create instance')
+            console.error('Error', error)
+            message.error('Error')
         }
     }
 
