@@ -52,22 +52,23 @@ const { Option } = Select
 
 
 const SelectInstance = () => {
-    const { projectInfo, updateFields, selectedProject } = useOutletContext()
-    const navigate = useNavigate()
-    const [searchParams, setSearchParams] = useSearchParams()
-    const [activeTab, setActiveTab] = useState('automatic')
-    const [isLoading, setIsLoading] = useState(false)
-    const [isCreatingInstance, setIsCreatingInstance] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
-    const [formData, setFormData] = useState({
-        service: SERVICES[0].name,
-        gpuNumber: '',
-        gpuName: GPU_NAMES[0],
-        disk: '',
-        trainingTime: '',
-        budget: '',
-        instanceSize: 'Weak',
-    })
+	const { projectInfo, updateFields, selectedProject } = useOutletContext()
+	const navigate = useNavigate()
+	const [searchParams, setSearchParams] = useSearchParams()
+	const [activeTab, setActiveTab] = useState('automatic')
+	const [isLoading, setIsLoading] = useState(false)
+	const [isCreatingInstance, setIsCreatingInstance] = useState(false)
+	const [isProcessing, setIsProcessing] = useState(false)
+	const [formData, setFormData] = useState({
+		service: SERVICES[0].name,
+		gpuNumber: '',
+		gpuName: GPU_NAMES[0],
+		disk: '',
+		trainingTime: '',
+		budget: '',
+		instanceSize: 'Weak',
+	})
+	const [instanceInfo, setInstanceInfo] = useState(null)
 
     const [currentStep, setCurrentStep] = useState(0)
     const [isModalVisible, setIsModalVisible] = useState(false)
@@ -151,8 +152,9 @@ const SelectInstance = () => {
             return
         }
 
-        setIsLoading(true)
-        setIsProcessing(true)
+		setIsLoading(true)
+		// setIsProcessing(true)
+		setIsCreatingInstance(true)
 
         try {
             // Automatic configuration logic
@@ -181,23 +183,67 @@ const SelectInstance = () => {
 
             await new Promise((resolve) => setTimeout(resolve, 1500))
 
-            setFormData((prev) => ({
-                ...prev,
-                service: SERVICES[0].name,
-                gpuNumber: selectedGPU.gpuNumber,
-                gpuName: selectedGPU.name,
-                disk: selectedGPU.disk,
-                budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
-            }))
+			// cập nhật formData với instance được chọn
+			setFormData((prev) => ({
+				...prev,
+				service: SERVICES[0].name,
+				gpuNumber: selectedGPU.gpuNumber,
+				gpuName: selectedGPU.name,
+				disk: selectedGPU.disk,
+				budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
+			}))
 
-            message.success('Found suitable instance')
-        } catch (error) {
-            message.error('Error finding instance')
-        } finally {
-            setIsLoading(false)
-            setIsProcessing(false)
-        }
-    }
+			const presignUrl = await createDownPresignedUrls(`${selectedProject.title}/zip/data.zip`)
+			console.log('presignUrl', presignUrl)
+
+			const time = formData.trainingTime
+			const cost = formData.budget
+			console.log("Cost:", cost)
+			console.log("selectedProject:", selectedProject)
+			console.log("projectInfo:", projectInfo)
+
+			const createInstancePayload = {
+				training_time: time,
+				presets: "medium_quality",
+				data_info: {
+					"num_samples": selectedProject.meta_data.train_samples
+				},
+				// cost: cost
+				cost: 0.2,
+				// dataset_url: presignUrl.data.url,
+				dataset_url: "https://ise-automl-platform.s3.amazonaws.com/fake_data/sst-text-classification.zip?AWSAccessKeyId=AKIATCKAQVWFT6VKIRQE&Signature=mcSTTMTkWadbIyaiQrYZ7LqYZm4%3D&Expires=1752597443",
+				dataset_label_url: 'hello',
+				target_column: "label",
+				// target_column: selectedProject.meta_data.target_column,
+				image_column: "Image",
+				text_column: selectedProject.meta_data.text_columns[0],
+				dataset_download_method: "",
+				problem_type: selectedProject.meta_data.is_binary_class ? 'BINARY' : 'MULTICLASS',
+				framework: 'autogluon',
+				select_best_machine: true,
+				projectID: projectInfo.id
+			}
+			console.log("createInstancePayload:", createInstancePayload)
+
+			const instance = await createInstance(createInstancePayload)
+			const instanceInfo = instance.data
+			setInstanceInfo(instanceInfo)
+			updateFields({
+				instanceInfo,
+			})
+			console.log('instanceInfo', instanceInfo)
+			message.success('Found suitable instance')
+
+		} catch (error) {
+			console.error(error)
+			message.error('Error finding and creating instance')
+		} finally {
+			setIsLoading(false)
+			// setIsProcessing(false)
+			setIsCreatingInstance(false)
+		}
+	}
+
 
     const handleTrainModel = async () => {
         const confirmed = window.confirm(
@@ -216,11 +262,9 @@ const SelectInstance = () => {
             // const presignUrl = await createDownZipPU('Image_Vinh')
             console.log('presignUrl', presignUrl)
 
-            const { data } = await createInstance()
-            const instanceInfo = data
-            console.log('instanceInfo', instanceInfo)
-            const time = formData.trainingTime
-            console.log('time', time)
+			const time = formData.trainingTime
+			console.log('time', time)
+			console.log('instanceInfo', instanceInfo)
 
             const payload = {
                 trainingTime: time * 3600,
