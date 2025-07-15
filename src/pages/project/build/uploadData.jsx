@@ -45,11 +45,12 @@ const UploadData = () => {
         setTableLoading(true)
         try {
             const response = await getLbProjByTask(projectInfo.task_type)
+            console.log('LbProjByTask', response)
             setLabelProjects(
                 Array.isArray(response.data)
                     ? response.data.map((item) => ({
                         ...item,
-                        title: item.dataset_title,
+                        title: item.name,
                         bucketName: item.bucket_name,
                         isLabeled: item.annotated_nums > 0,
                         service: item.service,
