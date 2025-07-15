@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import Cookies from 'universal-cookie';
+import { logoutLabelStudio } from 'src/api/labelProject';
+
 
 const authContext = React.createContext();
 
@@ -51,15 +53,30 @@ function useAuth() {
 				res();
 			});
 		},
-		logout() {
-			return new Promise((res) => {
-				setAuthed(false);
-				cookies.remove('accessToken', { path: '/' });
-				cookies.remove('refreshToken', { path: '/' });
-				cookies.remove('Authorization', { path: '/'});
-				cookies.remove('x-user-id', { path: '/'});
-				res();
-			});
+
+		
+		async logout() {
+            const cleanupAndRedirect = () => {
+                console.log("Đang tiến hành logout khỏi hệ thống chính...");
+                const cookies = new Cookies();
+                cookies.remove('accessToken', { path: '/' });
+                cookies.remove('refreshToken', { path: '/' });
+                cookies.remove('Authorization', { path: '/' });
+                cookies.remove('x-user-id', { path: '/' });
+                
+                window.location.reload();
+            };
+
+            try {
+                console.log("Đang thử đăng xuất khỏi Label Studio...");
+                await logoutLabelStudio();
+                console.log("Yêu cầu logout khỏi Label Studio đã hoàn tất.");
+            } catch (error) {
+                console.error("Logout khỏi Label Studio thất bại, nhưng vẫn tiếp tục:", error);
+            } finally {
+				console.log("Đang tiến hành đăng xuất khỏi hệ thống chính..........................................");
+                cleanupAndRedirect();
+            }
 		},
 	};
 }
