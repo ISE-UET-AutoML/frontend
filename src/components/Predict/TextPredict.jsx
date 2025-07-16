@@ -50,7 +50,6 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 	const textPreviewRef = useRef(null)
 	const [currentPage, setCurrentPage] = useState(1)
 	const pageSize = 10
-
 	// Parse CSV and initialize data
 	useEffect(() => {
 		if (uploadedFiles?.[0]?.name.endsWith('.csv')) {
@@ -87,7 +86,6 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 				: 0,
 		})
 	}, [incorrectPredictions, csvData])
-
 	const handlePredictionToggle = (index) => {
 		setIncorrectPredictions((prev) =>
 			prev.includes(index)
@@ -427,7 +425,7 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 											currentPrediction.confidence > 0.7
 												? '#52c41a' // green
 												: currentPrediction.confidence >
-													  0.4
+													0.4
 													? '#fa8c16' // orange
 													: '#ff4d4f' // red
 										}
@@ -558,7 +556,7 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							}}
 							rowClassName={(_, index) =>
 								index + (currentPage - 1) * pageSize ===
-								currentIndex
+									currentIndex
 									? 'bg-blue-50'
 									: ''
 							}

@@ -665,21 +665,14 @@ const DeployView = () => {
             formData.append('files', file)
             addDeploymentLog(`Processing file: ${file.name}`, 'info')
         })
-        formData.append('public_ip', instanceInfo.public_ip)
-        formData.append('ssh_port', instanceInfo.ssh_port)
-        formData.append('task_id', experimentName)
+        formData.append('experiment_name', experimentName)
+        formData.append('text_col', 'sentence')
 
         console.log('Fetch prediction start')
 
         try {
-            // const { data } = await modelAPI.modelPredict(
-            //     formData
-            // )
-
-            // Upload file
-            await modelAPI.uploadData(formData)
             // Make predictions
-            const predictRequest = await modelAPI.modelPredict(instanceURL, projectInfo.task_type, experimentName, validFiles, 'sentence')
+            const predictRequest = await modelAPI.modelPredict(instanceURL, formData)
             const data = predictRequest.data
             console.log('Fetch prediction successful', data)
             if (data.status === 'failed') {

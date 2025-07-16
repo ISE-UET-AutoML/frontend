@@ -45,7 +45,6 @@ const UploadData = () => {
         setTableLoading(true)
         try {
             const response = await getLbProjByTask(projectInfo.task_type)
-            console.log('LbProjByTask', response)
             setLabelProjects(
                 Array.isArray(response.data)
                     ? response.data.map((item) => ({
@@ -79,7 +78,9 @@ const UploadData = () => {
     )
 
     const handleContinue = () => {
-        const selectedProject = filteredProjects[selectedRowKeys[0]]
+        const selectedProject = filteredProjects.find(
+            (p) => p.project_id === selectedRowKeys[0]
+        )
         if (!selectedProject) return
 
         console.log('selectedProject', selectedProject)
@@ -285,9 +286,9 @@ const UploadData = () => {
                                 rowSelection={{
                                     type: 'radio',
                                     selectedRowKeys,
-                                    onChange: setSelectedRowKeys,
+                                    onChange: (keys) => setSelectedRowKeys(keys),
                                 }}
-                                rowKey={(record, index) => index}
+                                rowKey="project_id"
                                 pagination={{ pageSize: 2 }}
                                 className="border rounded-lg"
                                 locale={{
