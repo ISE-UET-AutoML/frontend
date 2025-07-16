@@ -207,7 +207,7 @@ const SelectInstance = () => {
 				presets: "medium_quality",
 				dataset_meta_data: selectedProject.dataset_meta_data,
 				cost: cost,
-				dataset_url: presignUrl.data,
+				dataset_url: presignUrl.data[0],
 				dataset_label_url: 'hello',
 				target_column: selectedProject.meta_data.target_column,
 				image_column: "Image",
@@ -248,6 +248,7 @@ const SelectInstance = () => {
 
         try {
             setIsProcessing(true)
+            setIsCreatingInstance(true)
             setIsModalVisible(true)
             console.log('projectInfo', projectInfo)
             console.log('selectedProject', selectedProject)
@@ -278,32 +279,36 @@ const SelectInstance = () => {
 
             const experimentName = res1.data.experimentName
 
-            const interval = setInterval(async () => {
+            const checkProgress = async () => {
                 try {
-                    const res2 = await getTrainingProgress(res1.data.experimentId)
-                    console.log('res2', res2)
+                    const res2 = await getTrainingProgress(res1.data.experimentId);
+                    console.log('res2', res2);
 
                     if (res2.data.status === 'TRAINING') {
-                        clearInterval(interval)
-                        message.success('Starting training process')
+                        message.success('Starting training process');
                         navigate(
                             `/app/project/${projectInfo.id}/build/training?experimentName=${experimentName}&experimentId=${res2.data.id}`,
                             { replace: true }
-                        )
+                        );
+                        return; // stop recursion
                     } else if (res2.data.status === 'SETTING_UP') {
-                        setCurrentStep(0)
+                        setCurrentStep(0);
                     } else {
-                        setCurrentStep(1)
+                        setCurrentStep(1);
                     }
-                } catch (err) {
-                    console.error('Error checking experiment status:', err)
-                    clearInterval(interval)
-                    message.error('Failed to check training status')
-                    setIsProcessing(false)
-                }
-            }, 10000)
 
-            return () => clearInterval(interval)
+                    // schedule next check after 10s
+                    setTimeout(checkProgress, 10000);
+
+                } catch (err) {
+                    console.error('Error checking experiment status:', err);
+                    message.error('Failed to check training status');
+                    setIsProcessing(false);
+                }
+            };
+
+            // start the first check
+            checkProgress();
         } catch (error) {
             console.error('Error', error)
             message.error('Error')
