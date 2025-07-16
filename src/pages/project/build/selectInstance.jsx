@@ -207,7 +207,7 @@ const SelectInstance = () => {
 				presets: "medium_quality",
 				dataset_meta_data: selectedProject.dataset_meta_data,
 				cost: cost,
-				dataset_url: presignUrl.data[0],
+				dataset_url: presignUrl.data,
 				dataset_label_url: 'hello',
 				target_column: selectedProject.meta_data.target_column,
 				image_column: "Image",
