@@ -68,6 +68,14 @@ const addNewFiles = (datasetID, formData) => {
 	return instance.post(`${URL}/${datasetID}/addNewFiles`, formData, options)
 }
 
+const getDatasetPreviewDataImage = async (datasetId) => {
+	return await instance.get(`${URL_SERVICE}/presigned-urls/${datasetId}/previewdata-image`)
+}
+
+const getDatasetPreviewDataCSV = async (datasetId) => {
+	return await instance.get(`${URL_SERVICE}/presigned-urls/${datasetId}/previewdata-csv`)
+}
+
 export {
 	createDataset,
 	getDatasets,
@@ -80,4 +88,6 @@ export {
 	createPresignedUrls,
 	createDownPresignedUrls,
 	createDownZipPU,
+	getDatasetPreviewDataImage,
+	getDatasetPreviewDataCSV,
 }
