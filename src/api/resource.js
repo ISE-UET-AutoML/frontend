@@ -17,6 +17,14 @@ const createInstance = (createInstancePayload) => {
     // }
 }
 
+const createInstanceForDeploy = () => {
+    const payload = {
+        "projectID": "",
+        "select_best_machine": false
+    }
+    return instance.post(`${URL}/retry_create_instance`, payload)
+}
+
 export {
-    createInstance
+    createInstance, createInstanceForDeploy
 }

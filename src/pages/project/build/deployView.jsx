@@ -528,7 +528,7 @@ const DeployView = () => {
             //     experimentName,
             //     selectedOption
             // )
-            const createInstanceRequest = await resourceAPI.createInstance()
+            const createInstanceRequest = await resourceAPI.createInstanceForDeploy()
             console.log(createInstanceRequest)
             if (createInstanceRequest.status !== 200) {
                 throw new Error("Failed to create instance.")
