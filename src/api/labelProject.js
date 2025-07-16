@@ -16,12 +16,15 @@ export const createLbProject = (payload) => {
     return instance.post(`${URL}/createLbProject`, payload, options)
 }
 
-export const getLbProjects = () => {
+export const getLbProjects = (ownerId) => {
     const options = {
         headers: {
             'Content-Type': 'application/json',
         },
         withCredentials: true,
+        params: ownerId ?{
+            owner_id: ownerId,
+        } : {},
     }
     return instance.get(`${URL_SERVICE}/ls-projects/`, options)
 }

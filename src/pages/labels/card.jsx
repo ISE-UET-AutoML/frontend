@@ -6,12 +6,15 @@ import {
 } from '@ant-design/icons'
 import { PATHS } from 'src/constants/paths'
 import dayjs from 'dayjs'
+import { message } from 'antd';
+
 
 const { Title, Text } = Typography
-
+const { REACT_APP_LABEL_STUDIO_URL } = process.env
 export default function LabelProjectCard({ project, onDelete, isDeleting }) {
     const {
         id,
+        labelStudioId, 
         name,
         taskType,
         createdAt,
@@ -21,8 +24,13 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
     } = project
 
     const handleViewProject = () => {
-        // window.location.href = PATHS.LABEL_PROJECT_VIEW(id)
-        console.log('hello')
+        if (labelStudioId) {
+            const url = `${REACT_APP_LABEL_STUDIO_URL}/projects/${labelStudioId}`;
+            window.open(url, '_blank');
+        } else {
+            console.error("Label Studio ID is missing!");
+            message.error("Label Studio ID is missing for this project.");
+        }
     }
 
     const handleDeleteClick = (e) => {

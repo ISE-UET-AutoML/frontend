@@ -8,6 +8,15 @@ import { snakeToCamel } from 'src/utils/mapper'
 
 const { Title } = Typography
 
+const getCookies = (name) => {
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if(parts.length === 2) {
+		return parts.pop().split(';').shift();
+	}
+	return null;
+}
+
 const initialState = {
 	projects: [],
 	isLoading: false,
@@ -24,7 +33,13 @@ export default function LabelProjects() {
 
 	const getLabelProjects = async () => {
 		try {
-			const response = await getLbProjects()
+			const userId = getCookies('x-user-id');
+			if (!userId) {
+				console.error("User ID cookie not found");
+				message.error("User not authenticated. Cannot fetch projects.");
+				return;
+			}
+			const response = await getLbProjects(userId)
 			console.log(snakeToCamel(response.data))
 
 			updateProjectState({
@@ -33,6 +48,7 @@ export default function LabelProjects() {
 			})
 		} catch (error) {
 			console.error('Error fetching label projects:', error)
+			message.error('Failed to fetch projects.');
 			updateProjectState({ isLoading: false })
 		}
 	}
