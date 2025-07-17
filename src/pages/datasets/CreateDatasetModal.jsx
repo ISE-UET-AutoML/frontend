@@ -139,7 +139,14 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				} else {
 					const zip = new JSZip();
 					for (const file of fileInfo.files) {
-						const newPath = file.path.split('/').slice(1).join('/');
+						let newPath = file.path.split('/').slice(-2).join('/');
+						const isUnlabel = file.path.split('/').length === 2 ? true : false;
+						if(isUnlabel) {
+							const fileName = file.path.split('/').pop(); // "data123.png"
+							newPath = `unlabel_${fileName}`;
+						} else {
+							newPath = file.path.split('/').slice(-2).join('_');
+						}
 						zip.file(newPath, file.fileObject);
 					}
 					await uploadToS3(presignedUrl, await zip.generateAsync({ type: 'blob' }));
