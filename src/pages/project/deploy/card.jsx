@@ -1,10 +1,10 @@
 import React from 'react'
 import { Tag, Typography } from 'antd'
-import { DeploymentUnitOutlined } from '@ant-design/icons'
+import { DeploymentUnitOutlined, SettingOutlined, StopOutlined, CloudServerOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 dayjs.extend(relativeTime)
 
@@ -14,25 +14,42 @@ const { Text, Title } = Typography
 const statusColors = {
     ONLINE: 'green',
     OFFLINE: 'red',
-    SETTING_UP: 'grey'
+    SETTING_UP: '',
+    DOWNLOADING_MODEL: 'blue'
 }
 
+const getStatusIcon = (status) => {
+    const style = { fontSize: 24, color: statusColors[status] }
+    switch (status) {
+        case 'OFFLINE':
+            return <StopOutlined style={style} />
+        case 'SETTING_UP':
+            return <SettingOutlined style={style} />
+        case 'ONLINE':
+            return <CloudServerOutlined style={style} />
+        default:
+            return <DeploymentUnitOutlined style={style} />
+    }
+}
+
+
 export default function DeployedModelCard({ deployedModel }) {
-    const { id, model_id, name, create_time, status, instance_info, api_base_url } = deployedModel
+    const { id: projectId } = useParams()
+    const { id: deploy_id, model_id, name, create_time, status, instance_info, api_base_url } = deployedModel
     const navigate = useNavigate()
 
     // Handle card click
     const handleCardClick = () => {
         navigate(
-            status === 'DONE'
-                ? PATHS.PROJECT_TRAININGRESULT(project_id, id, name)
-                : PATHS.PROJECT_TRAINING(project_id, id, name)
+            (status === 'ONLINE' || status === 'OFFLINE')
+                ? PATHS.MODEL_DEPLOY_VIEW(projectId, deploy_id)
+                : PATHS.PROJECT_DEPLOY(projectId)
         )
     }
 
     return (
         <div
-            key={id}
+            key={deploy_id}
             className="relative group p-6 rounded-lg shadow cursor-pointer"
             style={{
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
@@ -52,8 +69,6 @@ export default function DeployedModelCard({ deployedModel }) {
                 <span
                     style={{
                         color: statusColors[status],
-                        backgroundColor:
-                            status === 'DONE' ? '#f6ffed' : '#e6f7ff',
                         borderRadius: '12px',
                         padding: '8px',
                         display: 'inline-flex',
@@ -61,15 +76,13 @@ export default function DeployedModelCard({ deployedModel }) {
                         justifyContent: 'center',
                     }}
                 >
-                    <DeploymentUnitOutlined
-                        style={{ fontSize: 24, color: statusColors[status] }}
-                    />
+                    {getStatusIcon(status)}
                 </span>
                 <Tag
                     color={statusColors[status]}
                     style={{ fontSize: 14, padding: '8px' }}
                 >
-                    {status}
+                    {status.replace("_", " ")}
                 </Tag>
             </div>
             <div className="mt-8">

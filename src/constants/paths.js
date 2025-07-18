@@ -22,7 +22,6 @@ const PATHS = {
         `/app/project/${projectID}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}`,
     PROJECT_MODEL: (projectID) => `/app/project/${projectID}/model`,
     PROJECT_EXPERIMENT: (projectID) => `/app/project/${projectID}/experiments`,
-    PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,
     PROJECT_SETTINGS: (projectID) => `/app/project/${projectID}/settings`,
     PREDICT: (projectID, experimentName) =>
         `/app/project/${projectID}/build?step=4&experiment_name=${experimentName}`,
@@ -30,6 +29,11 @@ const PATHS = {
     /*-----------------------------MODEL-------------------------------------*/
     MODEL_VIEW: (projectId, experimentId, experimentName, modelId) =>
         `/app/project/${projectId}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}&modelId=${modelId}`,
+    /*-----------------------------DEPLOY----------------------------------- */
+    PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,
+    MODEL_DEPLOY_VIEW: (projectId, deployId) =>
+        `/app/project/${projectId}/deploy/${deployId}`,
+
     /*-----------------------------DATASET-------------------------------------*/
 
     DATASET_VIEW: (datasetID) => `/app/dataset/${datasetID}/view`,

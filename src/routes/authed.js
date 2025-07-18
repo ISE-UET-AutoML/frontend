@@ -30,140 +30,144 @@ import SelectTargetCol from 'src/pages/project/build/selectTargetCol'
 import Training from 'src/pages/project/build/training'
 import TrainResult from 'src/pages/project/build/trainResult'
 import DeployView from 'src/pages/project/build/deployView'
+import DeployedModelView from 'src/pages/project/deploy/deployedModelView'
 
 const routes = {
-	element: <DefaultLayout />,
-	children: [
-		{
-			path: PATHS.PROFILE,
-			element: <Profile />,
-		},
-		{
-			path: PATHS.SETTINGS,
-			element: <Settings />,
-		},
-		{
-			path: PATHS.DEFAULT,
-			element: <RequireAuth />,
-			children: [
-				/*-----------------PROJECTS' PATH---------------*/
+    element: <DefaultLayout />,
+    children: [
+        {
+            path: PATHS.PROFILE,
+            element: <Profile />,
+        },
+        {
+            path: PATHS.SETTINGS,
+            element: <Settings />,
+        },
+        {
+            path: PATHS.DEFAULT,
+            element: <RequireAuth />,
+            children: [
+                /*-----------------PROJECTS' PATH---------------*/
 
-				{
-					path: PATHS.PROJECTS,
-					element: <Projects />,
-				},
-				{
-					path: '/app/',
-					children: [
-						{
-							path: 'project/:id',
-							element: <ProjectLayout />,
-							children: [
-								{
-									path: 'build',
-									element: <ProjectBuild />,
-									children: [
-										{
-											path: 'uploadData',
-											element: <UploadData />,
-										},
-										{
-											path: 'selectTargetColMulti',
-											element: <SelectTargetColMulti />,
-										},
-										{
-											path: 'selectTargetCol',
-											element: <SelectTargetCol />,
-										},
-										{
-											path: 'selectInstance',
-											element: <SelectInstance />,
-										},
-										{
-											path: 'training',
-											element: <Training />,
-										},
-										{
-											path: 'trainResult',
-											element: <TrainResult />,
-										},
-										{
-											path: 'deployView',
-											element: <DeployView />,
-										},
-									],
-								},
-								{
-									path: 'experiments',
-									element: <ProjectExperiments />,
-								},
-								{
-									path: 'model',
-									element: <ProjectModels />,
-								},
-								{
-									path: 'deploy',
-									element: <ProjectDeploy />,
-								},
+                {
+                    path: PATHS.PROJECTS,
+                    element: <Projects />,
+                },
+                {
+                    path: '/app/',
+                    children: [
+                        {
+                            path: 'project/:id',
+                            element: <ProjectLayout />,
+                            children: [
+                                {
+                                    path: 'build',
+                                    element: <ProjectBuild />,
+                                    children: [
+                                        {
+                                            path: 'uploadData',
+                                            element: <UploadData />,
+                                        },
+                                        {
+                                            path: 'selectTargetColMulti',
+                                            element: <SelectTargetColMulti />,
+                                        },
+                                        {
+                                            path: 'selectTargetCol',
+                                            element: <SelectTargetCol />,
+                                        },
+                                        {
+                                            path: 'selectInstance',
+                                            element: <SelectInstance />,
+                                        },
+                                        {
+                                            path: 'training',
+                                            element: <Training />,
+                                        },
+                                        {
+                                            path: 'trainResult',
+                                            element: <TrainResult />,
+                                        },
+                                        {
+                                            path: 'deployView',
+                                            element: <DeployView />,
+                                        },
+                                    ],
+                                },
+                                {
+                                    path: 'experiments',
+                                    element: <ProjectExperiments />,
+                                },
+                                {
+                                    path: 'model',
+                                    element: <ProjectModels />,
+                                },
+                                {
+                                    path: 'deploy',
+                                    element: <ProjectDeploy />,
+                                },
+                                {
+                                    path: 'deploy/:deployId',
+                                    element: <DeployedModelView />
+                                },
+                                {
+                                    path: 'tasks',
+                                    element: <ProjectTasks />,
+                                },
+                                {
+                                    path: 'settings',
+                                    element: <ProjectSettings />,
+                                },
+                            ],
+                        },
+                    ],
+                },
 
-								{
-									path: 'tasks',
-									element: <ProjectTasks />,
-								},
-								{
-									path: 'settings',
-									element: <ProjectSettings />,
-								},
-							],
-						},
-					],
-				},
+                /*-----------------BUCKETS' PATH---------------*/
 
-				/*-----------------BUCKETS' PATH---------------*/
+                {
+                    path: PATHS.BUCKETS,
+                    element: <Buckets />,
+                },
 
-				{
-					path: PATHS.BUCKETS,
-					element: <Buckets />,
-				},
+                /*-----------------DATASETS' PATH---------------*/
+                {
+                    path: PATHS.DATASETS,
+                    element: <Datasets />,
+                },
+                {
+                    path: '/app/',
+                    children: [
+                        {
+                            path: 'dataset/:id',
+                            element: <DatasetLayout />,
+                            children: [
+                                {
+                                    path: 'view',
+                                    element: <DatasetView />,
+                                },
+                            ],
+                        },
+                    ],
+                },
 
-				/*-----------------DATASETS' PATH---------------*/
-				{
-					path: PATHS.DATASETS,
-					element: <Datasets />,
-				},
-				{
-					path: '/app/',
-					children: [
-						{
-							path: 'dataset/:id',
-							element: <DatasetLayout />,
-							children: [
-								{
-									path: 'view',
-									element: <DatasetView />,
-								},
-							],
-						},
-					],
-				},
-
-				/*-----------------LABELS' PATH---------------*/
-				{
-					path: PATHS.LABELS,
-					element: <LabelProjects />,
-				},
-				{
-					path: '/app/',
-					children: [
-						{
-							path: 'label-projects/:id',
-							element: <LabelView />,
-						},
-					],
-				},
-			],
-		},
-	],
+                /*-----------------LABELS' PATH---------------*/
+                {
+                    path: PATHS.LABELS,
+                    element: <LabelProjects />,
+                },
+                {
+                    path: '/app/',
+                    children: [
+                        {
+                            path: 'label-projects/:id',
+                            element: <LabelView />,
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 export default routes

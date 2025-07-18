@@ -9,6 +9,10 @@ const getModels = (projectId) => {
     return instance.get(`${URL}/database_service/aggregator_service/all_models?project_id=${projectId}`)
 }
 
+const getModelById = (modelId) => {
+    return instance.get(`${URL}/database_service/models_service/find?model_id=${modelId}`)
+}
+
 const deployModel = (modelId, instanceInfo) => {
     return instance.post(`${AGGREGATE_URL}/model/${modelId}/deploy`, { instanceInfo })
 }
@@ -25,5 +29,6 @@ export {
     getModels,
     deployModel,
     getDeployStatus,
-    modelPredict
+    modelPredict,
+    getModelById,
 }
