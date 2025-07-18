@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Typography, Tag, Button, Dropdown, Menu, Tooltip, Progress } from 'antd'
 import {
     DeleteOutlined,
@@ -7,11 +7,13 @@ import {
 import { PATHS } from 'src/constants/paths'
 import dayjs from 'dayjs'
 import { message } from 'antd';
+import { uploadToS3 } from 'src/api/labelProject'
 
 
 const { Title, Text } = Typography
 const { REACT_APP_LABEL_STUDIO_URL } = process.env
 export default function LabelProjectCard({ project, onDelete, isDeleting }) {
+    const [isUploading, setIsUploading] = useState(false);
     const {
         id,
         labelStudioId, 
@@ -36,6 +38,20 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
     const handleDeleteClick = (e) => {
         e.stopPropagation()
         onDelete()
+    }
+
+    const handleUploadToS3 = async (e) => {
+        e.stopPropagation();
+        try {
+            setIsUploading(true);
+            await uploadToS3(labelStudioId);
+            message.success('Upload to S3 successfully');
+        } catch (error) {
+            console.error('Error uploading to S3:', error);
+            message.error('Failed to upload to S3: ' + (error.response?.data?.message || error.message));
+        } finally {
+            setIsUploading(false);
+        }
     }
 
     return (
@@ -94,6 +110,14 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
                     <Text className="text-sm text-gray-800">
                         {createdAt ? dayjs(createdAt).fromNow() : 'N/A'}
                     </Text>
+                    <Button 
+                        type="primary" 
+                        disabled={annotationNums === 0 || annotatedNums < annotationNums} 
+                        onClick={handleUploadToS3}
+                        loading={isUploading}
+                    >
+                        Up to S3
+                    </Button>
                 </div>
             </div>
         </div>
