@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Typography, Badge, Button, Tooltip, Space } from 'antd'
+import { Tag, Typography, Badge, Button, Tooltip, Space } from 'antd'
 import {
     CloudOutlined,
     ThunderboltOutlined,
@@ -61,7 +61,7 @@ export default function ModelCard({ model }) {
             case 'ONLINE':
                 return <CheckCircleOutlined />
             default:
-                return <ClockCircleOutlined />
+                return <ThunderboltOutlined />
         }
     }
 
@@ -88,7 +88,7 @@ export default function ModelCard({ model }) {
             case 'ONLINE':
                 return 'green'
             default:
-                return 'gray'
+                return 'green'
         }
     }
 
@@ -166,17 +166,21 @@ export default function ModelCard({ model }) {
                         >
                             {getStatusIcon(deployStatus)}
                         </div>
+
                     </div>
 
-                    {/* Model Name */}
-                    <Title
-                        level={4}
-                        className="my-2 pr-2"
-                        ellipsis={{ tooltip: name }}
-                    >
-                        {name}
-                    </Title>
-
+                    <div className="flex flex-row items-center gap-x-3 my-2">
+                        <div className="flex items-center gap-x-5">
+                            <span className="text-lg font-semibold">{name}</span>
+                            <Tag
+                                color="green"
+                                className="text-sm px-2 py-0.5 rounded"
+                                style={{ lineHeight: 1.25 }}
+                            >
+                                {`Model Id: ${model.id}`}
+                            </Tag>
+                        </div>
+                    </div>
 
                     <Text type="secondary" className="text-xs">
                         Experiment Name: {experimentName}

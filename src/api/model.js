@@ -13,8 +13,8 @@ const deployModel = (modelId, instanceInfo) => {
     return instance.post(`${AGGREGATE_URL}/model/${modelId}/deploy`, { instanceInfo })
 }
 
-const getDeployStatus = (modelId, deployModelId, instanceInfo) => {
-    return instance.post(`${AGGREGATE_URL}/model/${modelId}/${deployModelId}/deploy-progress`, { instanceInfo })
+const getDeployStatus = (modelId, deployModelId) => {
+    return instance.get(`${AGGREGATE_URL}/model/${modelId}/${deployModelId}/deploy-progress`)
 }
 
 const modelPredict = (base_url, formData) => {

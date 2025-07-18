@@ -561,7 +561,7 @@ const DeployView = () => {
                 try {
                     // const statusResponse = await experimentAPI.getDeployStatus(experimentName)
                     // const { deployInfo } = statusResponse.data
-                    const deployStatusResponse = await modelAPI.getDeployStatus(modelId, deployModel.id, instanceData)
+                    const deployStatusResponse = await modelAPI.getDeployStatus(modelId, deployModel.id)
                     const deployInfo = deployStatusResponse.data
                     console.log("Res:", deployStatusResponse)
                     console.log(deployInfo)
