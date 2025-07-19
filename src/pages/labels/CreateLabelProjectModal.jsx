@@ -90,7 +90,15 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
     const handleSubmit = async values => {
         setLoading(true)
         try {
-            await onCreate({ ...values, expectedLabels })
+            const is_binary_class = expectedLabels.length === 2;
+            const payload = {
+                ...values,
+                expectedLabels, 
+                meta_data: {
+                    is_binary_class: is_binary_class,
+                }
+            }
+            await onCreate(payload)
             handleCancel()
         } catch (error) {
             console.error('Error creating project:', error)

@@ -59,7 +59,11 @@ const getPreviewDataByPage = (projectID, page, pageSize) => {
 }
 
 const createLabels = (projectID, data) => {
-	return instance.post(API_URL.create_label_for_dataset(projectID), data)
+	return instance.post(API_URL.create_label_for_dataset(projectID), data, {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	})
 }
 
 const updateAnnotation = (projectID, task_id, data) => {
