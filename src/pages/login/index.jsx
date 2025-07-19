@@ -25,11 +25,19 @@ const Login = () => {
                 console.log("Found ls_token, redirecting to Label Studio...");
                 const labelStudioBaseUrl = process.env.REACT_APP_LABEL_STUDIO_URL || 'http://127.0.0.1:8080';
                 const labelStudioLoginUrl = `${labelStudioBaseUrl}/user/login?user_token=${data.user.ls_token}`;
-                window.open(
-                    labelStudioLoginUrl,
-                    '_blank',
-                    'width=1000,height=70,left=20,top=10,resizable=yes,scrollbars=yes,noreferrer'
-                );
+                fetch(labelStudioLoginUrl, { credentials: 'include' })
+                    .then(response => response.json())
+                    .then(lsResponse => {
+                        if (lsResponse.status === 'success') {
+                            console.log("Successfully logged into Label Studio.");
+                        } else {
+                            console.error("Failed to log into Label Studio.", lsResponse);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error during Label Studio background login:", error);
+                    });
+                
             }
         } catch (error) {
             console.error(error);
