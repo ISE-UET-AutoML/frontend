@@ -3,7 +3,7 @@ import { RectangleStackIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState } from 'react'
 import { getAllDeployedModel } from 'src/api/deploy'
 import { useParams } from 'react-router-dom'
-import { Row, Col, Empty, Typography } from 'antd' // Use Ant Design components
+import { Row, Col, Empty, Typography, Button } from 'antd' // Use Ant Design components
 import { Select } from "antd";
 
 const { Title, Text } = Typography
@@ -12,30 +12,52 @@ const ProjectDeploy = () => {
     const { id: projectId } = useParams()
     const [deployedModels, setDeployedModels] = useState([])
     const [uniqueModels, setUniqueModels] = useState([])
+    const [selectedModelId, setSelectedModelId] = useState(null)
+    const [filteredDeployedModels, setFilteredDeployedModels] = useState([])
 
     const getListDeployedModels = async () => {
         const { data } = await getAllDeployedModel(projectId)
         console.log(data)
         setDeployedModels(prev => data)
+        setFilteredDeployedModels(prev => data)
         setUniqueModels(prev => Array.from(
             new Set(data.map((item) => item.model_id))
         ))
-        console.log(Array.from(
-            new Set(data.map((item) => item.model_id))
-        ))
+    }
+
+    const filterListDeployedModels = async () => {
+        if (!selectedModelId) {
+            setFilteredDeployedModels(prev => deployedModels)
+            return
+        }
+        const filteredList = deployedModels.filter((item) => item.model_id === selectedModelId)
+        console.log("new list:", filteredList)
+        setFilteredDeployedModels(prev => filteredList)
+    }
+
+    const handleSelectModelId = (option) => {
+        setSelectedModelId(option)
+    }
+
+    const handleReset = () => {
+        setSelectedModelId(null)
     }
 
     useEffect(() => {
         getListDeployedModels()
     }, [])
 
+    useEffect(() => {
+        filterListDeployedModels()
+    }, [selectedModelId])
+
     return (
         <div className="mx-auto px-4">
             {/* Header Section */}
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <Title level={1} style={{ marginBottom: 0 }}>
-                        Deployed Models
+                    <Title level={2} style={{ marginBottom: 0 }}>
+                        Deployments
                     </Title>
                     {/* Meta Info */}
                     <div className="mt-2 flex items-center space-x-2">
@@ -57,21 +79,25 @@ const ProjectDeploy = () => {
                         key={1}
                         options={uniqueModels.map((modelId) => ({
                             value: modelId,
-                            label: <span className="font-semibold">{modelId}</span>,
+                            label: <span className="font-semibold">{`Model Id: ${modelId}`}</span>,
                         }))}
+                        value={selectedModelId}
                         placeholder={
                             <span className="font-semibold text-gray-500">
-                                Select a model Id
+                                Filtered by model Id
                             </span>
                         }
                         className="min-w-[200px]"
+                        onChange={handleSelectModelId}
+                        allowClear
                     />
+                    {selectedModelId && <Button type="primary" onClick={handleReset}>Reset</Button>}
                 </div>
 
                 {/* Deployed Model List */}
-                {deployedModels.length > 0 ? (
+                {filteredDeployedModels.length > 0 ? (
                     <Row gutter={[16, 16]}>
-                        {deployedModels.map((deployedModel) => (
+                        {filteredDeployedModels.map((deployedModel) => (
                             <Col key={deployedModel.id} xs={24} sm={12} md={8} lg={6}>
                                 <DeployedModelCard deployedModel={deployedModel} />
                             </Col>

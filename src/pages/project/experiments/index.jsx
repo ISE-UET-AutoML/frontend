@@ -25,7 +25,7 @@ export default function ProjectExperiments() {
             {/* Header Section */}
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <Title level={1} style={{ marginBottom: 0 }}>
+                    <Title level={2} style={{ marginBottom: 0 }}>
                         Experiments
                     </Title>
                     {/* Meta Info */}

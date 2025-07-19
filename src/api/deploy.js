@@ -11,7 +11,12 @@ const getAllDeployedModel = (projectId) => {
     return instance.get(`${URL}/database_service/aggregator_service/all_deployed_models?project_id=${projectId}`)
 }
 
+const getDeployData = (deployId) => {
+    return instance.get(`${URL}/database_service/model_deploy_service/find?deploy_id=${deployId}`)
+}
+
 export {
     getDeployedModel,
-    getAllDeployedModel
+    getAllDeployedModel,
+    getDeployData
 }

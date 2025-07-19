@@ -34,8 +34,12 @@ const CreateLabel = ({ setCreateLabel, updateData }) => {
 
 	const saveLabel = async () => {
 		if (labelsEditing.length > 0) {
+			const is_binary_class = labelsEditing.length === 2;
 			const body = {
 				label_choices: labelsEditing,
+				meta_data: {
+					is_binary_class: is_binary_class,
+				}
 			}
 			const res = await createLabels(projectId, body)
 			currentLabelWithID.current = labelsEditing.map((v, i) => {

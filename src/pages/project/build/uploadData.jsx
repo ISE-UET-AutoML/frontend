@@ -56,6 +56,7 @@ const UploadData = () => {
                     }))
                     : []
             )
+            console.log(response)
         } catch (error) {
             console.error('Error fetching label projects by task type:', error)
         } finally {

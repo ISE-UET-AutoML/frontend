@@ -209,9 +209,9 @@ const SelectInstance = () => {
                 cost: cost,
                 dataset_url: presignUrl.data,
                 dataset_label_url: 'hello',
-                target_column: selectedProject.meta_data?.target_column,
-                image_column: "Image",
-                text_column: selectedProject.meta_data?.text_columns[0],
+                target_column: selectedProject.meta_data?.target_column[0],
+                image_column: selectedProject.meta_data?.images_column,
+                text_column: selectedProject.meta_data?.text_columns ? selectedProject.meta_data?.text_columns[0] : "",
                 dataset_download_method: "",
                 problem_type: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
                 framework: 'autogluon',
@@ -254,7 +254,6 @@ const SelectInstance = () => {
             console.log('selectedProject', selectedProject)
 
             const presignUrl = await createDownZipPU(selectedProject.dataset_title)
-            // const presignUrl = await createDownZipPU('Image_Vinh')
             console.log('presignUrl', presignUrl)
 
             const time = formData.trainingTime
@@ -269,8 +268,9 @@ const SelectInstance = () => {
                 datasetLabelUrl: 'hello',
                 problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
                 framework: 'autogluon',
-                target_column: selectedProject.meta_data?.target_column[0],
-                text_column: selectedProject.meta_data?.text_columns[0],
+                target_column: selectedProject.meta_data?.target_column[0], // Currently hardcoded to get only 1 label column
+                text_column: selectedProject.meta_data?.text_columns ? selectedProject.meta_data?.text_columns[0] : "",
+                image_column: selectedProject.meta_data?.images_column
             }
             console.log('payloadTrain', payload)
             const res1 = await trainCloudModel(projectInfo.id, payload)
