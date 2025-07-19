@@ -22,7 +22,7 @@ export const getLbProjects = (ownerId) => {
             'Content-Type': 'application/json',
         },
         withCredentials: true,
-        params: ownerId ?{
+        params: ownerId ? {
             owner_id: ownerId,
         } : {},
     }
@@ -32,6 +32,7 @@ export const getLbProjects = (ownerId) => {
 export const deleteProject = async (projectID) => {
     return instance.delete(`${URL_SERVICE}/ls-projects/${projectID}`)
 }
+
 
 export const getLbProjByTask = (taskType) => {
     const options = {
@@ -72,23 +73,32 @@ export const logoutLabelStudio = () => {
         body: JSON.stringify({}),
         signal: signal // Gắn signal vào yêu cầu
     })
-    .then(response => {
-        // Xóa timeout nếu yêu cầu thành công
-        clearTimeout(timeoutId);
-        if (!response.ok) {
-            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .catch(error => {
-        // Xóa timeout và xử lý lỗi
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
-        } else {
-            console.error('Lỗi khi logout khỏi Label Studio:', error);
-        }
-        throw error;
-    });
+        .then(response => {
+            // Xóa timeout nếu yêu cầu thành công
+            clearTimeout(timeoutId);
+            if (!response.ok) {
+                throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .catch(error => {
+            // Xóa timeout và xử lý lỗi
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
+            } else {
+                console.error('Lỗi khi logout khỏi Label Studio:', error);
+            }
+            throw error;
+        });
 };
-// export const 
+
+export const uploadToS3 = async (projectID) => {
+    const options = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+    }
+    return instance.post(`${URL_SERVICE}/ls-projects/${projectID}/export`, {}, options)
+}
