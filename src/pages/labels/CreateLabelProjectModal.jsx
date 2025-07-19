@@ -52,28 +52,28 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
 
     useEffect(() => {
         const selectedDataset = datasets.find(ds => ds.id === selectedDatasetId)
-
         setLabels([])
+        setColumnOptions([])
 
-        if (selectedDataset?.dataType === 'IMAGE' && selectedDataset?.detectedLabels?.length > 0) {
+        if (!selectedDataset) return
+
+        if (selectedDataset.dataType === 'IMAGE' && selectedDataset.detectedLabels?.length > 0) {
             setLabels(selectedDataset.detectedLabels)
         }
 
         if (
-            (selectedDataset?.dataType === 'TEXT' || selectedDataset?.dataType === 'TABULAR') &&
-            selectedDataset?.metaData?.columns
+            (selectedDataset.dataType === 'TEXT' || selectedDataset.dataType === 'TABULAR') &&
+            selectedDataset.metaData?.columns
         ) {
             const columns = selectedDataset.metaData.columns
             const options = Object.entries(columns).map(([key, val]) => ({
                 value: key,
-                label: `${key} (${val.uniqueClassCount} classes)`
+                label: `${key} (${val.uniqueClassCount} classes)`,
+                uniqueClassCount: val.uniqueClassCount
             }))
             setColumnOptions(options)
-        } else {
-            setColumnOptions([])
         }
     }, [selectedDatasetId, datasets])
-
 
     const handleAddLabel = () => {
         const v = newLabel.trim()
@@ -90,14 +90,18 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
     const handleSubmit = async values => {
         setLoading(true)
         try {
-            const is_binary_class = expectedLabels.length === 2;
+            const selectedLabel = expectedLabels[0];
+            const column = columnOptions.find(opt => opt.value === selectedLabel);
+            const uniqueClassCount = column?.uniqueClassCount ?? 0;
+            const is_binary_class = uniqueClassCount === 2;
             const payload = {
                 ...values,
-                expectedLabels, 
+                expectedLabels,
                 meta_data: {
-                    is_binary_class: is_binary_class,
+                    is_binary_class
                 }
             }
+
             console.log('payload', payload)
             await onCreate(payload)
             handleCancel()
@@ -130,11 +134,14 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
             width={600}
         >
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
-                {/* --- Basic Fields --- */}
-                <Form.Item name="name" label="Project Name" rules={[
-                    { required: true, message: 'Please enter project name' },
-                    { min: 3, message: 'Project name must be at least 3 characters' }
-                ]}>
+                <Form.Item
+                    name="name"
+                    label="Project Name"
+                    rules={[
+                        { required: true, message: 'Please enter project name' },
+                        { min: 3, message: 'Project name must be at least 3 characters' }
+                    ]}
+                >
                     <Input placeholder="Enter project name" />
                 </Form.Item>
 
@@ -142,7 +149,11 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                     <TextArea rows={3} maxLength={500} showCount />
                 </Form.Item>
 
-                <Form.Item name="taskType" label="Task Type" rules={[{ required: true, message: 'Please select task type' }]}>
+                <Form.Item
+                    name="taskType"
+                    label="Task Type"
+                    rules={[{ required: true, message: 'Please select task type' }]}
+                >
                     <Select placeholder="Select task type">
                         {projectTypes.map(pt => (
                             <Option key={pt.value} value={pt.value}>{pt.label}</Option>
@@ -166,7 +177,11 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                         }
 
                         return (
-                            <Form.Item name="datasetId" label="Dataset" rules={[{ required: true, message: 'Please select a dataset' }]}>
+                            <Form.Item
+                                name="datasetId"
+                                label="Dataset"
+                                rules={[{ required: true, message: 'Please select a dataset' }]}
+                            >
                                 <Select
                                     placeholder={requiredDataType
                                         ? `Select a ${requiredDataType.toLowerCase()} dataset`
@@ -194,19 +209,21 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                     }}
                 </Form.Item>
 
-                {/* --- Expected Labels --- */}
+                {/* Expected Labels */}
                 <Form.Item label="Expected Labels" required>
                     {columnOptions.length > 0 ? (
                         <Select
                             placeholder="Select label column"
-                            value={expectedLabels[0]}
+                            value={expectedLabels[0] || undefined}
                             onChange={v => setLabels([v])}
                         >
                             {columnOptions.map(col => (
                                 <Option key={col.value} value={col.value}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <span>{col.value}</span>
-                                        <i style={{ fontSize: '0.8em', color: '#999' }}>{col.label.match(/\(([^)]+)\)/)?.[1]}</i>
+                                        <i style={{ fontSize: '0.8em', color: '#999' }}>
+                                            {col.label.match(/\(([^)]+)\)/)?.[1]}
+                                        </i>
                                     </div>
                                 </Option>
                             ))}
@@ -264,7 +281,12 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                 <Form.Item className="mb-0">
                     <Space className="w-full justify-end">
                         <Button onClick={handleCancel}>Cancel</Button>
-                        <Button type="primary" htmlType="submit" loading={loading} disabled={expectedLabels.length === 0}>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={loading}
+                            disabled={expectedLabels.length === 0}
+                        >
                             Create Project
                         </Button>
                     </Space>
