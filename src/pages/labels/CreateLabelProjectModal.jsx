@@ -98,6 +98,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                     is_binary_class: is_binary_class,
                 }
             }
+            console.log('payload', payload)
             await onCreate(payload)
             handleCancel()
         } catch (error) {
