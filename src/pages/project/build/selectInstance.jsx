@@ -269,7 +269,7 @@ const SelectInstance = () => {
                 problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
                 framework: 'autogluon',
                 target_column: selectedProject.meta_data?.target_column[0], // Currently hardcoded to get only 1 label column
-                text_column: selectedProject.meta_data?.text_columns ? selectedProject.meta_data?.text_columns[0] : "",
+                text_column: selectedProject.meta_data?.text_columns ? selectedProject.meta_data?.text_columns[0] : "", // Currently hardcoded to get only 1 text column
                 image_column: selectedProject.meta_data?.images_column
             }
             console.log('payloadTrain', payload)

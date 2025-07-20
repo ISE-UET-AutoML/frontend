@@ -12,41 +12,41 @@ import { UploadTypes } from 'src/constants/file'
 const EmptyLiveInfer = () => <></>
 
 const config = {
-	IMAGE_CLASSIFICATION: {
-		afterUploadURL: 'selectInstance',
-		folder: UploadTypes.FOLDER,
-		labelingView: LabelingImageClassification,
-		predictView: ImagePredict,
-		liveInferView: EmptyLiveInfer,
-	},
-	TEXT_CLASSIFICATION: {
-		folder: UploadTypes.CSV_SINGLE,
-		afterUploadURL: 'selectInstance',
-		labelingView: LabelingTextClassification,
-		predictView: TextPredict,
-		liveInferView: TextLiveInfer,
-	},
-	TABULAR_CLASSIFICATION: {
-		folder: UploadTypes.CSV_SINGLE,
-		afterUploadURL: 'selectTargetCol',
-		labelingView: LabelingTextClassification,
-		predictView: TabularPredict,
-		liveInferView: EmptyLiveInfer,
-	},
-	MULTIMODAL_CLASSIFICATION: {
-		afterUploadURL: 'selectTargetColMulti',
-		folder: UploadTypes.CSV_SINGLE,
-		labelingView: LabelingTextClassification,
-		predictView: MultimodalPredict,
-		liveInferView: EmptyLiveInfer,
-	},
-	MULTILABEL_IMAGE_CLASSIFICATION: {
-		afterUploadURL: 'selectInstance',
-		folder: UploadTypes.CSV_SINGLE,
-		labelingView: LabelingTextClassification,
-		predictView: MultiLabelImgPredict,
-		liveInferView: EmptyLiveInfer,
-	},
+    IMAGE_CLASSIFICATION: {
+        afterUploadURL: 'selectInstance',
+        folder: UploadTypes.FOLDER,
+        labelingView: LabelingImageClassification,
+        predictView: ImagePredict,
+        liveInferView: EmptyLiveInfer,
+    },
+    TEXT_CLASSIFICATION: {
+        folder: UploadTypes.CSV_SINGLE,
+        afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TextPredict,
+        liveInferView: TextLiveInfer,
+    },
+    TABULAR_CLASSIFICATION: {
+        folder: UploadTypes.CSV_SINGLE,
+        afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TabularPredict,
+        liveInferView: EmptyLiveInfer,
+    },
+    MULTIMODAL_CLASSIFICATION: {
+        afterUploadURL: 'selectTargetColMulti',
+        folder: UploadTypes.CSV_SINGLE,
+        labelingView: LabelingTextClassification,
+        predictView: MultimodalPredict,
+        liveInferView: EmptyLiveInfer,
+    },
+    MULTILABEL_IMAGE_CLASSIFICATION: {
+        afterUploadURL: 'selectInstance',
+        folder: UploadTypes.CSV_SINGLE,
+        labelingView: LabelingTextClassification,
+        predictView: MultiLabelImgPredict,
+        liveInferView: EmptyLiveInfer,
+    },
 }
 
 export default config
