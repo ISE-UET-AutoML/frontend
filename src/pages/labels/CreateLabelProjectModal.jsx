@@ -13,6 +13,7 @@ import {
 import { PlusOutlined } from '@ant-design/icons'
 import { getDatasets } from 'src/api/dataset'
 import { TASK_TYPES } from 'src/constants/types'
+// import { snakeToCamel } from 'src/utils/mapper'
 
 const { Option } = Select
 const { TextArea } = Input
@@ -44,6 +45,7 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
     const fetchDatasets = async () => {
         try {
             const response = await getDatasets()
+            // Giữ nguyên key snake_case trong columns, chỉ chuẩn hoá unique_class_count -> uniqueClassCount khi cần
             setDatasets(response.data)
         } catch (error) {
             console.error('Error fetching datasets:', error)
@@ -66,11 +68,14 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
             selectedDataset.metaData?.columns
         ) {
             const columns = selectedDataset.metaData.columns
-            const options = Object.entries(columns).map(([key, val]) => ({
-                value: key,
-                label: `${key} (${val.uniqueClassCount} classes)`,
-                uniqueClassCount: val.uniqueClassCount
-            }))
+            const options = Object.entries(columns).map(([key, val]) => {
+                const count = val.uniqueClassCount ?? val.unique_class_count ?? 0
+                return {
+                    value: key,
+                    label: `${key} (${count} classes)`,
+                    uniqueClassCount: count,
+                }
+            })
             setColumnOptions(options)
         }
     }, [selectedDatasetId, datasets])
