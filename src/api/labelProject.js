@@ -67,10 +67,10 @@ export const logoutLabelStudio = () => {
         method: 'POST',
         credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
+            //'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken,
         },
-        body: JSON.stringify({}),
+        //body: JSON.stringify({}),
         signal: signal // Gắn signal vào yêu cầu
     })
         .then(response => {
