@@ -424,7 +424,7 @@ const Training = () => {
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
-            `/app/project/${projectInfo.id}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}`
+            `/app/project/${projectInfo.id}/model`
         )
     }
 
