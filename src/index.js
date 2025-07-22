@@ -6,6 +6,7 @@ import { Router } from 'src/routes';
 import { LibraryProvider } from './utils/LibProvider';
 import { MultiProvider } from './utils/MultiProvider';
 import { message } from 'antd';
+import App from './App';
 
 
 const libraries = {
@@ -23,6 +24,6 @@ root.render(
             <LibraryProvider key="lsf" libraries={libraries} />,
             <AuthProvider />
         ]}>
-        <Router />
+        <App />
     </MultiProvider>
 );
