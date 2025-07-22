@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
-import { getExperiment } from 'src/api/experiment'
-import { getTrainingProgress, getTrainingMetrics, createModel } from 'src/api/mlService'
 import {
     Card,
     Row,
@@ -41,6 +39,7 @@ import {
     AreaChart,
 } from 'recharts'
 import { calcGeneratorDuration } from 'framer-motion'
+import useTrainingStore from 'src/stores/trainingStore'
 
 const { Title, Text, Paragraph } = Typography
 
@@ -375,7 +374,7 @@ const TrainingInfoCard = ({
                             <div className="mt-2">
                                 <Text type="secondary">
                                     {status === 'DONE'
-                                        ? `Training completed in ${elapsedTime.toFixed(2)} minutes`
+                                        ? `Training completed in ${elapsedTime} minutes`
                                         : timeProgress < 100
                                             ? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(2)} minutes`
                                             : 'Maximum training time reached'}
@@ -421,6 +420,8 @@ const Training = () => {
     const metricExplain = projectInfo.metrics_explain
     const [trainProgress, setTrainProgress] = useState(0)
 
+    const { trainingTasks, startTrainingTask, stopTrainingTask } = useTrainingStore()
+    const trainingTask = trainingTasks[experimentId]
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
@@ -428,175 +429,34 @@ const Training = () => {
         )
     }
 
-    // Calculate elapsed time based on current time and start time
-    const calculateElapsedTime = (startTimeValue) => {
-        if (!startTimeValue) return 0
-
-        const currentTime = new Date()
-        return ((currentTime - startTimeValue) / (1000 * 60)).toFixed(2)
-    }
-
-    // Update elapsed time on interval
     useEffect(() => {
-        if (status === 'TRAINING' && startTime) {
-            const timer = setInterval(() => {
-                const elapsed = calculateElapsedTime(startTime)
-                setElapsedTime(parseFloat(elapsed))
-
-                if (maxTrainingTime) {
-                    const progress = Math.min(
-                        (parseFloat(elapsed) / maxTrainingTime) * 100,
-                        100
-                    )
-                    setTrainProgress(parseFloat(progress.toFixed(1)))
-                }
-            }, 1000)
-
-            return () => clearInterval(timer)
+        if (!trainingTask) {
+            startTrainingTask(experimentId)
+            console.log(`starting training for ${experimentId}`)
+        } else {
+            console.log(`Already trained or done for ${experimentId}`)
         }
-    }, [startTime, status, maxTrainingTime])
-
-    // Utility Functions
-    const updateChartData = (data) => {
-        if (data.status === 'TRAINING') {
-            if (!startTime) {
-                setStartTime(new Date())
-            }
-
-            const currentElapsedTime = calculateElapsedTime(startTime)
-            setElapsedTime(parseFloat(currentElapsedTime))
-
-            setChartData((prev) => [
-                ...prev,
-                {
-                    time: parseFloat(currentElapsedTime),
-                    accuracy: data.trainInfo.metrics.val_acc,
-                },
-            ])
-        }
-    }
+    }, [experimentId])
 
     useEffect(() => {
-        let timeout
-        const interval = setInterval(async () => {
-            try {
-                timeout = setTimeout(() => {
-                    clearInterval(interval)
-                }, 60000)
-
-                clearTimeout(timeout)
-                setLoading(true)
-
-                // const res = await getExperiment(experimentName, projectInfo.id)
-                const res = await getTrainingProgress(experimentId)
-                console.log(res)
-                if (res.status === 422 || res.status === 500) {
-                    clearInterval(interval)
-                    setLoading(false)
-                    return
-                }
-
-                if (res.status === 200) {
-                    setStatus(res.data.status)
-
-                    // Extract max_training_time from experiment properties if available
-                    if (
-                        res.data &&
-                        res.data.expected_training_time
-                    ) {
-                        setMaxTrainingTime(
-                            res.data.expected_training_time / 60
-                        )
-
-                        if (startTime) {
-                            const currentElapsed =
-                                calculateElapsedTime(startTime)
-                            const progress = Math.min(
-                                (currentElapsed /
-                                    (res.data.expected_training_time /
-                                        60)) *
-                                100,
-                                100
-                            )
-                            setTrainProgress(parseFloat(progress.toFixed(1)))
-                        }
-                    }
-
-                    if (res.data.status === 'DONE') {
-                        clearInterval(interval)
-                        updateFields({
-                            trainingInfo,
-                            elapsedTime: calculateElapsedTime(startTime),
-                        })
-                        console.log("Final training info:", trainingInfo)
-                        console.log('Debug tai sao trainInfo = 0 cho nay')
-                        // Save final data before redirecting
-                        if (res.data.trainInfo) {
-                            setTrainingInfo({
-                                latestEpoch:
-                                    res.data.trainInfo.latest_epoch || 0,
-                                accuracy:
-                                    res.data.trainInfo.metrics.val_acc || 0,
-                            })
-                        }
-                        // Create model after finish training (ONLY 1 TIME)
-                        const createModelRequest = await createModel(experimentId)
-                        console.log(createModelRequest)
-                        setTrainProgress(100)
-                    } else if (res.data.status === 'TRAINING') {
-                        const metricRequest = await getTrainingMetrics(experimentId)
-                        console.log(metricRequest)
-
-                        // setTrainingInfo({
-                        //     latestEpoch: res.data.trainInfo.latest_epoch || 0,
-                        //     accuracy: res.data.trainInfo.metrics.val_acc || 0,
-                        // })
-                        setTrainingInfo((prev) => ({
-                            latestEpoch: metricRequest.data.step[metricRequest.data.step.length - 1] || 0,
-                            accuracy: metricRequest.data.val_score[metricRequest.data.val_score.length - 1] || 0
-                        }))
-                        setValMetric((prev) => metricRequest.data.val_metric)
-
-                        // Ensure startTime is set once at the beginning
-                        setStartTime(
-                            (prevStartTime) => prevStartTime || new Date()
-                        )
-                        updateChartData({
-                            ...res.data,
-                            trainInfo: {
-                                metrics: {
-                                    val_acc: metricRequest.data.val_score[metricRequest.data.val_score.length - 1] || 0
-                                }
-                            }
-                        })
-
-                        // Check if training time has exceeded the limit
-                        const currentElapsedTime =
-                            calculateElapsedTime(startTime)
-                        if (
-                            maxTrainingTime &&
-                            currentElapsedTime >= maxTrainingTime
-                        ) {
-                            console.log('Training time limit reached')
-                        }
-                    }
-                }
-                setLoading(false)
-            } catch (err) {
-                clearInterval(interval)
-                setLoading(false)
-            }
-        }, 15000)
-
-        return () => {
-            clearInterval(interval)
-            clearTimeout(timeout)
+        if (trainingTask) {
+            console.log("Current Training stats:", trainingTask)
+            setTrainProgress(trainingTask.progress)
+            setStatus(trainingTask.status)
+            setTrainingInfo((prev) => ({
+                latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
+                accuracy: trainingTask.trainingInfo.accuracy || 0
+            }))
+            setValMetric((prev) => trainingTask.val_metric)
+            setElapsedTime(prev => trainingTask.elapsed)
+            setMaxTrainingTime(prev => trainingTask.expectedTrainingTime)
+            setChartData(prev => trainingTask.accuracyTrend)
         }
-    }, [experimentId, startTime, maxTrainingTime, projectInfo.id])
+    }, [trainingTask]);
 
     // Create chart data with time limit reference line
     const enhancedChartData = React.useMemo(() => {
-        if (!maxTrainingTime || chartData.length === 0) return chartData
+        if (!maxTrainingTime || chartData?.length === 0) return chartData
 
         // Add a threshold reference that can be used for visual cues
         return chartData.map((point) => ({
@@ -652,7 +512,7 @@ const Training = () => {
                         <EnhancedLineGraph
                             valMetric={valMetric}
                             data={enhancedChartData}
-                            loading={loading && chartData.length === 0}
+                            loading={loading && chartData?.length === 0}
                             maxTrainingTime={maxTrainingTime}
                         />
 

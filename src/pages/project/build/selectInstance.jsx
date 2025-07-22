@@ -284,7 +284,7 @@ const SelectInstance = () => {
                     const res2 = await getTrainingProgress(res1.data.experimentId)
                     console.log('res2', res2)
 
-                    if (res2.data.status === 'TRAINING') {
+                    if (res2.data.status === 'TRAINING' || res2.data.status === 'DONE') {
                         clearInterval(interval)
                         message.success('Starting training process')
                         navigate(

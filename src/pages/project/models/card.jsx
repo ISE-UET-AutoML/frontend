@@ -21,22 +21,9 @@ dayjs.extend(relativeTime)
 const { Text, Title } = Typography
 
 export default function ModelCard({ model }) {
-    const { id, name, deployStatus, createdAt, project_id, experiment_id } = model
-    const [experimentName, setExperimentName] = useState()
+    const { id, name, deployStatus, createdAt, project_id, experiment_id, experiment_name: experimentName } = model
     console.log(model)
     const navigate = useNavigate()
-
-    useEffect(() => {
-        const fetchExperiment = async () => {
-            const experimentRequest = await getExperimentById(experiment_id)
-            if (experimentRequest.status !== 200) {
-                throw new Error("Cannot get experiment")
-            }
-            setExperimentName(experimentRequest.data.name)
-        }
-
-        fetchExperiment()
-    }, [])
 
     // Get status icon based on deployStatus
     // const getStatusIcon = (status) => {
