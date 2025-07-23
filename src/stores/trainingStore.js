@@ -40,6 +40,10 @@ const useTrainingStore = create(persist(
                         let trainingInfo = {};
                         let valMetric = null;
 
+                        if (data.status === 'SETTING_UP' || data.status === 'DOWNLOADING_DATA') {
+                            console.log("Downloading dependencies...")
+                        }
+
                         if (data.status === 'TRAINING' | data.status === 'DONE') {
                             const metrics = await getTrainingMetrics(experimentId);
                             const latestEpoch = metrics.data.step.at(-1) || 0;
@@ -110,7 +114,7 @@ const useTrainingStore = create(persist(
                         chartData: [],
                         elapsed: 0,
                         progress: 0,
-                        status: 'TRAINING',
+                        status: 'SETTING_UP',
                         ...state.trainingTasks[experimentId],
                     },
                 },
@@ -125,7 +129,8 @@ const useTrainingStore = create(persist(
 
             const tasks = get().trainingTasks;
             Object.entries(tasks).forEach(([experimentId, task]) => {
-                if (task.status === 'TRAINING') {
+                // Only rerun if status != DONE and != FAILED
+                if (task.status !== 'DONE' && task.status !== 'FAILED') {
                     get().startTrainingTask(experimentId);
                 }
             });

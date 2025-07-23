@@ -4,10 +4,8 @@ import {
     useOutletContext,
     useNavigate,
 } from 'react-router-dom'
-import * as projectAPI from 'src/api/project'
-import { getExperiment, } from 'src/api/experiment'
-import { trainCloudModel, getTrainingProgress } from 'src/api/mlService'
-import { createDownPresignedUrls, createDownZipPU } from 'src/api/dataset'
+import { trainCloudModel } from 'src/api/mlService'
+import { createDownZipPU } from 'src/api/dataset'
 import {
     Card,
     Tabs,
@@ -17,44 +15,29 @@ import {
     Space,
     Typography,
     message,
-    Tooltip,
     Steps,
-    Badge,
     Row,
     Col,
-    Divider,
-    Modal,
     Collapse,
     Select,
     Input,
 } from 'antd'
 import {
-    ClockCircleOutlined,
-    CloudServerOutlined,
-    HddOutlined,
     ThunderboltOutlined,
-    InfoCircleOutlined,
-    LoadingOutlined,
     CloudDownloadOutlined,
     SettingOutlined,
-    DollarOutlined,
     RocketOutlined,
-    SafetyCertificateOutlined,
 } from '@ant-design/icons'
 import { createInstance } from 'src/api/resource'
-import CryptoJS from 'crypto-js'
 import { SERVICES, GPU_NAMES, GPU_LEVELS, INSTANCE_SIZE_DETAILS, InstanceSizeCard, generateRandomKey, CostEstimator, InstanceInfo } from 'src/constants/clouldInstance'
 
-const { Title, Text } = Typography
-const { Step } = Steps
-const { Panel } = Collapse
+const { Text } = Typography
 const { Option } = Select
 
 
 const SelectInstance = () => {
     const { projectInfo, updateFields, selectedProject } = useOutletContext()
     const navigate = useNavigate()
-    const [searchParams, setSearchParams] = useSearchParams()
     const [activeTab, setActiveTab] = useState('automatic')
     const [isLoading, setIsLoading] = useState(false)
     const [isCreatingInstance, setIsCreatingInstance] = useState(false)
@@ -69,19 +52,6 @@ const SelectInstance = () => {
         instanceSize: 'Weak',
     })
     const [instanceInfo, setInstanceInfo] = useState(null)
-
-    const [currentStep, setCurrentStep] = useState(0)
-    const [isModalVisible, setIsModalVisible] = useState(false)
-    const steps = [
-        {
-            title: 'Setting up virtual environment',
-            icon: <SettingOutlined />,
-        },
-        {
-            title: 'Downloading dataset on Cloud Storage',
-            icon: <CloudDownloadOutlined />,
-        },
-    ]
 
     const [sshKey, setSshKey] = useState('')
     const [infrastructureData, setInfrastructureData] = useState({
@@ -247,9 +217,6 @@ const SelectInstance = () => {
         if (!confirmed) return
 
         try {
-            setIsProcessing(true)
-            setIsCreatingInstance(true)
-            setIsModalVisible(true)
             console.log('projectInfo', projectInfo)
             console.log('selectedProject', selectedProject)
 
@@ -276,43 +243,16 @@ const SelectInstance = () => {
             const res1 = await trainCloudModel(projectInfo.id, payload)
 
             console.log('res1', res1)
-
+            // Navigate imidiately when send training request
             const experimentName = res1.data.experimentName
-
-            const interval = setInterval(async () => {
-                try {
-                    const res2 = await getTrainingProgress(res1.data.experimentId)
-                    console.log('res2', res2)
-
-                    if (res2.data.status === 'TRAINING' || res2.data.status === 'DONE') {
-                        clearInterval(interval)
-                        message.success('Starting training process')
-                        navigate(
-                            `/app/project/${projectInfo.id}/build/training?experimentName=${experimentName}&experimentId=${res2.data.id}`,
-                            { replace: true }
-                        )
-                    } else if (res2.data.status === 'SETTING_UP') {
-                        setCurrentStep(0)
-                    } else {
-                        setCurrentStep(1)
-                    }
-                } catch (err) {
-                    console.error('Error checking experiment status:', err)
-                    clearInterval(interval)
-                    message.error('Failed to check training status')
-                    setIsProcessing(false)
-                }
-            }, 10000)
-
-            return () => clearInterval(interval)
+            navigate(
+                `/app/project/${projectInfo.id}/build/training?experimentName=${experimentName}&experimentId=${res1.data.experimentId}`,
+                { replace: true }
+            )
         } catch (error) {
             console.error('Error', error)
-            message.error('Error')
+            message.error('Failed to train model.')
         }
-    }
-
-    const handleModalCancel = () => {
-        setIsModalVisible(false)
     }
 
     const items = [
@@ -448,7 +388,7 @@ const SelectInstance = () => {
                                 </Button>
 
                                 {formData.gpuNumber &&
-                                    formData.trainingTime && (
+                                    formData.trainingTime && instanceInfo && (
                                         <Button
                                             type="primary"
                                             size="large"
@@ -652,7 +592,7 @@ const SelectInstance = () => {
                             </Space>
                             <div className="action-container mt-4 w-full justify-between items-center">
                                 {formData.gpuNumber &&
-                                    formData.trainingTime && (
+                                    formData.trainingTime && instanceInfo && (
                                         <Button
                                             type="primary"
                                             size="large"
@@ -910,7 +850,7 @@ const SelectInstance = () => {
                             </Space>
                             <div className="action-container mt-4 w-full justify-between items-center">
                                 {formData.gpuNumber &&
-                                    formData.trainingTime && (
+                                    formData.trainingTime && instanceInfo && (
                                         <Button
                                             type="primary"
                                             size="large"
@@ -938,80 +878,6 @@ const SelectInstance = () => {
     return (
         <div className="select-instance-container pl-6 pr-6">
             <Tabs items={items} onChange={(key) => setActiveTab(key)} />
-
-            {isCreatingInstance && (
-                <Modal
-                    title={
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px',
-                            }}
-                        >
-                            Resource Preparation
-                            <Tooltip
-                                title={
-                                    <div>
-                                        <p>
-                                            This process ensures a smooth and
-                                            secure setup:
-                                        </p>
-                                        <ul>
-                                            <li>
-                                                1. Create an isolated virtual
-                                                machine
-                                            </li>
-                                            <li>
-                                                2. Download required resources
-                                                safely
-                                            </li>
-                                            <li>
-                                                3. Configure the environment for
-                                                optimal performance
-                                            </li>
-                                        </ul>
-                                        <p>
-                                            Each step is carefully monitored to
-                                            prevent potential issues.
-                                        </p>
-                                    </div>
-                                }
-                            >
-                                <InfoCircleOutlined
-                                    style={{
-                                        color: '#1890ff',
-                                        cursor: 'pointer',
-                                    }}
-                                />
-                            </Tooltip>
-                        </div>
-                    }
-                    open={isModalVisible}
-                    onCancel={handleModalCancel}
-                    footer={null}
-                    width={1000}
-                >
-                    <Card className="preparation-card">
-                        <Steps current={currentStep}>
-                            {steps.map((step, index) => (
-                                <Step
-                                    key={index}
-                                    title={step.title}
-                                    description={step.description}
-                                    icon={
-                                        currentStep === index ? (
-                                            <LoadingOutlined />
-                                        ) : (
-                                            step.icon
-                                        )
-                                    }
-                                />
-                            ))}
-                        </Steps>
-                    </Card>
-                </Modal>
-            )}
         </div>
     )
 }
