@@ -34,7 +34,7 @@ const config = {
         liveInferView: EmptyLiveInfer,
     },
     MULTIMODAL_CLASSIFICATION: {
-        afterUploadURL: 'selectTargetColMulti',
+        afterUploadURL: 'selectInstance',
         folder: UploadTypes.CSV_SINGLE,
         labelingView: LabelingTextClassification,
         predictView: MultimodalPredict,
