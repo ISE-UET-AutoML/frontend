@@ -30,6 +30,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			IMAGE: allowedImageTypes,
 			TEXT: allowedTextTypes,
 			TABULAR: allowedTextTypes,
+			MULTIMODAL: [...allowedImageTypes, ...allowedTextTypes],
 		};
 
 		return files.filter((file) => file?.type && allowedTypes[datasetType]?.includes(file.type));
@@ -37,7 +38,25 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 
 	const handleFileChange = (event) => {
 		const uploadedFiles = Array.from(event.target.files || []);
+		console.log('Uploaded files:', uploadedFiles.map((file) => ({
+			name: file.name,
+			type: file.type,
+			path: file.webkitRelativePath,
+		})));
 		const validatedFiles = validateFiles(uploadedFiles, datasetType);
+		console.log('Validated files:', validatedFiles);
+		const hasImageFolder = validatedFiles.some((file) =>
+			file.webkitRelativePath && file.webkitRelativePath.includes('/images/'));
+		const hasCSVFile = validatedFiles.some((file) =>
+			file.webkitRelativePath && file.webkitRelativePath.endsWith('.csv'));
+
+		console.log('Has image folder:', hasImageFolder);
+    	console.log('Has CSV file:', hasCSVFile);
+
+		if (datasetType === 'MULTIMODAL' && (!hasImageFolder || !hasCSVFile)) {
+			message.error('For MULTIMODAL datasets, please upload a folder with images and a CSV file.');
+			return;
+		}
 
 		const totalSize = validatedFiles.reduce((sum, file) => sum + (file.size || 0), 0);
 		const totalSizeInKB = totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00';
@@ -69,9 +88,28 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 	};
 
 	const handleSubmit = async (values) => {
+		console.log('handleSubmit called with values:', values); // Log này sẽ xác nhận hàm được gọi
+
 		try {
 			setIsLoading(true);
 			const fileMap = organizeFiles(files);
+
+			if (datasetType === 'MULTIMODAL') {
+				const imageFiles = files.filter((file) =>
+					file.path.includes('images/')
+				);
+				const csvFile = files.find((file) => file.path.endsWith('.csv'));
+				if (imageFiles.length === 0) {
+					throw new Error('No images found in the "image" folder.');
+				}
+				if(!csvFile) {
+					throw new Error('No CSV file found in the dataset.');
+				}
+				console.log('Processing Multi-modal dataset:', {
+					csvFile,
+					imageFiles,
+				});
+			}
 			const chunks = createChunks(fileMap, IMG_NUM_IN_ZIP);
 
 			const fileToChunkMap = new Map();
@@ -82,9 +120,11 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			});
 
 			let extraMeta = {};
-			if ((datasetType === 'TEXT' || datasetType === 'TABULAR') && files[0]) {
+			const csvFile = files.find((file) => file.path.endsWith('.csv'));
+			if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && csvFile) {
 				try {
-					extraMeta = await extractCSVMetaData(files[0].fileObject);
+					extraMeta = await extractCSVMetaData(csvFile.fileObject);
+					console.log('CSV metadata extracted:', extraMeta);
 				} catch (err) {
 					console.error('CSV metadata extraction failed:', err);
 				}
@@ -173,6 +213,9 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 			handleCancel();
 		} catch (error) {
 			console.error('Error in handleSubmit:', error);
+			if (error.response && error.response.data) {
+			console.log('Error response data:', error.response.data);
+			}
 			message.error('Failed to create dataset. Please try again.');
 		} finally {
 			setIsLoading(false);
@@ -264,7 +307,14 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 				>
 					<Select
 						placeholder="Select dataset type"
-						onChange={(value) => setDatasetType(value)}
+						onChange={(value) => {
+							setDatasetType(value);
+							if (value === 'MULTIMODAL') {
+								message.info(
+									'For Multi-modal classification, please upload a folder containing an "image" folder and a .csv file.'
+								);
+							}
+						}}
 					>
 						{Object.entries(DATASET_TYPES).map(([key, value]) => (
 							<Option key={key} value={key}>

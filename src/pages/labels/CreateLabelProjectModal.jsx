@@ -62,11 +62,14 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
         if (selectedDataset.dataType === 'IMAGE' && selectedDataset.detectedLabels?.length > 0) {
             setLabels(selectedDataset.detectedLabels)
         }
-
+        
         if (
-            (selectedDataset.dataType === 'TEXT' || selectedDataset.dataType === 'TABULAR') &&
+            (selectedDataset.dataType === 'TEXT' || 
+             selectedDataset.dataType === 'TABULAR' || 
+             selectedDataset.dataType === 'MULTIMODAL') &&
             selectedDataset.metaData?.columns
         ) {
+            console.log('Columns in dataset:', selectedDataset.metaData.columns)
             const columns = selectedDataset.metaData.columns
             const options = Object.entries(columns).map(([key, val]) => {
                 const count = val.uniqueClassCount ?? val.unique_class_count ?? 0

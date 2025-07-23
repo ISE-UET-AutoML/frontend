@@ -26,14 +26,14 @@ const TASK_TYPES = {
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',
-		description: 'We accept CSV text format',
-		allowedExtensions: ['csv'],
+    	description: 'Requires a folder containing a CSV file and a subfolder with images.',
+		allowedExtensions: [],
 		card: {
 			bg: '#fffbe6',
 			text: '#faad14',
 			border: '#faad14',
 		},
-		dataType: 'TABULAR',
+		dataType: 'MULTIMODAL',
 	},
 	MULTILABEL_IMAGE_CLASSIFICATION: {
 		type: 'Multilabel Image Classification',
@@ -83,6 +83,16 @@ const DATASET_TYPES = {
 			border: '#722ed1',
 		},
 	},
+	MULTIMODAL: {
+        type: 'Multimodal',
+        description: 'We accept a folder containing an "image" folder and a .csv file',
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'csv'],
+        card: {
+            bg: '#fffbe6',
+            text: '#faad14',
+            border: '#faad14',
+        },
+    },
 }
 
 export { DATASET_TYPES, TASK_TYPES }
