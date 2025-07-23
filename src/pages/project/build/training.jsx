@@ -12,8 +12,10 @@ import {
     Tag,
     Spin,
     Skeleton,
+    Steps,
     Button,
     Tooltip,
+    Modal,
 } from 'antd'
 import {
     ExperimentOutlined,
@@ -25,6 +27,9 @@ import {
     CalendarOutlined,
     HourglassOutlined,
     RadarChartOutlined,
+    SettingOutlined,
+    CloudDownloadOutlined,
+    LoadingOutlined,
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import {
@@ -38,10 +43,22 @@ import {
     Area,
     AreaChart,
 } from 'recharts'
+const { Step } = Steps
 import { calcGeneratorDuration } from 'framer-motion'
 import useTrainingStore from 'src/stores/trainingStore'
 
 const { Title, Text, Paragraph } = Typography
+
+const steps = [
+    {
+        title: 'Setting up virtual environment',
+        icon: <SettingOutlined />,
+    },
+    {
+        title: 'Downloading dataset on Cloud Storage',
+        icon: <CloudDownloadOutlined />,
+    },
+]
 
 // Training Metric Card Component - replacement for AnimatedStatistic
 const TrainingMetricCard = ({
@@ -209,88 +226,6 @@ const TrainingInfoCard = ({
         if (trainProgress >= 100) return 'exception'
         return 'active'
     }
-    // return (
-    // 	<Card
-    // 		title={
-    // 			<Title level={5}>
-    // 				<DashboardOutlined /> Training Information:{' '}
-    // 				<Tag color="blue" icon={<ExperimentOutlined />}>
-    // 					{experimentName}
-    // 				</Tag>
-    // 			</Title>
-    // 		}
-    // 		className="shadow-md hover:shadow-lg transition-shadow duration-300"
-    // 		extra={
-    // 			<>
-    // 				{status === 'DONE' && (
-    // 					<div className="text-center">
-    // 						<button
-    // 							onClick={onViewResults}
-    // 							className="border border-green-500 bg-green-50 text-green-500 p-2 rounded-md hover:bg-green-500 hover:text-white "
-    // 						>
-    // 							<CheckCircleOutlined className="mr-2" />
-    // 							View Training Results
-    // 						</button>
-    // 					</div>
-    // 				)}
-    // 			</>
-    // 		}
-    // 	>
-    // 		<Space direction="vertical" size="middle" style={{ width: '100%' }}>
-    // 			<Row>
-    // 				<div className="w-[28%]">
-    // 					<TrainingMetricCard
-    // 						title="Current Epoch"
-    // 						value={trainingInfo.latestEpoch}
-    // 						icon={<ExperimentOutlined />}
-    // 						loading={
-    // 							!trainingInfo.latestEpoch &&
-    // 							status === 'TRAINING'
-    // 						}
-    // 					/>
-    // 				</div>
-    // 				<div className="w-[28%] ml-10">
-    // 					<TrainingMetricCard
-    // 						title="Validation Accuracy"
-    // 						value={trainingInfo.accuracy * 100}
-    // 						suffix="%"
-    // 						icon={<BarChartOutlined />}
-    // 						loading={
-    // 							!trainingInfo.accuracy && status === 'TRAINING'
-    // 						}
-    // 					/>
-    // 				</div>
-    // 			</Row>
-
-    // 			<Divider orientation="left">Training Progress</Divider>
-
-    // 			<Row gutter={[16, 16]}>
-    // 				{maxTrainingTime > 0 && (
-    // 					<Col span={24}>
-    // 						<Progress
-    // 							percent={trainProgress}
-    // 							status={
-    // 								trainProgress >= 100 ? 'success' : 'active'
-    // 							}
-    // 							strokeColor={{
-    // 								'0%': '#87d068',
-    // 								'100%': '#fa8c16',
-    // 							}}
-    // 						/>
-    // 						<div className="mt-2">
-    // 							<Text type="secondary">
-    // 								{timeProgress < 100
-    // 									? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(1)} minutes`
-    // 									: 'Maximum training time reached'}
-    // 							</Text>
-    // 						</div>
-    // 					</Col>
-    // 				)}
-    // 			</Row>
-    // 		</Space>
-    // 	</Card>
-    // )
-
     return (
         <Card
             title={
@@ -419,8 +354,14 @@ const Training = () => {
     const [maxTrainingTime, setMaxTrainingTime] = useState(null)
     const metricExplain = projectInfo.metrics_explain
     const [trainProgress, setTrainProgress] = useState(0)
+    const [currentStep, setCurrentStep] = useState(null)
+    const [isModalVisible, setIsModalVisible] = useState(false)
 
-    const { trainingTasks, startTrainingTask, stopTrainingTask } = useTrainingStore()
+    const handleModalCancel = () => {
+        setIsModalVisible(false)
+    }
+
+    const { trainingTasks, startTrainingTask } = useTrainingStore()
     const trainingTask = trainingTasks[experimentId]
     // Handle view results button click
     const handleViewResults = () => {
@@ -440,17 +381,29 @@ const Training = () => {
 
     useEffect(() => {
         if (trainingTask) {
-            console.log("Current Training stats:", trainingTask)
-            setTrainProgress(trainingTask.progress)
-            setStatus(trainingTask.status)
-            setTrainingInfo((prev) => ({
-                latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
-                accuracy: trainingTask.trainingInfo.accuracy || 0
-            }))
-            setValMetric((prev) => trainingTask.val_metric)
-            setElapsedTime(prev => trainingTask.elapsed)
-            setMaxTrainingTime(prev => trainingTask.expectedTrainingTime)
-            setChartData(prev => trainingTask.accuracyTrend)
+            if (trainingTask.status === 'SETTING_UP') {
+                setCurrentStep(0)
+                setIsModalVisible(true)
+            }
+            else if (trainingTask.status === 'DOWNLOADING_DATA') {
+                setCurrentStep(1)
+                setIsModalVisible(true)
+            }
+            else {
+                setCurrentStep(null)
+                setIsModalVisible(false)
+                console.log("Current Training stats:", trainingTask)
+                setTrainProgress(trainingTask.progress)
+                setStatus(trainingTask.status)
+                setTrainingInfo((prev) => ({
+                    latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
+                    accuracy: trainingTask.trainingInfo.accuracy || 0
+                }))
+                setValMetric((prev) => trainingTask.val_metric)
+                setElapsedTime(prev => trainingTask.elapsed)
+                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime)
+                setChartData(prev => trainingTask.accuracyTrend)
+            }
         }
     }, [trainingTask]);
 
@@ -571,6 +524,77 @@ const Training = () => {
                     />
                 </Space>
             </animated.div>
+            <Modal
+                title={
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                        }}
+                    >
+                        Resource Preparation
+                        <Tooltip
+                            title={
+                                <div>
+                                    <p>
+                                        This process ensures a smooth and
+                                        secure setup:
+                                    </p>
+                                    <ul>
+                                        <li>
+                                            1. Create an isolated virtual
+                                            machine
+                                        </li>
+                                        <li>
+                                            2. Download required resources
+                                            safely
+                                        </li>
+                                        <li>
+                                            3. Configure the environment for
+                                            optimal performance
+                                        </li>
+                                    </ul>
+                                    <p>
+                                        Each step is carefully monitored to
+                                        prevent potential issues.
+                                    </p>
+                                </div>
+                            }
+                        >
+                            <InfoCircleOutlined
+                                style={{
+                                    color: '#1890ff',
+                                    cursor: 'pointer',
+                                }}
+                            />
+                        </Tooltip>
+                    </div>
+                }
+                open={isModalVisible}
+                onCancel={handleModalCancel}
+                footer={null}
+                width={1000}
+            >
+                <Card className="preparation-card">
+                    <Steps current={currentStep}>
+                        {steps.map((step, index) => (
+                            <Step
+                                key={index}
+                                title={step.title}
+                                description={step.description}
+                                icon={
+                                    currentStep === index ? (
+                                        <LoadingOutlined />
+                                    ) : (
+                                        step.icon
+                                    )
+                                }
+                            />
+                        ))}
+                    </Steps>
+                </Card>
+            </Modal>
         </div>
     )
 }
