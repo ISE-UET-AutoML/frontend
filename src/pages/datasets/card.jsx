@@ -24,10 +24,24 @@ const PROCESSING_STATUS = {
 		bgColor: 'bg-green-100',
 		borderColor: 'border-green-500'
 	},
+	CREATING_DATASET: {
+		color: 'processing',
+		icon: <SyncOutlined spin />,
+		text: 'Creating Dataset...',
+		bgColor: 'bg-blue-50',
+		borderColor: 'border-blue-200'
+	},
 	PROCESSING: {
 		color: 'processing',
 		icon: <SyncOutlined spin />,
 		text: 'Processing',
+		bgColor: 'bg-blue-50',
+		borderColor: 'border-blue-200'
+	},
+	CREATING_LABEL_PROJECT: {
+		color: 'processing',
+		icon: <SyncOutlined spin />,
+		text: 'Creating Label Project...',
 		bgColor: 'bg-blue-50',
 		borderColor: 'border-blue-200'
 	},

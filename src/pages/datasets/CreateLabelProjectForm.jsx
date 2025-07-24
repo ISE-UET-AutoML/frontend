@@ -13,6 +13,7 @@ import {
 import { PlusOutlined } from '@ant-design/icons';
 import { getDatasets } from 'src/api/dataset';
 import { TASK_TYPES } from 'src/constants/types';
+import { DATASET_TASK_MAPPING, TASK_TYPE_INFO } from 'src/constants/dataset_task_mapping';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -23,54 +24,28 @@ export default function CreateLabelProjectForm({
     onBack,
     initialValues = {},
     loading,
-    prefillTaskType,
     detectedLabels = [],
-    csvMetadata = null
+    csvMetadata = null,
+    datasetType // IMAGE | TEXT | TABULAR | MULTIMODAL
 }) {
     const [form] = Form.useForm();
-    const [datasets, setDatasets] = useState([]);
     const [expectedLabels, setLabels] = useState([]);
     const [newLabel, setNewLabel] = useState('');
     const [columnOptions, setColumnOptions] = useState([]);
 
-    const taskType = Form.useWatch('taskType', form);
-    const selectedDatasetId = Form.useWatch('datasetId', form);
+    // watch task type selection
+    const selectedTaskType = Form.useWatch('taskType', form);
 
     useEffect(() => {
-        fetchDatasets();
-    }, []);
-
-    useEffect(() => {
-        form.setFieldsValue({ datasetId: undefined });
-    }, [taskType]);
-
-    const fetchDatasets = async () => {
-        try {
-            const res = await getDatasets();
-            setDatasets(res.data);
-        } catch (error) {
-            console.error('Error fetching datasets:', error);
-        }
-    };
-
-    useEffect(() => {
-        const selectedDataset = datasets.find(ds => ds.id === selectedDatasetId);
-        if (!selectedDataset) return;
-
-        setLabels([]);
-        setColumnOptions([]);
-
-        // Xử lý cho dataset loại IMAGE
-        if (selectedDataset.dataType === 'IMAGE' && detectedLabels?.length > 0) {
+        if (detectedLabels?.length > 0) {
             console.log('Setting detected labels from folder structure:', detectedLabels);
             setLabels(detectedLabels);
         }
-        
-        // Xử lý cho dataset loại TEXT/TABULAR/MULTIMODAL
-        if (
-            ['TEXT', 'TABULAR', 'MULTIMODAL'].includes(selectedDataset.dataType) &&
-            csvMetadata?.columns
-        ) {
+    }, [detectedLabels]);
+
+    useEffect(() => {
+        // Xử lý cho dataset loại TEXT/TABULAR/MULTIMODAL với CSV
+        if (csvMetadata?.columns) {
             console.log('Setting columns from CSV:', csvMetadata.columns);
             const options = Object.entries(csvMetadata.columns).map(([key, val]) => ({
                 value: key,
@@ -84,7 +59,7 @@ export default function CreateLabelProjectForm({
                 setLabels([options[0].value]);
             }
         }
-    }, [selectedDatasetId, datasets, detectedLabels, csvMetadata]);
+    }, [csvMetadata]);
 
     const handleAddLabel = () => {
         const v = newLabel.trim();
@@ -114,11 +89,34 @@ export default function CreateLabelProjectForm({
         onSubmit(payload);
     };
 
+    // Lọc task types dựa vào dataset type
+    const getAvailableTaskTypes = () => {
+        const dataType = datasetType;
+        if (!dataType) {
+            return [];
+        }
+        
+        const availableTypes = DATASET_TASK_MAPPING[dataType] || [];
+        
+        const taskTypes = availableTypes.map(typeKey => ({
+            key: typeKey,
+            ...TASK_TYPE_INFO[typeKey]
+        }));
+        
+        return taskTypes;
+    };
+
+    // Log initial values
+    useEffect(() => {
+        // Recalculate when datasetType changes
+        getAvailableTaskTypes();
+    }, [datasetType]);
+
     return (
         <Form
             form={form}
             layout="vertical"
-            initialValues={{ ...initialValues, taskType: prefillTaskType }}
+            initialValues={{ ...initialValues }}
             onFinish={handleSubmit}
         >
             <Form.Item 
@@ -137,36 +135,41 @@ export default function CreateLabelProjectForm({
                 <TextArea rows={3} maxLength={500} showCount />
             </Form.Item>
 
-            <Form.Item name="taskType" label="Task Type" rules={[{ required: true }]}>
-                <Select placeholder="Select task type">
-                    {Object.entries(TASK_TYPES).map(([key, val]) => (
-                        <Option key={key} value={key}>{val.type}</Option>
+            <Form.Item 
+                name="taskType" 
+                label="Task Type" 
+                rules={[{ required: true }]}
+            >
+                <Select 
+                    placeholder="Select task type"
+                    onChange={() => {
+                        // Reset labels when task type changes
+                        setLabels([]);
+                    }}
+                    style={{ width: '100%' }}
+                    allowClear
+                >
+                    {/* Placeholder option */}
+                    {datasetType && (
+                        <Option key="__placeholder" value="" disabled>
+                            -- No option selected --
+                        </Option>
+                    )}
+                    {datasetType && getAvailableTaskTypes().map(task => (
+                        <Option key={task.key} value={task.key}>
+                            {task.displayName}
+                            <span style={{ fontSize: '0.8em', color: '#666', marginLeft: '8px' }}>
+                                ({task.description})
+                            </span>
+                        </Option>
                     ))}
                 </Select>
             </Form.Item>
 
-            <Form.Item noStyle shouldUpdate>
-                {({ getFieldValue }) => {
-                    const selectedType = getFieldValue('taskType');
-                    const requiredDataType = selectedType ? TASK_TYPES[selectedType]?.dataType : null;
-                    const filtered = datasets.filter(ds => ds.dataType === requiredDataType);
-
-                    return (
-                        <Form.Item name="datasetId" label="Dataset" rules={[{ required: true }]}>
-                            <Select placeholder="Select dataset" disabled={!requiredDataType}>
-                                {filtered.map(ds => (
-                                    <Option key={ds.id} value={ds.id}>
-                                        {ds.title} ({ds.quantity} items)
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    );
-                }}
-            </Form.Item>
-
             <Form.Item label="Expected Labels" required>
-                {columnOptions.length > 0 ? (
+                {!selectedTaskType ? (
+                    <Alert message="Please select Task Type first" type="warning" showIcon />
+                ) : columnOptions.length > 0 ? (
                     // UI cho TEXT/TABULAR/MULTIMODAL datasets với CSV columns
                     <Select
                         placeholder="Select label column"

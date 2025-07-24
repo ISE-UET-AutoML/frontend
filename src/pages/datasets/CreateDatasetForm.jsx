@@ -1,5 +1,5 @@
 // CreateDatasetForm.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Form,
     Input,
@@ -16,17 +16,44 @@ import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file'
 const { Option } = Select;
 const { TextArea } = Input;
 
-export default function CreateDatasetForm({ onNext, onCancel, initialValues }) {
+export default function CreateDatasetForm({ 
+    onNext, 
+    onCancel, 
+    initialValues, 
+    initialFiles = [],
+    initialDetectedLabels = [],
+    initialCsvMetadata = null
+ }) {
     const [form] = Form.useForm();
-    const [files, setFiles] = useState([]);
+    const [files, setFiles] = useState(initialFiles);
     const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
     const [service, setService] = useState(initialValues?.service || 'AWS_S3');
     const [bucketName, setBucketName] = useState(initialValues?.bucket_name || 'user-private-dataset');
     const [datasetType, setDatasetType] = useState(initialValues?.dataset_type || 'IMAGE_CLASSIFICATION');
-    const [totalKbytes, setTotalKbytes] = useState('0.00');
-    const [detectedLabels, setDetectedLabels] = useState([]);
-    const [csvMetadata, setCsvMetadata] = useState(null);
     const fileRefs = useRef(new Map());
+
+    const calcSizeKB = (fileArr) => {
+        const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
+        return totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00';
+    };
+
+    const [totalKbytes, setTotalKbytes] = useState(calcSizeKB(initialFiles));
+    const [detectedLabels, setDetectedLabels] = useState(initialDetectedLabels);
+    const [csvMetadata, setCsvMetadata] = useState(initialCsvMetadata);
+
+    // whenever initial props change (when coming back), refresh states
+    useEffect(() => {
+        if (initialFiles.length) {
+            setFiles(initialFiles);
+            setTotalKbytes(calcSizeKB(initialFiles));
+        }
+        if (initialDetectedLabels.length) {
+            setDetectedLabels(initialDetectedLabels);
+        }
+        if (initialCsvMetadata) {
+            setCsvMetadata(initialCsvMetadata);
+        }
+    }, [initialFiles, initialDetectedLabels, initialCsvMetadata]);
 
     const validateFiles = (files, datasetType) => {
 		const allowedImageTypes = ['image/jpeg', 'image/png'];
