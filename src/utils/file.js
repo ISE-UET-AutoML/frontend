@@ -20,22 +20,37 @@ const validateFiles = (files, projectType) => {
 
 	const { allowedExtensions } = projectInfo
 	const validFiles = []
+	const invalidFiles = []
+
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i]
-		// Don't need to validate dot files (hidden files), just remove its
+		// Don't need to validate dot files (hidden files), just skip them
 		if (file.name.startsWith('.')) {
 			continue
 		}
 
-		if (isAllowedExtension(file.name, allowedExtensions)) {
+		// For files in folders, use webkitRelativePath if available
+		const filePath = file.webkitRelativePath || file.name
+
+		// Skip folders themselves
+		if (file.size === 0 && file.type === "") {
+			continue
+		}
+
+		if (isAllowedExtension(filePath, allowedExtensions)) {
 			validFiles.push(file)
 		} else {
-			alert(
-				`We only accept ${allowedExtensions.join(', ').toUpperCase()} format, please remove ${file.name} from folder`
-			)
-			return []
+			invalidFiles.push(filePath)
 		}
 	}
+
+	if (invalidFiles.length > 0) {
+		alert(
+			`We only accept ${allowedExtensions.join(', ').toUpperCase()} format, please remove these files:\n${invalidFiles.join('\n')}`
+		)
+		return []
+	}
+
 	return validFiles
 }
 
