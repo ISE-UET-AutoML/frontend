@@ -112,7 +112,7 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
                     </Text>
                     <Button 
                         type="primary" 
-                        disabled={annotationNums === 0 || annotatedNums < annotationNums} 
+                        //disabled={annotationNums === 0 || annotatedNums < annotationNums} 
                         onClick={handleUploadToS3}
                         loading={isUploading}
                     >

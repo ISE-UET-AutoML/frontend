@@ -14,6 +14,8 @@ import {
     Tooltip,
     Empty,
     Tag,
+    Modal,
+    message,
 } from 'antd'
 import {
     CloudUploadOutlined,
@@ -21,7 +23,7 @@ import {
     InfoCircleOutlined,
     FilterOutlined,
 } from '@ant-design/icons'
-import { createLbProject, getLbProjByTask } from 'src/api/labelProject'
+import { createLbProject, getLbProjByTask, uploadToS3 } from 'src/api/labelProject'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import CreateLabelProjectModal from 'src/pages/labels/CreateLabelProjectModal'
 import config from './config'
@@ -40,6 +42,8 @@ const UploadData = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [tableLoading, setTableLoading] = useState(false)
     const [isModalVisible, setIsModalVisible] = useState(false)
+    const [isExporting, setIsExporting] = useState(false)   
+
 
     const fetchProjects = async () => {
         setTableLoading(true)
@@ -78,24 +82,31 @@ const UploadData = () => {
             item.task_type === projectInfo?.task_type
     )
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         const selectedProject = filteredProjects.find(
             (p) => p.project_id === selectedRowKeys[0]
         )
         if (!selectedProject) return
 
         console.log('selectedProject', selectedProject)
-        updateFields({
-            selectedProject,
-        })
-
-        const object = config[projectInfo.task_type]
-
-        if (selectedProject.isLabeled) {
+        setIsExporting(true)
+        try {
+            await uploadToS3(selectedProject.label_studio_id)      
+            updateFields({
+                selectedProject,
+            })
+            const object = config[projectInfo.task_type]
             navigate(`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`)
-        } else {
-            navigate(PATHS.LABEL_VIEW(selectedProject.project_id, 'labeling'))
+
+        } catch (error) {
+            console.error('Error exporting labels to S3:', error)
+            message.error('Không thể chuẩn bị dữ liệu. Vui lòng thử lại.');
+        } finally {
+            setIsExporting(false); // Luôn ẩn dialog sau khi hoàn tất
         }
+        //if (!selectedProject.isLabeled) {
+          //  navigate(PATHS.LABEL_VIEW(selectedProject.project_id, 'labeling'))
+        //}
     }
 
     const showModal = () => {
@@ -261,7 +272,7 @@ const UploadData = () => {
                                         </>
                                     ) : (
                                         <>
-                                            Go to Labeling <ArrowRightOutlined />
+                                            Go to Training <ArrowRightOutlined />
                                         </>
                                     )}
                                 </Button>
@@ -327,6 +338,23 @@ const UploadData = () => {
                 onCancel={hideModal}
                 onCreate={handleCreateLabelProject}
             />
+
+            <Modal
+                title="Đang chuẩn bị dữ liệu"
+                open={isExporting}
+                closable={false}
+                footer={null}
+                centered
+            >
+                <div className="text-center py-8">
+                    <Spin size="large" />
+                    <Paragraph className="mt-4 text-gray-600">
+                        Hệ thống đang export nhãn và chuẩn bị dữ liệu.
+                        <br />
+                        Quá trình này có thể mất vài phút, vui lòng không đóng cửa sổ này.
+                    </Paragraph>
+                </div>
+            </Modal>
         </div>
     )
 }
