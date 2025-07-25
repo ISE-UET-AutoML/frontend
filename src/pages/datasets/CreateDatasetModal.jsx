@@ -31,8 +31,8 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
     // Kiểm tra trạng thái processing của dataset
     const checkProcessingStatus = async (datasetId) => {
         try {
-            const { data: dataset } = await datasetAPI.getDataset(datasetId);
-            return dataset.processingStatus;
+            const { data: status } = await datasetAPI.getProcessingStatus(datasetId);
+            return status;
         } catch (error) {
             console.error('Error checking processing status:', error);
             return 'FAILED';
@@ -97,7 +97,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
             const { files, totalKbytes, dataset_type, service, bucket_name } = datasetFormValues;
             
             // Đóng modal ngay khi bắt đầu xử lý
-            handleCancel();
 
             // Khởi tạo fileMap và chunks trước khi dùng
             const fileMap = organizeFiles(files);
@@ -130,8 +129,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     s3_path: `${datasetFormValues.title}/zip/${chunk.name}`,
                 })),
                 status: 'active',
-                meta_data: extraMeta,
-                processingStatus: 'CREATING_DATASET'  // Bước 1: Đang tạo dataset
+                meta_data: extraMeta
             };
 
             const { data: createdDataset } = await datasetAPI.createDataset(datasetPayload);
@@ -209,71 +207,14 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                 }
             }
 
-            // Giai đoạn 1: Đợi backend xử lý xong (status COMPLETED)
-            let isProcessed = false;
-            let processAttempts = 0;
-            const maxProcessAttempts = 60; // Chờ tối đa 2 phút
+            // Sau khi upload xong, lưu thông tin label project và bắt đầu polling trạng thái
+            handleCancel();
+            setLabelProjectData(labelProjectValues);
+            // Hàm pollProcessingStatus sẽ tự gọi createLabelProject khi dataset đạt COMPLETED
+            await pollProcessingStatus(createdDataset.id);
 
-            while (!isProcessed) {
-                if (processAttempts >= maxProcessAttempts) {
-                    throw new Error('Dataset processing timeout. Backend took too long to unzip files.');
-                }
-                const { data: dataset } = await datasetAPI.getDataset(createdDataset.id);
-                if (dataset.processingStatus === 'COMPLETED') {
-                    isProcessed = true;
-                } else if (dataset.processingStatus === 'FAILED') {
-                    throw new Error('Dataset processing failed on the backend.');
-                } else {
-                    processAttempts++;
-                    await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ 2 giây
-                }
-            }
-
-            // Giai đoạn 2: Xác thực thư mục unzip đã sẵn sàng bằng cách gọi getDatasetPreview
-            let isUnzipReady = false;
-            let unzipAttempts = 0;
-            const maxUnzipAttempts = 30; // Chờ tối đa 1 phút nữa
-
-            while (!isUnzipReady) {
-                if (unzipAttempts >= maxUnzipAttempts) {
-                    throw new Error('Timeout verifying unzipped files. Could not create Label Project.');
-                }
-                try {
-                    // Thử lấy preview, nếu thành công nghĩa là file đã sẵn sàng
-                    await datasetAPI.getDatasetPreview(createdDataset.id);
-                    isUnzipReady = true;
-                } catch (error) {
-                    // Lỗi 404 (hoặc lỗi khác) là bình thường nếu file chưa sẵn sàng
-                    console.warn(`Unzip readiness check #${unzipAttempts + 1} failed. Retrying...`);
-                    unzipAttempts++;
-                    await new Promise(resolve => setTimeout(resolve, 2000)); // Chờ 2 giây
-                }
-            }
-
-            // Bước 3: Tạo Label Project (chỉ khi file đã thực sự sẵn sàng)
-            // await datasetAPI.updateDataset(createdDataset.id, {
-            //     processingStatus: 'CREATING_LABEL_PROJECT'  // Bước 3: Đang tạo label project
-            // });
-
-            const labelProjectPayload = {
-                name: labelProjectValues.name,
-                taskType: labelProjectValues.taskType,
-                datasetId: createdDataset.id,
-                expectedLabels: labelProjectValues.expectedLabels,
-                meta_data: {
-                    is_binary_class: labelProjectValues.meta_data?.is_binary_class || false
-                }
-            };
-
-            await labelProjectAPI.createLbProject(labelProjectPayload);
-
-            // Bước 4: Hoàn thành
-            // await datasetAPI.updateDataset(createdDataset.id, {
-            //     processingStatus: 'COMPLETED'  // Bước 4: Hoàn tất
-            // });
-
-            onCreate(); // Gọi lại để báo hiệu toàn bộ quá trình đã xong và cập nhật trạng thái cuối cùng
-
+            // Khi createLabelProject hoàn thành, hàm handleCancel() đã được gọi.
+             
         } catch (error) {
             console.error('Error in handleSubmit:', error);
             message.error('Failed to create dataset and label project. Please try again.');

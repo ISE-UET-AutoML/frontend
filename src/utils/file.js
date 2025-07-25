@@ -89,52 +89,35 @@ const createChunks = (fileMap, chunkSize) => {
 };
 
 const extractCSVMetaData = async (file) => {
-	const defaultMetadata = { rowCount: 0, columnCount: 0, columns: {} };
+	return new Promise((resolve, reject) => {
+		Papa.parse(file, {
+			header: true,
+			skipEmptyLines: true,
+			complete: function (results) {
+				const rows = results.data;
+				if (rows.length === 0) return resolve({ rowCount: 0, columnCount: 0, columns: {} });
 
-	return new Promise((resolve) => {
-		if (!file) {
-			return resolve(defaultMetadata);
-		}
-
-		try {
-			Papa.parse(file, {
-				header: true,
-				skipEmptyLines: true,
-				complete: function (results) {
-					if (!results || !results.data || results.data.length === 0 || !results.meta.fields) {
-						return resolve(defaultMetadata);
-					}
-
-					const rows = results.data;
-					const columns = {};
-
-					results.meta.fields.forEach((col) => {
-						const uniqueValues = new Set();
-						rows.forEach((row) => {
-							if (row[col] !== undefined && row[col] !== null && row[col] !== '') {
-								uniqueValues.add(row[col]);
-							}
-						});
-						columns[col] = {
-							unique_class_count: uniqueValues.size,
-						};
+				const columns = {};
+				Object.keys(rows[0]).forEach((col) => {
+					const uniqueValues = new Set();
+					rows.forEach((row) => {
+						if (row[col] !== '') uniqueValues.add(row[col]);
 					});
+					columns[col] = {
+						unique_class_count: uniqueValues.size,
+					};
+				});
 
-					resolve({
-						rowCount: rows.length,
-						columnCount: results.meta.fields.length,
-						columns,
-					});
-				},
-				error: function (error) {
-					console.error('PapaParse error:', error);
-					resolve(defaultMetadata); // Luôn resolve với giá trị mặc định khi có lỗi
-				},
-			});
-		} catch (error) {
-			console.error('Error in extractCSVMetaData:', error);
-			resolve(defaultMetadata); // Đảm bảo luôn resolve ngay cả khi có exception
-		}
+				resolve({
+					rowCount: rows.length,
+					columnCount: Object.keys(rows[0]).length,
+					columns,
+				});
+			},
+			error: function (error) {
+				reject(error);
+			},
+		});
 	});
 };
 
