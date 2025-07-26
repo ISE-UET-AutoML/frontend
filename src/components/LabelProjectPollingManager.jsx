@@ -17,6 +17,15 @@ export default function LabelProjectPollingManager() {
     }
   };
 
+  const refreshLabelProjects = async () => {
+    try {
+      // Gọi API để refresh label projects và sync annotations
+      await labelProjectAPI.getLbProjects();
+    } catch (error) {
+      console.error('Error refreshing label projects:', error);
+    }
+  };
+
   useEffect(() => {
     if (pendingLabelProjects.length === 0) return;
     
@@ -51,6 +60,29 @@ export default function LabelProjectPollingManager() {
                 
                 await labelProjectAPI.createLbProject(payload);
                 message.success(`Label project for ${dataset.title} created successfully!`);
+                
+                // Đợi Label Studio hoàn thành việc tạo project và tasks
+                console.log(`Waiting for Label Studio to complete project setup for ${dataset.title}...`);
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Đợi 5 giây
+                
+                // Sync annotations từ Label Studio về database
+                console.log(`Syncing project data for ${dataset.title}...`);
+                await refreshLabelProjects();
+                
+                // Kiểm tra xem project đã được tạo thành công chưa
+                try {
+                  const projectsResponse = await labelProjectAPI.getLbProjects();
+                  const project = projectsResponse.data.find(p => p.datasetId === dataset.id);
+                  
+                  if (project) {
+                    console.log(`Project ${dataset.title} created successfully with ${project.annotatedNums}/${project.annotationNums} annotations`);
+                  } else {
+                    console.warn(`Project ${dataset.title} not found in projects list`);
+                  }
+                } catch (err) {
+                  console.error('Error checking project status:', err);
+                }
+                
               } catch (err) {
                 console.error('Error creating label project:', err);
                 message.error(`Failed to create label project for ${dataset.title}`);
