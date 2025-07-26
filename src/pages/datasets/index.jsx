@@ -5,6 +5,7 @@ import * as datasetAPI from 'src/api/dataset'
 import DatasetCard from './card'
 import CreateDatasetModal from './CreateDatasetModal'
 import { POLL_DATASET_PROCESSING_STATUS_TIME } from 'src/constants/time'
+import { usePollingStore } from 'src/store/pollingStore'
 
 const { Title } = Typography
 
@@ -96,16 +97,15 @@ export default function Datasets() {
 		}
 	}
 
-	const handleCreateDataset = async (payload) => {
+	const handleCreateDataset = async (createdDataset, labelProjectValues) => {
 		try {
-			const response = await datasetAPI.createDataset(payload)
-			if (response.status === 201) {
-				message.success('Dataset created successfully!')
-				updateDataState({ showCreator: false })
-				getDatasets()
-			}
+			message.success('Dataset created successfully!')
+			updateDataState({ showCreator: false })
+			// Thêm vào Zustand store để polling ngầm
+			usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues });
+			getDatasets()
 		} catch (error) {
-			console.error('Error creating dataset:', error)
+			console.error('Error handling created dataset:', error)
 		}
 	}
 

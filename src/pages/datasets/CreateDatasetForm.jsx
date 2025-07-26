@@ -205,7 +205,11 @@ export default function CreateDatasetForm({
             service,
             bucket_name: bucketName,
             detectedLabels,
-            csvMetadata
+            csvMetadata,
+            meta_data: {
+                detectedLabels,
+                csvMetadata
+            } // Ensure metadata is included
         };
         onNext(payload);
     };
