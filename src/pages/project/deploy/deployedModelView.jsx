@@ -126,23 +126,9 @@ export default function DeployedModelView() {
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <Space direction="vertical" size="large" className="w-full">
-                {/* Key Metrics Cards */}
                 <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} md={8}>
-                        <Card className="shadow-md ">
-                            <Statistic
-                                title={`Reliability`}
-                                value={99}
-                                prefix={<ThunderboltOutlined />}
-                                suffix="%"
-                                valueStyle={{
-                                    color: '#3f8600',
-                                }}
-                            />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} md={8}>
-                        <Card className="shadow-md ">
+                    <Col xs={24} sm={24} md={12}>
+                        <Card className="shadow-md">
                             <Statistic
                                 title="Uptime"
                                 value={`${Math.floor(dayjs().diff(dayjs(deployData?.create_time), 'minute') / 60)} hour(s) ${dayjs().diff(dayjs(deployData?.create_time), 'minute') % 60} minute(s)`}
@@ -153,8 +139,8 @@ export default function DeployedModelView() {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={8}>
-                        <Card className="shadow-md ">
+                    <Col xs={24} sm={24} md={12}>
+                        <Card className="shadow-md">
                             <Statistic
                                 title="Total Requests"
                                 value={192 || 0}

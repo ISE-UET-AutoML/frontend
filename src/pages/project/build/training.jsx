@@ -524,6 +524,7 @@ const Training = () => {
                     />
                 </Space>
             </animated.div>
+
             <Modal
                 title={
                     <div

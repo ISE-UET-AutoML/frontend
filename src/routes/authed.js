@@ -31,6 +31,7 @@ import Training from 'src/pages/project/build/training'
 import TrainResult from 'src/pages/project/build/trainResult'
 import DeployView from 'src/pages/project/build/deployView'
 import DeployedModelView from 'src/pages/project/deploy/deployedModelView'
+import DeploySettingUpView from 'src/pages/project/deploy/deploySettingUpView'
 
 const routes = {
     element: <DefaultLayout />,
@@ -92,6 +93,10 @@ const routes = {
                                             path: 'deployView',
                                             element: <DeployView />,
                                         },
+                                        {
+                                            path: 'deploySettingUp',
+                                            element: <DeploySettingUpView />
+                                        }
                                     ],
                                 },
                                 {

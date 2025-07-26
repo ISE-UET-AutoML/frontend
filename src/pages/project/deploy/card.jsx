@@ -43,7 +43,7 @@ export default function DeployedModelCard({ deployedModel }) {
         navigate(
             (status === 'ONLINE' || status === 'OFFLINE')
                 ? PATHS.MODEL_DEPLOY_VIEW(projectId, deploy_id)
-                : PATHS.PROJECT_DEPLOY(projectId)
+                : PATHS.SETTING_UP_DEPLOY(projectId, deploy_id, model_id)
         )
     }
 
