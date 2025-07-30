@@ -70,7 +70,6 @@ export default function Datasets() {
 	}
 
 	useEffect(() => {
-		console.log('useEffect triggered. Current page is:', currentPage);
 		getDatasets(currentPage)
 	}, [currentPage])
 
@@ -87,7 +86,6 @@ export default function Datasets() {
 	}, [datasetState.datasets])
 
 	const getDatasets = async (page = 1) => {
-		console.log('getDatasets function called with page:', page);
 		try {
 			updateDataState({ isLoading: true })
 			const response = await datasetAPI.getDatasets({page: page, limit: pageSize})
