@@ -1,13 +1,14 @@
 import React, { useReducer, useEffect, useRef, useState } from 'react' // Added useState
-import { Button, Card, Typography, message } from 'antd'
+import { Button, Card, Typography, message, Pagination } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import * as datasetAPI from 'src/api/dataset'
 import DatasetCard from './card'
 import CreateDatasetModal from './CreateDatasetModal'
 import { POLL_DATASET_PROCESSING_STATUS_TIME } from 'src/constants/time'
+import { usePollingStore } from 'src/store/pollingStore'
 
 const { Title } = Typography
-
+const pageSize = 9
 const initialState = {
 	datasets: [],
 	isLoading: false,
@@ -20,6 +21,9 @@ export default function Datasets() {
 		initialState
 	)
 	const [deletingIds, setDeletingIds] = useState(new Set()) // Added to track deleting datasets
+
+	const [currentPage, setCurrentPage] = useState(1) // Added for pagination
+	const [totalItems, setTotalItems] = useState(0) 
 
 	const pollingRef = useRef(null)
 	const hasProcessingDatasets = (datasets) => {
@@ -66,8 +70,9 @@ export default function Datasets() {
 	}
 
 	useEffect(() => {
-		getDatasets()
-	}, [])
+		console.log('useEffect triggered. Current page is:', currentPage);
+		getDatasets(currentPage)
+	}, [currentPage])
 
 	useEffect(() => {
 		if (datasetState.datasets.length > 0 && hasProcessingDatasets(datasetState.datasets)) {
@@ -81,31 +86,33 @@ export default function Datasets() {
 		}
 	}, [datasetState.datasets])
 
-	const getDatasets = async () => {
+	const getDatasets = async (page = 1) => {
+		console.log('getDatasets function called with page:', page);
 		try {
 			updateDataState({ isLoading: true })
-			const response = await datasetAPI.getDatasets()
+			const response = await datasetAPI.getDatasets({page: page, limit: pageSize})
 			console.log('resDa', response)
 			updateDataState({
-				datasets: response.data,
+				datasets: response.data.data,
 				isLoading: false
 			})
+			setTotalItems(response.data.total) 
+			setCurrentPage(page) 
 		} catch (error) {
 			console.error('Error fetching datasets:', error)
 			updateDataState({ isLoading: false })
 		}
 	}
 
-	const handleCreateDataset = async (payload) => {
+	const handleCreateDataset = async (createdDataset, labelProjectValues) => {
 		try {
-			const response = await datasetAPI.createDataset(payload)
-			if (response.status === 201) {
-				message.success('Dataset created successfully!')
-				updateDataState({ showCreator: false })
-				getDatasets()
-			}
+			message.success('Dataset created successfully!')
+			updateDataState({ showCreator: false })
+			// Thêm vào Zustand store để polling ngầm
+			usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues });
+			getDatasets()
 		} catch (error) {
-			console.error('Error creating dataset:', error)
+			console.error('Error handling created dataset:', error)
 		}
 	}
 
@@ -143,6 +150,7 @@ export default function Datasets() {
 			{datasetState.isLoading ? (
 				<Card loading={true} className="text-center" />
 			) : datasetState.datasets.length > 0 ? (
+			<>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{datasetState.datasets.map((dataset) => (
 						<DatasetCard
@@ -153,6 +161,19 @@ export default function Datasets() {
 						/>
 					))}
 				</div>
+				<div className="flex justify-center mt-8">
+                        <Pagination
+                            current={currentPage}
+                            total={totalItems}
+                            pageSize={pageSize}
+                            onChange={(page) => {
+								console.log('Pagination clicked. New page:', page);
+								setCurrentPage(page);
+							}}
+                            showSizeChanger={false}
+                        />
+                </div>
+			</>	
 			) : (
 				<Card className="text-center">
 					<Title level={4}>No Datasets Found</Title>

@@ -36,8 +36,8 @@ const createDownZipPU = async (datasetTitle) => {
 	return instance.get(`${URL_SERVICE}/presigned-urls/download-zip-files/${datasetTitle}`, options)
 }
 
-const getDatasets = () => {
-	return instance.get(URL)
+const getDatasets = (params) => {
+	return instance.get(URL, { params })
 }
 
 const getDataset = (datasetID) => {

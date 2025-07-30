@@ -15,6 +15,7 @@ import { DATASET_TYPES } from 'src/constants/types'
 dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
+const { REACT_APP_LABEL_STUDIO_URL } = process.env
 
 const PROCESSING_STATUS = {
 	COMPLETED: {
@@ -24,10 +25,24 @@ const PROCESSING_STATUS = {
 		bgColor: 'bg-green-100',
 		borderColor: 'border-green-500'
 	},
+	CREATING_DATASET: {
+		color: 'processing',
+		icon: <SyncOutlined spin />,
+		text: 'Creating Dataset...',
+		bgColor: 'bg-blue-50',
+		borderColor: 'border-blue-200'
+	},
 	PROCESSING: {
 		color: 'processing',
 		icon: <SyncOutlined spin />,
 		text: 'Processing',
+		bgColor: 'bg-blue-50',
+		borderColor: 'border-blue-200'
+	},
+	CREATING_LABEL_PROJECT: {
+		color: 'processing',
+		icon: <SyncOutlined spin />,
+		text: 'Creating Label Project...',
 		bgColor: 'bg-blue-50',
 		borderColor: 'border-blue-200'
 	},
@@ -50,7 +65,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 
 	const isClickable = processingStatus === 'COMPLETED'
 	const statusConfig = PROCESSING_STATUS[processingStatus] || PROCESSING_STATUS.PROCESSING
-
+	const lsProjectId = dataset.lsProject?.labelStudioId || null
 	const tagColor = DATASET_TYPES[dataType]?.card || {
 		bg: '#f0f0f0',
 		text: '#000',
@@ -58,9 +73,17 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	}
 
 	const handleCardClick = () => {
-		if (isClickable) {
-			window.location.href = PATHS.DATASET_VIEW(dataset.id)
+		//if (isClickable) {
+		//	window.location.href = PATHS.DATASET_VIEW(dataset.id)
+		//}
+		if (lsProjectId) {
+			const url = `${REACT_APP_LABEL_STUDIO_URL}/projects/${lsProjectId}`;
+			window.open(url, '_blank');
+		} else {
+			console.error("Label Studio ID is missing!");
+			message.error("Label Studio ID is missing for this project.");
 		}
+		console.log(lsProjectId);
 	}
 
 	const handleDeleteClick = (e) => {
