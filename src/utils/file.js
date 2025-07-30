@@ -11,33 +11,22 @@ const isAllowedExtension = (fileName, allowedExtensions) => {
 	return allowedExtensions.includes(ext)
 }
 
-const validateFiles = (files, projectType) => {
-	const projectInfo = TASK_TYPES[projectType]
-	if (!projectInfo) {
-		alert('Unsupported project type.')
-		return []
-	}
+const validateFiles = (files, datasetType) => {
+	// Chỉ dựa vào phần đuôi file thay vì MIME type vì trình duyệt đôi khi đặt CSV là
+	// 'application/vnd.ms-excel' hoặc để trống.
+	const allowedExtensionsByType = {
+		IMAGE: ['jpg', 'jpeg', 'png', 'webp'],
+		TEXT: ['csv'],
+		TABULAR: ['csv'],
+		MULTIMODAL: ['jpg', 'jpeg', 'png', 'webp', 'csv'],
+	};
 
-	const { allowedExtensions } = projectInfo
-	const validFiles = []
-	for (let i = 0; i < files.length; i++) {
-		const file = files[i]
-		// Don't need to validate dot files (hidden files), just remove its
-		if (file.name.startsWith('.')) {
-			continue
-		}
-
-		if (isAllowedExtension(file.name, allowedExtensions)) {
-			validFiles.push(file)
-		} else {
-			alert(
-				`We only accept ${allowedExtensions.join(', ').toUpperCase()} format, please remove ${file.name} from folder`
-			)
-			return []
-		}
-	}
-	return validFiles
-}
+	const allowedExts = allowedExtensionsByType[datasetType] || [];
+	return files.filter((file) => {
+		const filePath = file.webkitRelativePath || file.name || '';
+		return isAllowedExtension(filePath, allowedExts);
+	});
+};
 
 const organizeFiles = (files) => {
 	const fileMap = new Map();

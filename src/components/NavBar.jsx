@@ -93,7 +93,7 @@ const NavBar = () => {
 										Datasets
 									</ActiveLink>
 								</div>
-								<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+								{/*<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
 									<ActiveLink
 										to={PATHS.LABELS}
 										defaultclassname={defaultclassname}
@@ -102,7 +102,7 @@ const NavBar = () => {
 									>
 										Labels
 									</ActiveLink>
-								</div>
+								</div>*/}
 							</div>
 							<div className="absolute inset-y-0 right-0 flex items-center p-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 								{/* Profile dropdown */}
