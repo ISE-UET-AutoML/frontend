@@ -114,9 +114,9 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 			{/* Decorative gradient border */}
 			<div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-emerald-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
 			
-			{/* Header Section with Icon and Delete Button */}
+			{/* Header Section with Icon, Title and Delete Button */}
 			<div className="relative p-4 pb-3">
-				<div className="flex items-center justify-between">
+				<div className="flex items-center gap-4">
 					{/* Icon Container */}
 					<div className={`
 						relative rounded-xl p-3 ${statusConfig.bgColor} 
@@ -127,11 +127,33 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 							group-hover:text-blue-700 transition-all duration-300" />
 					</div>
 
+					{/* Title and Status */}
+					<div className="flex-1 min-w-0">
+						<div className="flex items-start justify-between gap-3">
+							<div className="flex-1 min-w-0">
+								<Title 
+									level={5} 
+									className="!m-0 !text-slate-800 !font-bold !leading-tight truncate group-hover:text-slate-900 transition-colors duration-300" 
+									title={dataset.title}
+								>
+									{dataset.title || 'Untitled Dataset'}
+								</Title>
+							</div>
+							<Tag
+								icon={statusConfig.icon}
+								color={statusConfig.color}
+								className="text-xs font-semibold px-2 py-1 rounded-md shadow-sm"
+							>
+								{statusConfig.text}
+							</Tag>
+						</div>
+					</div>
+
 					{/* Delete Button */}
 					<Button
 						type="text"
 						icon={<DeleteOutlined className="text-base" />}
-						className="!w-10 !h-10 rounded-lg !border-0 
+						className="!w-10 !h-10 rounded-lg !border-0 flex-shrink-0
 							hover:!bg-red-50 hover:!text-red-600 hover:!shadow-md
 							transition-all duration-300 hover:scale-105 active:scale-95"
 						onClick={handleDeleteClick}
@@ -164,20 +186,24 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 							<Text strong className="text-sm font-bold text-emerald-700">
 								{annotatedCount} / {totalAnnotations}
 							</Text>
-							<div className="text-xs text-emerald-600 font-medium">
+							{/*<div className="text-xs text-emerald-600 font-medium">
 								{progress.toFixed(1)}%
-							</div>
+							</div>*/}
 						</div>
 					</div>
 					<Progress 
 						percent={progress} 
 						size="small" 
 						strokeColor={{
-							'0%': '#10b981',
-							'100%': '#059669',
+							'0%': '#f97316',     
+							'30%': '#2ae2a5ff',     
+							'80%': '#259a75ff',    
+							'100%': '#045f45ff',  
 						}}
 						trailColor="#f0fdf4"
-						className="!mb-0"
+						format={(percent) => (
+							<span className="text-emerald-600">{percent}%</span>
+						)}
 					/>
 				</div>
 			</div>
@@ -185,32 +211,6 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 			{/* Footer Section */}
 			<div className="bg-gradient-to-br from-slate-50/80 to-slate-100/40 rounded-b-2xl border-t border-slate-200/50">
 				<div className="p-4 space-y-3">
-					{/* Title and Date */}
-					<div className="flex items-start justify-between gap-3">
-						{/*<div className="flex-1 min-w-0">
-							<Title 
-								level={5} 
-								className="!m-0 !text-slate-800 !font-bold !leading-tight truncate group-hover:text-slate-900 transition-colors duration-300" 
-								title={dataset.title}
-							>
-								{dataset.title || 'Untitled Dataset'}
-							</Title>
-							{createdAt && (
-								<div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
-									<span>⏰</span>
-									<span>Created {dayjs(dataset.createdAt).fromNow()}</span>
-								</div>
-							)}
-						</div>*/}
-						<Tag
-							icon={statusConfig.icon}
-							color={statusConfig.color}
-							className="text-xs font-semibold px-2 py-1 rounded-md shadow-sm"
-						>
-							{statusConfig.text}
-						</Tag>
-					</div>
-
 					{/* Stats Grid */}
 					<div className="grid grid-cols-3 gap-2">
 						{/* Bucket Info */}
