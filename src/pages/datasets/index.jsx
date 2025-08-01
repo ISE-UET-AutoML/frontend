@@ -108,7 +108,7 @@ export default function Datasets() {
 			updateDataState({ showCreator: false })
 			// Thêm vào Zustand store để polling ngầm
 			usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues });
-			getDatasets()
+			await getDatasets()
 		} catch (error) {
 			console.error('Error handling created dataset:', error)
 		}
