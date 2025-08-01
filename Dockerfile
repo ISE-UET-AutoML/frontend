@@ -1,17 +1,25 @@
-FROM node:16-alpine as builder
-
-ARG REACT_APP_API_URL
-ARG REACT_APP_ML_SERVICE_ADDR
-
-RUN mkdir /app
-
-COPY ./package.json /app
-COPY ./yarn.lock /app
+# Simple approach with Node.js serve
+FROM node:20-alpine
 
 WORKDIR /app
 
-RUN yarn
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-CMD yarn start
-EXPOSE 3000
+# Build the React app
+RUN npm run build
+
+# Install serve globally to serve static files
+RUN npm install -g serve
+
+# Expose port
+EXPOSE ${PORT_FE:-3000}
+
+# Start serving the built app
+CMD ["serve", "-s", "build", "-l", "3000"]

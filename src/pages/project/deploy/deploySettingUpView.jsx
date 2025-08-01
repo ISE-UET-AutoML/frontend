@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, Navigate, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import {
     Steps,
     Card,
@@ -65,6 +65,7 @@ const AnimatedProgressBar = ({ percent, title, subtitle, color }) => {
 }
 
 export default function DeploySettingUpView() {
+    const location = useLocation()
     const searchParams = new URLSearchParams(location.search)
     const deployId = searchParams.get('deployId')
     const modelId = searchParams.get('modelId')
