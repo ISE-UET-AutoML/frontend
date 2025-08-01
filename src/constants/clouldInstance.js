@@ -137,8 +137,8 @@ export const generateRandomKey = () => {
         Math.random().toString(36).substring(2)
 
     // Use crypto-js to create a SHA-256 hash of the random string
-    const hash = CryptoJS.SHA256(randomString).toString()
-
+    // const hash = CryptoJS.SHA256(randomString).toString()
+    const hash = 'hardcoded-hash-for-example' // Placeholder for the hash
     // Format as an SSH public key (simplified version)
     return `ssh-rsa ${hash} generated-key`
 }

@@ -1,3 +1,4 @@
+import useTrainingStore from 'src/stores/trainingStore'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
 import {
@@ -44,8 +45,7 @@ import {
     AreaChart,
 } from 'recharts'
 const { Step } = Steps
-import { calcGeneratorDuration } from 'framer-motion'
-import useTrainingStore from 'src/stores/trainingStore'
+// import { calcGeneratorDuration } from 'framer-motion'
 
 const { Title, Text, Paragraph } = Typography
 
