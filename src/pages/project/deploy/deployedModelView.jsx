@@ -328,35 +328,7 @@ export default function DeployedModelView() {
 
                 <Card title="🚀 Cloud Server" className="rounded-xl shadow-sm">
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={8}>
-                            <Alert
-                                message="Live Inferencing"
-                                description="Instantly test your model on our platform."
-                                type="success"
-                                showIcon
-                                style={{ height: 130 }}
-                            />
-                            <Button
-                                type="primary"
-                                icon={<RocketOutlined />}
-                                onClick={() => {
-                                    navigate(
-                                        `/app/project/${projectInfo.id}/build/deployView?experimentId=${experimentId}&experimentName=${experimentName}&modelId=${modelId}`
-                                    )
-                                }}
-                                size="large"
-                                style={{
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    marginTop: 15,
-                                    backgroundColor: '#52c41a',
-                                    borderColor: '#52c41a',
-                                }}
-                            >
-                                Inferencing Now
-                            </Button>
-                        </Col>
-                        <Col xs={24} sm={8}>
+                        <Col xs={24} sm={12}>
                             <Alert
                                 message={deployData?.status === 'ONLINE' ? 'Shut down server instance' : 'Start server instance'}
                                 description={deployData?.status === 'ONLINE' ?
@@ -383,7 +355,7 @@ export default function DeployedModelView() {
                                 {deployData?.status === 'ONLINE' ? 'Shut down' : 'Start'}
                             </Button>
                         </Col>
-                        <Col xs={24} sm={8}>
+                        <Col xs={24} sm={12}>
                             <Alert
                                 message="Delete server instance"
                                 description="Permanently removes the server and all associated data from the system. This action is irreversible."
