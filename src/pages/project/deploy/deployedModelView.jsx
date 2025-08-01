@@ -34,7 +34,6 @@ import { validateFiles } from 'src/utils/file'
 
 
 export default function DeployedModelView() {
-    const navigate = useNavigate();
     const [projectInfo, setProjectInfo] = useState({})
     const { deployId, id } = useParams()
     const [uploading, setUploading] = useState(false)
@@ -42,8 +41,6 @@ export default function DeployedModelView() {
     const [predictResult, setPredictResult] = useState(null)
     const [uploadedFiles, setUploadedFiles] = useState(null)
     const [experimentName, setExperimentName] = useState(null)
-    const [experimentId, setExperimentId] = useState(null)
-    const [modelId, setModelId] = useState(null)
     const fileInputRef = useRef(null)
 
     const object = config[projectInfo.task_type]
