@@ -33,7 +33,7 @@ const SignUp = () => {
 
 	const handleSignUp = async (e) => {
 		e.preventDefault();
-		
+
 		const formData = new FormData(e.target);
 		const email = formData.get('email');
 		const password = formData.get('password');
@@ -41,10 +41,11 @@ const SignUp = () => {
 
 		try {
 			const response = await signup({ full_name, email, password });
-			
+
 			if (response) {
 				message.success('Đăng ký tài khoản thành công!');
-				navigate('/login', { replace: true });
+				console.log('Đăng ký thành công:', response);
+				// navigate('/login', { replace: true });
 			}
 		} catch (error) {
 			// Ngăn chặn error propagation
@@ -237,9 +238,8 @@ const SignUp = () => {
 								value={formState.email.value}
 								onChange={handleEmailChange}
 								required
-								className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${
-									formState.email.error ? 'border-red-500' : 'focus:border-blue-600'
-								} shadow-sm rounded-lg`}
+								className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${formState.email.error ? 'border-red-500' : 'focus:border-blue-600'
+									} shadow-sm rounded-lg`}
 							/>
 							{formState.email.touched && formState.email.error && (
 								<p className="text-red-500 mt-1">{formState.email.error}</p>
