@@ -5,8 +5,6 @@ import axios from 'axios'
 const instanceWithoutCredential = axios.create({ baseURL: API_BASE_URL })
 
 const signup = (credential) => {
-	console.log('Credential in signup:', credential)
-	console.log('API URL for signup:', API_URL.signup)
 	return instanceWithoutCredential.post(API_URL.signup, credential)
 }
 const login = (credential) =>

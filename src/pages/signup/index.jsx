@@ -45,7 +45,7 @@ const SignUp = () => {
 			if (response) {
 				message.success('Đăng ký tài khoản thành công!');
 				console.log('Đăng ký thành công:', response);
-				// navigate('/login', { replace: true });
+				navigate('/login', { replace: true });
 			}
 		} catch (error) {
 			// Ngăn chặn error propagation
