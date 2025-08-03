@@ -17,9 +17,9 @@ const NavBar = () => {
 	const navigate = useNavigate()
 	const { logout: authLogout } = useAuth()
 
-	const logout = () => {
-		authLogout()
-		navigate('/', { replace: true })
+	const logout = async () => {
+		await authLogout()
+		//navigate('/', { replace: true })
 	}
 
 	return (
@@ -177,7 +177,7 @@ const NavBar = () => {
 												{({ active }) => (
 													<a
 														href="/"
-														onClick={() => logout()}
+														onClick={logout}
 														className={clsx(
 															active
 																? 'bg-gray-100'

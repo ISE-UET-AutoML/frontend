@@ -48,7 +48,7 @@ export const getLbProjByTask = (taskType) => {
     return instance.get(`${URL_SERVICE}/ls-projects/by-task-type`, options)
 }
 
-export const logoutLabelStudio = () => {
+export const logoutLabelStudio = async () => {
     const cookies = new Cookies();
     const csrfToken = cookies.get('csrftoken');
 
@@ -63,34 +63,33 @@ export const logoutLabelStudio = () => {
 
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    return fetch(`${process.env.REACT_APP_LABEL_STUDIO_URL}/user/logout/`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            //'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken,
-        },
-        //body: JSON.stringify({}),
-        signal: signal // Gắn signal vào yêu cầu
-    })
-        .then(response => {
-            // Xóa timeout nếu yêu cầu thành công
-            clearTimeout(timeoutId);
-            if (!response.ok) {
-                throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
-            }
-            return response.json();
+    try {
+        const response = await fetch(`${process.env.REACT_APP_LABEL_STUDIO_URL}/user/logout/`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                //'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            //body: JSON.stringify({}),
+            signal: signal // Gắn signal vào yêu cầu
         })
-        .catch(error => {
-            // Xóa timeout và xử lý lỗi
-            clearTimeout(timeoutId);
-            if (error.name === 'AbortError') {
-                console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
-            } else {
-                console.error('Lỗi khi logout khỏi Label Studio:', error);
-            }
-            throw error;
-        });
+        // Xóa timeout nếu yêu cầu thành công
+        clearTimeout(timeoutId)
+        if (!response.ok) {
+            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`)
+        }
+        return await response.json()
+    } catch (error) {
+        // Xóa timeout và xử lý lỗi
+        clearTimeout(timeoutId)
+        if (error.name === 'AbortError') {
+            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.')
+        } else {
+            console.error('Lỗi khi logout khỏi Label Studio:', error)
+        }
+        throw error
+    }
 };
 
 export const uploadToS3 = async (projectID) => {

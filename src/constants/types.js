@@ -52,8 +52,8 @@ const TASK_TYPES = {
 		allowedExtensions: ['jpg', 'jpeg', 'png'],
 		dataType: 'IMAGE',
 	},
-	IMAGE_SEGMENTATION: {
-		type: 'Image Segmentation',
+	SEMANTIC_SEGMENTATION: {
+		type: 'Semantic Segmentation',
 		description: 'We accept JPEG, PNG image format',
 		allowedExtensions: ['jpg', 'jpeg', 'png'],
 		dataType: 'IMAGE',

@@ -47,6 +47,13 @@ const config = {
         predictView: MultiLabelImgPredict,
         liveInferView: EmptyLiveInfer,
     },
+    SEMANTIC_SEGMENTATION: {
+        afterUploadURL: 'selectInstance',
+        folder: UploadTypes.FOLDER,
+        labelingView: LabelingImageClassification,
+        predictView: ImagePredict,
+        liveInferView: EmptyLiveInfer,
+    },
 }
 
 export default config
