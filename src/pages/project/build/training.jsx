@@ -399,7 +399,7 @@ const Training = () => {
                     latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
                     accuracy: trainingTask.trainingInfo.accuracy || 0
                 }))
-                setValMetric((prev) => trainingTask.val_metric)
+                setValMetric((prev) => trainingTask.valMetric)
                 setElapsedTime(prev => trainingTask.elapsed)
                 setMaxTrainingTime(prev => trainingTask.expectedTrainingTime)
                 setChartData(prev => trainingTask.accuracyTrend)
