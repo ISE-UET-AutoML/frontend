@@ -62,32 +62,31 @@ export const logoutLabelStudio = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     try {
-        const response = await fetch(`${process.env.REACT_APP_LABEL_STUDIO_URL}/user/logout/`, {
+        const response = await fetch(`http://34.1.194.168:3003/user/logout/`, {
             method: 'POST',
             credentials: 'include',
             headers: {
+                //'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken,
             },
-            signal: signal,
-        });
-
-        clearTimeout(timeoutId);
-
+            //body: JSON.stringify({}),
+            signal: signal // Gắn signal vào yêu cầu
+        })
+        // Xóa timeout nếu yêu cầu thành công
+        clearTimeout(timeoutId)
         if (!response.ok) {
-            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
+            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`)
         }
-
-        return await response.json();
+        return await response.json()
     } catch (error) {
-        clearTimeout(timeoutId);
-
+        // Xóa timeout và xử lý lỗi
+        clearTimeout(timeoutId)
         if (error.name === 'AbortError') {
-            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
+            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.')
         } else {
-            console.error('Lỗi khi logout khỏi Label Studio:', error);
+            console.error('Lỗi khi logout khỏi Label Studio:', error)
         }
-
-        throw error;
+        throw error
     }
 };
 

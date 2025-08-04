@@ -30,7 +30,7 @@ import { getModelById } from 'src/api/model'
 import { getExperimentById } from 'src/api/experiment'
 import config from '../build/config'
 import * as modelAPI from 'src/api/model'
-import { validateFiles } from 'src/utils/file'
+import { validateFilesForPrediction } from 'src/utils/file'
 
 
 export default function DeployedModelView() {
@@ -66,12 +66,13 @@ export default function DeployedModelView() {
     }, [])
 
     const handleUploadFiles = async (files) => {
-        console.log(files)
+        console.log("Files: ", files)
         if (!deployData?.api_base_url) {
             message.error('No deployment instance URL available')
             return
         }
-        const validFiles = validateFiles(files, projectInfo.task_type)
+        console.log(projectInfo.task_type)
+        const validFiles = validateFilesForPrediction(files, projectInfo.task_type)
 
         console.log('uploadedFiles', validFiles)
         setUploadedFiles(validFiles)

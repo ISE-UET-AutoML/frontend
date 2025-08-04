@@ -39,7 +39,7 @@ const UploadData = () => {
     const [serviceFilter, setServiceFilter] = useState('')
     const [bucketFilter, setBucketFilter] = useState('')
     const [labeledFilter, setLabeledFilter] = useState('')
-    const [selectedRowKeys, setSelectedRowKeys] = useState([])
+    const [selectedRowKeys, setSelectedRowKeys] = useState('')
     const [tableLoading, setTableLoading] = useState(false)
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [isExporting, setIsExporting] = useState(false)   
@@ -53,6 +53,7 @@ const UploadData = () => {
                 Array.isArray(response.data)
                     ? response.data.map((item) => ({
                         ...item,
+                        project_id: item.id,
                         title: item.name,
                         bucketName: item.bucket_name,
                         isLabeled: item.annotated_nums > 0,
@@ -83,9 +84,8 @@ const UploadData = () => {
     )
 
     const handleContinue = async () => {
-        const selectedProject = filteredProjects.find(
-            (p) => p.project_id === selectedRowKeys[0]
-        )
+        const selectedProject = filteredProjects.find(p => p.project_id === selectedRowKeys)
+
         if (!selectedProject) return
 
         console.log('selectedProject', selectedProject)
@@ -258,7 +258,7 @@ const UploadData = () => {
                                 </Radio.Group>
                             </div>
 
-                            {selectedRowKeys.length > 0 && (
+                            {selectedRowKeys && (
                                 <Button
                                     type="primary"
                                     size="large"
@@ -266,15 +266,9 @@ const UploadData = () => {
                                     className="mt-4 flex items-center justify-between"
                                     block
                                 >
-                                    {isSelectedProjectLabeled ? (
-                                        <>
-                                            Continue with Selected Project <ArrowRightOutlined />
-                                        </>
-                                    ) : (
-                                        <>
-                                            Go to Training <ArrowRightOutlined />
-                                        </>
-                                    )}
+                                    <>
+                                        Go to Training <ArrowRightOutlined />
+                                    </>
                                 </Button>
                             )}
                         </Space>
@@ -297,8 +291,14 @@ const UploadData = () => {
                                 dataSource={filteredProjects}
                                 rowSelection={{
                                     type: 'radio',
-                                    selectedRowKeys,
-                                    onChange: (keys) => setSelectedRowKeys(keys),
+                                    selectedRowKeys: selectedRowKeys ? [selectedRowKeys] : [],
+
+                                    onChange: (keys) => setSelectedRowKeys(keys[0]),
+                                    getCheckboxProps: (record) => ({
+                                        name: record.project_id ? record.project_id.toString() : '',
+                                        // Thêm disabled nếu project_id không tồn tại
+                                        disabled: !record.project_id || record.annotated_nums === 0
+                                    }),
                                 }}
                                 rowKey="project_id"
                                 pagination={{ pageSize: 2 }}

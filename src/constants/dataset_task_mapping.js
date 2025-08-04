@@ -24,8 +24,8 @@ export const TASK_TYPE_INFO = {
         displayName: 'Object Detection',
         description: 'Detect and locate objects in images'
     },
-    IMAGE_SEGMENTATION: {
-        displayName: 'Image Segmentation',
+    SEMANTIC_SEGMENTATION: {
+        displayName: 'Semantic Segmentation',
         description: 'Segment images into different regions'
     }
 };
@@ -36,7 +36,7 @@ export const DATASET_TASK_MAPPING = {
         'IMAGE_CLASSIFICATION',
         'MULTILABEL_IMAGE_CLASSIFICATION',
         'OBJECT_DETECTION',
-        'IMAGE_SEGMENTATION'
+        'SEMANTIC_SEGMENTATION'
     ],
     TEXT: ['TEXT_CLASSIFICATION'],
     TABULAR: ['TABULAR_CLASSIFICATION'],
