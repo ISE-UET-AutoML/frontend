@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from 'zustand/middleware';
-import { getTrainingProgress, getTrainingMetrics, createModel } from "src/api/mlService";
+import { getTrainingProgress, getTrainingMetrics, createModel, getUnfinishedExperiment } from "src/api/mlService";
 
 let hasRestored = false;
 
@@ -12,7 +12,7 @@ const calculateElapsedTime = (startTimeValue) => {
     return ((currentTime - startTimeValue) / (1000 * 60)).toFixed(2)
 }
 
-const useTrainingStore = create(persist(
+const useTrainingStore = create(
     (set, get) => ({
         trainingTasks: {},
 
@@ -123,28 +123,25 @@ const useTrainingStore = create(persist(
             pollTraining()
         },
 
-        restoreTrainingTasks: () => {
+        restoreTrainingTasks: async () => {
             if (hasRestored) return;
             hasRestored = true;
 
-            const tasks = get().trainingTasks;
-            Object.entries(tasks).forEach(([experimentId, task]) => {
-                // Only rerun if status != DONE and != FAILED
-                if (task.status !== 'DONE' && task.status !== 'FAILED') {
-                    get().startTrainingTask(experimentId);
-                }
-            });
+            try {
+                const response = await getUnfinishedExperiment();
+                const unfinishedExperimentId = response.data;
+                console.log("Unfinished experiment id:", unfinishedExperimentId)
+                unfinishedExperimentId.forEach((id) => {
+                    get().startTrainingTask(id);
+                });
+            }
+            catch (error) {
+                console.log("Failed to load unfinished experiment.", error);
+            }
         },
 
     }),
-
-    {
-        name: 'training-storage', // key in localStorage
-        partialize: (state) => ({
-            trainingTasks: state.trainingTasks,
-        }),
-    }
-));
+);
 
 
 export default useTrainingStore;
