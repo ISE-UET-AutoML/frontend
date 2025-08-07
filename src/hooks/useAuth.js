@@ -90,30 +90,37 @@ function useAuth() {
 			});
 		},
 
-		async logout() {
-			const cleanupAndRedirect = () => {
-				console.log("Đang tiến hành logout khỏi hệ thống chính...");
-				const cookies = new Cookies();
-				cookies.remove('accessToken', { path: '/' });
-				cookies.remove('refreshToken', { path: '/' });
-				cookies.remove('Authorization', { path: '/' });
-				cookies.remove('x-user-id', { path: '/' });
+		logout() {
+			return new Promise((resolve, reject) => {
+				console.log('logging out...');
 
-				setAuthed(false);
-				window.location.reload();
-			};
+				logoutLabelStudio()
+					.then(() => {
+						console.log("Yêu cầu logout khỏi Label Studio đã hoàn tất.");
+					})
+					.catch((error) => {
+						console.error("Logout khỏi Label Studio thất bại, nhưng vẫn tiếp tục:", error);
+						// Không reject, vẫn tiếp tục
+					})
+					.finally(() => {
+						console.log("Đang tiến hành logout khỏi hệ thống chính...");
 
-			try {
-				console.log("Đang thử đăng xuất khỏi Label Studio...");
-				await logoutLabelStudio();
-				console.log("Yêu cầu logout khỏi Label Studio đã hoàn tất.");
-			} catch (error) {
-				console.error("Logout khỏi Label Studio thất bại, nhưng vẫn tiếp tục:", error);
-			} finally {
-				console.log("Đang tiến hành đăng xuất khỏi hệ thống chính..........................................");
-				cleanupAndRedirect();
-			}
-		},
+						cookies.remove('accessToken', { path: '/' });
+						cookies.remove('refreshToken', { path: '/' });
+						cookies.remove('Authorization', { path: '/' });
+						cookies.remove('x-user-id', { path: '/' });
+
+						setAuthed(false);
+
+						// Nếu muốn reload thì đặt đây, nhưng sẽ dừng mọi logic sau đó
+						// window.location.reload();
+
+						// Nếu không reload, bạn có thể resolve để cho phép điều hướng:
+						resolve();
+					});
+			});
+		}
+
 	};
 }
 
