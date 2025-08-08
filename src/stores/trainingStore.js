@@ -101,7 +101,7 @@ const useTrainingStore = create(
                     return;
                 }
 
-                setTimeout(pollTraining, 5000);
+                setTimeout(pollTraining, 10000);
             };
 
             // Initial setup

@@ -186,6 +186,9 @@ const TrainResult = () => {
                 if (data.fit_history.scalars.val_iou) {
                     readChart(data.fit_history.scalars.val_iou, setValAccGraph)
                 }
+                if (data.fit_history.scalars.val_roc_auc) {
+                    readChart(data.fit_history.scalars.val_roc_auc, setValAccGraph)
+                }
             } catch (error) {
                 console.error('Error fetching training history:', error)
                 // message.error(

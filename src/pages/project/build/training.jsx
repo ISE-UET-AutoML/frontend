@@ -401,7 +401,7 @@ const Training = () => {
                 }))
                 setValMetric((prev) => trainingTask.valMetric)
                 setElapsedTime(prev => trainingTask.elapsed)
-                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime)
+                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime / 60)
                 setChartData(prev => trainingTask.accuracyTrend)
             }
         }

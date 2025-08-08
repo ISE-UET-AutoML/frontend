@@ -78,14 +78,10 @@ export default function DeployedModelView() {
         setUploadedFiles(validFiles)
         setUploading(true)
         const formData = new FormData()
-        formData.append('task', projectInfo.task_type)
 
         Array.from(validFiles).forEach((file) => {
-            formData.append('files', file)
+            formData.append('images', file)
         })
-        formData.append('experiment_name', experimentName)
-        formData.append('text_col', 'sentence')
-
         console.log('Fetch prediction start')
 
         try {

@@ -237,7 +237,7 @@ const SelectInstance = () => {
                 framework: 'autogluon',
                 target_column: selectedProject.meta_data?.target_column,
                 text_column: selectedProject.meta_data?.text_columns,
-                image_column: selectedProject.meta_data?.images_column
+                image_column: selectedProject.meta_data?.image_column
             }
             console.log('payloadTrain', payload)
             const res1 = await trainCloudModel(projectInfo.id, payload)
