@@ -32,9 +32,12 @@ export default function CreateLabelProjectForm({
     const [expectedLabels, setLabels] = useState([]);
     const [newLabel, setNewLabel] = useState('');
     const [columnOptions, setColumnOptions] = useState([]);
+    const [selectedImageColumn, setSelectedImageColumn] = useState(null); // State cho cột ảnh
 
     // watch task type selection
     const selectedTaskType = Form.useWatch('taskType', form);
+    const isManualLabelTask = (taskType) =>
+        ['SEMANTIC_SEGMENTATION', 'OBJECT_DETECTION'].includes(taskType);
 
     useEffect(() => {
         if (detectedLabels?.length > 0) {
@@ -53,11 +56,11 @@ export default function CreateLabelProjectForm({
                 uniqueClassCount: val.unique_class_count ?? 0,
             }));
             setColumnOptions(options);
-            
-            // Tự động chọn column nếu chỉ có 1
-            if (options.length === 1) {
+            if (options.length === 1 && !isManualLabelTask(selectedTaskType)) {
                 setLabels([options[0].value]);
             }
+        } else {
+            setColumnOptions([]);
         }
     }, [csvMetadata]);
 
@@ -78,12 +81,13 @@ export default function CreateLabelProjectForm({
         const column = columnOptions.find(opt => opt.value === selectedLabel);
         const uniqueClassCount = column?.uniqueClassCount ?? 0;
         const is_binary_class = uniqueClassCount === 2;
-
+        
         const payload = {
             ...values,
             expectedLabels,
             meta_data: {
-                is_binary_class
+                "is_binary_class": is_binary_class,
+                "images_column": selectedImageColumn
             }
         };
         onSubmit(payload);
@@ -166,11 +170,35 @@ export default function CreateLabelProjectForm({
                 </Select>
             </Form.Item>
 
+            {datasetType === 'MULTIMODAL' && (
+                <Form.Item label="Image Column" required>
+                    <Select
+                        placeholder="Select image column"
+                        value={selectedImageColumn || undefined}
+                        onChange={setSelectedImageColumn}
+                    >
+                        {columnOptions.map(col => (
+                            <Option key={col.value} value={col.value}>
+                                {col.label}
+                            </Option>
+                        ))}
+                    </Select>
+                    {!selectedImageColumn && (
+                        <Alert
+                            message="Please select an image column for MULTIMODAL datasets."
+                            type="warning"
+                            showIcon
+                            className="mt-2"
+                        />
+                    )}
+                </Form.Item>
+            )}
+
             <Form.Item label="Expected Labels" required>
                 {!selectedTaskType ? (
                     <Alert message="Please select Task Type first" type="warning" showIcon />
-                ) : columnOptions.length > 0 ? (
-                    // UI cho TEXT/TABULAR/MULTIMODAL datasets với CSV columns
+                ) : (columnOptions.length > 0 && !isManualLabelTask(selectedTaskType)) ? (
+                    // 1. Dành cho TEXT/TABULAR/MULTIMODAL: Chọn cột từ CSV
                     <Select
                         placeholder="Select label column"
                         value={expectedLabels[0] || undefined}
@@ -188,72 +216,47 @@ export default function CreateLabelProjectForm({
                         ))}
                     </Select>
                 ) : (
-                    // UI cho IMAGE datasets hoặc manual input
+                    // 2. Dành cho IMAGE, SEGMENTATION, DETECTION: Nhập/sửa thủ công
                     <>
-                        {detectedLabels.length > 0 ? (
-                            // Hiển thị detected labels dưới dạng tags có thể click
-                            <div className="flex flex-wrap gap-2">
-                                {detectedLabels.map(label => (
+                        <div className="flex gap-2">
+                            <Input
+                                placeholder="Enter label name"
+                                value={newLabel}
+                                onChange={e => setNewLabel(e.target.value)}
+                                onPressEnter={handleAddLabel}
+                            />
+                            <Button
+                                type="dashed"
+                                icon={<PlusOutlined />}
+                                onClick={handleAddLabel}
+                                disabled={!newLabel.trim()}
+                            >
+                                Add
+                            </Button>
+                        </div>
+
+                        {expectedLabels.length > 0 ? (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {expectedLabels.map(label => (
                                     <Tag
                                         key={label}
-                                        color={expectedLabels.includes(label) ? 'blue' : 'default'}
-                                        onClick={() => {
-                                            if (expectedLabels.includes(label)) {
-                                                setLabels(prev => prev.filter(l => l !== label));
-                                            } else {
-                                                setLabels(prev => [...prev, label]);
-                                            }
-                                        }}
-                                        style={{ cursor: 'pointer' }}
+                                        closable
+                                        onClose={() => handleRemoveLabel(label)}
+                                        color="blue"
                                     >
                                         {label}
                                     </Tag>
                                 ))}
                             </div>
                         ) : (
-                            // Manual input nếu không có detected labels
-                            <div className="flex gap-2">
-                                <Input
-                                    placeholder="Enter label name"
-                                    value={newLabel}
-                                    onChange={e => setNewLabel(e.target.value)}
-                                    onPressEnter={handleAddLabel}
-                                />
-                                <Button
-                                    type="dashed"
-                                    icon={<PlusOutlined />}
-                                    onClick={handleAddLabel}
-                                    disabled={!newLabel.trim()}
-                                >
-                                    Add
-                                </Button>
-                            </div>
-                        )}
-                        
-                        {expectedLabels.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                                {expectedLabels.map(label => (
-                                    <Tag
-                                        key={label}
-                                        closable
-                                        color="blue"
-                                        onClose={() => handleRemoveLabel(label)}
-                                    >
-                                        {label}
-                                    </Tag>
-                                ))}
-                            </div>
+                            <Alert
+                                message="At least one label is required"
+                                type="info"
+                                showIcon
+                                className="mt-2"
+                            />
                         )}
                     </>
-                )}
-                
-                {expectedLabels.length === 0 && (
-                    <Alert
-                        message="At least one label is required"
-                        type="info"
-                        showIcon
-                        className="mt-2"
-                    />
                 )}
             </Form.Item>
 
