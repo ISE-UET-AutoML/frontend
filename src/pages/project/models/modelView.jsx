@@ -6,32 +6,28 @@ import {
     Row,
     Col,
     Alert,
-    Typography,
     Space,
     Statistic,
     Table,
     Button,
     Tooltip,
-    message,
+    Collapse,
 } from 'antd'
+
 import {
     HistoryOutlined,
     CloudDownloadOutlined,
     TrophyOutlined,
-    ClockCircleOutlined,
     RocketOutlined,
     BarChartOutlined,
     InfoCircleOutlined,
     ExperimentOutlined,
 } from '@ant-design/icons'
-import { ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts'
-import LineGraph from 'src/components/LineGraph'
 
-import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import * as modelServiceAPI from 'src/api/model'
-import { mode } from 'crypto-js'
-const { Title, Text } = Typography
+
+const { Panel } = Collapse;
 
 // Performance Metrics Configuration
 const getAccuracyStatus = (score) => {
@@ -322,16 +318,52 @@ const ModelView = () => {
                                                 </Space>
                                             ) : typeof value === "object" && value !== null ? (
                                                 // Handle nested objects (e.g. csv)
-                                                <Space direction="vertical" size="small" style={{ marginLeft: 16 }}>
-                                                    {Object.entries(value).map(([subKey, subValue]) => (
-                                                        <div key={subKey}>
-                                                            <Tag color="green" style={{ marginRight: 8 }}>
-                                                                {subKey}
-                                                            </Tag>
-                                                            <span>{subValue || <em>(empty)</em>}</span>
-                                                        </div>
-                                                    ))}
-                                                </Space>
+                                                <Collapse
+                                                    ghost
+                                                    size='small'
+                                                    style={{
+                                                        display: "inline-block",
+                                                        verticalAlign: 'top',
+                                                    }}
+                                                >
+                                                    <Panel
+                                                        header="View Details"
+                                                        key="1"
+                                                    >
+                                                        <Space
+                                                            direction="vertical"
+                                                            size="small"
+                                                            style={{
+                                                                display: "inline-flex",
+                                                                verticalAlign: "top"
+                                                            }}
+                                                        >
+                                                            {Object.entries(value).map(([subKey, subValue]) => (
+                                                                <div
+                                                                    key={subKey}
+                                                                    style={{
+                                                                        display: "flex",
+                                                                        alignItems: "center",
+                                                                        gap: 8
+                                                                    }}
+                                                                >
+                                                                    <Tag
+                                                                        color="green"
+                                                                        style={{
+                                                                            minWidth: 100,
+                                                                            textAlign: "center",
+                                                                            marginRight: 8
+                                                                        }}
+                                                                    >
+                                                                        {subKey}
+                                                                    </Tag>
+                                                                    <span>{subValue || <em>(empty)</em>}</span>
+                                                                </div>
+                                                            ))}
+                                                        </Space>
+                                                    </Panel>
+                                                </Collapse>
+
                                             ) : (
                                                 // Handle primitives (string, number, boolean)
                                                 <span style={{ marginLeft: 10 }}>
