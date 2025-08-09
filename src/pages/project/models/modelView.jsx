@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import {
     Card,
+    Tag,
     Row,
     Col,
     Alert,
@@ -9,7 +10,6 @@ import {
     Space,
     Statistic,
     Table,
-    Tag,
     Button,
     Tooltip,
     message,
@@ -30,7 +30,7 @@ import LineGraph from 'src/components/LineGraph'
 import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import * as modelServiceAPI from 'src/api/model'
-import { PATHS } from 'src/constants/paths'
+import { mode } from 'crypto-js'
 const { Title, Text } = Typography
 
 // Performance Metrics Configuration
@@ -47,6 +47,10 @@ const getAccuracyStatus = (score) => {
     else {
         return <Tag color='red'>Bad</Tag>
     }
+}
+
+function toNormalCase(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 // Enhanced Table Columns with Tooltips
@@ -76,72 +80,37 @@ const columns = [
     },
 ]
 
-const TrainResult = () => {
-    // Currently hard coded this for testing.
-    const instanceInfo = {
-        "id": 22712659,
-        "ssh_port": "50311",
-        "public_ip": "185.62.108.226",
-        "deploy_port": "50081"
-    }
-    const { projectInfo, trainingInfo, elapsedTime } = useOutletContext()
-    console.log('Train Info', trainingInfo)
-    console.log(projectInfo)
+const ModelView = () => {
     const navigate = useNavigate()
-    const location = useLocation()
-    const searchParams = new URLSearchParams(location.search)
-    const experimentName = searchParams.get('experimentName')
-    const experimentId = searchParams.get('experimentId')
-    const [experiment, setExperiment] = useState({})
+    const { modelId, id } = useParams()
+    const [model, setModel] = useState({})
     const [metrics, setMetrics] = useState([])
-    const [GraphJSON, setGraphJSON] = useState({})
-    const [val_lossGraph, setValLossGraph] = useState([])
-    const [val_accGraph, setValAccGraph] = useState([])
     const [isDetailsExpanded, setIsDetailsExpanded] = useState(true)
 
-    // Existing data parsing logic
-    const readChart = (contents, setGraph) => {
-        const lines = contents.split('\n')
-        const header = lines[0].split(',')
-        let parsedData = []
-        for (let i = 1; i < lines.length - 1; i++) {
-            const line = lines[i].split(',')
-            const item = {}
-
-            for (let j = 1; j < header.length; j++) {
-                const key = header[j]?.trim() || ''
-                const value = line[j]?.trim() || ''
-                item[key] = value
-            }
-
-            parsedData.push(item)
-        }
-        setGraph(parsedData)
-    }
-
     useEffect(() => {
-        const fetchExperiment = async () => {
+        const fetchModel = async () => {
             try {
-                const experimentRes = await experimentAPI.getExperimentById(experimentId)
-                if (experimentRes.status !== 200) {
-                    throw new Error("Cannot get experiment")
+                const modelRes = await modelServiceAPI.getModelById(modelId)
+                if (modelRes.status !== 200) {
+                    throw new Error("Cannot find model")
                 }
-                setExperiment(prev => experimentRes.data)
-
+                const modelData = modelRes.data
+                setModel(prev => modelData)
+                console.log("model:", modelData)
+                await fetchExperimentMetrics(modelData.experiment_id)
             }
             catch (error) {
-                console.log("Error while getting experiment", error)
+                console.log("Error while getting model", error)
             }
         }
 
-        const fetchExperimentMetrics = async () => {
+        const fetchExperimentMetrics = async (experimentId) => {
             setMetrics((prev) => [])
             try {
                 const metricsRes = await mlServiceAPI.getFinalMetrics(experimentId)
                 if (metricsRes.status !== 200) {
                     throw new Error("Cannot get metrics")
                 }
-                console.log(metricsRes)
                 for (const key in metricsRes.data) {
                     const metricData = {
                         key: key,
@@ -157,50 +126,7 @@ const TrainResult = () => {
                 console.log("Error while getting metrics", error)
             }
         }
-
-        const fetchTrainingHistory = async () => {
-            try {
-                const res =
-                    // await experimentAPI.getTrainingHistory(experimentName)
-                    await mlServiceAPI.getFitHistory(projectInfo.id, experimentName)
-                console.log(res)
-                const data = res.data
-
-                console.log('history', data)
-                if (data.error) {
-                    message.error(
-                        'An error occurred while fetching the training history.'
-                    )
-                    return
-                }
-                setGraphJSON(data)
-
-                if (data.fit_history.scalars.val_loss) {
-                    readChart(
-                        data.fit_history.scalars.val_loss,
-                        setValLossGraph
-                    )
-                }
-                if (data.fit_history.scalars.val_accuracy) {
-                    readChart(data.fit_history.scalars.val_accuracy, setValAccGraph)
-                }
-                if (data.fit_history.scalars.val_iou) {
-                    readChart(data.fit_history.scalars.val_iou, setValAccGraph)
-                }
-                if (data.fit_history.scalars.val_roc_auc) {
-                    readChart(data.fit_history.scalars.val_roc_auc, setValAccGraph)
-                }
-            } catch (error) {
-                console.error('Error fetching training history:', error)
-                // message.error(
-                // 	'Failed to load training history. Please try again later.'
-                // )
-            }
-        }
-
-        fetchExperiment()
-        fetchExperimentMetrics()
-        fetchTrainingHistory()
+        fetchModel()
     }, [])
 
     return (
@@ -211,7 +137,7 @@ const TrainResult = () => {
                     <Col xs={24} sm={12} md={8}>
                         <Card className="shadow-md ">
                             <Statistic
-                                title={`Final ${metrics[0]?.metric} score`}
+                                title={`Model ${metrics[0] ? toNormalCase(metrics[0]?.metric) : "Null"} Score`}
                                 value={metrics[0]?.value * 100 || 0}
                                 precision={2}
                                 prefix={<TrophyOutlined />}
@@ -225,22 +151,22 @@ const TrainResult = () => {
                     <Col xs={24} sm={12} md={8}>
                         <Card className="shadow-md ">
                             <Statistic
-                                title="Training Duration"
-                                value={experiment.actual_training_time || 0}
+                                title="Model Size"
+                                value={model.metadata?.model_size || 0}
                                 valueStyle={{
                                     color: '#f0b100',
                                 }}
+                                prefix={<CloudDownloadOutlined />}
+                                suffix="MB"
                                 precision={2}
-                                prefix={<ClockCircleOutlined />}
-                                suffix="m"
                             />
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
                         <Card className="shadow-md ">
                             <Statistic
-                                title="Total Epochs"
-                                value={trainingInfo?.latestEpoch || 0}
+                                title="Model Name"
+                                value={model.name}
                                 prefix={<ExperimentOutlined />}
                                 valueStyle={{
                                     color: '#2b7fff',
@@ -254,8 +180,8 @@ const TrainResult = () => {
                     <Row gutter={[16, 16]}>
                         <Col xs={24} sm={8}>
                             <Alert
-                                message="Check Out Model"
-                                description="Check out your newly created AI model for this experiment."
+                                message="Deploy Model"
+                                description="Instantly transform your trained model into a production-ready solution for real-world predictions."
                                 type="success"
                                 showIcon
                                 style={{ height: 130 }}
@@ -263,10 +189,9 @@ const TrainResult = () => {
                             <Button
                                 type="primary"
                                 icon={<RocketOutlined />}
-                                onClick={async () => {
-                                    const modelRes = await modelServiceAPI.getModelByExperimentId(experimentId);
+                                onClick={() => {
                                     navigate(
-                                        PATHS.MODEL_VIEW(projectInfo.id, modelRes.data.id)
+                                        `/app/project/${id}/build/deployView?modelId=${modelId}`
                                     )
                                 }}
                                 size="large"
@@ -278,7 +203,7 @@ const TrainResult = () => {
                                     borderColor: '#52c41a',
                                 }}
                             >
-                                View Model
+                                Deploy Now
                             </Button>
                         </Col>
                         <Col xs={24} sm={8}>
@@ -342,7 +267,7 @@ const TrainResult = () => {
                     >
                         {isDetailsExpanded
                             ? 'Hide Details'
-                            : 'Show Detailed Results'}
+                            : 'Show Detailed Model'}
                     </Button>
 
                     {isDetailsExpanded && (
@@ -351,37 +276,84 @@ const TrainResult = () => {
                             size="large"
                             className="w-full mt-4"
                         >
-                            {/* Performance Charts */}
-                            <Card title="Training Performance">
-                                <Row gutter={[16, 16]}>
-                                    <Col xs={24} md={12}>
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
+                            {/* Input Data Display */}
+                            <Card
+                                title={
+                                    <>
+                                        Metadata{" "}
+                                        <span
+                                            style={{
+                                                fontSize: "12px",
+                                                color: "#888",
+                                                fontStyle: "italic"
+                                            }}
                                         >
-                                            <LineGraph
-                                                data={val_accGraph}
-                                                label="Validation Accuracy Over Epochs"
-                                            />
-                                        </ResponsiveContainer>
-                                    </Col>
-                                    <Col xs={24} md={12}>
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
-                                        >
-                                            <LineGraph
-                                                data={val_lossGraph}
-                                                label="Validation Loss Over Epochs"
-                                            />
-                                        </ResponsiveContainer>
-                                    </Col>
+                                            (Details about the model and its expected input, output)
+                                        </span>
+                                    </>
+                                }
+                            >
+                                <Space direction="vertical" size="middle" className="w-full">
+                                    {Object.entries(model.metadata || {}).map(([key, value]) => (
+                                        <div key={key}>
+                                            {/* Primary Tag */}
+                                            <Tag
+                                                color="blue"
+                                                style={{
+                                                    fontSize: "14px",
+                                                    padding: "4px 8px",
+                                                    minWidth: 120,        // uniform width for all main tags
+                                                    textAlign: "center",
+                                                    display: "inline-block"
+                                                }}
+                                            >
+                                                {key}
+                                            </Tag>
 
-                                </Row>
+                                            {/* Render based on type */}
+                                            {Array.isArray(value) ? (
+                                                // Handle arrays (e.g. labels)
+                                                <Space wrap style={{ marginLeft: 16 }}>
+                                                    {value.map((item, idx) => (
+                                                        <Tag color="purple" key={idx}>
+                                                            {item}
+                                                        </Tag>
+                                                    ))}
+                                                </Space>
+                                            ) : typeof value === "object" && value !== null ? (
+                                                // Handle nested objects (e.g. csv)
+                                                <Space direction="vertical" size="small" style={{ marginLeft: 16 }}>
+                                                    {Object.entries(value).map(([subKey, subValue]) => (
+                                                        <div key={subKey}>
+                                                            <Tag color="green" style={{ marginRight: 8 }}>
+                                                                {subKey}
+                                                            </Tag>
+                                                            <span>{subValue || <em>(empty)</em>}</span>
+                                                        </div>
+                                                    ))}
+                                                </Space>
+                                            ) : (
+                                                // Handle primitives (string, number, boolean)
+                                                <span style={{ marginLeft: 10 }}>
+                                                    {value?.toString() || <em>(empty)</em>}
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </Space>
                             </Card>
 
                             {/* Detailed Metrics Table */}
-                            <Card title="Comprehensive Metrics">
+                            <Card
+                                title={
+                                    <>
+                                        Model Metrics{" "}
+                                        <span style={{ fontSize: "12px", color: "#888", fontStyle: "italic" }}>
+                                            (Detail about how well the model make predictions)
+                                        </span>
+                                    </>
+                                }
+                            >
                                 <Table
                                     columns={columns}
                                     dataSource={metrics}
@@ -396,4 +368,4 @@ const TrainResult = () => {
     )
 }
 
-export default TrainResult
+export default ModelView

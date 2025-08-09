@@ -27,8 +27,8 @@ const PATHS = {
         `/app/project/${projectID}/build?step=4&experiment_name=${experimentName}`,
 
     /*-----------------------------MODEL-------------------------------------*/
-    MODEL_VIEW: (projectId, experimentId, experimentName, modelId) =>
-        `/app/project/${projectId}/build/trainResult?experimentId=${experimentId}&experimentName=${experimentName}&modelId=${modelId}`,
+    MODEL_VIEW: (projectId, modelId) =>
+        `/app/project/${projectId}/model/${modelId}`,
     /*-----------------------------DEPLOY----------------------------------- */
     SETTING_UP_DEPLOY: (projectID, deployId, modelId) => `/app/project/${projectID}/build/deploySettingUp?modelId=${modelId}&deployId=${deployId}`,
     PROJECT_DEPLOY: (projectID) => `/app/project/${projectID}/deploy`,

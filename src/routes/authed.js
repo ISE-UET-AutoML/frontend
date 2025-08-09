@@ -32,6 +32,7 @@ import TrainResult from 'src/pages/project/build/trainResult'
 import DeployView from 'src/pages/project/build/deployView'
 import DeployedModelView from 'src/pages/project/deploy/deployedModelView'
 import DeploySettingUpView from 'src/pages/project/deploy/deploySettingUpView'
+import ModelView from 'src/pages/project/models/modelView'
 
 const routes = {
     element: <DefaultLayout />,
@@ -106,6 +107,10 @@ const routes = {
                                 {
                                     path: 'model',
                                     element: <ProjectModels />,
+                                },
+                                {
+                                    path: 'model/:modelId',
+                                    element: <ModelView />
                                 },
                                 {
                                     path: 'deploy',

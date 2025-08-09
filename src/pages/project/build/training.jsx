@@ -44,6 +44,7 @@ import {
     Area,
     AreaChart,
 } from 'recharts'
+import { PATHS } from 'src/constants/paths'
 const { Step } = Steps
 // import { calcGeneratorDuration } from 'framer-motion'
 
@@ -366,7 +367,7 @@ const Training = () => {
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
-            `/app/project/${projectInfo.id}/model`
+            PATHS.PROJECT_TRAININGRESULT(projectInfo.id, experimentId, experimentName)
         )
     }
 

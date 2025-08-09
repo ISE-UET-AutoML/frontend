@@ -13,6 +13,10 @@ const getModelById = (modelId) => {
     return instance.get(`${URL}/database_service/models_service/find?model_id=${modelId}`)
 }
 
+const getModelByExperimentId = (experimentId) => {
+    return instance.get(`${URL}/database_service/models_service/find_by_experiment_id?experiment_id=${experimentId}`)
+}
+
 const deployModel = (modelId, instanceInfo) => {
     return instance.post(`${AGGREGATE_URL}/model/${modelId}/deploy`, { instanceInfo })
 }
@@ -26,4 +30,5 @@ export {
     deployModel,
     modelPredict,
     getModelById,
+    getModelByExperimentId
 }
