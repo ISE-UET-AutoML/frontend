@@ -5,6 +5,7 @@ import Cookies from 'universal-cookie'
 
 const URL = `${API_BASE_URL}/api/data`
 const URL_SERVICE = `${API_BASE_URL}/api/service/data`
+const LABEL_STUDIO_URL = process.env.REACT_APP_LABEL_STUDIO_URL
 
 export const createLbProject = (payload) => {
     const options = {
@@ -66,27 +67,23 @@ export const logoutLabelStudio = async () => {
             method: 'POST',
             credentials: 'include',
             headers: {
-                //'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken,
             },
-            //body: JSON.stringify({}),
-            signal: signal // Gắn signal vào yêu cầu
+            signal: signal
         })
-        // Xóa timeout nếu yêu cầu thành công
         clearTimeout(timeoutId)
         if (!response.ok) {
-            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`)
+            throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
         }
-        return await response.json()
+        return response.json();
     } catch (error) {
-        // Xóa timeout và xử lý lỗi
-        clearTimeout(timeoutId)
-        if (error.name === 'AbortError') {
-            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.')
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
+            console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
         } else {
-            console.error('Lỗi khi logout khỏi Label Studio:', error)
+            console.error('Lỗi khi logout khỏi Label Studio:', error.response?.data || error.message);
         }
-        throw error
+        throw error;
     }
 };
 
