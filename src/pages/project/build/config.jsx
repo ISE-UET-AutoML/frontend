@@ -33,6 +33,13 @@ const config = {
         predictView: TabularPredict,
         liveInferView: EmptyLiveInfer,
     },
+    TABULAR_REGRESSION: {
+        folder: UploadTypes.CSV_SINGLE,
+        afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TabularPredict,
+        liveInferView: EmptyLiveInfer,
+    },
     MULTIMODAL_CLASSIFICATION: {
         afterUploadURL: 'selectInstance',
         folder: UploadTypes.CSV_SINGLE,
