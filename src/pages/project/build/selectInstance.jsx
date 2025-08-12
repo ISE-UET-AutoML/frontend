@@ -215,9 +215,11 @@ const SelectInstance = () => {
             const time = formData.trainingTime
             console.log('time', time)
             console.log('instanceInfo', instanceInfo)
+            const creating_instance_time = instanceInfo.creating_time || 60
+            console.log('creating_instance_time', creating_instance_time)
 
             const payload = {
-                trainingTime: time * 3600,
+                trainingTime: time * 3600 - creating_instance_time,
                 instanceInfo: instanceInfo,
                 presets: 'medium_quality',
                 datasetUrl: presignUrl.data,

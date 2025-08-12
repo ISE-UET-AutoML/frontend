@@ -11,7 +11,8 @@ const createInstance = (createInstancePayload) => {
     //         "id": 22922951,
     //         "ssh_port": "10242",
     //         "public_ip": "142.214.185.62",
-    //         "deploy_port": "23685"
+    //         "deploy_port": "23685",
+    //         "creating_time": 60
     //     },
     //     "status": 200
     // }
