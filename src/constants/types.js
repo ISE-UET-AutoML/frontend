@@ -24,6 +24,17 @@ const TASK_TYPES = {
 		},
 		dataType: 'TABULAR',
 	},
+	TABULAR_REGRESSION: {
+		type: 'Tabular Regression',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		card: {
+			bg: '#f9f0ff',
+			text: '#621d5cff',
+			border: '#621d5cff',
+		},
+		dataType: 'TABULAR',
+	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',
     	description: 'Requires a folder containing a CSV file and a subfolder with images.',
