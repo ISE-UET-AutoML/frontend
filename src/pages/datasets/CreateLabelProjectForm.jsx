@@ -8,7 +8,8 @@ import {
     Space,
     Tag,
     Divider,
-    Alert
+    Alert,
+    ColorPicker
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { getDatasets } from 'src/api/dataset';
@@ -33,7 +34,7 @@ export default function CreateLabelProjectForm({
     const [newLabel, setNewLabel] = useState('');
     const [columnOptions, setColumnOptions] = useState([]);
     const [selectedImageColumn, setSelectedImageColumn] = useState(null); // State cho cột ảnh
-
+    const [labelColors, setLabelColors] = useState({});
     // watch task type selection
     const selectedTaskType = Form.useWatch('taskType', form);
     const isManualLabelTask = (taskType) =>
@@ -68,12 +69,27 @@ export default function CreateLabelProjectForm({
         const v = newLabel.trim();
         if (v && !expectedLabels.includes(v)) {
             setLabels(prev => [...prev, v]);
+            setLabelColors(prev => ({
+                ...prev,
+                [v]: '#'+Math.floor(Math.random()*16777215).toString(16) // Màu random
+            }));
             setNewLabel('');
         }
     };
 
     const handleRemoveLabel = labelToRemove => {
         setLabels(prev => prev.filter(l => l !== labelToRemove));
+        setLabelColors(prev => {
+            const copy = {...prev};
+            delete copy[labelToRemove];
+            return copy;
+        });
+    };
+    const handleColorChange = (label, color) => {
+        setLabelColors(prev => ({
+            ...prev,
+            [label]: color.toHexString()
+        }));
     };
 
     const handleSubmit = (values) => {
@@ -87,7 +103,8 @@ export default function CreateLabelProjectForm({
             expectedLabels,
             meta_data: {
                 "is_binary_class": is_binary_class,
-                "images_column": selectedImageColumn
+                "images_column": selectedImageColumn,
+                "label_colors": labelColors,
             }
         };
         onSubmit(payload);
@@ -238,14 +255,24 @@ export default function CreateLabelProjectForm({
                         {expectedLabels.length > 0 ? (
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {expectedLabels.map(label => (
-                                    <Tag
-                                        key={label}
-                                        closable
-                                        onClose={() => handleRemoveLabel(label)}
-                                        color="blue"
+                                    <div 
+                                        key={label} 
+                                        className="flex items-center gap-2"
                                     >
-                                        {label}
-                                    </Tag>
+                                        <Tag
+                                            closable
+                                            onClose={() => handleRemoveLabel(label)}
+                                            color="blue"
+                                        >
+                                            {label}
+                                        </Tag>
+                                        {selectedTaskType === 'SEMANTIC_SEGMENTATION' && (
+                                            <ColorPicker
+                                                value={labelColors[label] || '#ffffff'}
+                                                onChange={(color) => handleColorChange(label, color)}
+                                            />
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         ) : (
