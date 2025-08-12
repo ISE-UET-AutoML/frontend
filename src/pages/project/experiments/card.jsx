@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tag, Typography } from 'antd'
-import { ExperimentOutlined } from '@ant-design/icons'
+import { ExperimentOutlined, SyncOutlined, CheckCircleOutlined, SettingOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -12,8 +12,14 @@ const { Text, Title } = Typography
 
 // Define status colors
 const statusColors = {
-    DONE: 'green',
-    TRAINING: 'orange'
+    TRAINING: 'orange',
+    DONE: 'green'
+}
+
+const statusIcons = {
+    SETTING_UP: <SettingOutlined spin />,
+    TRAINING: <SyncOutlined spin />,
+    DONE: <CheckCircleOutlined />
 }
 
 export default function ExperimentCard({ experiment }) {
@@ -48,25 +54,43 @@ export default function ExperimentCard({ experiment }) {
             }}
         >
             <div className="flex justify-between">
-                <span
-                    style={{
-                        color: statusColors[status],
-                        backgroundColor:
-                            status === 'DONE' ? '#f6ffed' : '#e6f7ff',
-                        borderRadius: '12px',
-                        padding: '8px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <ExperimentOutlined
-                        style={{ fontSize: 24, color: statusColors[status] }}
-                    />
-                </span>
+                <div className='flex justify-between items-center'>
+                    <span
+                        style={{
+                            color: statusColors[status],
+                            backgroundColor:
+                                status === 'DONE' ? '#f6ffed' : '#e6f7ff',
+                            borderRadius: '12px',
+                            padding: '8px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <ExperimentOutlined
+                            style={{ fontSize: 24, color: statusColors[status] }}
+                        />
+                    </span>
+                    <span>
+                        <Tag
+                            color={statusColors[status]}
+                            className="text-sm px-2 py-0.5 rounded"
+                            style={{ lineHeight: 1.25 }}
+                        >
+                            {`Id: ${id}`}
+                        </Tag>
+                    </span>
+                </div>
                 <Tag
+                    icon={statusIcons[status]}
                     color={statusColors[status]}
-                    style={{ fontSize: 14, padding: '8px' }}
+                    style={{
+                        fontSize: 14,
+                        padding: '4px 8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                    }}
                 >
                     {status}
                 </Tag>
@@ -82,6 +106,6 @@ export default function ExperimentCard({ experiment }) {
                     {framework && `Framework: ${framework.toLowerCase()}`}
                 </Text>
             </div>
-        </div>
+        </div >
     )
 }

@@ -281,7 +281,7 @@ const TrainResult = () => {
                                 View Model
                             </Button>
                         </Col>
-                        <Col xs={24} sm={8}>
+                        {/* <Col xs={24} sm={8}>
                             <Alert
                                 message="Download Weights"
                                 description="Securely export and preserve your model's learned parameters for future iterations or transfer learning."
@@ -328,7 +328,7 @@ const TrainResult = () => {
                             >
                                 Retrain Model
                             </Button>
-                        </Col>
+                        </Col> */}
                     </Row>
                 </Card>
 

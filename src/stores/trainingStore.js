@@ -16,6 +16,10 @@ const useTrainingStore = create(
     (set, get) => ({
         trainingTasks: {},
 
+        onExperimentDone: null,
+
+        setOnExperimentDone: (cb) => set({ onExperimentDone: cb }),
+
         startTrainingTask: (experimentId) => {
             const existingTask = get().trainingTasks[experimentId];
             const startTime = existingTask?.startTime ? new Date(existingTask.startTime) : new Date();
@@ -75,6 +79,7 @@ const useTrainingStore = create(
                                     },
                                 },
                             }));
+                            get().onExperimentDone?.(experimentId);
                             await createModel(experimentId);
                             return; // Stop polling
                         }
@@ -139,7 +144,6 @@ const useTrainingStore = create(
                 console.log("Failed to load unfinished experiment.", error);
             }
         },
-
     }),
 );
 
