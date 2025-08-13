@@ -1,17 +1,19 @@
 import { create } from "zustand";
-import { persist } from 'zustand/middleware';
-import { getDeployStatus } from "src/api/deploy";
+import { getDeployStatus, getDeployData } from "src/api/deploy";
+import { GetUnfinishedDeployment } from "src/api/mlService";
 
 let hasRestored = false;
 
-const useDeployStore = create(persist(
+const useDeployStore = create(
     (set, get) => ({
         deployingTasks: {},
 
-        startDeployTask: (modelId, deployId) => {
+        startDeployTask: (deployId) => {
             // Resume polling (after reload or manual start)
             const pollDeploying = async () => {
                 try {
+                    const deployDataRes = await getDeployData(deployId)
+                    const modelId = deployDataRes.data.model_id
                     const res = await getDeployStatus(modelId, deployId);
                     console.log("Deploying progress:", res);
 
@@ -52,7 +54,7 @@ const useDeployStore = create(persist(
                     return;
                 }
 
-                setTimeout(pollDeploying, 5000);
+                setTimeout(pollDeploying, 10000);
             };
 
             // Initial setup
@@ -62,7 +64,6 @@ const useDeployStore = create(persist(
                     [deployId]: {
                         ...state.deployingTasks[deployId],
                         deployId,
-                        modelId,
                         status: 'SETTING_UP',
                     },
                 },
@@ -71,29 +72,25 @@ const useDeployStore = create(persist(
             pollDeploying()
         },
 
-        restoreDeployingTasks: () => {
+        restoreDeployingTasks: async () => {
             if (hasRestored) return;
             hasRestored = true;
 
-            const tasks = get().deployingTasks;
-            Object.entries(tasks).forEach(([deployId, task]) => {
-                // Only rerun if status != ONLINE and != FAILED
-                const { modelId, status } = task
-                if (status !== 'ONLINE' && status !== 'FAILED') {
-                    get().startDeployTask(modelId, deployId);
-                }
-            });
+            try {
+                const response = await GetUnfinishedDeployment();
+                const unfinishedDeploymentId = response.data;
+                console.log("Unfinished deployment id:", unfinishedDeploymentId)
+                unfinishedDeploymentId.forEach((id) => {
+                    get().startDeployTask(id);
+                });
+            }
+            catch (error) {
+                console.log("Failed to load unfinished deployment.", error);
+            }
         },
 
     }),
-
-    {
-        name: 'deploying-storage', // key in localStorage
-        partialize: (state) => ({
-            deployingTasks: state.deployingTasks,
-        }),
-    }
-));
+);
 
 
 export default useDeployStore;

@@ -441,8 +441,8 @@ export default function DeploySettingUpView() {
 
     useEffect(() => {
         if (!deployingTask) {
-            startDeployTask(modelId, deployId)
-            console.log("Started deploying task.")
+            startDeployTask(deployId)
+            console.log(`Started deploying task id ${deployId}.`)
         } else {
             console.log("Deploying task already exists.")
         }

@@ -51,6 +51,10 @@ const getUnfinishedExperiment = () => {
     return instance.get(`${URL}/experiment/unfinished`)
 }
 
+const GetUnfinishedDeployment = () => {
+    return instance.get(`${URL}/deploy/unfinished`)
+}
+
 export {
     getTrainingProgress,
     createModel,
@@ -59,5 +63,6 @@ export {
     trainCloudModel,
     getFitHistory,
     getUnfinishedExperiment,
+    GetUnfinishedDeployment,
     getModelUrl
 }

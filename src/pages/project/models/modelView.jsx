@@ -173,7 +173,7 @@ const ModelView = () => {
                     </Col>
                 </Row>
 
-                <Card title="🚀 Next Steps" className="rounded-xl shadow-sm">
+                <Card title="Next Steps" className="rounded-xl shadow-sm">
                     <Row gutter={[16, 16]}>
                         <Col xs={24} sm={8}>
                             <Alert
