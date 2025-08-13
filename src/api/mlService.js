@@ -41,6 +41,12 @@ const getFitHistory = (projectId, experimentName) => {
     )
 }
 
+const getModelUrl = (modelId) => {
+    return instance.get(
+        `${URL}/model/${modelId}/download-model`
+    )
+}
+
 const getUnfinishedExperiment = () => {
     return instance.get(`${URL}/experiment/unfinished`)
 }
@@ -52,5 +58,6 @@ export {
     getFinalMetrics,
     trainCloudModel,
     getFitHistory,
-    getUnfinishedExperiment
+    getUnfinishedExperiment,
+    getModelUrl
 }

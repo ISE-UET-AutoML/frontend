@@ -12,6 +12,7 @@ import {
     Button,
     Tooltip,
     Collapse,
+    message
 } from 'antd'
 
 import {
@@ -221,6 +222,15 @@ const ModelView = () => {
                                     backgroundColor: '#faad14',
                                     color: 'white',
                                     borderColor: '#faad14',
+                                }}
+                                onClick={async (e) => {
+                                    e.preventDefault()
+                                    const urlResponse = await mlServiceAPI.getModelUrl(modelId)
+                                    if (urlResponse.status !== 200) {
+                                        message.error("Failed to download model.")
+                                    }
+                                    const url = urlResponse.data
+                                    window.location.href = url
                                 }}
                             >
                                 Download
