@@ -45,7 +45,7 @@ const Login = () => {
             console.log('Login response:', data);
             if (data.user && data.user.ls_token) {
                 console.log("Found ls_token, redirecting to Label Studio...");
-                const labelStudioBaseUrl = process.env.REACT_APP_LABEL_STUDIO_URL || 'http://127.0.0.1:8080';
+                const labelStudioBaseUrl = 'http://34.1.194.168:3003';
                 const labelStudioLoginUrl = `${labelStudioBaseUrl}/user/login?user_token=${data.user.ls_token}`;
                 fetch(labelStudioLoginUrl, { credentials: 'include' })
                     .then(response => response.json())

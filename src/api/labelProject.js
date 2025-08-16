@@ -64,7 +64,7 @@ export const logoutLabelStudio = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-        const response = await instance.post(`${LABEL_STUDIO_URL}/user/logout/`, {
+        const response = await fetch(`http://34.1.194.168:3003/user/logout/`, {
             credentials: 'include',
             headers: {
                 'X-CSRFToken': csrfToken,

@@ -82,7 +82,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
         //	window.location.href = PATHS.DATASET_VIEW(dataset.id)
         //}
         if (lsProjectId) {
-			const url = `${REACT_APP_LABEL_STUDIO_URL}/projects/${lsProjectId}`;
+            const url = `http://34.1.194.168:3003/projects/${lsProjectId}`;
             window.open(url, '_blank');
         } else {
             console.error("Label Studio ID is missing!");
