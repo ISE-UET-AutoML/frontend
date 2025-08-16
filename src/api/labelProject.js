@@ -57,15 +57,14 @@ export const logoutLabelStudio = async () => {
         console.warn("Label Studio csrftoken không tìm thấy, bỏ qua.");
         return Promise.resolve();
     }
-    console.log('Đang tiến hành logout khỏi Label Studio với CSRF token:', csrfToken);
-    // Tạo một AbortController để có thể hủy yêu cầu
+
     const controller = new AbortController();
     const signal = controller.signal;
 
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-        const response = await instance.post(`${LABEL_STUDIO_URL}/user/logout/`, {},{
+        const response = await instance.post(`${LABEL_STUDIO_URL}/user/logout/`, {
             credentials: 'include',
             headers: {
                 'X-CSRFToken': csrfToken,
@@ -73,20 +72,22 @@ export const logoutLabelStudio = async () => {
             signal: signal
         })
         clearTimeout(timeoutId)
-        if (!response.ok) {
+
+        if (!response.status === 200) {
             throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
         }
-        return response.json();
+        return response;
     } catch (error) {
         clearTimeout(timeoutId);
-        if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
+        if (error.name === 'AbortError') {
             console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
         } else {
-            console.error('Lỗi khi logout khỏi Label Studio:', error.response?.data || error.message);
+            console.error('Lỗi khi logout khỏi Label Studio:', error);
         }
         throw error;
     }
 };
+
 
 export const uploadToS3 = async (projectID) => {
     const options = {

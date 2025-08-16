@@ -103,7 +103,7 @@ export default function CreateLabelProjectForm({
             expectedLabels,
             meta_data: {
                 "is_binary_class": is_binary_class,
-                "images_column": selectedImageColumn,
+                "image_column": selectedImageColumn,
                 "label_colors": labelColors,
             }
         };
