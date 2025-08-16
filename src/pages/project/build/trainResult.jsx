@@ -29,6 +29,8 @@ import LineGraph from 'src/components/LineGraph'
 
 import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
+import * as modelServiceAPI from 'src/api/model'
+import { PATHS } from 'src/constants/paths'
 const { Title, Text } = Typography
 
 // Performance Metrics Configuration
@@ -90,13 +92,12 @@ const TrainResult = () => {
     const searchParams = new URLSearchParams(location.search)
     const experimentName = searchParams.get('experimentName')
     const experimentId = searchParams.get('experimentId')
-    const modelId = searchParams.get('modelId')
     const [experiment, setExperiment] = useState({})
     const [metrics, setMetrics] = useState([])
     const [GraphJSON, setGraphJSON] = useState({})
     const [val_lossGraph, setValLossGraph] = useState([])
     const [val_accGraph, setValAccGraph] = useState([])
-    const [isDetailsExpanded, setIsDetailsExpanded] = useState(false)
+    const [isDetailsExpanded, setIsDetailsExpanded] = useState(true)
 
     // Existing data parsing logic
     const readChart = (contents, setGraph) => {
@@ -183,6 +184,12 @@ const TrainResult = () => {
                 if (data.fit_history.scalars.val_accuracy) {
                     readChart(data.fit_history.scalars.val_accuracy, setValAccGraph)
                 }
+                if (data.fit_history.scalars.val_iou) {
+                    readChart(data.fit_history.scalars.val_iou, setValAccGraph)
+                }
+                if (data.fit_history.scalars.val_roc_auc) {
+                    readChart(data.fit_history.scalars.val_roc_auc, setValAccGraph)
+                }
             } catch (error) {
                 console.error('Error fetching training history:', error)
                 // message.error(
@@ -243,12 +250,12 @@ const TrainResult = () => {
                     </Col>
                 </Row>
 
-                <Card title="🚀 Next Steps" className="rounded-xl shadow-sm">
+                <Card title="Next Steps" className="rounded-xl shadow-sm">
                     <Row gutter={[16, 16]}>
                         <Col xs={24} sm={8}>
                             <Alert
-                                message="Deploy Model"
-                                description="Instantly transform your trained model into a production-ready solution for real-world predictions."
+                                message="Check Out Model"
+                                description="Check out your newly created AI model for this experiment."
                                 type="success"
                                 showIcon
                                 style={{ height: 130 }}
@@ -256,9 +263,10 @@ const TrainResult = () => {
                             <Button
                                 type="primary"
                                 icon={<RocketOutlined />}
-                                onClick={() => {
+                                onClick={async () => {
+                                    const modelRes = await modelServiceAPI.getModelByExperimentId(experimentId);
                                     navigate(
-                                        `/app/project/${projectInfo.id}/build/deployView?experimentId=${experimentId}&experimentName=${experimentName}&modelId=${modelId}`
+                                        PATHS.MODEL_VIEW(projectInfo.id, modelRes.data.id)
                                     )
                                 }}
                                 size="large"
@@ -270,10 +278,10 @@ const TrainResult = () => {
                                     borderColor: '#52c41a',
                                 }}
                             >
-                                Deploy Now
+                                View Model
                             </Button>
                         </Col>
-                        <Col xs={24} sm={8}>
+                        {/* <Col xs={24} sm={8}>
                             <Alert
                                 message="Download Weights"
                                 description="Securely export and preserve your model's learned parameters for future iterations or transfer learning."
@@ -320,7 +328,7 @@ const TrainResult = () => {
                             >
                                 Retrain Model
                             </Button>
-                        </Col>
+                        </Col> */}
                     </Row>
                 </Card>
 

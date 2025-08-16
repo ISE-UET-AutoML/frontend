@@ -108,7 +108,7 @@ export default function ModelCard({ model }) {
 
     // Handle card click to navigate to details
     const handleCardClick = () => {
-        navigate(PATHS.MODEL_VIEW(project_id, experiment_id, experimentName, id))
+        navigate(PATHS.MODEL_VIEW(project_id, id))
     }
 
     // Handle deploy button click

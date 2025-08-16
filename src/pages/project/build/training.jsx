@@ -44,6 +44,7 @@ import {
     Area,
     AreaChart,
 } from 'recharts'
+import { PATHS } from 'src/constants/paths'
 const { Step } = Steps
 // import { calcGeneratorDuration } from 'framer-motion'
 
@@ -366,7 +367,7 @@ const Training = () => {
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
-            `/app/project/${projectInfo.id}/model`
+            PATHS.PROJECT_TRAININGRESULT(projectInfo.id, experimentId, experimentName)
         )
     }
 
@@ -399,9 +400,9 @@ const Training = () => {
                     latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
                     accuracy: trainingTask.trainingInfo.accuracy || 0
                 }))
-                setValMetric((prev) => trainingTask.val_metric)
+                setValMetric((prev) => trainingTask.valMetric)
                 setElapsedTime(prev => trainingTask.elapsed)
-                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime)
+                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime / 60)
                 setChartData(prev => trainingTask.accuracyTrend)
             }
         }

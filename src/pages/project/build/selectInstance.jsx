@@ -163,8 +163,6 @@ const SelectInstance = () => {
                 budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
             }))
 
-            // const presignUrl = await createDownZipPU(selectedProject.dataset_title)
-            // console.log('presignUrl', presignUrl)
 
             const time = formData.trainingTime
             const cost = (selectedGPU.cost * formData.trainingTime).toFixed(2)
@@ -175,16 +173,7 @@ const SelectInstance = () => {
             const createInstancePayload = {
                 training_time: time,
                 presets: "medium_quality",
-                // dataset_meta_data: selectedProject.dataset_meta_data,
                 cost: cost,
-                // dataset_url: presignUrl.data,
-                // dataset_label_url: 'hello',
-                // target_column: selectedProject.meta_data?.target_column,
-                // image_column: selectedProject.meta_data?.images_column ? selectedProject.meta_data?.images_column : [],
-                // text_column: selectedProject.meta_data?.text_columns ? selectedProject.meta_data?.text_columns : [],
-                // dataset_download_method: "",
-                // problem_type: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
-                // framework: 'autogluon',
                 select_best_machine: true,
                 projectID: projectInfo.id
             }
@@ -226,9 +215,11 @@ const SelectInstance = () => {
             const time = formData.trainingTime
             console.log('time', time)
             console.log('instanceInfo', instanceInfo)
+            const creating_instance_time = instanceInfo.creating_time || 60
+            console.log('creating_instance_time', creating_instance_time)
 
             const payload = {
-                trainingTime: time * 3600,
+                trainingTime: time * 3600 - creating_instance_time,
                 instanceInfo: instanceInfo,
                 presets: 'medium_quality',
                 datasetUrl: presignUrl.data,
@@ -237,7 +228,7 @@ const SelectInstance = () => {
                 framework: 'autogluon',
                 target_column: selectedProject.meta_data?.target_column,
                 text_column: selectedProject.meta_data?.text_columns,
-                image_column: selectedProject.meta_data?.images_column
+                image_column: selectedProject.meta_data?.image_column
             }
             console.log('payloadTrain', payload)
             const res1 = await trainCloudModel(projectInfo.id, payload)

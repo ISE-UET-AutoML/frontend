@@ -85,40 +85,14 @@ const AnimatedCard = ({ children, onClick, isSelected }) => {
 }
 
 const DeployView = () => {
-    const { projectInfo } = useOutletContext()
-    // console.log(projectInfo)
     const navigate = useNavigate()
     const location = useLocation()
     const searchParams = new URLSearchParams(location.search)
-    const experimentName = searchParams.get('experimentName')
     const { id: projectId } = useParams()
     const modelId = searchParams.get('modelId')
     const [isDeploying, setIsDeploying] = useState(false)
     const [selectedOption, setSelectedOption] = useState('')
     const [currentStep, setCurrentStep] = useState(0)
-    const [instanceURL, setInstanceURL] = useState(null)
-    const [predictResult, setPredictResult] = useState(null)
-    const [uploadedFiles, setUploadedFiles] = useState(null)
-    const [isComplete, setIsComplete] = useState(false)
-
-    // Added for enhanced UI
-    const [shouldStopSimulation, setShouldStopSimulation] = useState(false)
-    const [setupProgress, setSetupProgress] = useState(0)
-    const [configProgress, setConfigProgress] = useState(0)
-    const [optimizationProgress, setOptimizationProgress] = useState(0)
-    const [networkProgress, setNetworkProgress] = useState(0)
-    const [currentAction, setCurrentAction] = useState(
-        'Initializing deployment environment'
-    )
-    const [deploymentLogs, setDeploymentLogs] = useState([])
-    const [selectedDeployOption, setSelectedDeployOption] = useState(null)
-
-    // For detailed progress modal
-    const [completedTasks, setCompletedTasks] = useState([])
-    const [currentTaskIndex, setCurrentTaskIndex] = useState(0)
-
-    // Thêm trạng thái mới để kiểm soát hiển thị chi tiết
-    const [showDetails, setShowDetails] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false)
 
     // Tính toán Progress tổng
@@ -307,7 +281,7 @@ const DeployView = () => {
                                     }}
                                 />
                                 <Title level={3} style={{ margin: 0 }}>
-                                    Deploy {experimentName}
+                                    Deploy Model {modelId}
                                 </Title>
                             </Space>
                             <Paragraph

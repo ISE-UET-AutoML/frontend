@@ -3,12 +3,14 @@ import { RectangleStackIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState } from 'react'
 import { getAllExperiments } from 'src/api/experiment'
 import { useParams } from 'react-router-dom'
-import { Row, Col, Empty, Typography } from 'antd' // Use Ant Design components
+import { Row, Col, Empty, Typography, message } from 'antd' // Use Ant Design components
+import useTrainingStore from 'src/stores/trainingStore'
 
 const { Title, Text } = Typography
 
 export default function ProjectExperiments() {
     const { id: projectId } = useParams()
+    const setOnExperimentDone = useTrainingStore(s => s.setOnExperimentDone);
     const [experiments, setExperiments] = useState([])
 
     const getListExperiments = async () => {
@@ -18,7 +20,12 @@ export default function ProjectExperiments() {
 
     useEffect(() => {
         getListExperiments()
-    }, [])
+        // Add experiment Listener (Automatically update when an experiment is done)
+        setOnExperimentDone((experimentId) => {
+            message.success(`Finished training for experiment ${experimentId}`)
+            getListExperiments();
+        })
+    }, [projectId])
 
     return (
         <div className="mx-auto px-4">

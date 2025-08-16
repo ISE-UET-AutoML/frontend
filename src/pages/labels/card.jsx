@@ -16,7 +16,7 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
     const [isUploading, setIsUploading] = useState(false);
     const {
         id,
-        labelStudioId, 
+        labelStudioId,
         name,
         taskType,
         createdAt,
@@ -27,7 +27,7 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
 
     const handleViewProject = () => {
         if (labelStudioId) {
-            const url = `${REACT_APP_LABEL_STUDIO_URL}/projects/${labelStudioId}`;
+            const url = `http://34.1.194.168:3003/projects/${labelStudioId}`;
             window.open(url, '_blank');
         } else {
             console.error("Label Studio ID is missing!");
@@ -110,8 +110,8 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
                     <Text className="text-sm text-gray-800">
                         {createdAt ? dayjs(createdAt).fromNow() : 'N/A'}
                     </Text>
-                    <Button 
-                        type="primary" 
+                    <Button
+                        type="primary"
                         //disabled={annotationNums === 0 || annotatedNums < annotationNums} 
                         onClick={handleUploadToS3}
                         loading={isUploading}

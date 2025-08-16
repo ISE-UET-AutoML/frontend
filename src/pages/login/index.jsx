@@ -16,12 +16,34 @@ const Login = () => {
         try {
             const { data } = await auth.login(credential);
             message.success('Login successfully');
+            try {
+                await login({
+                    accessToken: data.access_token,
+                    refreshToken: data.refresh_token,
+                    userId: data.user.id
+                });
 
-            login({ accessToken: data.access_token, refreshToken: data.refresh_token, userId: data.user.id }).then(() => {
-                navigate(state?.path || PATHS.PROJECTS, { replace: true });
-            });
+                console.log('Authentication state updated successfully');
+
+                setTimeout(() => {
+                    console.log('Attempting navigation...');
+                    const targetPath = state?.path || PATHS.PROJECTS;
+                    navigate(targetPath, { replace: true });
+
+                    setTimeout(() => {
+                        if (window.location.pathname !== targetPath) {
+                            console.log('Navigate failed, using window.location');
+                            window.location.href = targetPath;
+                        }
+                    }, 500);
+                }, 200);
+
+            } catch (authError) {
+                console.error('Authentication failed:', authError);
+                message.error('Authentication failed. Please try again.');
+            }
             console.log('Login response:', data);
-            if(data.user && data.user.ls_token){
+            if (data.user && data.user.ls_token) {
                 console.log("Found ls_token, redirecting to Label Studio...");
                 const labelStudioBaseUrl = process.env.REACT_APP_LABEL_STUDIO_URL || 'http://127.0.0.1:8080';
                 const labelStudioLoginUrl = `${labelStudioBaseUrl}/user/login?user_token=${data.user.ls_token}`;
@@ -37,7 +59,7 @@ const Login = () => {
                     .catch(error => {
                         console.error("Error during Label Studio background login:", error);
                     });
-                
+
             }
         } catch (error) {
             console.error(error);
