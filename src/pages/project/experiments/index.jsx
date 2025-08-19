@@ -15,7 +15,8 @@ export default function ProjectExperiments() {
 
     const getListExperiments = async () => {
         const { data } = await getAllExperiments(projectId)
-        setExperiments(data)
+        const sortedData = data.sort((a, b) => b.id - a.id)
+        setExperiments(sortedData)
     }
 
     useEffect(() => {

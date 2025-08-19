@@ -14,8 +14,8 @@ export default function ProjectModels() {
 
     const getListModels = async () => {
         const { data } = await getModels(projectId)
-        console.log(data)
-        setModels(data)
+        const sortedData = data.sort((a, b) => b.id - a.id)
+        setModels(sortedData)
     }
 
     useEffect(() => {

@@ -458,7 +458,7 @@ const Training = () => {
                                     color="orange"
                                     icon={<HourglassOutlined />}
                                 >
-                                    Time Limit: {maxTrainingTime} min
+                                    Time Limit: {maxTrainingTime.toFixed(2)} min
                                 </Tag>
                             ) : null
                         }

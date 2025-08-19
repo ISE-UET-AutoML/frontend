@@ -17,9 +17,9 @@ const ProjectDeploy = () => {
 
     const getListDeployedModels = async () => {
         const { data } = await getAllDeployedModel(projectId)
-        console.log(data)
-        setDeployedModels(prev => data)
-        setFilteredDeployedModels(prev => data)
+        const sortedData = data.sort((a, b) => b.id - a.id)
+        setDeployedModels(prev => sortedData)
+        setFilteredDeployedModels(prev => sortedData)
         setUniqueModels(prev => Array.from(
             new Set(data.map((item) => item.model_id))
         ))

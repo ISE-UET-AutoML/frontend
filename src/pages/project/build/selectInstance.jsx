@@ -225,6 +225,7 @@ const SelectInstance = () => {
                 datasetUrl: presignUrl.data,
                 datasetLabelUrl: 'hello',
                 problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
+                // Currently hard coded framework
                 framework: 'autogluon',
                 target_column: selectedProject.meta_data?.target_column,
                 text_column: selectedProject.meta_data?.text_columns,
@@ -234,7 +235,7 @@ const SelectInstance = () => {
             const res1 = await trainCloudModel(projectInfo.id, payload)
 
             console.log('res1', res1)
-            // Navigate imidiately when send training request
+            // Navigate immediately when training request sent
             const experimentName = res1.data.experimentName
             navigate(
                 `/app/project/${projectInfo.id}/build/training?experimentName=${experimentName}&experimentId=${res1.data.experimentId}`,
