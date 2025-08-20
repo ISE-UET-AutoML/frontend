@@ -4,10 +4,29 @@ import * as datasetAPI from 'src/api/dataset';
 import * as labelProjectAPI from 'src/api/labelProject';
 import { message } from 'antd';
 
+const handleCompletedDataset = async (item, removingPending) => {
+  const {dataset, labelProjectValues} = item;
+  try {
+    const payload = {
+      name: labelProjectValues.name,
+      taskType: labelProjectValues.taskType,
+      datasetId: dataset.id,
+      expectedLabels: labelProjectValues.expectedLabels,
+      description: labelProjectValues.description || '',
+      meta_data: labelProjectValues.meta_data || {},
+    }
+    console.log(`Dataset '${dataset.title}' is COMPLETED. Creating label project...`);
+    await labelProjectAPI.createLbProject(payload);
+  } catch (err) {
+    console.error(`Error while creating label project '${dataset.title}':`, err);
+  } finally {
+    removingPending(dataset.id);
+  }
+}
+
 export default function LabelProjectPollingManager() {
   const { pendingLabelProjects, removePending } = usePollingStore();
-  const processingRef = useRef(new Set()); // Track datasets being processed
-
+  const beingProcessed = useRef(new Set());
   const refreshDatasets = async () => {
     try {
       // Gọi API để refresh datasets
@@ -29,78 +48,39 @@ export default function LabelProjectPollingManager() {
   useEffect(() => {
     if (pendingLabelProjects.length === 0) return;
     
-    const interval = setInterval(async () => {
+    const processPendingItems = async () => {
       for (const item of pendingLabelProjects) {
-        const { dataset, labelProjectValues } = item;
-        
-        // Kiểm tra xem dataset này đang được xử lý chưa
-        if (processingRef.current.has(dataset.id)) {
-          continue; // Skip if already processing
+        const { dataset } = item;
+
+        if (beingProcessed.current.has(dataset.id)) {
+          continue;
         }
-        
+
         try {
-          const statusData = await datasetAPI.getProcessingStatus(dataset.id).then(res => res.data)
-          const status = statusData.processingStatus || statusData.processing_status || statusData.status;
-          
+          const res = await datasetAPI.getProcessingStatus(dataset.id);
+          const status = res.data?.processingStatus;
+          console.log(res);
+          // Nếu đã hoàn thành, bắt đầu xử lý
           if (status === 'COMPLETED') {
-            // Đánh dấu đang xử lý để tránh gọi lại
-            processingRef.current.add(dataset.id);
-            
-            setTimeout(async () => {
-              try {
-                // Tạo label project
-                const payload = {
-                  name: labelProjectValues.name,
-                  taskType: labelProjectValues.taskType,
-                  datasetId: dataset.id,
-                  expectedLabels: labelProjectValues.expectedLabels,
-                  description: labelProjectValues.description || '',
-                  meta_data: labelProjectValues.meta_data || {},
-                };
-                
-                await labelProjectAPI.createLbProject(payload);
-                message.success(`Label project for ${dataset.title} created successfully!`);
-                
-                // Đợi Label Studio hoàn thành việc tạo project và tasks
-                console.log(`Waiting for Label Studio to complete project setup for ${dataset.title}...`);
-                await new Promise(resolve => setTimeout(resolve, 5000)); // Đợi 5 giây
-                
-                // Sync annotations từ Label Studio về database
-                console.log(`Syncing project data for ${dataset.title}...`);
-                await refreshLabelProjects();
-                
-                // Kiểm tra xem project đã được tạo thành công chưa
-                try {
-                  const projectsResponse = await labelProjectAPI.getLbProjects();
-                  const project = projectsResponse.data.find(p => p.datasetId === dataset.id);
-                  
-                  if (project) {
-                    console.log(`Project ${dataset.title} created successfully with ${project.annotatedNums}/${project.annotationNums} annotations`);
-                  } else {
-                    console.warn(`Project ${dataset.title} not found in projects list`);
-                  }
-                } catch (err) {
-                  console.error('Error checking project status:', err);
-                }
-                
-              } catch (err) {
-                console.error('Error creating label project:', err);
-                message.error(`Failed to create label project for ${dataset.title}`);
-              } finally {
-                // Luôn remove khỏi pending và processing, dù thành công hay thất bại
-                removePending(dataset.id);
-                processingRef.current.delete(dataset.id);
-                refreshDatasets();
-              }
-            }, 4000); // Delay 4 giây
+            // Đánh dấu là đang xử lý
+            beingProcessed.current.add(dataset.id);
+            // Gọi hàm xử lý riêng biệt mà không cần chờ (non-blocking)
+            handleCompletedDataset(item, removePending);
+            console.log(item);
+          } else if (status === 'FAILED') {
+            message.error(`Dataset '${dataset.title}' failed to process.`);
+            removePending(dataset.id);
+            beingProcessed.current.add(dataset.id); 
           }
         } catch (err) {
-          console.error('Polling error:', err);
-        }
+          console.error(`Lỗi polling cho dataset '${dataset.id}':`, err);
+        } 
       }
-    }, 3000);
-    
-    return () => clearInterval(interval);
+    };
+    processPendingItems();
+    const intervalId = setInterval(processPendingItems, 5000);
+
+    return () => clearInterval(intervalId);
   }, [pendingLabelProjects, removePending]);
 
   return null; // Component này không render gì cả
