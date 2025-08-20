@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Modal, Steps, Spin, message } from 'antd';
-import JSZip from 'jszip';
+import JSZip, { file } from 'jszip';
 import { createChunks, organizeFiles, extractCSVMetaData } from 'src/utils/file';
 import { uploadToS3 } from 'src/utils/s3';
 import { IMG_NUM_IN_ZIP } from 'src/constants/file';
@@ -23,7 +23,10 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
     const handleBack = () => {
         setCurrentStep(0);
     };
-
+    const isImageFolder = (files) => {
+        const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        return files.every((file) => allowedImageExtensions.includes(file.path.split('.').pop().toLowerCase()));
+    };
     const handleSubmit = async (labelProjectValues) => {
         try {
             setIsLoading(true);
@@ -32,7 +35,19 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
             setLabelProjectData(labelProjectValues);
             console.log('labelProjectData set to:', labelProjectValues);
             const fileMap = organizeFiles(files);
-            const chunks = createChunks(fileMap, IMG_NUM_IN_ZIP);
+            const chunks = [];
+            const zips = [];
+            for (const [label, folderFiles] of fileMap.entries()) {
+                if(isImageFolder(folderFiles)) {
+                    const folderChunk = createChunks(new Map([[label, folderFiles]]), IMG_NUM_IN_ZIP);
+                    chunks.push(...folderChunk);
+                } else {
+                    zips.push({
+                        name: `chunk_unlabel_0.zip`,
+                        files: folderFiles,
+                    })
+                }
+            }
 
             let extraMeta = {};
             const csvFile = files.find(f => f.path.endsWith('.csv'));
@@ -79,6 +94,11 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     type: 'application/zip',
                     files: chunk.files,
                 })),
+                ...zips.map(zip => ({
+                key: `${title}/zip/${zip.name}`,
+                type: 'application/zip',
+                files: zip.files,
+            })),
             ];
 
             const presignPayload = {
@@ -87,7 +107,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
             };
 
             const { data: presignedUrls } = await datasetAPI.createPresignedUrls(presignPayload);
-
+            const fileTypes = Array.from(new Set(files.map(file => file.path.split('.').pop().toLowerCase())));
             for (const file of s3Files) {
                 const url = presignedUrls.find(u => u.key === file.key)?.url;
                 if (!url) throw new Error(`Missing presigned URL for ${file.key}`);
@@ -126,7 +146,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     s3_path: `${title}/zip/${chunk.name}`,
                 })),
                 status: 'active',
-                meta_data: extraMeta,
+                meta_data: fileTypes,
             };
 
             const { data: createdDataset } = await datasetAPI.createDataset(datasetPayload);

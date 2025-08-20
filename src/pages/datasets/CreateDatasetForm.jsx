@@ -57,7 +57,7 @@ export default function CreateDatasetForm({
 
     const validateFiles = (files, datasetType) => {
 		const allowedImageTypes = ['image/jpeg', 'image/png'];
-		const allowedTextTypes = ['text/plain', 'text/csv'];
+		const allowedTextTypes = ['text/plain', 'text/csv','application/xml', 'text/xml'];
 		const allowedTypes = {
 			IMAGE: [...allowedImageTypes, ...allowedTextTypes],
 			TEXT: allowedTextTypes,
@@ -78,14 +78,12 @@ export default function CreateDatasetForm({
         const validatedFiles = validateFiles(uploadedFiles, datasetType);
         console.log('Validated files:', validatedFiles);
         if (['IMAGE'].includes(datasetType)) {
-            const isCsv = (f) => ((f.webkitRelativePath || f.name || '')).toLowerCase().endsWith('.csv');
-            const csvFiles = validatedFiles.filter(isCsv);
-            if (csvFiles.length > 1) {
-                message.warning('Only 1 CSV file is allowed for IMAGE data type. The first CSV file will be used.');
-                const firstCsv = csvFiles[0];
-                validatedFiles = validatedFiles.filter((f) => !isCsv(f));
-                validatedFiles.push(firstCsv);
-            }
+            const isMetaFile = (f) => {
+                const name = (f.webkitRelativePath || f.name || '').toLowerCase();
+                return name.endsWith('.csv') || name.endsWith('.xml');
+            };
+            const metaFiles = validatedFiles.filter(isMetaFile);
+            console.log('Meta files (CSV, XML):', metaFiles);
         }
         const hasImageFolder = validatedFiles.some((file) =>
             file.webkitRelativePath && file.webkitRelativePath.includes('/images/')
