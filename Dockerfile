@@ -28,7 +28,7 @@ CMD ["npm", "run", "start"]
 # ----------------------------------------------------------------
 FROM base AS builder
 
-# Cài đặt tất cả dependencies (bao gồm devDependencies) để build ứng dụng
+# Chỉ cài đặt production dependencies để tối ưu quá trình build
 RUN npm ci --only=production
 
 # Copy toàn bộ mã nguồn
@@ -46,7 +46,8 @@ FROM nginx:1.27-alpine
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Sao chép file cấu hình Nginx để xử lý routing cho React
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+# Bạn cần tạo file này trong cùng thư mục với Dockerfile
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80 mặc định của Nginx
 EXPOSE 80
