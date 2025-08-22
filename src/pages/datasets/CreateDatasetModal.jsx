@@ -146,7 +146,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     s3_path: `${title}/zip/${chunk.name}`,
                 })),
                 status: 'active',
-                meta_data: fileTypes,
+                meta_data: extraMeta,
             };
 
             const { data: createdDataset } = await datasetAPI.createDataset(datasetPayload);
