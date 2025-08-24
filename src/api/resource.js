@@ -22,6 +22,10 @@ const createInstanceForDeploy = () => {
     return instance.post(`${URL}/select_instance_for_deploy`)
 }
 
+const deleteInstance = (instanceID) => {
+    return instance.delete(`${URL}/instances/${instanceID}`)
+}
+
 export {
-    createInstance, createInstanceForDeploy
+    createInstance, createInstanceForDeploy, deleteInstance
 }

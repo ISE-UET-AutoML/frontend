@@ -21,6 +21,8 @@ import {
     Collapse,
     Select,
     Input,
+    Spin,
+    Modal,
 } from 'antd'
 import {
     ThunderboltOutlined,
@@ -28,7 +30,7 @@ import {
     SettingOutlined,
     RocketOutlined,
 } from '@ant-design/icons'
-import { createInstance } from 'src/api/resource'
+import { createInstance, deleteInstance } from 'src/api/resource'
 import { SERVICES, GPU_NAMES, GPU_LEVELS, INSTANCE_SIZE_DETAILS, InstanceSizeCard, generateRandomKey, CostEstimator, InstanceInfo } from 'src/constants/clouldInstance'
 
 const { Text } = Typography
@@ -52,7 +54,7 @@ const SelectInstance = () => {
         instanceSize: 'Weak',
     })
     const [instanceInfo, setInstanceInfo] = useState(null)
-
+    const [showFindingInstanceCard, setShowFindingInstanceCard] = useState(false)
     const [sshKey, setSshKey] = useState('')
     const [infrastructureData, setInfrastructureData] = useState({
         id: '',
@@ -116,134 +118,107 @@ const SelectInstance = () => {
         }
     }
 
-    const handleFindInstance = async () => {
+    const findInstance = async () => {
+        let instanceSize = formData.instanceSize
+        let selectedGPU
+        switch (instanceSize) {
+            case 'Weak':
+                selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 1)
+                break
+            case 'Medium':
+                selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 2)
+                break
+            case 'Strong':
+                selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 4)
+                break
+            case 'Super Strong':
+                selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 6)
+                break
+            case 'Rocket':
+                selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 8)
+                break
+            default:
+                selectedGPU = GPU_LEVELS[0]
+                break
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        setFormData((prev) => ({
+            ...prev,
+            service: SERVICES[0].name,
+            gpuNumber: selectedGPU.gpuNumber,
+            gpuName: selectedGPU.name,
+            disk: selectedGPU.disk,
+            budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
+        }))
+        const time = formData.trainingTime
+        const cost = (selectedGPU.cost * formData.trainingTime).toFixed(2)
+        const createInstancePayload = {
+            training_time: time,
+            presets: "medium_quality",
+            cost: cost,
+            select_best_machine: true,
+            projectID: projectInfo.id
+        }
+        const instance = await createInstance(createInstancePayload)
+        const instanceInfoData = instance.data
+        setInstanceInfo(instanceInfoData)
+        updateFields({ instanceInfo: instanceInfoData })
+        return instanceInfoData // avoid asynchronous state issue
+    }
+
+    // Train model with the found instance, avoid asynchronous state issue
+    const trainModel = async (instanceInfoData) => {
+        const time = formData.trainingTime
+        if (!instanceInfoData) {
+            message.error('No instance info found!')
+            return
+        }
+        const presignUrl = await createDownZipPU(selectedProject.dataset_title)
+        const creating_instance_time = instanceInfoData.creating_time || 60
+        const payload = {
+            trainingTime: time * 3600 - creating_instance_time,
+            instanceInfo: instanceInfoData,
+            presets: 'medium_quality',
+            datasetUrl: presignUrl.data,
+            datasetLabelUrl: 'hello',
+            problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
+            framework: 'autogluon',
+            target_column: selectedProject.meta_data?.target_column,
+            text_column: selectedProject.meta_data?.text_columns,
+            image_column: selectedProject.meta_data?.image_column
+        }
+        const res1 = await trainCloudModel(projectInfo.id, payload)
+        const experimentName = res1.data.experimentName
+        return res1.data
+    }
+
+    // Find instance and train model sequentially
+    const handleStartTraining = async () => {
         if (!formData.trainingTime) {
             message.error('Please input training time')
             return
         }
-
-        setIsLoading(true)
-        // setIsProcessing(true)
-        setIsCreatingInstance(true)
-
+        setIsProcessing(true)
+        setShowFindingInstanceCard(true)
         try {
-            // Automatic configuration logic
-            let instanceSize = formData.instanceSize
-            let selectedGPU
-            switch (instanceSize) {
-                case 'Weak':
-                    selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 1)
-                    break
-                case 'Medium':
-                    selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 2)
-                    break
-                case 'Strong':
-                    selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 4)
-                    break
-                case 'Super Strong':
-                    selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 6)
-                    break
-                case 'Rocket':
-                    selectedGPU = GPU_LEVELS.find((gpu) => gpu.gpuNumber === 8)
-                    break
-                default:
-                    selectedGPU = GPU_LEVELS[0]
-                    break
+            const instanceInfoData = await findInstance()
+            const trainResult = await trainModel(instanceInfoData)
+            setShowFindingInstanceCard(false)
+            if (trainResult && trainResult.experimentName && trainResult.experimentId) {
+                // Navigate immediately when training request sent
+                navigate(
+                    `/app/project/${projectInfo.id}/build/training?experimentName=${trainResult.experimentName}&experimentId=${trainResult.experimentId}`,
+                    { replace: true }
+                )
+            } else {
+                message.error('Training result is invalid!')
             }
-
-            await new Promise((resolve) => setTimeout(resolve, 1500))
-
-            // cập nhật formData với instance được chọn
-            setFormData((prev) => ({
-                ...prev,
-                service: SERVICES[0].name,
-                gpuNumber: selectedGPU.gpuNumber,
-                gpuName: selectedGPU.name,
-                disk: selectedGPU.disk,
-                budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
-            }))
-
-
-            const time = formData.trainingTime
-            const cost = (selectedGPU.cost * formData.trainingTime).toFixed(2)
-            console.log("Cost:", cost)
-            console.log("selectedProject:", selectedProject)
-            console.log("projectInfo:", projectInfo)
-
-            const createInstancePayload = {
-                training_time: time,
-                presets: "medium_quality",
-                cost: cost,
-                select_best_machine: true,
-                projectID: projectInfo.id
-            }
-            console.log("createInstancePayload:", createInstancePayload)
-
-            const instance = await createInstance(createInstancePayload)
-            const instanceInfo = instance.data
-            setInstanceInfo(instanceInfo)
-            updateFields({
-                instanceInfo,
-            })
-            console.log('instanceInfo', instanceInfo)
-            message.success('Found suitable instance')
-
-        } catch (error) {
-            console.error(error)
-            message.error('Error finding and creating instance')
-        } finally {
-            setIsLoading(false)
-            // setIsProcessing(false)
-            setIsCreatingInstance(false)
-        }
-    }
-
-
-    const handleTrainModel = async () => {
-        const confirmed = window.confirm(
-            'Please confirm your instance information before training?'
-        )
-        if (!confirmed) return
-
-        try {
-            console.log('projectInfo', projectInfo)
-            console.log('selectedProject', selectedProject)
-
-            const presignUrl = await createDownZipPU(selectedProject.dataset_title)
-            console.log('presignUrl', presignUrl)
-
-            const time = formData.trainingTime
-            console.log('time', time)
-            console.log('instanceInfo', instanceInfo)
-            const creating_instance_time = instanceInfo.creating_time || 60
-            console.log('creating_instance_time', creating_instance_time)
-
-            const payload = {
-                trainingTime: time * 3600 - creating_instance_time,
-                instanceInfo: instanceInfo,
-                presets: 'medium_quality',
-                datasetUrl: presignUrl.data,
-                datasetLabelUrl: 'hello',
-                problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
-                // Currently hard coded framework
-                framework: 'autogluon',
-                target_column: selectedProject.meta_data?.target_column,
-                text_column: selectedProject.meta_data?.text_columns,
-                image_column: selectedProject.meta_data?.image_column
-            }
-            console.log('payloadTrain', payload)
-            const res1 = await trainCloudModel(projectInfo.id, payload)
-
-            console.log('res1', res1)
-            // Navigate immediately when training request sent
-            const experimentName = res1.data.experimentName
-            navigate(
-                `/app/project/${projectInfo.id}/build/training?experimentName=${experimentName}&experimentId=${res1.data.experimentId}`,
-                { replace: true }
-            )
         } catch (error) {
             console.error('Error', error)
-            message.error('Failed to train model.')
+            message.error('Failed to find instance or train model.')
+            setShowFindingInstanceCard(false)
+        } finally {
+            setIsProcessing(false)
         }
     }
 
@@ -366,37 +341,13 @@ const SelectInstance = () => {
                                 <Button
                                     type="primary"
                                     size="large"
-                                    icon={<RocketOutlined />}
-                                    onClick={handleFindInstance}
-                                    loading={isLoading}
-                                    disabled={
-                                        !formData.trainingTime || isProcessing
-                                    }
-                                    style={{ marginRight: 16 }}
+                                    icon={<ThunderboltOutlined />}
+                                    onClick={handleStartTraining}
+                                    loading={isProcessing}
+                                    disabled={!formData.trainingTime || isProcessing}
                                 >
-                                    {isLoading
-                                        ? 'Finding Instance...'
-                                        : 'Find Instance'}
+                                    {isProcessing ? 'Finding instance...' : 'Start Training'}
                                 </Button>
-
-                                {formData.gpuNumber &&
-                                    formData.trainingTime && instanceInfo && (
-                                        <Button
-                                            type="primary"
-                                            size="large"
-                                            icon={<ThunderboltOutlined />}
-                                            onClick={handleTrainModel}
-                                            loading={isProcessing}
-                                            disabled={
-                                                isProcessing ||
-                                                !formData.gpuNumber
-                                            }
-                                        >
-                                            {isProcessing
-                                                ? 'Processing...'
-                                                : 'Start Training'}
-                                        </Button>
-                                    )}
                             </div>
                         </Col>
                     </Row>
@@ -589,7 +540,7 @@ const SelectInstance = () => {
                                             type="primary"
                                             size="large"
                                             icon={<ThunderboltOutlined />}
-                                            onClick={handleTrainModel}
+                                            // onClick={handleTrainModel}
                                             loading={isProcessing}
                                             disabled={
                                                 isProcessing ||
@@ -847,7 +798,7 @@ const SelectInstance = () => {
                                             type="primary"
                                             size="large"
                                             icon={<ThunderboltOutlined />}
-                                            onClick={handleTrainModel}
+                                            // onClick={handleTrainModel}
                                             loading={isProcessing}
                                             disabled={
                                                 isProcessing ||
@@ -869,6 +820,22 @@ const SelectInstance = () => {
 
     return (
         <div className="select-instance-container pl-6 pr-6">
+            {/* Modal tiến trình tìm instance, không thể tắt thủ công */}
+            <Modal
+                open={showFindingInstanceCard}
+                closable={false}
+                footer={null}
+                centered
+                maskClosable={false}
+                title={<span><RocketOutlined /> Finding the suitable instance...</span>}
+                width={500}
+                zIndex={2000}
+            >
+                <Space direction="vertical" align="center" style={{ width: '100%' }}>
+                    <Spin size="large" tip="Searching for the best instance for your project..." />
+                    <Text type="secondary">Please wait a moment while the system finds the most suitable resources.</Text>
+                </Space>
+            </Modal>
             <Tabs items={items} onChange={(key) => setActiveTab(key)} />
         </div>
     )
