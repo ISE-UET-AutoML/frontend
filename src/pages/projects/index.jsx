@@ -16,6 +16,7 @@ import {
     Input,
     Table,
     message,
+    Select,
     Tag,
 } from 'antd'
 import {
@@ -51,6 +52,7 @@ import multilabel_classification from 'src/assets/images/multilabel_classificati
 import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
 import { chat, clearHistory, getHistory } from 'src/api/chatbot'
+import { TrainingTask } from 'src/constants/trainingTasks'
 import chatLoading from 'src/assets/gif/chat_loading.svg'
 import MarkdownRenderer from 'src/components/MarkdownRenderer'
 
@@ -70,6 +72,15 @@ const imgArray = [
     object_detection,
     segmentaion_img,
 ]
+
+const trainingTaskOptions = Object.values(TrainingTask).map((task) => ({
+    value: task,
+    label: (
+        <span className="font-semibold">
+            {task.replace(/_/g, " ")} {/* optional formatting */}
+        </span>
+    ),
+}));
 
 const typeDescription = [
     'Identify and categorize objects in images.',
@@ -95,6 +106,7 @@ export default function Projects() {
         (state, newState) => ({ ...state, ...newState }),
         initialState
     )
+    const [allProjects, setAllProjects] = useState([]);
     const navigate = useNavigate()
     const [isSelected, setIsSelected] = useState(projType.map(() => false))
     const [input, setInput] = useState('')
@@ -109,7 +121,7 @@ export default function Projects() {
     const [jsonSumm, setJsonSumm] = useState('')
     const [proceedState, setProceed] = useState(false)
     const [showChatbotButtons, setShowChatbotButtons] = useState(false)
-
+    const [selectedTrainingTask, setSelectedTrainingTask] = useState(null)
     const options = [
         {
             id: 'chatbot',
@@ -357,9 +369,9 @@ export default function Projects() {
         const response = await instance.get(API_URL.all_projects)
         console.log(response.data)
         const proj = response.data.owned
-
+        setAllProjects(prev => proj)
         updateProjState({ projects: proj })
-        console.log('Project List', response.data)
+        console.log('All Project', response.data)
 
         return response.data
     }
@@ -386,6 +398,16 @@ export default function Projects() {
     useEffect(() => {
         projectState.projects.length >= 0 && getProjects()
     }, [])
+
+    useEffect(() => {
+        if (selectedTrainingTask) {
+            updateProjState(
+                { projects: allProjects.filter((p) => p.task_type === selectedTrainingTask) }
+            );
+        } else {
+            updateProjState({ projects: allProjects });
+        }
+    }, [selectedTrainingTask, allProjects]);
 
     return (
         <Layout className="min-h-screen bg-white">
@@ -420,7 +442,31 @@ export default function Projects() {
                         </Tooltip>
                     </Col>
                 </Row>
-
+                {/* Training Task Filter */}
+                <Row className="mb-6" align="middle" gutter={12}>
+                    <Col>
+                        <Select
+                            key="task"
+                            options={trainingTaskOptions}
+                            value={selectedTrainingTask}
+                            placeholder={
+                                <span className="font-semibold text-gray-500">
+                                    Filtered by task
+                                </span>
+                            }
+                            className="min-w-[220px]"
+                            onChange={(option) => setSelectedTrainingTask(option)}
+                            allowClear
+                        />
+                    </Col>
+                    {selectedTrainingTask && (
+                        <Col>
+                            <Button type="primary" onClick={() => setSelectedTrainingTask(null)}>
+                                Reset
+                            </Button>
+                        </Col>
+                    )}
+                </Row>
                 {/* Projects Grid */}
                 {projectState.projects.length > 0 ? (
                     <Row gutter={[16, 16]} className="">
