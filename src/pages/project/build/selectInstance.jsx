@@ -183,10 +183,9 @@ const SelectInstance = () => {
             datasetLabelUrl: 'hello',
             problemType: selectedProject.meta_data?.is_binary_class ? 'BINARY' : 'MULTICLASS',
             framework: 'autogluon',
-            target_column: selectedProject.meta_data?.target_column,
-            text_column: selectedProject.meta_data?.text_columns,
-            image_column: selectedProject.meta_data?.image_column
+            datasetMetadata: selectedProject.meta_data
         }
+        console.log("Train payload: ", payload)
         const res1 = await trainCloudModel(projectInfo.id, payload)
         const experimentName = res1.data.experimentName
         return res1.data
