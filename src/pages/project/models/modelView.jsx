@@ -308,9 +308,9 @@ const ModelView = () => {
                                                 style={{
                                                     fontSize: "14px",
                                                     padding: "4px 8px",
-                                                    minWidth: 120,        // uniform width for all main tags
+                                                    minWidth: 120,
                                                     textAlign: "center",
-                                                    display: "inline-block"
+                                                    display: "inline-block",
                                                 }}
                                             >
                                                 {key}
@@ -318,34 +318,47 @@ const ModelView = () => {
 
                                             {/* Render based on type */}
                                             {Array.isArray(value) ? (
-                                                // Handle arrays (e.g. labels)
                                                 <Space wrap style={{ marginLeft: 16 }}>
-                                                    {value.map((item, idx) => (
-                                                        <Tag color="purple" key={idx}>
-                                                            {item}
-                                                        </Tag>
-                                                    ))}
+                                                    {value.map((item, idx) =>
+                                                        typeof item === "object" && item !== null ? (
+                                                            // 🆕 Handle array of objects
+                                                            <Tag
+                                                                key={idx}
+                                                                style={{
+                                                                    minWidth: 100,
+                                                                    textAlign: "center",
+                                                                    borderColor: item.color,          // border full color
+                                                                    color: item.color,                // text full color
+                                                                    backgroundColor: `${item.color}20` // hex + 20 = ~12% opacity
+                                                                }}
+                                                            >
+                                                                {item.name} {item.label ? `(${item.label})` : ""}
+                                                            </Tag>
+                                                        ) : (
+                                                            // Handle array of primitives
+                                                            <Tag color="purple" key={idx}>
+                                                                {item}
+                                                            </Tag>
+                                                        )
+                                                    )}
                                                 </Space>
                                             ) : typeof value === "object" && value !== null ? (
-                                                // Handle nested objects (e.g. csv)
+                                                // Handle nested objects
                                                 <Collapse
                                                     ghost
-                                                    size='small'
+                                                    size="small"
                                                     style={{
                                                         display: "inline-block",
-                                                        verticalAlign: 'top',
+                                                        verticalAlign: "top",
                                                     }}
                                                 >
-                                                    <Panel
-                                                        header="View Details"
-                                                        key="1"
-                                                    >
+                                                    <Panel header="View Details" key="1">
                                                         <Space
                                                             direction="vertical"
                                                             size="small"
                                                             style={{
                                                                 display: "inline-flex",
-                                                                verticalAlign: "top"
+                                                                verticalAlign: "top",
                                                             }}
                                                         >
                                                             {Object.entries(value).map(([subKey, subValue]) => (
@@ -354,7 +367,7 @@ const ModelView = () => {
                                                                     style={{
                                                                         display: "flex",
                                                                         alignItems: "center",
-                                                                        gap: 8
+                                                                        gap: 8,
                                                                     }}
                                                                 >
                                                                     <Tag
@@ -362,20 +375,19 @@ const ModelView = () => {
                                                                         style={{
                                                                             minWidth: 100,
                                                                             textAlign: "center",
-                                                                            marginRight: 8
+                                                                            marginRight: 8,
                                                                         }}
                                                                     >
                                                                         {subKey}
                                                                     </Tag>
-                                                                    <span>{subValue || <em>(empty)</em>}</span>
+                                                                    <span>{subValue?.toString() || <em>(empty)</em>}</span>
                                                                 </div>
                                                             ))}
                                                         </Space>
                                                     </Panel>
                                                 </Collapse>
-
                                             ) : (
-                                                // Handle primitives (string, number, boolean)
+                                                // Handle primitives
                                                 <span style={{ marginLeft: 10 }}>
                                                     {value?.toString() || <em>(empty)</em>}
                                                 </span>
