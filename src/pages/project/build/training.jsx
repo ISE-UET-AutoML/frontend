@@ -162,12 +162,12 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         position: 'insideLeft',
                     }}
                     domain={[0, 1]}
-                    tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
+                    tickFormatter={(value) => `${(value * 1).toFixed(0)}`}
                     tick={{ fontSize: 12 }}
                 />
                 <RechartsTooltip
                     formatter={(value) => [
-                        `${(value * 100).toFixed(2)}%`,
+                        `${(value * 1).toFixed(2)}`,
                         valMetric,
                     ]}
                     labelFormatter={(label) => `Time: ${label} min`}
@@ -270,8 +270,7 @@ const TrainingInfoCard = ({
                     <div className="w-[28%] ml-10">
                         <TrainingMetricCard
                             title={`Validation ${valMetric}`}
-                            value={trainingInfo.accuracy * 100}
-                            suffix="%"
+                            value={(trainingInfo.accuracy * 1).toFixed(5)}
                             icon={<BarChartOutlined />}
                             loading={
                                 !trainingInfo.accuracy && status === 'TRAINING'

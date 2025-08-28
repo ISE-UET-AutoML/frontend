@@ -77,13 +77,6 @@ const columns = [
 ]
 
 const TrainResult = () => {
-    // Currently hard coded this for testing.
-    const instanceInfo = {
-        "id": 22712659,
-        "ssh_port": "50311",
-        "public_ip": "185.62.108.226",
-        "deploy_port": "50081"
-    }
     const { projectInfo, trainingInfo, elapsedTime } = useOutletContext()
     console.log('Train Info', trainingInfo)
     console.log(projectInfo)
@@ -94,30 +87,8 @@ const TrainResult = () => {
     const experimentId = searchParams.get('experimentId')
     const [experiment, setExperiment] = useState({})
     const [metrics, setMetrics] = useState([])
-    const [GraphJSON, setGraphJSON] = useState({})
-    const [val_lossGraph, setValLossGraph] = useState([])
-    const [val_accGraph, setValAccGraph] = useState([])
+    const [valGraphs, setValGraphs] = useState({})
     const [isDetailsExpanded, setIsDetailsExpanded] = useState(true)
-
-    // Existing data parsing logic
-    const readChart = (contents, setGraph) => {
-        const lines = contents.split('\n')
-        const header = lines[0].split(',')
-        let parsedData = []
-        for (let i = 1; i < lines.length - 1; i++) {
-            const line = lines[i].split(',')
-            const item = {}
-
-            for (let j = 1; j < header.length; j++) {
-                const key = header[j]?.trim() || ''
-                const value = line[j]?.trim() || ''
-                item[key] = value
-            }
-
-            parsedData.push(item)
-        }
-        setGraph(parsedData)
-    }
 
     useEffect(() => {
         const fetchExperiment = async () => {
@@ -173,28 +144,21 @@ const TrainResult = () => {
                     )
                     return
                 }
-                setGraphJSON(data)
 
-                if (data.fit_history.scalars.val_loss) {
-                    readChart(
-                        data.fit_history.scalars.val_loss,
-                        setValLossGraph
-                    )
-                }
-                if (data.fit_history.scalars.val_accuracy) {
-                    readChart(data.fit_history.scalars.val_accuracy, setValAccGraph)
-                }
-                if (data.fit_history.scalars.val_iou) {
-                    readChart(data.fit_history.scalars.val_iou, setValAccGraph)
-                }
-                if (data.fit_history.scalars.val_roc_auc) {
-                    readChart(data.fit_history.scalars.val_roc_auc, setValAccGraph)
+                for (const key of Object.keys(data)) {
+                    if (key === 'epoch') {
+                        continue;
+                    }
+                    setValGraphs(prev => ({
+                        ...prev,
+                        [key]: data[key]
+                    }));
                 }
             } catch (error) {
                 console.error('Error fetching training history:', error)
-                // message.error(
-                // 	'Failed to load training history. Please try again later.'
-                // )
+                message.error(
+                    'Failed to load training history. Please try again later.'
+                )
             }
         }
 
@@ -281,54 +245,6 @@ const TrainResult = () => {
                                 View Model
                             </Button>
                         </Col>
-                        {/* <Col xs={24} sm={8}>
-                            <Alert
-                                message="Download Weights"
-                                description="Securely export and preserve your model's learned parameters for future iterations or transfer learning."
-                                type="warning"
-                                showIcon
-                                style={{ height: 130 }}
-                            />
-                            <Button
-                                type="default"
-                                icon={<CloudDownloadOutlined />}
-                                size="large"
-                                style={{
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    marginTop: 15,
-                                    backgroundColor: '#faad14',
-                                    color: 'white',
-                                    borderColor: '#faad14',
-                                }}
-                            >
-                                Download
-                            </Button>
-                        </Col>
-                        <Col xs={24} sm={8}>
-                            <Alert
-                                message="Refine Model"
-                                description="Continuously improve your model's performance by initiating a new training cycle with enhanced data or parameters."
-                                type="info"
-                                showIcon
-                                style={{ height: 130 }}
-                            />
-                            <Button
-                                type="default"
-                                icon={<HistoryOutlined />}
-                                size="large"
-                                style={{
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    marginTop: 15,
-                                    backgroundColor: '#1890ff',
-                                    color: 'white',
-                                    borderColor: '#1890ff',
-                                }}
-                            >
-                                Retrain Model
-                            </Button>
-                        </Col> */}
                     </Row>
                 </Card>
 
@@ -354,29 +270,16 @@ const TrainResult = () => {
                             {/* Performance Charts */}
                             <Card title="Training Performance">
                                 <Row gutter={[16, 16]}>
-                                    <Col xs={24} md={12}>
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
-                                        >
-                                            <LineGraph
-                                                data={val_accGraph}
-                                                label="Validation Accuracy Over Epochs"
-                                            />
-                                        </ResponsiveContainer>
-                                    </Col>
-                                    <Col xs={24} md={12}>
-                                        <ResponsiveContainer
-                                            width="100%"
-                                            height={300}
-                                        >
-                                            <LineGraph
-                                                data={val_lossGraph}
-                                                label="Validation Loss Over Epochs"
-                                            />
-                                        </ResponsiveContainer>
-                                    </Col>
-
+                                    {Object.entries(valGraphs).map(([metricName, metricData]) => (
+                                        <Col xs={24} md={12} key={metricName}>
+                                            <ResponsiveContainer width="100%" height={300}>
+                                                <LineGraph
+                                                    data={metricData}
+                                                    label={`${metricName.replace("_", " ")} graph`}
+                                                />
+                                            </ResponsiveContainer>
+                                        </Col>
+                                    ))}
                                 </Row>
                             </Card>
 
