@@ -88,28 +88,12 @@ const LandingNavbar = ({ scrolled, navbarOpen, setNavbarOpen }) => {
 				<div className="flex justify-between items-center h-16">
 					{/* Left: ASTRAL Logo */}
 					<div className="flex-shrink-0">
-						<div 
-							className="text-3xl font-bold cursor-pointer"
-							style={{ 
-								fontFamily: 'Russo One, sans-serif',
-								background: 'linear-gradient(90deg, #5C8DFF 0%, #65FFA0 50%, #5C8DFF 100%)',
-								backgroundSize: '200% 100%',
-								backgroundPosition: '0% 50%',
-								backgroundClip: 'text',
-								WebkitBackgroundClip: 'text',
-								color: 'transparent',
-								WebkitTextFillColor: 'transparent',
-								transition: 'background-position 0.3s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.target.style.backgroundPosition = '100% 50%'
-							}}
-							onMouseLeave={(e) => {
-								e.target.style.backgroundPosition = '0% 50%'
-							}}
-						>
-							ASTRAL
-						</div>
+						<img
+							src="/PrimaryLogo.svg"
+							alt="ASTRAL"
+							className="h-10 w-auto cursor-pointer transition-transform duration-300 hover:scale-105"
+							onClick={() => window.location.href = '/'}
+						/>
 					</div>
 
 					{/* Center: Navigation Items */}
