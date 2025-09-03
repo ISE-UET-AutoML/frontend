@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { PATHS } from 'src/constants/paths'
 import useAuth from 'src/hooks/useAuth'
 import clsx from 'clsx'
