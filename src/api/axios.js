@@ -10,6 +10,30 @@ const instance = axios.create({
 
 const refreshToken = () => instance.get(API_URL.refresh_token);
 
+// Request interceptor to add auth headers
+instance.interceptors.request.use(
+    (config) => {
+        const cookies = new Cookies();
+        const accessToken = cookies.get('accessToken');
+        const userId = cookies.get('x-user-id');
+        
+        if (accessToken) {
+            // Remove the '<Bearer> ' prefix if it exists and add proper Bearer format
+            const token = accessToken.replace('<Bearer> ', '');
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        
+        if (userId) {
+            config.headers['x-user-id'] = userId;
+        }
+        
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 instance.interceptors.response.use(
     async (response) => {
         const config = response.config;
