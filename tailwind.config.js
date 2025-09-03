@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-	mode: 'jit',
-	content: ['./src/**/*.{js,jsx,ts,tsx}'],
-	theme: {
-		extend: {
-			padding: {
-				'custom-105': '105px',
-			},
-			animation: {
-				'spin-slow': 'spin 2s linear infinite',
-			},
-		},
-	},
-	plugins: [],
-}
-=======
 /** @type {import('tailwindcss').Config} */
 module.exports = {
 	mode: 'jit',
@@ -91,4 +73,3 @@ module.exports = {
 	},
 	plugins: [require("tailwindcss-animate")],
 }
->>>>>>> feature/new-landing-page
