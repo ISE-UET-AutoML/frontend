@@ -89,12 +89,22 @@ export const logoutLabelStudio = async () => {
 };
 
 
-export const uploadToS3 = async (projectID) => {
+export const startExport = async (projectID) => {
     const options = {
         headers: {
             'Content-Type': 'application/json',
         },
         withCredentials: true,
     }
-    return instance.post(`${URL_SERVICE}/ls-projects/${projectID}/export`, {}, options)
+    return instance.post(`${URL_SERVICE}/ls-projects/${projectID}/start-export`, {}, options)
+}
+
+export const getExportStatus = async (taskID) => {
+    const options = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+    }
+    return instance.get(`${URL_SERVICE}/ls-projects/export-status/${taskID}`, options)
 }

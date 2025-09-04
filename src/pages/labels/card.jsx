@@ -7,7 +7,6 @@ import {
 import { PATHS } from 'src/constants/paths'
 import dayjs from 'dayjs'
 import { message } from 'antd';
-import { uploadToS3 } from 'src/api/labelProject'
 
 
 const { Title, Text } = Typography
