@@ -23,7 +23,7 @@ import {
     InfoCircleOutlined,
     FilterOutlined,
 } from '@ant-design/icons'
-import { createLbProject, getLbProjByTask, uploadToS3 } from 'src/api/labelProject'
+import { createLbProject, getLbProjByTask, startExport, getExportStatus } from 'src/api/labelProject'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import CreateLabelProjectModal from 'src/pages/labels/CreateLabelProjectModal'
 import config from './config'
@@ -44,6 +44,28 @@ const UploadData = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [isExporting, setIsExporting] = useState(false)   
 
+    const pollExportStatus = (taskId) => {
+        return new Promise((resolve, reject) => {
+            const intervalId = setInterval(async () => {
+                try {
+                    const response = await getExportStatus(taskId);
+                    const { status, result, error } = response.data;
+
+                    if (status === 'SUCCESS') {
+                        clearInterval(intervalId);
+                        resolve(result); // Trả về kết quả khi thành công
+                    } else if (status === 'FAILURE') {
+                        clearInterval(intervalId);
+                        reject(new Error(error || 'Export task failed.')); // Báo lỗi
+                    }
+                    // Nếu là PENDING, tiếp tục chờ
+                } catch (err) {
+                    clearInterval(intervalId);
+                    reject(err);
+                }
+            }, 5000); // Hỏi lại mỗi 5 giây
+        });
+    };
 
     const fetchProjects = async () => {
         setTableLoading(true)
@@ -91,7 +113,14 @@ const UploadData = () => {
         console.log('selectedProject', selectedProject)
         setIsExporting(true)
         try {
-            await uploadToS3(selectedProject.label_studio_id)      
+            const startResponse = await startExport(selectedProject.label_studio_id)
+            const {task_id} = startResponse.data
+            console.log('Export started, task ID:', startResponse)
+            
+            const finalResult = await pollExportStatus(task_id);
+            message.success('Data prepared successfully!');
+
+            //await uploadToS3(selectedProject.label_studio_id)      
             updateFields({
                 selectedProject,
             })
