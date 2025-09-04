@@ -41,11 +41,11 @@ export default function CreateLabelProjectForm({
         ['SEMANTIC_SEGMENTATION', 'OBJECT_DETECTION'].includes(taskType);
 
     useEffect(() => {
-        if (detectedLabels?.length > 0) {
+        if (detectedLabels?.length > 0 && selectedTaskType === 'IMAGE_CLASSIFICATION') {
             console.log('Setting detected labels from folder structure:', detectedLabels);
             setLabels(detectedLabels);
         }
-    }, [detectedLabels]);
+    }, [detectedLabels,selectedTaskType]);
 
     useEffect(() => {
         // Xử lý cho dataset loại TEXT/TABULAR/MULTIMODAL với CSV

@@ -2,7 +2,7 @@ export const API_BASE_URL = process.env.REACT_APP_API_URL
 export const API_URL = {
 	login: `${API_BASE_URL}/api/users/login`,
 	signup: `${API_BASE_URL}/api/users/register`,
-	refresh_token: `${API_BASE_URL}/auth/signup`,
+	refresh_token: `${API_BASE_URL}/api/users/refresh-token`,
 	all_projects: `${API_BASE_URL}/api/service/users/projects`,
 	all_models: `${API_BASE_URL}/projects/models`,
 	train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
