@@ -57,7 +57,7 @@ const useTrainingStore = create(
                                 ...accuracyTrend,
                                 {
                                     time: parseFloat(elapsed),
-                                    accuracy: accuracy
+                                    accuracy: Number(accuracy),
                                 },
                             ]
                             trainingInfo = { latestEpoch, accuracy };

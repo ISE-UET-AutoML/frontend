@@ -161,8 +161,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         angle: -90,
                         position: 'insideLeft',
                     }}
-                    domain={[0, 1]}
-                    tickFormatter={(value) => `${(value * 1).toFixed(0)}`}
+                    domain={['auto', 'auto']}   // auto-fit to your data
                     tick={{ fontSize: 12 }}
                 />
                 <RechartsTooltip

@@ -49,6 +49,7 @@ import tabular_regression_img from 'src/assets/images/tabular_regression.png'
 import text_classification from 'src/assets/images/text_classification.jpg'
 import multimodal_classification from 'src/assets/images/multimodal_classification.png'
 import multilabel_classification from 'src/assets/images/multilabel_classification.png'
+import time_series from 'src/assets/images/timeseries.png'
 import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
 import { chat, clearHistory, getHistory } from 'src/api/chatbot'
@@ -71,6 +72,7 @@ const imgArray = [
     multilabel_classification,
     object_detection,
     segmentaion_img,
+    time_series
 ]
 
 const trainingTaskOptions = Object.values(TrainingTask).map((task) => ({
@@ -91,6 +93,7 @@ const typeDescription = [
     'Assign multiple labels to each data item.',
     'Identify objects with bounding boxes.',
     'Segment images to locate objects or regions.',
+    'Predicting future values of a variable based on its historical behavior over time.'
 ]
 
 const initialState = {
