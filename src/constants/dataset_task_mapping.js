@@ -31,6 +31,10 @@ export const TASK_TYPE_INFO = {
     SEMANTIC_SEGMENTATION: {
         displayName: 'Semantic Segmentation',
         description: 'Segment images into different regions'
+    },
+    TIME_SERIES_FORECASTING: {
+        displayName: 'Time Series Forecasting',
+        description: 'Predict future values based on historical time series data'
     }
 };
 
@@ -44,5 +48,6 @@ export const DATASET_TASK_MAPPING = {
     ],
     TEXT: ['TEXT_CLASSIFICATION'],
     TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION'],
-    MULTIMODAL: ['MULTIMODAL_CLASSIFICATION']
+    MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
+    TIME_SERIES: ['TIME_SERIES_FORECASTING']
 };

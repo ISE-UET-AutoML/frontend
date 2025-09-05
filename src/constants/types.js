@@ -69,6 +69,12 @@ const TASK_TYPES = {
 		allowedExtensions: ['jpg', 'jpeg', 'png'],
 		dataType: 'IMAGE',
 	},
+	TIME_SERIES_FORECASTING: {
+		type: 'Time Series Forecasting',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		dataType: 'TIME_SERIES',
+	},
 }
 
 const DATASET_TYPES = {
@@ -104,6 +110,16 @@ const DATASET_TYPES = {
             border: '#faad14',
         },
     },
+	TIME_SERIES: {
+		type: 'Time Series',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		card: {
+			bg: '#fff0f6',
+			text: '#eb2f96',
+			border: '#eb2f96',
+		},
+	},
 }
 
 export { DATASET_TYPES, TASK_TYPES }

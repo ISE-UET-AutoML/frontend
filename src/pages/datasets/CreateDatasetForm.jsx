@@ -63,6 +63,7 @@ export default function CreateDatasetForm({
 			TEXT: allowedTextTypes,
 			TABULAR: allowedTextTypes,
 			MULTIMODAL: [...allowedImageTypes, ...allowedTextTypes],
+            TIME_SERIES: [...allowedTextTypes],
 		};
 		return files.filter((file) => file?.type && allowedTypes[datasetType]?.includes(file.type));
 	};

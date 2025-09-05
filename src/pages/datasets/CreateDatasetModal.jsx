@@ -51,7 +51,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 
             let extraMeta = {};
             const csvFile = files.find(f => f.path.endsWith('.csv'));
-            if ((dataset_type === 'TEXT' || dataset_type === 'TABULAR' || dataset_type === 'MULTIMODAL') && csvFile) {
+            if ((dataset_type === 'TEXT' || dataset_type === 'TABULAR' || dataset_type === 'MULTIMODAL' || dataset_type ==='TIME_SERIES') && csvFile) {
                 try {
                     extraMeta = await extractCSVMetaData(csvFile.fileObject);
                 } catch (err) {
