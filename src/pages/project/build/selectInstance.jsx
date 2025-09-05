@@ -233,14 +233,14 @@ const SelectInstance = () => {
                 >
                     <Row gutter={[24, 24]}>
                         <Col span={16}>
-                            <Card className="rounded-lg shadow-sm">
+                            <Card className="dark-build-card rounded-lg shadow-sm">
                                 <Space
                                     direction="vertical"
                                     size="large"
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text strong>Training Duration</Text>
+                                        <Text className="dark-build-text-strong">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -249,6 +249,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <Slider
+                                                className="dark-build-slider"
                                                 style={{ width: '85%' }}
                                                 min={0}
                                                 max={24}
@@ -265,6 +266,7 @@ const SelectInstance = () => {
                                                 }}
                                             />
                                             <InputNumber
+                                                className="dark-build-input"
                                                 style={{
                                                     width: '15%',
                                                     marginLeft: '10px',
@@ -279,14 +281,14 @@ const SelectInstance = () => {
                                                 addonAfter="Hours"
                                             />
                                         </div>
-                                        <Text type="secondary">
+                                        <Text className="dark-build-text">
                                             Recommended: 1-24 hours for most
                                             models
                                         </Text>
                                     </div>
 
                                     <div>
-                                        <Text strong>Performance Level</Text>
+                                        <Text className="dark-build-text-strong">Performance Level</Text>
                                         <div
                                             style={{
                                                 display: 'grid',
@@ -344,6 +346,7 @@ const SelectInstance = () => {
                                     onClick={handleStartTraining}
                                     loading={isProcessing}
                                     disabled={!formData.trainingTime || isProcessing}
+                                    className="dark-build-button"
                                 >
                                     {isProcessing ? 'Finding instance...' : 'Start Training'}
                                 </Button>
@@ -364,14 +367,14 @@ const SelectInstance = () => {
                 >
                     <Row gutter={[24, 24]}>
                         <Col span={16}>
-                            <Card className="rounded-lg shadow-sm">
+                            <Card className="dark-build-card rounded-lg shadow-sm">
                                 <Space
                                     direction="vertical"
                                     size="large"
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text strong>Training Duration</Text>
+                                        <Text className="dark-build-text-strong">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -380,6 +383,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <Slider
+                                                className="dark-build-slider"
                                                 style={{ width: '85%' }}
                                                 min={0}
                                                 max={24}
@@ -396,6 +400,7 @@ const SelectInstance = () => {
                                                 }}
                                             />
                                             <InputNumber
+                                                className="dark-build-input"
                                                 style={{
                                                     width: '15%',
                                                     marginLeft: '10px',
@@ -410,14 +415,14 @@ const SelectInstance = () => {
                                                 addonAfter="Hours"
                                             />
                                         </div>
-                                        <Text type="secondary">
+                                        <Text className="dark-build-text">
                                             Recommended: 1-24 hours for most
                                             models
                                         </Text>
                                     </div>
 
                                     <div>
-                                        <Text strong>Manual Configuration</Text>
+                                        <Text className="dark-build-text-strong">Manual Configuration</Text>
                                         <Space
                                             direction="vertical"
                                             size="middle"
@@ -427,8 +432,9 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <div>
-                                                <Text>Service Provider</Text>
+                                                <Text className="dark-build-text">Service Provider</Text>
                                                 <Select
+                                                    className="dark-build-select"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -453,8 +459,9 @@ const SelectInstance = () => {
                                             </div>
 
                                             <div>
-                                                <Text>GPU Type</Text>
+                                                <Text className="dark-build-text">GPU Type</Text>
                                                 <Select
+                                                    className="dark-build-select"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -477,8 +484,9 @@ const SelectInstance = () => {
                                             </div>
 
                                             <div>
-                                                <Text>Number of GPUs</Text>
+                                                <Text className="dark-build-text">Number of GPUs</Text>
                                                 <InputNumber
+                                                className="dark-build-input"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -494,8 +502,9 @@ const SelectInstance = () => {
                                             </div>
 
                                             <div>
-                                                <Text>Disk Space</Text>
+                                                <Text className="dark-build-text">Disk Space</Text>
                                                 <InputNumber
+                                                className="dark-build-input"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -568,14 +577,14 @@ const SelectInstance = () => {
                 >
                     <Row gutter={[24, 24]}>
                         <Col span={16}>
-                            <Card className="rounded-lg shadow-sm">
+                            <Card className="dark-build-card rounded-lg shadow-sm">
                                 <Space
                                     direction="vertical"
                                     size="large"
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text strong>Training Duration</Text>
+                                        <Text className="dark-build-text-strong">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -584,6 +593,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <Slider
+                                                className="dark-build-slider"
                                                 style={{ width: '85%' }}
                                                 min={0}
                                                 max={24}
@@ -600,6 +610,7 @@ const SelectInstance = () => {
                                                 }}
                                             />
                                             <InputNumber
+                                                className="dark-build-input"
                                                 style={{
                                                     width: '15%',
                                                     marginLeft: '10px',
@@ -614,7 +625,7 @@ const SelectInstance = () => {
                                                 addonAfter="Hours"
                                             />
                                         </div>
-                                        <Text type="secondary">
+                                        <Text className="dark-build-text">
                                             Recommended: 1-24 hours for most
                                             models
                                         </Text>
@@ -629,7 +640,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <div>
-                                                <Text>SSH Public Key</Text>
+                                                <Text className="dark-build-text">SSH Public Key</Text>
                                                 <Input.TextArea
                                                     value={sshKey}
                                                     rows={2}
@@ -647,7 +658,7 @@ const SelectInstance = () => {
                                                 </Button>
                                             </div>
                                             <div>
-                                                <Text>Instance ID</Text>
+                                                <Text className="dark-build-text">Instance ID</Text>
                                                 <Input
                                                     value={
                                                         infrastructureData.id
@@ -662,8 +673,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>SSH Port</Text>
+                                                <Text className="dark-build-text">SSH Port</Text>
                                                 <InputNumber
+                                                className="dark-build-input"
                                                     value={
                                                         infrastructureData.sshPort
                                                     }
@@ -680,7 +692,7 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Public IP</Text>
+                                                <Text className="dark-build-text">Public IP</Text>
                                                 <Input
                                                     value={
                                                         infrastructureData.publicIP
@@ -695,8 +707,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Quality Presets</Text>
+                                                <Text className="dark-build-text">Quality Presets</Text>
                                                 <Select
+                                                    className="dark-build-select"
                                                     value={
                                                         infrastructureData.presets
                                                     }
@@ -720,8 +733,9 @@ const SelectInstance = () => {
                                                 </Select>
                                             </div>
                                             <div>
-                                                <Text>Deploy Port</Text>
+                                                <Text className="dark-build-text">Deploy Port</Text>
                                                 <InputNumber
+                                                className="dark-build-input"
                                                     value={
                                                         infrastructureData.deployPort
                                                     }
@@ -738,7 +752,7 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Username</Text>
+                                                <Text className="dark-build-text">Username</Text>
                                                 <Input
                                                     value={
                                                         infrastructureData.username
@@ -753,7 +767,7 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Dataset Path</Text>
+                                                <Text className="dark-build-text">Dataset Path</Text>
                                                 <Input
                                                     value={
                                                         infrastructureData.datasetPath
@@ -818,25 +832,203 @@ const SelectInstance = () => {
     ]
 
     return (
-        <div className="select-instance-container pl-6 pr-6">
-            {/* Modal tiến trình tìm instance, không thể tắt thủ công */}
-            <Modal
-                open={showFindingInstanceCard}
-                closable={false}
-                footer={null}
-                centered
-                maskClosable={false}
-                title={<span><RocketOutlined /> Finding the suitable instance...</span>}
-                width={500}
-                zIndex={2000}
-            >
-                <Space direction="vertical" align="center" style={{ width: '100%' }}>
-                    <Spin size="large" tip="Searching for the best instance for your project..." />
-                    <Text type="secondary">Please wait a moment while the system finds the most suitable resources.</Text>
-                </Space>
-            </Modal>
-            <Tabs items={items} onChange={(key) => setActiveTab(key)} />
-        </div>
+        <>
+            <style>{`
+                .dark-build-page {
+                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+                    min-height: 100vh;
+                    padding: 24px;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 500 !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab:hover {
+                    color: #00D4FF !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab-active {
+                    color: #00D4FF !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+                    color: #00D4FF !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-ink-bar {
+                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-content-holder {
+                    background: transparent !important;
+                }
+                
+                .dark-build-card {
+                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.8) 0%, rgba(32, 58, 67, 0.6) 50%, rgba(44, 83, 100, 0.8) 100%);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                }
+                
+                .dark-build-text {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-text-strong {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-slider .ant-slider-track {
+                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                }
+                
+                .dark-build-slider .ant-slider-handle {
+                    border-color: #00D4FF !important;
+                    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2) !important;
+                }
+                
+                .dark-build-slider .ant-slider-handle:hover {
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 4px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-input .ant-input-number:hover {
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number-focused {
+                    border-color: #00D4FF !important;
+                    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number-input {
+                    color: white !important;
+                    background: transparent !important;
+                }
+                
+                .dark-build-select .ant-select-selector {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-select .ant-select-selector:hover {
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-build-select .ant-select-selection-item {
+                    color: white !important;
+                }
+                
+                .dark-build-select .ant-select-arrow {
+                    color: #65FFA0 !important;
+                }
+                
+                .dark-build-button {
+                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                    border: none !important;
+                    border-radius: 12px !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                    box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3) !important;
+                }
+                
+                .dark-build-button:hover {
+                    background: linear-gradient(135deg, #65FFA0 0%, #00D4FF 100%) !important;
+                    box-shadow: 0 6px 20px rgba(101, 255, 160, 0.4) !important;
+                    transform: translateY(-2px) !important;
+                }
+                
+                .dark-build-button:disabled {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    color: rgba(255, 255, 255, 0.3) !important;
+                    box-shadow: none !important;
+                    transform: none !important;
+                }
+                
+                .dark-build-instance-card {
+                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(101, 255, 160, 0.1) 100%);
+                    border: 1px solid rgba(0, 212, 255, 0.3);
+                    border-radius: 12px;
+                    transition: all 0.3s ease;
+                }
+                
+                .dark-build-instance-card:hover {
+                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%);
+                    border-color: #00D4FF;
+                    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
+                    transform: translateY(-2px);
+                }
+                
+                .dark-build-instance-card.selected {
+                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(101, 255, 160, 0.3) 100%);
+                    border-color: #65FFA0;
+                    box-shadow: 0 8px 24px rgba(101, 255, 160, 0.3);
+                }
+                
+                .dark-build-modal .ant-modal-content {
+                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.95) 0%, rgba(32, 58, 67, 0.95) 100%);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                }
+                
+                .dark-build-modal .ant-modal-header {
+                    background: transparent;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .dark-build-modal .ant-modal-title {
+                    color: white;
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 600;
+                }
+                
+                .dark-build-modal .ant-modal-body {
+                    color: rgba(255, 255, 255, 0.8);
+                }
+            `}</style>
+            <div className="dark-build-page">
+                <div className="select-instance-container pl-6 pr-6">
+                    {/* Modal tiến trình tìm instance, không thể tắt thủ công */}
+                    <Modal
+                        open={showFindingInstanceCard}
+                        closable={false}
+                        footer={null}
+                        centered
+                        maskClosable={false}
+                        title={<span><RocketOutlined /> Finding the suitable instance...</span>}
+                        width={500}
+                        zIndex={2000}
+                        className="dark-build-modal"
+                    >
+                        <Space direction="vertical" align="center" style={{ width: '100%' }}>
+                            <Spin size="large" tip="Searching for the best instance for your project..." />
+                            <Text className="dark-build-text">Please wait a moment while the system finds the most suitable resources.</Text>
+                        </Space>
+                    </Modal>
+                    <Tabs items={items} onChange={(key) => setActiveTab(key)} className="dark-build-tabs" />
+                </div>
+            </div>
+        </>
     )
 }
 

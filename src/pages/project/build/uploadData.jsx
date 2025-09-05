@@ -168,7 +168,7 @@ const UploadData = () => {
             dataIndex: 'title',
             key: 'title',
             align: 'left',
-            render: (text) => <Text strong>{text}</Text>,
+            render: (text) => <Text strong className="dark-build-text-strong">{text}</Text>,
         },
         {
             title: 'Service',
@@ -186,6 +186,7 @@ const UploadData = () => {
             dataIndex: 'bucketName',
             key: 'bucket',
             align: 'center',
+            render: (text) => <Text className="dark-build-text">{text}</Text>,
         },
         {
             title: 'Labeled',
@@ -205,17 +206,237 @@ const UploadData = () => {
     const isSelectedProjectLabeled = selectedProject?.isLabeled
 
     return (
-        <div className="pl-6 pr-6">
-            <Row justify="center">
-                <Col xs={24} md={16}>
-                    <Title level={1} className="text-center">
-                        Choose Your Label Project
-                    </Title>
-                    <Paragraph className="text-center text-gray-600">
-                        Select an existing label project or create a new one for your labeling task
-                    </Paragraph>
-                </Col>
-            </Row>
+        <>
+            <style>{`
+                .dark-build-page {
+                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+                    min-height: 100vh;
+                    padding: 24px;
+                }
+                
+                .dark-build-card {
+                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.8) 0%, rgba(32, 58, 67, 0.6) 50%, rgba(44, 83, 100, 0.8) 100%);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                }
+                
+                .dark-build-title {
+                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 50%, #FFD700 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 700;
+                }
+                
+                .dark-build-text {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-text-strong {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-button {
+                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                    border: none !important;
+                    border-radius: 12px !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                    box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3) !important;
+                }
+                
+                .dark-build-button:hover {
+                    background: linear-gradient(135deg, #65FFA0 0%, #00D4FF 100%) !important;
+                    box-shadow: 0 6px 20px rgba(101, 255, 160, 0.4) !important;
+                    transform: translateY(-2px) !important;
+                }
+                
+                .dark-build-select .ant-select-selector {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-select .ant-select-selector:hover {
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-build-select .ant-select-selection-item {
+                    color: white !important;
+                }
+                
+                .dark-build-select .ant-select-arrow {
+                    color: #65FFA0 !important;
+                }
+                
+                .dark-build-radio .ant-radio-wrapper {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-radio .ant-radio-checked .ant-radio-inner {
+                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                    border-color: #00D4FF !important;
+                }
+                
+                .dark-build-table .ant-table-thead > tr > th {
+                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%) !important;
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                }
+                
+                .dark-build-table .ant-table-tbody > tr > td {
+                    color: rgba(255, 255, 255, 0.9) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+                }
+                
+                .dark-build-table .ant-table-tbody > tr:hover > td {
+                    background: rgba(0, 212, 255, 0.1) !important;
+                }
+                
+                .dark-build-table .ant-table-tbody > tr.ant-table-row-selected > td {
+                    background: rgba(0, 212, 255, 0.2) !important;
+                }
+                
+                .dark-build-table .ant-table-tbody > tr.ant-table-row-selected:hover > td {
+                    background: rgba(0, 212, 255, 0.3) !important;
+                }
+                
+                .dark-build-modal .ant-modal-content {
+                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.95) 0%, rgba(32, 58, 67, 0.95) 100%);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                }
+                
+                .dark-build-modal .ant-modal-header {
+                    background: transparent;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .dark-build-modal .ant-modal-title {
+                    color: white;
+                    font-family: 'Poppins', sans-serif;
+                    font-weight: 600;
+                }
+                
+                .dark-build-modal .ant-modal-body {
+                    color: rgba(255, 255, 255, 0.8);
+                }
+                
+                .dark-build-alert {
+                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(101, 255, 160, 0.1) 100%) !important;
+                    border: 1px solid rgba(0, 212, 255, 0.4) !important;
+                    border-radius: 12px !important;
+                    backdrop-filter: blur(10px) !important;
+                }
+                
+                .dark-build-alert .ant-alert-message {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-alert .ant-alert-description {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-alert .ant-alert-icon {
+                    color: #00D4FF !important;
+                }
+                
+                .dark-build-empty .ant-empty-description {
+                    color: rgba(255, 255, 255, 0.6) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-empty .ant-empty-image {
+                    filter: invert(1) brightness(0.8) !important;
+                }
+                
+                .dark-build-card .ant-card-body {
+                    background: transparent !important;
+                    color: white !important;
+                }
+                
+                .dark-build-card .ant-card {
+                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.8) 0%, rgba(32, 58, 67, 0.6) 50%, rgba(44, 83, 100, 0.8) 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                }
+                
+                .dark-build-card .ant-card-hoverable:hover {
+                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.9) 0%, rgba(32, 58, 67, 0.7) 50%, rgba(44, 83, 100, 0.9) 100%) !important;
+                    border: 1px solid rgba(0, 212, 255, 0.3) !important;
+                    box-shadow: 0 12px 40px rgba(0, 212, 255, 0.2) !important;
+                }
+                
+                .dark-build-table .ant-table-thead > tr > th:first-child {
+                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(101, 255, 160, 0.2) 100%) !important;
+                }
+                
+                .dark-build-table .ant-table-thead > tr > th:not(:first-child) {
+                    background: linear-gradient(135deg, rgba(101, 255, 160, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%) !important;
+                }
+                
+                .dark-build-table .ant-table-tbody > tr > td .ant-typography {
+                    color: rgba(255, 255, 255, 0.9) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-table .ant-tag {
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 500 !important;
+                    border-radius: 8px !important;
+                }
+                
+                .dark-build-table .ant-tag.ant-tag-success {
+                    background: linear-gradient(135deg, #65FFA0 0%, #00D4FF 100%) !important;
+                    color: white !important;
+                    border: none !important;
+                }
+                
+                .dark-build-table .ant-tag.ant-tag-warning {
+                    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%) !important;
+                    color: white !important;
+                    border: none !important;
+                }
+                
+                .dark-build-table .ant-tag.ant-tag-orange {
+                    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%) !important;
+                    color: white !important;
+                    border: none !important;
+                }
+                
+                .dark-build-table .ant-tag.ant-tag-blue {
+                    background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%) !important;
+                    color: white !important;
+                    border: none !important;
+                }
+            `}</style>
+            <div className="dark-build-page">
+                <div className="pl-6 pr-6">
+                    <Row justify="center">
+                        <Col xs={24} md={16}>
+                            <Title level={1} className="dark-build-title text-center">
+                                Choose Your Label Project
+                            </Title>
+                            <Paragraph className="dark-build-text text-center">
+                                Select an existing label project or create a new one for your labeling task
+                            </Paragraph>
+                        </Col>
+                    </Row>
 
             <Row gutter={[24, 24]}>
                 <Col xs={24} lg={6}>
@@ -223,21 +444,21 @@ const UploadData = () => {
                         title={
                             <Space>
                                 <FilterOutlined />
-                                <span>Filter Options</span>
+                                <span className="dark-build-text-strong">Filter Options</span>
                             </Space>
                         }
-                        className="shadow-md rounded-lg sticky top-4"
+                        className="dark-build-card shadow-md rounded-lg sticky top-4"
                     >
                         <Space direction="vertical" className="w-full">
                             <div>
-                                <Title level={5}>
+                                <Title level={5} className="dark-build-text-strong">
                                     Cloud Service
                                     <Tooltip title="Choose the cloud storage service where your label project is stored">
                                         <InfoCircleOutlined className="ml-2 text-gray-400" />
                                     </Tooltip>
                                 </Title>
                                 <Select
-                                    className="w-full"
+                                    className="dark-build-select w-full"
                                     value={serviceFilter}
                                     onChange={setServiceFilter}
                                     placeholder="Select Service"
@@ -249,14 +470,14 @@ const UploadData = () => {
                             </div>
 
                             <div>
-                                <Title level={5}>
+                                <Title level={5} className="dark-build-text-strong">
                                     Storage Bucket
                                     <Tooltip title="Select the specific storage bucket containing your label project">
                                         <InfoCircleOutlined className="ml-2 text-gray-400" />
                                     </Tooltip>
                                 </Title>
                                 <Select
-                                    className="w-full"
+                                    className="dark-build-select w-full"
                                     value={bucketFilter}
                                     onChange={setBucketFilter}
                                     placeholder="Select Bucket"
@@ -268,7 +489,7 @@ const UploadData = () => {
                             </div>
 
                             <div>
-                                <Title level={5}>
+                                <Title level={5} className="dark-build-text-strong">
                                     Project Status
                                     <Tooltip title="Filter projects based on whether they're already labeled">
                                         <InfoCircleOutlined className="ml-2 text-gray-400" />
@@ -277,7 +498,7 @@ const UploadData = () => {
                                 <Radio.Group
                                     value={labeledFilter}
                                     onChange={(e) => setLabeledFilter(e.target.value)}
-                                    className="w-full"
+                                    className="dark-build-radio w-full"
                                 >
                                     <Space direction="vertical" className="w-full">
                                         <Radio value="">All Projects</Radio>
@@ -292,7 +513,7 @@ const UploadData = () => {
                                     type="primary"
                                     size="large"
                                     onClick={handleContinue}
-                                    className="mt-4 flex items-center justify-between"
+                                    className="dark-build-button mt-4 flex items-center justify-between"
                                     block
                                 >
                                     <>
@@ -305,13 +526,13 @@ const UploadData = () => {
                 </Col>
 
                 <Col xs={24} lg={18}>
-                    <Card className="shadow-md rounded-lg mb-6">
+                    <Card className="dark-build-card shadow-md rounded-lg mb-6">
                         <Alert
                             message="Need help choosing a label project?"
                             description="If you're unsure about which project to select, look for one that matches your task type and is already labeled (marked with 'Yes'). This will help you get started faster."
                             type="info"
                             showIcon
-                            className="mb-4"
+                            className="mb-4 dark-build-alert"
                         />
 
                         <Spin spinning={tableLoading} tip="Processing label project creation...">
@@ -331,12 +552,13 @@ const UploadData = () => {
                                 }}
                                 rowKey="project_id"
                                 pagination={{ pageSize: 2 }}
-                                className="border rounded-lg"
+                                className="dark-build-table border rounded-lg"
                                 locale={{
                                     emptyText: (
                                         <Empty
                                             image={Empty.PRESENTED_IMAGE_SIMPLE}
                                             description="No label projects match your current filters"
+                                            className="dark-build-empty"
                                         />
                                     ),
                                 }}
@@ -346,14 +568,14 @@ const UploadData = () => {
 
                     <Card
                         hoverable
-                        className="shadow-md rounded-lg text-center cursor-pointer"
+                        className="dark-build-card shadow-md rounded-lg text-center cursor-pointer"
                         onClick={showModal}
                     >
                         <Space direction="vertical" size="medium" className="w-full py-6">
                             <CloudUploadOutlined className="text-5xl text-blue-500" />
                             <div>
-                                <Title level={4}>Create a New Label Project</Title>
-                                <Text type="secondary">
+                                <Title level={4} className="dark-build-text-strong">Create a New Label Project</Title>
+                                <Text className="dark-build-text">
                                     Don't see what you need? Click here to create a new label project
                                 </Text>
                             </div>
@@ -374,17 +596,20 @@ const UploadData = () => {
                 closable={false}
                 footer={null}
                 centered
+                className="dark-build-modal"
             >
                 <div className="text-center py-8">
                     <Spin size="large" />
-                    <Paragraph className="mt-4 text-gray-600">
+                    <Paragraph className="dark-build-text mt-4">
                         Hệ thống đang export nhãn và chuẩn bị dữ liệu.
                         <br />
                         Quá trình này có thể mất vài phút, vui lòng không đóng cửa sổ này.
                     </Paragraph>
                 </div>
             </Modal>
+            </div>
         </div>
+        </>
     )
 }
 

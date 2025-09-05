@@ -11,6 +11,20 @@ module.exports = {
 			},
 		},
 		extend: {
+			// Typography system
+			fontFamily: {
+				'poppins': ['Poppins', 'sans-serif'],
+			},
+			fontSize: {
+				// H1 - 32pt
+				'h1': ['32px', { lineHeight: '1.2', fontWeight: '700' }],
+				// H2 - 24pt  
+				'h2': ['24px', { lineHeight: '1.3', fontWeight: '600' }],
+				// Body - 14pt
+				'body': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+				// Caption - 12pt
+				'caption': ['12px', { lineHeight: '1.4', fontWeight: '300' }],
+			},
 			padding: {
 				'custom-105': '105px',
 			},

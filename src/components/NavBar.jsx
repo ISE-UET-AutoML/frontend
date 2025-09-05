@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -9,9 +9,40 @@ import clsx from 'clsx'
 const NavBar = () => {
 	const [navbarOpen, setNavbarOpen] = useState(false)
 	const [hoveredItem, setHoveredItem] = useState(null)
+	const [scrolled, setScrolled] = useState(false)
 	const navigate = useNavigate()
 	const location = useLocation()
 	const { authed, logout: authLogout } = useAuth()
+
+	useEffect(() => {
+		const getScrollTop = () => {
+			const winY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+			const layoutEl = document.querySelector('.ant-layout')
+			const layoutY = layoutEl && typeof layoutEl.scrollTop === 'number' ? layoutEl.scrollTop : 0
+			return Math.max(winY, layoutY)
+		}
+
+		const handleScroll = () => {
+			setScrolled(getScrollTop() > 0)
+		}
+
+		const layoutEl = document.querySelector('.ant-layout')
+		window.addEventListener('scroll', handleScroll, { passive: true })
+		if (layoutEl) layoutEl.addEventListener('scroll', handleScroll, { passive: true })
+
+		handleScroll()
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll)
+			if (layoutEl) layoutEl.removeEventListener('scroll', handleScroll)
+		}
+	}, [])
+
+	// Recalculate on route changes to ensure correct initial state per page
+	useEffect(() => {
+		const y = window.pageYOffset || document.documentElement.scrollTop || 0
+		setScrolled(y > 0)
+	}, [location.pathname])
 
 	const logout = () => {
 		return new Promise((resolve) => {
@@ -50,10 +81,10 @@ const NavBar = () => {
 	}
 	return (
 		<header 
-			className="sticky top-0 w-full z-50 transition-all duration-300" 
+			className="fixed top-0 w-full z-50 transition-all duration-300" 
 			style={{ 
-				backgroundColor: 'rgba(0, 0, 0, 0.95)',
-				backdropFilter: 'blur(10px)',
+				backgroundColor: scrolled ? 'rgba(1, 0, 10, 0.95)' : 'rgba(1, 0, 10, 0)',
+				backdropFilter: scrolled ? 'blur(10px)' : 'none',
 				zIndex: 999
 			}}
 		>
@@ -112,8 +143,8 @@ const NavBar = () => {
 							<Menu as="div" className="relative">
 								<div>
 									<Menu.Button className="transition flex gap-2 rounded-xl bg-gray-800 text-sm focus:outline-none hover:bg-gray-700 py-2 px-3">
-										<span className="font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
-											username
+										<span className="font-regular text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
+											astralnaut
 										</span>
 										<img
 											className="h-6 w-6 border-solid border-2 border-blue-500 rounded-full"
