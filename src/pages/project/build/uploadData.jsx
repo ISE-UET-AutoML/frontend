@@ -118,6 +118,7 @@ const UploadData = () => {
             console.log('Export started, task ID:', startResponse)
             
             const finalResult = await pollExportStatus(task_id);
+            console.log('Export completed successfully:', finalResult);
             message.success('Data prepared successfully!');
 
             //await uploadToS3(selectedProject.label_studio_id)      

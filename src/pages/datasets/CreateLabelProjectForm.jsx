@@ -34,6 +34,7 @@ export default function CreateLabelProjectForm({
     const [newLabel, setNewLabel] = useState('');
     const [columnOptions, setColumnOptions] = useState([]);
     const [selectedImageColumn, setSelectedImageColumn] = useState(null); // State cho cột ảnh
+    const [selectedSeriesColumn, setSelectedSeriesColumn] = useState(null); // State cho cột chuỗi
     const [labelColors, setLabelColors] = useState({});
     // watch task type selection
     const selectedTaskType = Form.useWatch('taskType', form);
@@ -105,6 +106,7 @@ export default function CreateLabelProjectForm({
                 "is_binary_class": is_binary_class,
                 "image_column": selectedImageColumn,
                 "label_colors": labelColors,
+                "series_column": selectedSeriesColumn
             }
         };
         onSubmit(payload);
@@ -210,6 +212,32 @@ export default function CreateLabelProjectForm({
                     )}
                 </Form.Item>
             )}
+
+            {
+                datasetType === 'TIME_SERIES' && (
+                    <Form.Item label="Series Column" required>
+                        <Select
+                            placeholder="Select series column"
+                            value={selectedSeriesColumn || undefined}
+                            onChange={setSelectedSeriesColumn}
+                        >
+                            {columnOptions.map(col => (
+                                <Option key={col.value} value={col.value}>
+                                    {col.label}
+                                </Option>
+                            ))}
+                        </Select>
+                        {!selectedSeriesColumn && (
+                            <Alert
+                                message="Please select a series column for TIME_SERIES datasets."
+                                type="warning"
+                                showIcon
+                                className="mt-2"
+                            />
+                        )}
+                    </Form.Item>
+                )
+            }
 
             <Form.Item label="Expected Labels" required>
                 {!selectedTaskType ? (
