@@ -52,6 +52,7 @@ import multilabel_classification from 'src/assets/images/multilabel_classificati
 import time_series from 'src/assets/images/timeseries.png'
 import ChatbotImage from 'src/assets/images/chatbot.png'
 import NormalImage from 'src/assets/images/normal.png'
+import multilabel_tabular_classification from 'src/assets/images/multilabel_tabular_classification.png'
 import { chat, clearHistory, getHistory } from 'src/api/chatbot'
 import { TrainingTask } from 'src/constants/trainingTasks'
 import chatLoading from 'src/assets/gif/chat_loading.svg'
@@ -67,6 +68,7 @@ const imgArray = [
     class_img,
     text_classification,
     tabular_img,
+    multilabel_tabular_classification,
     tabular_regression_img,
     multimodal_classification,
     multilabel_classification,
@@ -88,6 +90,7 @@ const typeDescription = [
     'Identify and categorize objects in images.',
     'Categorize text data based on content.',
     'Classify tabular data rows.',
+    'Predicts multiple labels for each row in structured data.',
     'Predict continuous values for structured data in tables',
     'Combine data sources for accurate classification.',
     'Assign multiple labels to each data item.',
