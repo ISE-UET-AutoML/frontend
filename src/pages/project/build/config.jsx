@@ -40,7 +40,7 @@ const config = {
         predictView: TabularPredict,
         liveInferView: EmptyLiveInfer,
     },
-    TABULAR_CLASSIFICATION_MULTILABEL: {
+    MULTILABEL_TABULAR_CLASSIFICATION: {
         folder: UploadTypes.CSV_SINGLE,
         afterUploadURL: 'selectInstance',
         labelingView: LabelingTextClassification,

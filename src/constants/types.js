@@ -35,8 +35,8 @@ const TASK_TYPES = {
 		},
 		dataType: 'TABULAR',
 	},
-	TABULAR_CLASSIFICATION_MULTILABEL: {
-		type: 'Tabular Classification Multilabel',
+	MULTILABEL_TABULAR_CLASSIFICATION: {
+		type: 'Multilabel Tabular Classification',
 		description: 'We accept CSV text format',
 		allowedExtensions: ['csv'],
 		card: {

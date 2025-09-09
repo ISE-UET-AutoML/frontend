@@ -245,19 +245,19 @@ export default function CreateLabelProjectForm({
                 ) : (columnOptions.length > 0 && !isManualLabelTask(selectedTaskType)) ? (
                     // 1. Dành cho TEXT/TABULAR/MULTIMODAL: Chọn cột từ CSV
                     <Select
-                        mode={selectedTaskType.split("_").pop() === 'MULTILABEL' ? 'multiple' : undefined} // 1. Bật chế độ chọn nhiều
+                        mode={selectedTaskType.startsWith('MULTILABEL') ? 'multiple' : undefined}
                         placeholder={
-                            selectedTaskType.split("_").pop() === 'MULTILABEL'
-                                ? "Select one or more label columns" 
+                            selectedTaskType.startsWith('MULTILABEL')
+                                ? "Select one or more label columns"
                                 : "Select a label column"
                         }
                         value={
-                            selectedTaskType.split("_").pop() === 'MULTILABEL'
+                            selectedTaskType.startsWith('MULTILABEL')
                                 ? expectedLabels
                                 : expectedLabels[0] || undefined
                         } // 2. Value là cả mảng
                         onChange={(value) => {
-                            const isMultiLabel = selectedTaskType.split("_").pop() === 'MULTILABEL';
+                            const isMultiLabel = selectedTaskType.startsWith('MULTILABEL');
                             setLabels(isMultiLabel ? value : [value]);
                         }} // 3. onChange sẽ nhận về cả mảng
                         optionLabelProp="label" // Hiển thị label đã chọn thay vì value
