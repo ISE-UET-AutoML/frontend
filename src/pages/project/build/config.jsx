@@ -40,6 +40,20 @@ const config = {
         predictView: TabularPredict,
         liveInferView: EmptyLiveInfer,
     },
+    MULTILABEL_TABULAR_CLASSIFICATION: {
+        folder: UploadTypes.CSV_SINGLE,
+        afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TabularPredict,
+        liveInferView: EmptyLiveInfer,
+    },
+    TIME_SERIES_FORECASTING: {
+        afterUploadURL: 'selectInstance',
+        folder: UploadTypes.CSV_SINGLE,
+        labelingView: LabelingTextClassification,
+        predictView: TabularPredict,
+        liveInferView: EmptyLiveInfer,
+    },
     MULTIMODAL_CLASSIFICATION: {
         afterUploadURL: 'selectInstance',
         folder: UploadTypes.CSV_SINGLE,

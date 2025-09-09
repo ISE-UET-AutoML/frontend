@@ -51,21 +51,27 @@ const UploadData = () => {
                     const response = await getExportStatus(taskId);
                     const { status, result, error } = response.data;
 
+                    console.log(`[pollExportStatus] Task ${taskId} → status: ${status}`);
+
                     if (status === 'SUCCESS') {
                         clearInterval(intervalId);
-                        resolve(result); // Trả về kết quả khi thành công
+                        console.log(`[pollExportStatus] Task ${taskId} completed. Result:`, result);
+                        resolve(result);
                     } else if (status === 'FAILURE') {
                         clearInterval(intervalId);
-                        reject(new Error(error || 'Export task failed.')); // Báo lỗi
+                        console.error(`[pollExportStatus] Task ${taskId} failed. Error:`, error);
+                        reject(new Error(error || 'Export task failed.'));
                     }
-                    // Nếu là PENDING, tiếp tục chờ
+                    // Nếu là PENDING thì tiếp tục chờ
                 } catch (err) {
                     clearInterval(intervalId);
+                    console.error(`[pollExportStatus] Error checking task ${taskId}:`, err?.message || err);
                     reject(err);
                 }
             }, 5000); // Hỏi lại mỗi 5 giây
         });
     };
+
 
     const fetchProjects = async () => {
         setTableLoading(true)
@@ -126,6 +132,10 @@ const UploadData = () => {
                 selectedProject,
             })
             const object = config[projectInfo.task_type]
+            if (!object) {
+            console.error("Config not found for task type:", projectInfo.task_type);
+            return;
+            }
             navigate(`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`)
 
         } catch (error) {
