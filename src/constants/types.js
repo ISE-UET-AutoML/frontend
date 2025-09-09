@@ -35,6 +35,17 @@ const TASK_TYPES = {
 		},
 		dataType: 'TABULAR',
 	},
+	TABULAR_CLASSIFICATION_MULTILABEL: {
+		type: 'Tabular Classification Multilabel',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		card: {
+			bg: '#f9f0ff',
+			text: '#391085ff',
+			border: '#391085ff',
+		},
+		dataType: 'TABULAR',
+	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',
     	description: 'Requires a folder containing a CSV file and a subfolder with images.',

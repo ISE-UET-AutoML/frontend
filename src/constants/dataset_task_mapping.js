@@ -16,6 +16,10 @@ export const TASK_TYPE_INFO = {
         displayName: 'Tabular Regression',
         description: 'Predict continuous values for structured data in tables'
     },
+    TABULAR_CLASSIFICATION_MULTILABEL: {
+        displayName: 'Tabular Classification Multilabel',
+        description: 'Assign multiple labels to each entry in structured data'
+    },
     MULTIMODAL_CLASSIFICATION: {
         displayName: 'Multimodal Classification',
         description: 'Classify using both images and text data'
@@ -47,7 +51,7 @@ export const DATASET_TASK_MAPPING = {
         'SEMANTIC_SEGMENTATION'
     ],
     TEXT: ['TEXT_CLASSIFICATION'],
-    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION'],
+    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'TABULAR_CLASSIFICATION_MULTILABEL'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
     TIME_SERIES: ['TIME_SERIES_FORECASTING']
 };

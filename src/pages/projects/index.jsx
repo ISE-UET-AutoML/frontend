@@ -45,6 +45,8 @@ import object_detection from 'src/assets/images/object-detection.png'
 import segmentaion_img from 'src/assets/images/segmentation_img.jpg'
 import tabular_img from 'src/assets/images/tabular_img.jpg'
 import tabular_regression_img from 'src/assets/images/tabular_regression.png'
+import tabular_classification_multilabel from 'src/assets/images/tabular_classification_multilabel.png'
+import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 import text_classification from 'src/assets/images/text_classification.jpg'
 import multimodal_classification from 'src/assets/images/multimodal_classification.png'
 import multilabel_classification from 'src/assets/images/multilabel_classification.png'
@@ -65,10 +67,12 @@ const imgArray = [
     text_classification,
     tabular_img,
     tabular_regression_img,
+    tabular_classification_multilabel,
     multimodal_classification,
     multilabel_classification,
     object_detection,
     segmentaion_img,
+    time_series_forecasting,
 ]
 
 const typeDescription = [
@@ -76,10 +80,12 @@ const typeDescription = [
     'Categorize text data based on content.',
     'Classify tabular data rows.',
     'Predict continuous values for structured data in tables',
+    'Predict multiple labels from tabular data.',
     'Combine data sources for accurate classification.',
     'Assign multiple labels to each data item.',
     'Identify objects with bounding boxes.',
     'Segment images to locate objects or regions.',
+    'Forecast future values based on time series data.'
 ]
 
 const initialState = {
