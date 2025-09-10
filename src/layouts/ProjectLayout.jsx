@@ -8,15 +8,15 @@ export default function ProjectLayout() {
 		<>
 			<style>{`
 				body, html {
-					background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%) !important;
+					background-color: #01000A !important;
 					min-height: 100vh !important;
 				}
 				
 				.project-main-content {
-					background: linear-gradient(135deg, rgba(15, 32, 39, 0.8) 0%, rgba(32, 58, 67, 0.6) 50%, rgba(44, 83, 100, 0.8) 100%);
+					background: rgba(0, 0, 0, 0.4);
 					backdrop-filter: blur(10px);
 					border: 1px solid rgba(255, 255, 255, 0.1);
-					border-radius: 16px;
+					border-radius: 20px;
 					box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 				}
 				
@@ -33,7 +33,7 @@ export default function ProjectLayout() {
 					left: 10%;
 					width: 300px;
 					height: 300px;
-					background: radial-gradient(circle, rgba(101, 255, 160, 0.1) 0%, transparent 70%);
+					background: radial-gradient(circle, rgba(92, 141, 255, 0.1) 0%, transparent 70%);
 					border-radius: 50%;
 					animation: float 6s ease-in-out infinite;
 					z-index: -1;
@@ -46,7 +46,7 @@ export default function ProjectLayout() {
 					right: 10%;
 					width: 200px;
 					height: 200px;
-					background: radial-gradient(circle, rgba(92, 141, 255, 0.1) 0%, transparent 70%);
+					background: radial-gradient(circle, rgba(64, 255, 255, 0.1) 0%, transparent 70%);
 					border-radius: 50%;
 					animation: float 8s ease-in-out infinite reverse;
 					z-index: -1;

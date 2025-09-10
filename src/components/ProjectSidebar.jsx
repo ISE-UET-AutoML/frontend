@@ -43,7 +43,7 @@ const ProjectSidebar = ({ projectID, className }) => {
         <>
             <style>{`
                 .project-sidebar {
-                    background: linear-gradient(180deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+                    background: rgba(0, 0, 0, 0.4);
                     border-right: 1px solid rgba(255, 255, 255, 0.1);
                     backdrop-filter: blur(10px);
                 }
@@ -51,8 +51,8 @@ const ProjectSidebar = ({ projectID, className }) => {
                 .sidebar-nav-item {
                     position: relative;
                     transition: all 0.3s ease;
-                    border-radius: 12px;
-                    margin: 4px 8px;
+                    border-radius: 16px;
+                    margin: 6px 8px;
                     padding: 12px 8px;
                 }
                 
@@ -62,9 +62,9 @@ const ProjectSidebar = ({ projectID, className }) => {
                 }
                 
                 .sidebar-nav-item.active {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 50%, rgba(255, 215, 0, 0.1) 100%);
-                    border: 1px solid rgba(0, 212, 255, 0.4);
-                    box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3);
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%);
+                    border: 1px solid rgba(92, 141, 255, 0.4);
+                    box-shadow: 0 4px 16px rgba(92, 141, 255, 0.3);
                 }
                 
                 .sidebar-nav-item.active::before {
@@ -75,9 +75,9 @@ const ProjectSidebar = ({ projectID, className }) => {
                     transform: translateY(-50%);
                     width: 6px;
                     height: 32px;
-                    background: linear-gradient(180deg, #00D4FF 0%, #65FFA0 50%, #FFD700 100%);
+                    background: linear-gradient(180deg, #5C8DFF 0%, #9333EA 100%);
                     border-radius: 0 3px 3px 0;
-                    box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+                    box-shadow: 0 0 8px rgba(92, 141, 255, 0.4);
                 }
                 
                 .sidebar-icon {
@@ -87,12 +87,12 @@ const ProjectSidebar = ({ projectID, className }) => {
                 
                 .sidebar-nav-item:hover .sidebar-icon {
                     transform: scale(1.1);
-                    filter: drop-shadow(0 4px 8px rgba(0, 212, 255, 0.4));
+                    filter: drop-shadow(0 4px 8px rgba(92, 141, 255, 0.4));
                 }
                 
                 .sidebar-nav-item.active .sidebar-icon {
-                    color: #00D4FF !important;
-                    filter: drop-shadow(0 4px 8px rgba(0, 212, 255, 0.5));
+                    color: #5C8DFF !important;
+                    filter: drop-shadow(0 4px 8px rgba(92, 141, 255, 0.5));
                 }
                 
                 .sidebar-text {
@@ -102,11 +102,11 @@ const ProjectSidebar = ({ projectID, className }) => {
                 }
                 
                 .sidebar-nav-item:hover .sidebar-text {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                 }
                 
                 .sidebar-nav-item.active .sidebar-text {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                     font-weight: 600;
                 }
                 
@@ -122,12 +122,12 @@ const ProjectSidebar = ({ projectID, className }) => {
                 }
                 
                 .sidebar-settings:hover .sidebar-icon {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                     transform: scale(1.1);
                 }
                 
                 .sidebar-settings:hover .sidebar-text {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                 }
                 
                 /* Custom scrollbar */
@@ -140,12 +140,12 @@ const ProjectSidebar = ({ projectID, className }) => {
                 }
                 
                 .project-sidebar::-webkit-scrollbar-thumb {
-                    background: linear-gradient(180deg, #00D4FF 0%, #65FFA0 50%, #FFD700 100%);
+                    background: linear-gradient(180deg, #5C8DFF 0%, #9333EA 100%);
                     border-radius: 2px;
                 }
                 
                 .project-sidebar::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(180deg, #FFD700 0%, #65FFA0 50%, #00D4FF 100%);
+                    background: linear-gradient(180deg, #9333EA 0%, #5C8DFF 100%);
                 }
             `}</style>
             <div className={clsx('duration-300 project-sidebar', className)}>
