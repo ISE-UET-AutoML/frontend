@@ -35,6 +35,7 @@ export default function CreateLabelProjectForm({
     const [columnOptions, setColumnOptions] = useState([]);
     const [selectedImageColumn, setSelectedImageColumn] = useState(null); // State cho cột ảnh
     const [selectedSeriesColumn, setSelectedSeriesColumn] = useState(null); // State cho cột chuỗi
+    const [selectedTextColumn, setSelectedTextColumn] = useState(null); // State cho cột text
     const [labelColors, setLabelColors] = useState({});
     // watch task type selection
     const selectedTaskType = Form.useWatch('taskType', form);
@@ -106,7 +107,8 @@ export default function CreateLabelProjectForm({
                 "is_binary_class": is_binary_class,
                 "image_column": selectedImageColumn,
                 "label_colors": labelColors,
-                "series_column": selectedSeriesColumn
+                "series_column": selectedSeriesColumn,
+                "text_columns": selectedTextColumn
             }
         };
         onSubmit(payload);
@@ -238,7 +240,31 @@ export default function CreateLabelProjectForm({
                     </Form.Item>
                 )
             }
-
+            {
+                datasetType === 'TEXT' && (
+                    <Form.Item label="Text Column" required>
+                        <Select
+                            placeholder="Select text column"
+                            value={selectedTextColumn || undefined}
+                            onChange={setSelectedTextColumn}
+                        >
+                            {columnOptions.map(col => (
+                                <Option key={col.value} value={col.value}>
+                                    {col.label}
+                                </Option>
+                            ))}
+                        </Select>
+                        {!selectedTextColumn && (
+                            <Alert
+                                message="Please select a text column for TEXT datasets."
+                                type="warning"
+                                showIcon
+                                className="mt-2"
+                            />
+                        )}
+                    </Form.Item>
+                )
+            }
             <Form.Item label="Expected Labels" required>
                 {!selectedTaskType ? (
                     <Alert message="Please select Task Type first" type="warning" showIcon />
