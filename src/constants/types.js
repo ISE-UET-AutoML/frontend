@@ -13,6 +13,13 @@ const TASK_TYPES = {
 		card: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
 		dataType: 'TEXT',
 	},
+	MULTILABEL_TEXT_CLASSIFICATION: {
+		type: 'Multilabel Text Classification',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		card: { bg: '#f6ffed', text: '#237804', border: '#237804' },
+		dataType: 'TEXT',
+	},
 	TABULAR_CLASSIFICATION: {
 		type: 'Tabular Classification',
 		description: 'We accept CSV text format',

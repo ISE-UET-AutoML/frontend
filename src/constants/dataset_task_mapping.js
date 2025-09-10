@@ -8,6 +8,10 @@ export const TASK_TYPE_INFO = {
         displayName: 'Text Classification',
         description: 'Classify text into predefined categories'
     },
+    MULTILABEL_TEXT_CLASSIFICATION: {
+        displayName: 'Multilabel Text Classification',
+        description: 'Assign multiple labels to each text entry'
+    },
     TABULAR_CLASSIFICATION: {
         displayName: 'Tabular Classification',
         description: 'Classify structured data in tables'
@@ -50,7 +54,7 @@ export const DATASET_TASK_MAPPING = {
         'OBJECT_DETECTION',
         'SEMANTIC_SEGMENTATION'
     ],
-    TEXT: ['TEXT_CLASSIFICATION'],
+    TEXT: ['TEXT_CLASSIFICATION', 'MULTILABEL_TEXT_CLASSIFICATION'],
     TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
     TIME_SERIES: ['TIME_SERIES_FORECASTING']
