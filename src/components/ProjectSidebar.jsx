@@ -46,6 +46,7 @@ const ProjectSidebar = ({ projectID, className }) => {
                     background: rgba(0, 0, 0, 0.4);
                     border-right: 1px solid rgba(255, 255, 255, 0.1);
                     backdrop-filter: blur(10px);
+                    width: 120px;
                 }
                 
                 .sidebar-nav-item {

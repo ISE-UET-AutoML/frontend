@@ -109,7 +109,7 @@ export default function Projects() {
                             id: 'projectsCyan',
                             shape: 'rounded',
                             size: '420px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 85%'] },
+                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 40%'] },
                             opacity: 0.30,
                             blur: '180px',
                             position: { top: '60px', left: '-120px' },

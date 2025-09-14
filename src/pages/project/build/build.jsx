@@ -26,11 +26,18 @@ export default function ProjectBuild() {
     }
 
     return (
-        <div>
-            {/* Pass data and update function via Outlet context */}
-            {projectInfo && (
-                <Outlet context={{ ...data, updateFields, projectInfo }} />
-            )}
-        </div>
+        <>
+            <style>{`
+                body, html {
+                    background-color: #01000A !important;
+                }
+            `}</style>
+            <div className="min-h-screen bg-[#01000A]">
+                {/* Pass data and update function via Outlet context */}
+                {projectInfo && (
+                    <Outlet context={{ ...data, updateFields, projectInfo }} />
+                )}
+            </div>
+        </>
     )
 }

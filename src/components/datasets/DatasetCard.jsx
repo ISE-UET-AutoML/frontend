@@ -76,7 +76,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 
     const handleCardClick = () => {
         if (lsProjectId) {
-            const url = `http://34.1.194.168:3003/projects/${lsProjectId}`
+            const url = `${process.env.REACT_APP_LABEL_STUDIO_URL}/projects/${lsProjectId}`
             window.open(url, '_blank')
         } else {
             console.error("Label Studio ID is missing!")

@@ -604,7 +604,7 @@ export default function CreateDatasetForm({
                 <Form.Item>
                     <Button type="primary" htmlType="submit">Next</Button>
                     <Button style={{ marginLeft: 8 }} onClick={onCancel}>Cancel</Button>
-                </Form.Item>
+                </Form.Item>    
             </Form>
         </>
     );

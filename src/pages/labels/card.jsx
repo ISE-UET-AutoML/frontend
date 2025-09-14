@@ -26,7 +26,7 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
 
     const handleViewProject = () => {
         if (labelStudioId) {
-            const url = `http://34.1.194.168:3003/projects/${labelStudioId}`;
+            const url = `${process.env.REACT_APP_LABEL_STUDIO_URL}/projects/${labelStudioId}`;
             window.open(url, '_blank');
         } else {
             console.error("Label Studio ID is missing!");

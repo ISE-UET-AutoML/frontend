@@ -240,7 +240,7 @@ const SelectInstance = () => {
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text className="dark-build-text-strong">Training Duration</Text>
+                                        <Text className="dark-build-text-gradient">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -288,7 +288,7 @@ const SelectInstance = () => {
                                     </div>
 
                                     <div>
-                                        <Text className="dark-build-text-strong">Performance Level</Text>
+                                        <Text className="dark-build-text-gradient">Performance Level</Text>
                                         <div
                                             style={{
                                                 display: 'grid',
@@ -374,7 +374,7 @@ const SelectInstance = () => {
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text className="dark-build-text-strong">Training Duration</Text>
+                                        <Text className="dark-build-text-gradient">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -422,7 +422,7 @@ const SelectInstance = () => {
                                     </div>
 
                                     <div>
-                                        <Text className="dark-build-text-strong">Manual Configuration</Text>
+                                        <Text className="dark-build-text-gradient">Manual Configuration</Text>
                                         <Space
                                             direction="vertical"
                                             size="middle"
@@ -584,7 +584,7 @@ const SelectInstance = () => {
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text className="dark-build-text-strong">Training Duration</Text>
+                                        <Text className="dark-build-text-gradient">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -835,7 +835,7 @@ const SelectInstance = () => {
         <>
             <style>{`
                 .dark-build-page {
-                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+                    background: linear-gradient(135deg, #0A0A1A 0%, #1A1A2E 50%, #16213E 100%);
                     min-height: 100vh;
                     padding: 24px;
                 }
@@ -847,20 +847,20 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-tabs .ant-tabs-tab:hover {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-tab-active {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-                    color: #00D4FF !important;
+                    color: #5C8DFF !important;
                     font-weight: 600 !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-ink-bar {
-                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                    background: linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%) !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-content-holder {
@@ -868,16 +868,17 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-card {
-                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.8) 0%, rgba(32, 58, 67, 0.6) 50%, rgba(44, 83, 100, 0.8) 100%);
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.9) 50%, rgba(15, 32, 39, 0.95) 100%);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(92, 141, 255, 0.3);
+                    border-radius: 20px;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(92, 141, 255, 0.15);
                 }
                 
                 .dark-build-text {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                    color: white !important;
                     font-family: 'Poppins', sans-serif !important;
+                    font-weight: 400 !important;
                 }
                 
                 .dark-build-text-strong {
@@ -886,18 +887,27 @@ const SelectInstance = () => {
                     font-weight: 600 !important;
                 }
                 
+                .dark-build-text-gradient {
+                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
                 .dark-build-slider .ant-slider-track {
-                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
+                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
                 }
                 
                 .dark-build-slider .ant-slider-handle {
-                    border-color: #00D4FF !important;
-                    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2) !important;
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
                 }
                 
                 .dark-build-slider .ant-slider-handle:hover {
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 4px rgba(101, 255, 160, 0.2) !important;
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
                 }
                 
                 .dark-build-input .ant-input-number {
@@ -908,13 +918,13 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-input .ant-input-number:hover {
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
                 }
                 
                 .dark-build-input .ant-input-number-focused {
-                    border-color: #00D4FF !important;
-                    box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2) !important;
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
                 }
                 
                 .dark-build-input .ant-input-number-input {
@@ -930,8 +940,8 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-select .ant-select-selector:hover {
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
                 }
                 
                 .dark-build-select .ant-select-selection-item {
@@ -939,21 +949,21 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-select .ant-select-arrow {
-                    color: #65FFA0 !important;
+                    color: #8B5CF6 !important;
                 }
                 
                 .dark-build-button {
-                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
-                    border: none !important;
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
                     border-radius: 12px !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
-                    box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
                 }
                 
                 .dark-build-button:hover {
-                    background: linear-gradient(135deg, #65FFA0 0%, #00D4FF 100%) !important;
-                    box-shadow: 0 6px 20px rgba(101, 255, 160, 0.4) !important;
+                    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%) !important;
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
                     transform: translateY(-2px) !important;
                 }
                 
@@ -965,23 +975,40 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-instance-card {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(101, 255, 160, 0.1) 100%);
-                    border: 1px solid rgba(0, 212, 255, 0.3);
-                    border-radius: 12px;
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+                    border: 1px solid rgba(92, 141, 255, 0.4);
+                    border-radius: 16px;
                     transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
                 }
                 
                 .dark-build-instance-card:hover {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%);
-                    border-color: #00D4FF;
-                    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
-                    transform: translateY(-2px);
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+                    border-color: #8B5CF6;
+                    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.3);
+                    transform: translateY(-4px);
                 }
                 
                 .dark-build-instance-card.selected {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(101, 255, 160, 0.3) 100%);
-                    border-color: #65FFA0;
-                    box-shadow: 0 8px 24px rgba(101, 255, 160, 0.3);
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.35) 0%, rgba(139, 92, 246, 0.35) 100%);
+                    border-color: #8B5CF6;
+                    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.4);
+                    transform: translateY(-2px);
+                }
+                
+                .dark-build-instance-card .ant-card-body {
+                    color: white !important;
+                }
+                
+                .dark-build-instance-card .ant-card-body h3 {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-instance-card .ant-card-body p {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
                 }
                 
                 .dark-build-modal .ant-modal-content {
@@ -1004,6 +1031,102 @@ const SelectInstance = () => {
                 
                 .dark-build-modal .ant-modal-body {
                     color: rgba(255, 255, 255, 0.8);
+                }
+                
+                .dark-build-statistic .ant-statistic-title {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-statistic .ant-statistic-content {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-statistic .ant-statistic-content-value {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-cost-estimator {
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+                    border: 1px solid rgba(92, 141, 255, 0.3);
+                    border-radius: 12px;
+                    padding: 16px;
+                }
+                
+                .dark-build-cost-estimator h4 {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-cost-estimator p {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .instance-size-card {
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                    border-radius: 16px !important;
+                    transition: all 0.3s ease !important;
+                    backdrop-filter: blur(10px) !important;
+                }
+                
+                .instance-size-card:hover {
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2) !important;
+                    transform: translateY(-2px) !important;
+                }
+                
+                .instance-size-card.selected {
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%) !important;
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3) !important;
+                }
+                
+                .instance-size-card .ant-card-body {
+                    color: white !important;
+                }
+                
+                .instance-size-card .ant-card-body h5 {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .instance-size-card .ant-card-body .ant-typography {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .instance-size-card .ant-collapse {
+                    background: transparent !important;
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-item {
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-header {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    background: transparent !important;
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-content {
+                    background: transparent !important;
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-content-box {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
                 }
             `}</style>
             <div className="dark-build-page">

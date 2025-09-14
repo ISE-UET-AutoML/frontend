@@ -85,6 +85,7 @@ export default function Datasets() {
                                 totalItems={totalItems}
                                 pageSize={pageSize}
                                 onPageChange={handlePageChange}
+                                onCreateDataset={() => updateDataState({ showCreator: true })}
                             />
                         </ContentContainer>
                     </Content>

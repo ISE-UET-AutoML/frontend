@@ -201,7 +201,7 @@ const DeployView = () => {
         <>
             <style>{`
                 .dark-build-page {
-                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+                    background: #01000A;
                     min-height: 100vh;
                     padding: 24px;
                 }
@@ -215,7 +215,7 @@ const DeployView = () => {
                 }
                 
                 .dark-build-title {
-                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 50%, #FFD700 100%);
+                    background: linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
@@ -235,17 +235,17 @@ const DeployView = () => {
                 }
                 
                 .dark-build-button {
-                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
-                    border: none !important;
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
                     border-radius: 12px !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
-                    box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3) !important;
+                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
                 }
                 
                 .dark-build-button:hover {
-                    background: linear-gradient(135deg, #65FFA0 0%, #00D4FF 100%) !important;
-                    box-shadow: 0 6px 20px rgba(101, 255, 160, 0.4) !important;
+                    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%) !important;
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
                     transform: translateY(-2px) !important;
                 }
                 
@@ -257,21 +257,21 @@ const DeployView = () => {
                 }
                 
                 .dark-build-deploy-card {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(101, 255, 160, 0.1) 100%);
-                    border: 1px solid rgba(0, 212, 255, 0.3);
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.1) 0%, rgba(101, 255, 160, 0.1) 100%);
+                    border: 1px solid rgba(92, 141, 255, 0.3);
                     border-radius: 12px;
                     transition: all 0.3s ease;
                 }
                 
                 .dark-build-deploy-card:hover {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%);
-                    border-color: #00D4FF;
-                    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%);
+                    border-color: #5C8DFF;
+                    box-shadow: 0 8px 24px rgba(92, 141, 255, 0.2);
                     transform: translateY(-2px);
                 }
                 
                 .dark-build-deploy-card.selected {
-                    background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(101, 255, 160, 0.3) 100%);
+                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.3) 0%, rgba(101, 255, 160, 0.3) 100%);
                     border-color: #65FFA0;
                     box-shadow: 0 8px 24px rgba(101, 255, 160, 0.3);
                 }
@@ -309,12 +309,12 @@ const DeployView = () => {
                 }
                 
                 .dark-build-steps .ant-steps-item-icon {
-                    background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
-                    border-color: #00D4FF !important;
+                    background: linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%) !important;
+                    border-color: #5C8DFF !important;
                 }
                 
                 .dark-build-steps .ant-steps-item-process .ant-steps-item-icon {
-                    background: linear-gradient(135deg, #65FFA0 0%, #FFD700 100%) !important;
+                    background: linear-gradient(90deg, #65FFA0 0%, #5C8DFF 100%) !important;
                     border-color: #65FFA0 !important;
                 }
             `}</style>

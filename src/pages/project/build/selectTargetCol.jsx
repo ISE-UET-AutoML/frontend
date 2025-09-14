@@ -107,7 +107,7 @@ const SelectTargetCol = () => {
 	<>
 		<style>{`
 			.dark-build-page {
-				background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+				background: #01000A;
 				min-height: 100vh;
 				padding: 24px;
 			}
@@ -121,7 +121,7 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-title {
-				background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 50%, #FFD700 100%);
+				background: linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%);
 				-webkit-background-clip: text;
 				-webkit-text-fill-color: transparent;
 				background-clip: text;
@@ -135,7 +135,7 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-label {
-				color: #00D4FF;
+				color: #5C8DFF;
 				font-family: 'Poppins', sans-serif;
 				font-weight: 600;
 			}
@@ -148,8 +148,8 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-select .ant-select-selector:hover {
-				border-color: #65FFA0 !important;
-				box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+				border-color: #5C8DFF !important;
+				box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
 			}
 			
 			.dark-build-select .ant-select-selection-item {
@@ -157,21 +157,21 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-select .ant-select-arrow {
-				color: #65FFA0 !important;
+				color: #5C8DFF !important;
 			}
 			
 			.dark-build-button {
-				background: linear-gradient(135deg, #00D4FF 0%, #65FFA0 100%) !important;
-				border: none !important;
+				background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+				border: 1px solid rgba(255, 255, 255, 0.2) !important;
 				border-radius: 12px !important;
 				font-family: 'Poppins', sans-serif !important;
 				font-weight: 600 !important;
-				box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3) !important;
+				box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 			}
 			
 			.dark-build-button:hover {
-				background: linear-gradient(135deg, #65FFA0 0%, #00D4FF 100%) !important;
-				box-shadow: 0 6px 20px rgba(101, 255, 160, 0.4) !important;
+				background: linear-gradient(135deg, #16213e 0%, #0f3460 100%) !important;
+				box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
 				transform: translateY(-2px) !important;
 			}
 			
@@ -182,7 +182,7 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-table thead th {
-				background: linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%) !important;
+				background: linear-gradient(135deg, rgba(92, 141, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%) !important;
 				color: white !important;
 				font-family: 'Poppins', sans-serif !important;
 				font-weight: 600 !important;
@@ -196,7 +196,7 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-table tbody tr:hover {
-				background: rgba(0, 212, 255, 0.1) !important;
+				background: rgba(92, 141, 255, 0.1) !important;
 			}
 			
 			.dark-build-table tbody tr:hover td {
@@ -204,7 +204,7 @@ const SelectTargetCol = () => {
 			}
 			
 			.dark-build-table .bg-blue-50 {
-				background: rgba(0, 212, 255, 0.2) !important;
+				background: rgba(92, 141, 255, 0.2) !important;
 			}
 			
 			.dark-build-tooltip .ant-tooltip-inner {
