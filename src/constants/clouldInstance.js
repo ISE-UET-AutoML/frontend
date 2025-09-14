@@ -148,8 +148,9 @@ export const InstanceSizeCard = ({ size, details, selected, onClick }) => (
         hoverable
         className={`instance-size-card ${selected ? 'selected' : ''}`}
         style={{
-            borderColor: selected ? details.color : '#d9d9d9',
-            backgroundColor: selected ? `${details.color}10` : 'white',
+            borderColor: selected ? '#5C8DFF' : 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: selected ? 'rgba(92, 141, 255, 0.2)' : 'rgba(0, 0, 0, 0.4)',
+            color: 'white',
         }}
         onClick={onClick}
     >
@@ -159,21 +160,25 @@ export const InstanceSizeCard = ({ size, details, selected, onClick }) => (
                 alignItems: 'center',
             }}
         >
-            <Title level={5} className="mr-10">
+            <Title level={5} className="mr-10" style={{ color: 'white' }}>
                 {details.title}
             </Title>
             {selected && (
                 <Collapse ghost>
-                    <Panel header="Detail" key="1">
+                    <Panel header="Detail" key="1" style={{ color: 'white' }}>
                         <Space direction="vertical" size="small">
-                            <Text type="secondary">
+                            <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
                                 Suitable for: {details.suitable}
                             </Text>
-                            <Text>GPU Range: {details.gpuRange}</Text>
-                            <Text>Memory: {details.memory}</Text>
+                            <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>GPU Range: {details.gpuRange}</Text>
+                            <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Memory: {details.memory}</Text>
                             <Badge
-                                color={details.color}
-                                text={`Recommended for: ${details.recommended}`}
+                                color="#5C8DFF"
+                                text={
+                                    <span style={{ color: 'gray' }}>
+                                        Recommended for: {details.recommended}
+                                    </span>
+                                }
                             />
                         </Space>
                     </Panel>
@@ -188,31 +193,45 @@ export const CostEstimator = ({ hours, gpuLevel }) => {
     const totalCost = hours * hourlyRate
 
     return (
-        <Card title="Cost Estimation" className="cost-card">
+        <Card 
+            title={<span style={{ color: 'white', fontFamily: 'Poppins', fontWeight: 600 }}>Cost Estimation</span>} 
+            className="dark-build-cost-estimator"
+            style={{
+                background: 'rgba(92, 141, 255, 0.1)',
+                border: '1px solid rgba(92, 141, 255, 0.3)',
+                borderRadius: '16px',
+            }}
+        >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 <Row justify="space-between">
                     <Col>
-                        <Text>Hourly Rate:</Text>
+                        <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Hourly Rate:</Text>
                     </Col>
                     <Col>
-                        <Text strong>${hourlyRate}/hour</Text>
+                        <Text strong style={{ color: 'white' }}>${hourlyRate}/hour</Text>
                     </Col>
                 </Row>
                 <Row justify="space-between">
                     <Col>
-                        <Text>Training Hours:</Text>
+                        <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Training Hours:</Text>
                     </Col>
                     <Col>
-                        <Text strong>{hours} hours</Text>
+                        <Text strong style={{ color: 'white' }}>{hours} hours</Text>
                     </Col>
                 </Row>
-                <Divider style={{ margin: '12px 0' }} />
+                <Divider style={{ margin: '12px 0', borderColor: 'rgba(255, 255, 255, 0.2)' }} />
                 <Row justify="space-between">
                     <Col>
-                        <Text>Estimated Total:</Text>
+                        <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>Estimated Total:</Text>
                     </Col>
                     <Col>
-                        <Text type="success" strong>
+                        <Text 
+                            style={{ 
+                                color: '#5C8DFF', 
+                                fontWeight: 600,
+                                fontSize: '18px'
+                            }}
+                        >
                             ${totalCost.toFixed(2)}
                         </Text>
                     </Col>
@@ -227,42 +246,64 @@ export const InstanceInfo = ({ formData }) => {
 
     return (
         <Card
-            title={<Title level={4}>Instance Configuration</Title>}
+            title={<Title level={4} style={{ color: 'white', fontFamily: 'Poppins', fontWeight: 600 }}>Instance Configuration</Title>}
             extra={
                 <SafetyCertificateOutlined
-                    style={{ fontSize: '24px', color: '#52c41a' }}
+                    style={{ fontSize: '24px', color: '#5C8DFF' }}
                 />
             }
-            className="instance-info-card rounded-lg shadow-sm"
+            className="dark-build-card"
+            style={{
+                background: 'rgba(0, 0, 0, 0.4)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '20px',
+            }}
         >
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 <Row gutter={[16, 16]}>
                     <Col span={12}>
-                        <Card size="small" title="Hardware Specs">
+                        <Card 
+                            size="small" 
+                            title={<span style={{ color: 'white', fontFamily: 'Poppins', fontWeight: 600 }}>Hardware Specs</span>}
+                            style={{
+                                background: 'rgba(92, 141, 255, 0.1)',
+                                border: '1px solid rgba(92, 141, 255, 0.3)',
+                                borderRadius: '12px',
+                            }}
+                        >
                             <Space direction="vertical">
-                                <Text>
-                                    <ThunderboltOutlined /> GPUs:{' '}
+                                <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                    <ThunderboltOutlined style={{ color: '#5C8DFF' }} /> GPUs:{' '}
                                     {formData.gpuNumber}x {formData.gpuName}
                                 </Text>
-                                <Text>
-                                    <HddOutlined /> Storage: {formData.disk} GB
+                                <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                    <HddOutlined style={{ color: '#5C8DFF' }} /> Storage: {formData.disk} GB
                                 </Text>
-                                <Text>
-                                    <CloudServerOutlined /> Provider:{' '}
+                                <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                    <CloudServerOutlined style={{ color: '#5C8DFF' }} /> Provider:{' '}
                                     {formData.service}
                                 </Text>
                             </Space>
                         </Card>
                     </Col>
                     <Col span={12}>
-                        <Card size="small" title="Training Details">
+                        <Card 
+                            size="small" 
+                            title={<span style={{ color: 'white', fontFamily: 'Poppins', fontWeight: 600 }}>Training Details</span>}
+                            style={{
+                                background: 'rgba(92, 141, 255, 0.1)',
+                                border: '1px solid rgba(92, 141, 255, 0.3)',
+                                borderRadius: '12px',
+                            }}
+                        >
                             <Space direction="vertical">
-                                <Text>
-                                    <ClockCircleOutlined /> Duration:{' '}
+                                <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                    <ClockCircleOutlined style={{ color: '#5C8DFF' }} /> Duration:{' '}
                                     {formData.trainingTime} hours
                                 </Text>
-                                <Text>
-                                    <DollarOutlined /> Cost: ${formData.budget}
+                                <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                    <DollarOutlined style={{ color: '#5C8DFF' }} /> Cost: ${formData.budget}
                                     /hour
                                 </Text>
                             </Space>
