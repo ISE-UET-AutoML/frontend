@@ -8,6 +8,10 @@ export const TASK_TYPE_INFO = {
         displayName: 'Text Classification',
         description: 'Classify text into predefined categories'
     },
+    MULTILABEL_TEXT_CLASSIFICATION: {
+        displayName: 'Multilabel Text Classification',
+        description: 'Assign multiple labels to each text entry'
+    },
     TABULAR_CLASSIFICATION: {
         displayName: 'Tabular Classification',
         description: 'Classify structured data in tables'
@@ -15,6 +19,10 @@ export const TASK_TYPE_INFO = {
     TABULAR_REGRESSION: {
         displayName: 'Tabular Regression',
         description: 'Predict continuous values for structured data in tables'
+    },
+    MULTILABEL_TABULAR_CLASSIFICATION: {
+        displayName: 'Multilabel Tabular Classification',
+        description: 'Assign multiple labels to each entry in structured data'
     },
     MULTIMODAL_CLASSIFICATION: {
         displayName: 'Multimodal Classification',
@@ -31,6 +39,10 @@ export const TASK_TYPE_INFO = {
     SEMANTIC_SEGMENTATION: {
         displayName: 'Semantic Segmentation',
         description: 'Segment images into different regions'
+    },
+    TIME_SERIES_FORECASTING: {
+        displayName: 'Time Series Forecasting',
+        description: 'Predict future values based on historical time series data'
     }
 };
 
@@ -42,7 +54,8 @@ export const DATASET_TASK_MAPPING = {
         'OBJECT_DETECTION',
         'SEMANTIC_SEGMENTATION'
     ],
-    TEXT: ['TEXT_CLASSIFICATION'],
-    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION'],
-    MULTIMODAL: ['MULTIMODAL_CLASSIFICATION']
+    TEXT: ['TEXT_CLASSIFICATION', 'MULTILABEL_TEXT_CLASSIFICATION'],
+    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION'],
+    MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
+    TIME_SERIES: ['TIME_SERIES_FORECASTING']
 };

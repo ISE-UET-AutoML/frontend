@@ -343,7 +343,6 @@ const ModelView = () => {
                                                     )}
                                                 </Space>
                                             ) : typeof value === "object" && value !== null ? (
-                                                // Handle nested objects
                                                 <Collapse
                                                     ghost
                                                     size="small"
@@ -380,7 +379,37 @@ const ModelView = () => {
                                                                     >
                                                                         {subKey}
                                                                     </Tag>
-                                                                    <span>{subValue?.toString() || <em>(empty)</em>}</span>
+
+                                                                    {Array.isArray(subValue) ? (
+                                                                        // Handle array values
+                                                                        <Space wrap style={{ marginLeft: 16 }}>
+                                                                            {subValue.map((item, idx) =>
+                                                                                typeof item === "object" && item !== null ? (
+                                                                                    // Array of objects
+                                                                                    <Tag
+                                                                                        key={idx}
+                                                                                        style={{
+                                                                                            minWidth: 100,
+                                                                                            textAlign: "center",
+                                                                                            borderColor: item.color,
+                                                                                            color: item.color,
+                                                                                            backgroundColor: `${item.color}20`,
+                                                                                        }}
+                                                                                    >
+                                                                                        {item.name} {item.label ? `(${item.label})` : ""}
+                                                                                    </Tag>
+                                                                                ) : (
+                                                                                    // Array of primitives
+                                                                                    <Tag color="purple" key={idx}>
+                                                                                        {item}
+                                                                                    </Tag>
+                                                                                )
+                                                                            )}
+                                                                        </Space>
+                                                                    ) : (
+                                                                        // Primitive values
+                                                                        <span>{subValue?.toString() || <em>(empty)</em>}</span>
+                                                                    )}
                                                                 </div>
                                                             ))}
                                                         </Space>
@@ -417,8 +446,8 @@ const ModelView = () => {
                         </Space>
                     )}
                 </Card>
-            </Space>
-        </div>
+            </Space >
+        </div >
     )
 }
 

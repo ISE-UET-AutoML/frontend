@@ -34,6 +34,8 @@ export default function CreateLabelProjectForm({
     const [newLabel, setNewLabel] = useState('');
     const [columnOptions, setColumnOptions] = useState([]);
     const [selectedImageColumn, setSelectedImageColumn] = useState(null); // State cho cột ảnh
+    const [selectedSeriesColumn, setSelectedSeriesColumn] = useState(null); // State cho cột chuỗi
+    const [selectedTextColumn, setSelectedTextColumn] = useState(null); // State cho cột text
     const [labelColors, setLabelColors] = useState({});
     // watch task type selection
     const selectedTaskType = Form.useWatch('taskType', form);
@@ -41,11 +43,11 @@ export default function CreateLabelProjectForm({
         ['SEMANTIC_SEGMENTATION', 'OBJECT_DETECTION'].includes(taskType);
 
     useEffect(() => {
-        if (detectedLabels?.length > 0) {
+        if (detectedLabels?.length > 0 && selectedTaskType === 'IMAGE_CLASSIFICATION') {
             console.log('Setting detected labels from folder structure:', detectedLabels);
             setLabels(detectedLabels);
         }
-    }, [detectedLabels]);
+    }, [detectedLabels,selectedTaskType]);
 
     useEffect(() => {
         // Xử lý cho dataset loại TEXT/TABULAR/MULTIMODAL với CSV
@@ -105,6 +107,8 @@ export default function CreateLabelProjectForm({
                 "is_binary_class": is_binary_class,
                 "image_column": selectedImageColumn,
                 "label_colors": labelColors,
+                "series_column": selectedSeriesColumn,
+                "text_columns": selectedTextColumn
             }
         };
         onSubmit(payload);
@@ -397,6 +401,54 @@ export default function CreateLabelProjectForm({
                     </Select>
                 </Form.Item>
 
+                {datasetType === 'TIME_SERIES' && (
+                    <Form.Item label="Series Column" required>
+                        <Select
+                            placeholder="Select series column"
+                            value={selectedSeriesColumn || undefined}
+                            onChange={setSelectedSeriesColumn}
+                        >
+                            {columnOptions.map(col => (
+                                <Option key={col.value} value={col.value}>
+                                    {col.label}
+                                </Option>
+                            ))}
+                        </Select>
+                        {!selectedSeriesColumn && (
+                            <Alert
+                                message="Please select a series column for TIME_SERIES datasets."
+                                type="warning"
+                                showIcon
+                                className="mt-2"
+                            />
+                        )}
+                    </Form.Item>
+                )}
+
+                {datasetType === 'TEXT' && (
+                    <Form.Item label="Text Column" required>
+                        <Select
+                            placeholder="Select text column"
+                            value={selectedTextColumn || undefined}
+                            onChange={setSelectedTextColumn}
+                        >
+                            {columnOptions.map(col => (
+                                <Option key={col.value} value={col.value}>
+                                    {col.label}
+                                </Option>
+                            ))}
+                        </Select>
+                        {!selectedTextColumn && (
+                            <Alert
+                                message="Please select a text column for TEXT datasets."
+                                type="warning"
+                                showIcon
+                                className="mt-2"
+                            />
+                        )}
+                    </Form.Item>
+                )}
+
                 {datasetType === 'MULTIMODAL' && (
                     <Form.Item label="Image Column" required>
                         <Select
@@ -427,12 +479,25 @@ export default function CreateLabelProjectForm({
                     ) : (columnOptions.length > 0 && !isManualLabelTask(selectedTaskType)) ? (
                         // 1. Dành cho TEXT/TABULAR/MULTIMODAL: Chọn cột từ CSV
                         <Select
-                            placeholder="Select label column"
-                            value={expectedLabels[0] || undefined}
-                            onChange={v => setLabels([v])}
+                            mode={selectedTaskType.startsWith('MULTILABEL') ? 'multiple' : undefined}
+                            placeholder={
+                                selectedTaskType.startsWith('MULTILABEL')
+                                    ? "Select one or more label columns"
+                                    : "Select a label column"
+                            }
+                            value={
+                                selectedTaskType.startsWith('MULTILABEL')
+                                    ? expectedLabels
+                                    : expectedLabels[0] || undefined
+                            }
+                            onChange={(value) => {
+                                const isMultiLabel = selectedTaskType.startsWith('MULTILABEL');
+                                setLabels(isMultiLabel ? value : [value]);
+                            }}
+                            optionLabelProp="label"
                         >
                             {columnOptions.map(col => (
-                                <Option key={col.value} value={col.value}>
+                                <Option key={col.value} value={col.value} label={col.value}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <span>{col.value}</span>
                                         <i style={{ fontSize: '0.8em', color: 'rgba(255, 255, 255, 0.6)' }}>

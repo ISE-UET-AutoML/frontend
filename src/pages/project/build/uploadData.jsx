@@ -143,21 +143,27 @@ const UploadData = () => {
 					const response = await getExportStatus(taskId)
 					const { status, result, error } = response.data
 
+                    console.log(`[pollExportStatus] Task ${taskId} → status: ${status}`);
+
                     if (status === 'SUCCESS') {
-						clearInterval(intervalId)
-						resolve(result) // Trả về kết quả khi thành công
+                        clearInterval(intervalId);
+                        console.log(`[pollExportStatus] Task ${taskId} completed. Result:`, result);
+                        resolve(result);
                     } else if (status === 'FAILURE') {
-						clearInterval(intervalId)
-						reject(new Error(error || 'Export task failed.')) // Báo lỗi
+                        clearInterval(intervalId);
+                        console.error(`[pollExportStatus] Task ${taskId} failed. Error:`, error);
+                        reject(new Error(error || 'Export task failed.'));
                     }
-                    // Nếu là PENDING, tiếp tục chờ
+                    // Nếu là PENDING thì tiếp tục chờ
                 } catch (err) {
-					clearInterval(intervalId)
-					reject(err)
-				}
-			}, 5000) // Hỏi lại mỗi 5 giây
-		})
-	}
+                    clearInterval(intervalId);
+                    console.error(`[pollExportStatus] Error checking task ${taskId}:`, err?.message || err);
+                    reject(err);
+                }
+            }, 5000); // Hỏi lại mỗi 5 giây
+        });
+    };
+
 
     const fetchProjects = async () => {
         setTableLoading(true)
@@ -213,17 +219,20 @@ const UploadData = () => {
 			const { task_id } = startResponse.data
             console.log('Export started, task ID:', startResponse)
             
-			const finalResult = await pollExportStatus(task_id)
-			message.success('Data prepared successfully!')
+            const finalResult = await pollExportStatus(task_id);
+            console.log('Export completed successfully:', finalResult);
+            message.success('Data prepared successfully!');
 
             //await uploadToS3(selectedProject.label_studio_id)      
             updateFields({
                 selectedProject,
             })
             const object = config[projectInfo.task_type]
-			navigate(
-				`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`
-			)
+            if (!object) {
+                console.error("Config not found for task type:", projectInfo.task_type);
+                return;
+            }
+            navigate(`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`)
         } catch (error) {
             console.error('Error exporting labels to S3:', error)
 			message.error('Không thể chuẩn bị dữ liệu. Vui lòng thử lại.')

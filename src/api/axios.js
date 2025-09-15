@@ -3,12 +3,26 @@ import { API_URL } from 'src/constants/api';
 import Cookies from 'universal-cookie';
 import { message } from 'antd';
 
+const cookies = new Cookies();
+
 const instance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
     withCredentials: true,
 });
 
-const refreshToken = () => instance.get(API_URL.refresh_token);
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
 
 // Request interceptor to add auth headers
 instance.interceptors.request.use(
@@ -35,56 +49,88 @@ instance.interceptors.request.use(
 );
 
 instance.interceptors.response.use(
-    async (response) => {
-        const config = response.config;
-        if (
-            config.url.indexOf('/login') >= 0 ||
-            config.url.indexOf('/refresh-token') >= 0
-        ) {
-            return response;
-        }
-        const status = response.status;
-        if (status && status === 200) {
-            if (response.msg === 'jwt expired') {
-                Cookies.remove('accessToken');
-                const { accessToken } = (await refreshToken()).data;
-                if (accessToken) {
-                    Cookies.set('accessToken', accessToken, { path: '/' });
-                    return response;
-                }
-            }
-        }
+    (response) => {
+        // Nếu phản hồi thành công (status 2xx), chỉ cần trả về response đó
         return response;
     },
-    (err) => {
-        // Ngăn chặn hiển thị uncaught error trong console
+    async (error) => {
+        const originalRequest = error.config;
+
+        // Chỉ xử lý khi lỗi là 401 Unauthorized và yêu cầu gốc chưa được thử lại
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            
+            if (isRefreshing) {
+                // Nếu đang trong quá trình làm mới token, thêm yêu cầu vào hàng đợi
+                return new Promise(function(resolve, reject) {
+                    failedQueue.push({ resolve, reject });
+                }).then(token => {
+                    originalRequest.headers['Authorization'] = 'Bearer ' + token;
+                    return instance(originalRequest);
+                });
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            try {
+                // 1. GỌI API REFRESH
+                console.log("Access Token hết hạn, đang gọi API refresh...");
+                // Sử dụng API_URL bạn đã định nghĩa
+                const { data } = await instance.post(API_URL.refresh_token); 
+                const newAccessToken = data.access_token;
+
+                // 2. CẬP NHẬT TOKEN MỚI
+                console.log("Nhận được accessToken mới:", newAccessToken);
+                cookies.set('accessToken', `<Bearer> ${newAccessToken}`, { path: '/' });
+                instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+                originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+
+                // Xử lý hàng đợi (thực thi lại các API đã bị lỗi trước đó)
+                processQueue(null, newAccessToken);
+                
+                // 3. THỬ LẠI YÊU CẦU CŨ
+                console.log("Thử lại yêu cầu gốc:", originalRequest.url);
+                return instance(originalRequest);
+
+            } catch (refreshError) {
+                console.error("Không thể làm mới token:", refreshError);
+                processQueue(refreshError, null);
+                
+                // Xóa thông tin đăng nhập và chuyển hướng về trang login
+                cookies.remove('accessToken', { path: '/' });
+                cookies.remove('refreshToken', { path: '/' });
+                window.location.href = '/login'; // Chuyển hướng cứng
+
+                return Promise.reject(refreshError);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+        // Ghi lại log lỗi cho các trường hợp khác
         console.log('API Error intercepted:', {
-            status: err.response?.status,
-            data: err.response?.data,
-            url: err.config?.url
+            status: error.response?.status,
+            data: error.response?.data,
+            url: error.config?.url
         });
 
-        return Promise.reject(err);
+        // Trả về lỗi cho các trường hợp khác (không phải 401)
+        return Promise.reject(error);
     }
 );
 
-// Global error handler cho các axios instance khác
-const setupGlobalErrorHandler = () => {
-    // Interceptor cho instance chính
-    axios.interceptors.response.use(
-        response => response,
-        error => {
-            console.log('Global axios error intercepted:', {
-                status: error.response?.status,
-                data: error.response?.data,
-                url: error.config?.url
-            });
-            return Promise.reject(error);
+// --- BỘ CHẶN YÊU CẦU (REQUEST INTERCEPTOR) ---
+// Đảm bảo mọi yêu cầu đi đều có accessToken mới nhất từ cookie
+instance.interceptors.request.use(
+    (config) => {
+        const accessToken = cookies.get('accessToken');
+        if (accessToken) {
+            config.headers['Authorization'] = accessToken;
         }
-    );
-};
-
-// Khởi tạo global error handler
-setupGlobalErrorHandler();
-
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 export default instance;

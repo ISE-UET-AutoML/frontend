@@ -26,6 +26,13 @@ const config = {
         predictView: TextPredict,
         liveInferView: TextLiveInfer,
     },
+    MUTILABEL_TEXT_CLASSIFICATION: {
+        folder: UploadTypes.CSV_SINGLE,
+        afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TextPredict,
+        liveInferView: TextLiveInfer,
+    },
     TABULAR_CLASSIFICATION: {
         folder: UploadTypes.CSV_SINGLE,
         afterUploadURL: 'selectInstance',
@@ -36,6 +43,20 @@ const config = {
     TABULAR_REGRESSION: {
         folder: UploadTypes.CSV_SINGLE,
         afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TabularPredict,
+        liveInferView: EmptyLiveInfer,
+    },
+    MULTILABEL_TABULAR_CLASSIFICATION: {
+        folder: UploadTypes.CSV_SINGLE,
+        afterUploadURL: 'selectInstance',
+        labelingView: LabelingTextClassification,
+        predictView: TabularPredict,
+        liveInferView: EmptyLiveInfer,
+    },
+    TIME_SERIES_FORECASTING: {
+        afterUploadURL: 'selectInstance',
+        folder: UploadTypes.CSV_SINGLE,
         labelingView: LabelingTextClassification,
         predictView: TabularPredict,
         liveInferView: EmptyLiveInfer,
