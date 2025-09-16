@@ -170,51 +170,162 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
     };
 
     return (
-        <Modal
-            title="Create New Dataset"
-            open={visible}
-            onCancel={handleCancel}
-            footer={null}
-            width={800}
-            destroyOnClose
-            centered
-        >
-            {visible && (isLoading ? (
-                <div style={{ textAlign: 'center', padding: '50px 0' }}>
-                    <Spin size="large" />
-                    <p>Processing dataset, please wait...</p>
-                </div>
-            ) : (
-                <>
-                    <Steps
-                        current={currentStep}
-                        items={[{ title: 'Create Dataset' }, { title: 'Create Label Project' }]}
-                        style={{ marginBottom: 24 }}
-                    />
-                    {currentStep === 0 ? (
-                        <CreateDatasetForm
-                            onNext={handleNext}
-                            onCancel={handleCancel}
-                            initialValues={datasetFormValues}
-                            initialFiles={datasetFormValues?.files || []}
-                            initialDetectedLabels={datasetFormValues?.detectedLabels || []}
-                            initialCsvMetadata={datasetFormValues?.csvMetadata || null}
+        <>
+            <style>{`
+                .dark-modal .ant-modal-content {
+                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    border-radius: 16px !important;
+                }
+                
+                .dark-modal .ant-modal-header {
+                    background: transparent !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                }
+                
+                .dark-modal .ant-modal-title {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-modal .ant-modal-close {
+                    color: white !important;
+                }
+                
+                .dark-modal .ant-modal-close:hover {
+                    color: #65FFA0 !important;
+                }
+                
+                .dark-modal .ant-steps-item-title {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-modal .ant-steps-item-description {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                }
+                
+                .dark-modal .ant-steps-item-icon {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: rgba(255, 255, 255, 0.3) !important;
+                }
+                
+                .dark-modal .ant-steps-item-icon .ant-steps-icon {
+                    color: white !important;
+                }
+                
+                .dark-modal .ant-steps-item-process .ant-steps-item-icon {
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+                    border-color: #65FFA0 !important;
+                }
+                
+                .dark-modal .ant-steps-item-finish .ant-steps-item-icon {
+                    background: #65FFA0 !important;
+                    border-color: #65FFA0 !important;
+                }
+                
+                .dark-modal .ant-steps-item-finish .ant-steps-icon {
+                    color: #0F2027 !important;
+                }
+                
+                /* Hide scrollbar but keep scrolling functionality */
+                .dark-modal .ant-modal-body {
+                    scrollbar-width: none !important; /* Firefox */
+                    -ms-overflow-style: none !important; /* IE and Edge */
+                }
+                
+                .dark-modal .ant-modal-body::-webkit-scrollbar {
+                    display: none !important; /* Chrome, Safari, Opera */
+                }
+                
+                /* Hide scrollbar for the entire modal content */
+                .dark-modal {
+                    scrollbar-width: none !important; /* Firefox */
+                    -ms-overflow-style: none !important; /* IE and Edge */
+                }
+                
+                .dark-modal::-webkit-scrollbar {
+                    display: none !important; /* Chrome, Safari, Opera */
+                }
+            `}</style>
+            <Modal
+                title="Create New Dataset"
+                open={visible}
+                onCancel={handleCancel}
+                footer={null}
+                width={800}
+                destroyOnClose
+                centered
+                className="dark-modal"
+                styles={{
+                    content: {
+                        background: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '16px',
+                    },
+                    header: {
+                        background: 'transparent',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                    },
+                    title: {
+                        color: 'white',
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 600,
+                    },
+                    close: {
+                        color: 'white',
+                    }
+                }}
+            >
+                {visible && (isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '50px 0' }}>
+                        <Spin size="large" />
+                        <p style={{ color: 'white', fontFamily: 'Poppins, sans-serif', marginTop: '16px' }}>
+                            Processing dataset, please wait...
+                        </p>
+                    </div>
+                ) : (
+                    <>
+                        <Steps
+                            current={currentStep}
+                            items={[
+                                { 
+                                    title: 'Create Dataset',
+                                    description: 'Upload and configure your data'
+                                }, 
+                                { 
+                                    title: 'Create Label Project',
+                                    description: 'Set up labeling configuration'
+                                }
+                            ]}
+                            style={{ marginBottom: 24 }}
                         />
-                    ) : (
-                        <CreateLabelProjectForm
-                            onSubmit={handleSubmit}
-                            onBack={handleBack}
-                            onCancel={handleCancel}
-                            loading={isLoading}
-                            datasetType={datasetFormValues?.dataset_type}
-                            initialValues={{ name: datasetFormValues?.title }}
-                            detectedLabels={datasetFormValues?.detectedLabels || []}
-                            csvMetadata={datasetFormValues?.csvMetadata}
-                        />
-                    )}
-                </>
-            ))}
-        </Modal>
+                        {currentStep === 0 ? (
+                            <CreateDatasetForm
+                                onNext={handleNext}
+                                onCancel={handleCancel}
+                                initialValues={datasetFormValues}
+                                initialFiles={datasetFormValues?.files || []}
+                                initialDetectedLabels={datasetFormValues?.detectedLabels || []}
+                                initialCsvMetadata={datasetFormValues?.csvMetadata || null}
+                            />
+                        ) : (
+                            <CreateLabelProjectForm
+                                onSubmit={handleSubmit}
+                                onBack={handleBack}
+                                onCancel={handleCancel}
+                                loading={isLoading}
+                                datasetType={datasetFormValues?.dataset_type}
+                                initialValues={{ name: datasetFormValues?.title }}
+                                detectedLabels={datasetFormValues?.detectedLabels || []}
+                                csvMetadata={datasetFormValues?.csvMetadata}
+                            />
+                        )}
+                    </>
+                ))}
+            </Modal>
+        </>
     );
 };
 

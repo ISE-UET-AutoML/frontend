@@ -1,5 +1,5 @@
 import React from 'react'
-import { CubeTransparentIcon } from '@heroicons/react/24/outline'
+import { CubeTransparentIcon, StarIcon, TrashIcon } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -40,92 +40,46 @@ export default function ProjectCard({ project, getProjects }) {
 	return (
 		<div
 			key={project.id}
-			className="group relative rounded-lg bg-white shadow-md transition duration-300 hover:shadow-lg cursor-pointer"
-			style={{
-				border: '1px solid #e8e8e8',
-				overflow: 'hidden',
-			}}
+			className="group bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] rounded-2xl p-6 shadow-lg w-[380px] text-white font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
 			onClick={handleCardClick}
-			onMouseEnter={(e) => {
-				e.currentTarget.style.transform = 'translateY(-5px)'
-				e.currentTarget.style.boxShadow =
-					'0 4px 12px rgba(0, 0, 0, 0.1)'
-			}}
-			onMouseLeave={(e) => {
-				e.currentTarget.style.transform = 'translateY(0)'
-				e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-			}}
 		>
-			<div className="p-6 flex items-center">
-				<div
-					className="group rounded-[12px] p-3 ring-4 ring-white transition duration-450"
-					style={{
-						backgroundColor: '#e6f4ff',
-						color: '#1677ff',
-					}}
-				>
+			{/* Header */}
+			<div className="flex justify-between items-start mb-4">
+				<div className="w-20 h-20 rounded-xl bg-white/10 shadow-md flex items-center justify-center">
 					<CubeTransparentIcon
-						className="h-12 w-12 transition-transform group-hover:rotate-45"
+						className="h-10 w-10 text-white transition-transform duration-500 ease-out group-hover:rotate-45"
 						aria-hidden="true"
 					/>
 				</div>
-
-				<Button
-					type="text"
-					icon={
-						<DeleteOutlined
-							style={{ fontSize: 18, color: '#ff4d4f' }}
-						/>
-					}
-					onClick={(e) => handleDelete(e, project.id)}
-					className="ml-auto hover:bg-red-100"
-					style={{
-						width: 48,
-						height: 48,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						borderRadius: 12,
-						backgroundColor: '#fff1f0',
-						transition:
-							'transform 0.2s ease, background-color 0.3s ease',
-						zIndex: 1,
-					}}
-				/>
+				<div className="flex gap-3">
+					<button className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
+						<StarIcon className="h-5 w-5 text-white" />
+					</button>
+					<button 
+						className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-red-400 transition"
+						onClick={(e) => handleDelete(e, project.id)}
+					>
+						<TrashIcon className="h-5 w-5 text-white" />
+					</button>
+				</div>
 			</div>
 
-			<div
-				className="mt-5 p-6 transition duration-300"
+			{/* Title & Description */}
+			<h2 className="text-xl font-semibold mb-2">{project?.name}</h2>
+			<p className="text-sm text-gray-300 leading-relaxed mb-4">
+				{project?.description}
+			</p>
+
+			{/* Tag */}
+			<span 
+				className="px-4 py-1 text-sm font-semibold rounded-full text-white shadow-md"
 				style={{
-					backgroundColor: '#fafafa',
+					background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
+					border: `1px solid rgba(255, 255, 255, 0.2)`,
 				}}
 			>
-				<div className="flex w-full justify-between items-center">
-					<Title level={4} style={{ margin: 0, color: '#000000' }}>
-						{project?.name}
-					</Title>
-					{project.createdAt && (
-						<Text style={{ fontSize: 12, color: '#666666' }}>
-							Created {dayjs(project.createdAt).fromNow()}
-						</Text>
-					)}
-				</div>
-				<div className="flex w-full justify-between items-center mt-2">
-					<Text style={{ fontSize: 14, color: '#444444' }}>
-						{project?.description}
-					</Text>
-					<Tag
-						style={{
-							fontSize: 12,
-							backgroundColor: tagColor.bg,
-							color: tagColor.text,
-							border: `1px solid ${tagColor.border}`,
-						}}
-					>
-						{project?.task_type}
-					</Tag>
-				</div>
-			</div>
+				{project?.task_type}
+			</span>
 		</div>
 	)
 }

@@ -45,15 +45,24 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
     const fetchDatasets = async () => {
         try {
             const response = await getDatasets()
+            console.log('API Response:', response)
+            console.log('Response data:', response.data)
+            console.log('Response data type:', typeof response.data)
+            console.log('Is array:', Array.isArray(response.data))
+            
             // Giữ nguyên key snake_case trong columns, chỉ chuẩn hoá unique_class_count -> uniqueClassCount khi cần
-            setDatasets(response.data)
+            const datasets = Array.isArray(response.data) ? response.data : (Array.isArray(response.data?.data) ? response.data.data : [])
+            console.log('Final datasets:', datasets)
+            setDatasets(datasets)
         } catch (error) {
             console.error('Error fetching datasets:', error)
+            setDatasets([])
         }
     }
 
     useEffect(() => {
-        const selectedDataset = datasets.find(ds => ds.id === selectedDatasetId)
+        const datasetsArray = Array.isArray(datasets) ? datasets : []
+        const selectedDataset = datasetsArray.find(ds => ds.id === selectedDatasetId)
         setLabels([])
         setColumnOptions([])
 
@@ -173,7 +182,12 @@ export default function CreateLabelProjectModal({ visible, onCancel, onCreate })
                     {({ getFieldValue }) => {
                         const selectedType = getFieldValue('taskType')
                         const requiredDataType = selectedType ? TASK_TYPES[selectedType]?.dataType : null
-                        const filtered = datasets.filter(ds => ds.dataType === requiredDataType)
+                        console.log('Datasets in filter:', datasets)
+                        console.log('Datasets type:', typeof datasets)
+                        console.log('Is datasets array:', Array.isArray(datasets))
+                        const datasetsArray = Array.isArray(datasets) ? datasets : []
+                        console.log('DatasetsArray:', datasetsArray)
+                        const filtered = datasetsArray.filter(ds => ds.dataType === requiredDataType)
 
                         const getStatusColor = status => {
                             switch (status) {

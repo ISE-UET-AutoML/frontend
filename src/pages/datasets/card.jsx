@@ -81,7 +81,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 
     const isClickable = processingStatus === 'COMPLETED'
     const statusConfig = PROCESSING_STATUS[processingStatus] || PROCESSING_STATUS.PROCESSING
-    const lsProjectId = dataset.lsProject?.labelStudioId || null
+    const lsProjectId = dataset.ls_project?.label_studio_id || dataset.lsProject?.labelStudioId || null
     const tagColor = DATASET_TYPES[dataType]?.card || {
         bg: '#f0f0f0',
         text: '#000',
@@ -98,8 +98,9 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
         //if (isClickable) {
         //	window.location.href = PATHS.DATASET_VIEW(dataset.id)
         //}
+        console.log(lsProjectId);
         if (lsProjectId) {
-            const url = `http://34.1.194.168:3003/projects/${lsProjectId}`;
+            const url = `${REACT_APP_LABEL_STUDIO_URL}/projects/${lsProjectId}`;
             window.open(url, '_blank');
         } else {
             console.error("Label Studio ID is missing!");

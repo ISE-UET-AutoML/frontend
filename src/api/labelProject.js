@@ -64,7 +64,7 @@ export const logoutLabelStudio = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-        const response = await fetch(`http://34.1.194.168:3003/user/logout/`, {
+        const response = await fetch(`${process.env.REACT_APP_LABEL_STUDIO_URL}/user/logout/`, {
             credentials: 'include',
             headers: {
                 'X-CSRFToken': csrfToken,

@@ -157,10 +157,32 @@ export default function CreateDatasetForm({
             label: 'File Upload',
             children: (
                 <>
-                    <label htmlFor="file" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px', border: '2px dashed #d9d9d9', borderRadius: '8px', cursor: 'pointer', marginBottom: '16px' }}>
+                    <label htmlFor="file" style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        height: '120px', 
+                        border: '2px dashed rgba(255, 255, 255, 0.3)', 
+                        borderRadius: '12px', 
+                        cursor: 'pointer', 
+                        marginBottom: '16px',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.borderColor = '#65FFA0'
+                        e.target.style.background = 'rgba(101, 255, 160, 0.1)'
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+                        e.target.style.background = 'rgba(255, 255, 255, 0.05)'
+                    }}
+                    >
                         <div style={{ textAlign: 'center' }}>
-                            <FolderOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
-                            <p style={{ marginTop: '8px' }}>Drag and drop a folder or click to upload</p>
+                            <FolderOutlined style={{ fontSize: '48px', color: '#65FFA0' }} />
+                            <p style={{ marginTop: '8px', color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                Drag and drop a folder or click to upload
+                            </p>
                         </div>
                         <input 
                             type="file" 
@@ -173,18 +195,38 @@ export default function CreateDatasetForm({
                             onChange={handleFileChange}
                         />
                     </label>
-                    <div>
-                        <span>{files.length} Files</span>
-                        <span style={{ marginLeft: '8px', color: '#8c8c8c' }}>({totalKbytes} kB)</span>
+                    <div style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                        <span style={{ fontWeight: '500' }}>{files.length} Files</span>
+                        <span style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.7)' }}>({totalKbytes} kB)</span>
                     </div>
                     {files.length > 0 && (
-                        <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        <div style={{ 
+                            maxHeight: '200px', 
+                            overflowY: 'auto',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            borderRadius: '8px',
+                            padding: '8px',
+                            marginTop: '12px'
+                        }}>
                             {files.map((file) => (
-                                <div key={file.path} style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #f0f0f0', padding: '8px 0' }}>
-                                    <FileOutlined style={{ marginRight: '8px' }} />
-                                    <span>{file.path}</span>
-                                    <span style={{ marginLeft: '8px', color: '#8c8c8c' }}>({(file.fileObject?.size / 1024 || 0).toFixed(2)} kB)</span>
-                                    <Button type="text" icon={<DeleteOutlined />} onClick={() => handleDeleteFile(file.fileId)} />
+                                <div key={file.path} style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
+                                    padding: '8px 0',
+                                    color: 'white'
+                                }}>
+                                    <FileOutlined style={{ marginRight: '8px', color: '#65FFA0' }} />
+                                    <span style={{ flex: 1, fontFamily: 'Poppins, sans-serif' }}>{file.path}</span>
+                                    <span style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}>
+                                        ({(file.fileObject?.size / 1024 || 0).toFixed(2)} kB)
+                                    </span>
+                                    <Button 
+                                        type="text" 
+                                        icon={<DeleteOutlined />} 
+                                        onClick={() => handleDeleteFile(file.fileId)}
+                                        style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -222,56 +264,349 @@ export default function CreateDatasetForm({
     };
 
     return (
-        <Form
-            form={form}
-            layout="vertical"
-            initialValues={initialValues}
-            onFinish={handleSubmit}
-        >
-            <Form.Item label="Title" name="title" rules={[{ required: true, message: 'Please enter a title' }]}>
-                <Input placeholder="Enter dataset title" />
-            </Form.Item>
+        <>
+            <style>{`
+                .dark-form .ant-form-item-label > label {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 500 !important;
+                }
+                
+                .dark-form .ant-input {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-form .ant-input,
+                .dark-form textarea.ant-input {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form .ant-input::placeholder {
+                    color: rgba(255, 255, 255, 0.5) !important;
+                }
+                
+                .dark-form .ant-input:hover {
+                    border-color: rgba(255, 255, 255, 0.4) !important;
+                }
+                
+                .dark-form .ant-input:focus {
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-form .ant-input:focus,
+                .dark-form .ant-input-focused,
+                .dark-form textarea.ant-input:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    color: white !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-form .ant-input-filled {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form .ant-input-filled:focus,
+                .dark-form .ant-input-filled:focus-within {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                /* Specific TextArea styling */
+                .dark-form .ant-input[type="textarea"],
+                .dark-form textarea,
+                .dark-form .ant-input-textarea {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    border-radius: 12px !important;
+                    resize: vertical !important;
+                }
+                
+                .dark-form .ant-input[type="textarea"]:focus,
+                .dark-form textarea:focus,
+                .dark-form .ant-input-textarea:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    color: white !important;
+                }
+                
+                .dark-form .ant-input[type="textarea"]:hover,
+                .dark-form textarea:hover,
+                .dark-form .ant-input-textarea:hover {
+                    border-color: rgba(255, 255, 255, 0.4) !important;
+                }
+                
+                /* Count display styling */
+                .dark-form .ant-input-textarea-show-count::after {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                /* Override any Ant Design defaults */
+                .dark-form .ant-input-textarea .ant-input {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form .ant-input-textarea .ant-input:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    color: white !important;
+                }
+                
+                /* Force override for all textarea elements */
+                .dark-form textarea {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form textarea:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    color: white !important;
+                }
+                
+                /* Target the specific Ant Design TextArea structure */
+                .dark-form .ant-input-textarea .ant-input {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                    box-shadow: none !important;
+                }
+                
+                .dark-form .ant-input-textarea .ant-input:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    color: white !important;
+                }
+                
+                .dark-form .ant-input-textarea .ant-input:hover {
+                    border-color: rgba(255, 255, 255, 0.4) !important;
+                }
+                
+                /* Override the wrapper div background */
+                .dark-form .ant-input-textarea {
+                    background: transparent !important;
+                }
+                
+                /* Target the count wrapper */
+                .dark-form .ant-input-textarea-show-count .ant-input {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form .ant-input-textarea-show-count .ant-input:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    color: white !important;
+                }
+                
+                /* Most aggressive targeting - override all possible Ant Design classes */
+                .dark-form .ant-input-textarea-show-count,
+                .dark-form .ant-input-textarea-show-count .ant-input,
+                .dark-form .ant-input-textarea-show-count textarea {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form .ant-input-textarea-show-count:focus,
+                .dark-form .ant-input-textarea-show-count .ant-input:focus,
+                .dark-form .ant-input-textarea-show-count textarea:focus {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: #65FFA0 !important;
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                    color: white !important;
+                }
+                
+                /* Remove any default box-shadow that might create rectangular overlay */
+                .dark-form .ant-input-textarea-show-count .ant-input:focus,
+                .dark-form .ant-input-textarea .ant-input:focus,
+                .dark-form textarea:focus {
+                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                }
+                
+                .dark-form .ant-select-selector {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                }
+                
+                .dark-form .ant-select-selection-item {
+                    color: white !important;
+                }
+                
+                .dark-form .ant-select-selection-placeholder {
+                    color: rgba(255, 255, 255, 0.5) !important;
+                }
+                
+                .dark-form .ant-select-arrow {
+                    color: white !important;
+                }
+                
+                .dark-form .ant-radio-wrapper {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-form .ant-radio-inner {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border-color: rgba(255, 255, 255, 0.3) !important;
+                }
+                
+                .dark-form .ant-radio-checked .ant-radio-inner {
+                    background: #65FFA0 !important;
+                    border-color: #65FFA0 !important;
+                }
+                
+                .dark-form .ant-tabs-tab {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-form .ant-tabs-tab-active {
+                    color: white !important;
+                }
+                
+                .dark-form .ant-tabs-ink-bar {
+                    background: #65FFA0 !important;
+                }
+                
+                .dark-form .ant-tabs-content-holder {
+                    background: transparent !important;
+                }
+                
+                .dark-form .ant-btn-primary {
+                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 500 !important;
+                }
+                
+                .dark-form .ant-btn-primary:hover {
+                    background: linear-gradient(135deg, #2a2a3e 0%, #26314e 50%, #1f4460 100%) !important;
+                    border-color: #65FFA0 !important;
+                    transform: translateY(-1px) !important;
+                }
+                
+                .dark-form .ant-btn-default {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-form .ant-btn-default:hover {
+                    background: rgba(255, 255, 255, 0.2) !important;
+                    border-color: rgba(255, 255, 255, 0.4) !important;
+                    color: white !important;
+                }
+                
+                .dark-form .ant-upload-drag {
+                    background: rgba(255, 255, 255, 0.05) !important;
+                    border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-form .ant-upload-drag:hover {
+                    border-color: #65FFA0 !important;
+                    background: rgba(101, 255, 160, 0.1) !important;
+                }
+                
+                .dark-form .ant-upload-drag .ant-upload-drag-icon {
+                    color: #65FFA0 !important;
+                }
+                
+                .dark-form .ant-upload-drag .ant-upload-text {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-form .ant-upload-drag .ant-upload-hint {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+            `}</style>
+            <Form
+                form={form}
+                layout="vertical"
+                initialValues={initialValues}
+                onFinish={handleSubmit}
+                className="dark-form"
+            >
+                <Form.Item label="Title" name="title" rules={[{ required: true, message: 'Please enter a title' }]}>
+                    <Input placeholder="Enter dataset title" />
+                </Form.Item>
 
-            <Form.Item name="description" label="Description">
-                <TextArea rows={3} maxLength={500} showCount />
-            </Form.Item>
+                <Form.Item name="description" label="Description">
+                    <TextArea rows={3} maxLength={500} showCount />
+                </Form.Item>
 
-            <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select a type' }]}>
-                <Select
-                    placeholder="Select dataset type"
-                    onChange={(value) => {
-                        setDatasetType(value);
-                        if (value === 'MULTIMODAL') {
-                            message.info('Upload folder with images and CSV for MULTIMODAL.');
-                        }
-                    }}
-                >
-                    {Object.entries(DATASET_TYPES).map(([key, value]) => (
-                        <Option key={key} value={key}>{value.type}</Option>
-                    ))}
-                </Select>
-            </Form.Item>
 
-            <Form.Item label="Service">
-                <Radio.Group value={service} onChange={(e) => setService(e.target.value)}>
-                    <Radio value="AWS_S3">AWS S3</Radio>
-                    <Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
-                </Radio.Group>
-            </Form.Item>
+                <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select a type' }]}>
+                    <Select
+                        placeholder="Select dataset type"
+                        onChange={(value) => {
+                            setDatasetType(value);
+                            if (value === 'MULTIMODAL') {
+                                message.info('Upload folder with images and CSV for MULTIMODAL.');
+                            }
+                        }}
+                    >
+                        {Object.entries(DATASET_TYPES).map(([key, value]) => (
+                            <Option key={key} value={key}>{value.type}</Option>
+                        ))}
+                    </Select>
+                </Form.Item>
 
-            <Form.Item label="Bucket Name">
-                <Select value={bucketName} onChange={(value) => setBucketName(value)}>
-                    <Option value="user-private-dataset">user-private-dataset</Option>
-                    <Option value="bucket-2">bucket-2</Option>
-                </Select>
-            </Form.Item>
+                <Form.Item label="Service">
+                    <Radio.Group value={service} onChange={(e) => setService(e.target.value)}>
+                        <Radio value="AWS_S3">AWS S3</Radio>
+                        <Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
+                    </Radio.Group>
+                </Form.Item>
 
-            <Tabs defaultActiveKey="file" items={tabItems} />
+                <Form.Item label="Bucket Name">
+                    <Select value={bucketName} onChange={(value) => setBucketName(value)}>
+                        <Option value="user-private-dataset">user-private-dataset</Option>
+                        <Option value="bucket-2">bucket-2</Option>
+                    </Select>
+                </Form.Item>
 
-            <Form.Item>
-                <Button type="primary" htmlType="submit">Next</Button>
-                <Button style={{ marginLeft: 8 }} onClick={onCancel}>Cancel</Button>
-            </Form.Item>
-        </Form>
+                <Tabs defaultActiveKey="file" items={tabItems} />
+
+                <Form.Item>
+                    <Button type="primary" htmlType="submit">Next</Button>
+                    <Button style={{ marginLeft: 8 }} onClick={onCancel}>Cancel</Button>
+                </Form.Item>    
+            </Form>
+        </>
     );
 }

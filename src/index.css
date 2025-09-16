@@ -1,6 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import universal typography */
+@import './styles/typography.css';
+
+/* Ensure full-page dark background and prevent white gaps */
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+  background-color: #01000A;
+}
+
+/* Remove default spacing and overscroll bounce */
+html, body {
+  margin: 0;
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
+  background-color: #01000A;
+}
+
+/* Make Ant Design layout transparent by default to show dark bg */
+.ant-layout,
+.ant-layout-content,
+.ant-layout-header,
+.ant-layout-footer,
+.ant-layout-sider {
+  background: transparent !important;
+}
+
+/* Ensure layout fills the viewport height */
+.ant-layout {
+  min-height: 100vh;
+}
  
 @layer base {
   :root {

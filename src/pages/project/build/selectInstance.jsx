@@ -233,14 +233,14 @@ const SelectInstance = () => {
                 >
                     <Row gutter={[24, 24]}>
                         <Col span={16}>
-                            <Card className="rounded-lg shadow-sm">
+                            <Card className="dark-build-card rounded-lg shadow-sm">
                                 <Space
                                     direction="vertical"
                                     size="large"
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text strong>Training Duration</Text>
+                                        <Text className="dark-build-text-gradient ">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -249,6 +249,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <Slider
+                                                className="dark-build-slider"
                                                 style={{ width: '85%' }}
                                                 min={0}
                                                 max={24}
@@ -265,6 +266,7 @@ const SelectInstance = () => {
                                                 }}
                                             />
                                             <InputNumber
+                                                className="dark-build-input"
                                                 style={{
                                                     width: '15%',
                                                     marginLeft: '10px',
@@ -276,17 +278,17 @@ const SelectInstance = () => {
                                                 onChange={
                                                     handleTrainingTimeChange
                                                 }
-                                                addonAfter="Hours"
+                                                addonAfter={<span style={{ color: 'white' }}>Hours</span>}
                                             />
                                         </div>
-                                        <Text type="secondary">
+                                        <Text className="dark-build-text">
                                             Recommended: 1-24 hours for most
                                             models
                                         </Text>
                                     </div>
 
                                     <div>
-                                        <Text strong>Performance Level</Text>
+                                        <Text className="dark-build-text-gradient">Performance Level</Text>
                                         <div
                                             style={{
                                                 display: 'grid',
@@ -344,6 +346,7 @@ const SelectInstance = () => {
                                     onClick={handleStartTraining}
                                     loading={isProcessing}
                                     disabled={!formData.trainingTime || isProcessing}
+                                    className="dark-build-button"
                                 >
                                     {isProcessing ? 'Finding instance...' : 'Start Training'}
                                 </Button>
@@ -364,14 +367,14 @@ const SelectInstance = () => {
                 >
                     <Row gutter={[24, 24]}>
                         <Col span={16}>
-                            <Card className="rounded-lg shadow-sm">
+                            <Card className="dark-build-card rounded-lg shadow-sm">
                                 <Space
                                     direction="vertical"
                                     size="large"
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text strong>Training Duration</Text>
+                                        <Text className="dark-build-text-gradient">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -380,6 +383,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <Slider
+                                                className="dark-build-slider"
                                                 style={{ width: '85%' }}
                                                 min={0}
                                                 max={24}
@@ -396,6 +400,7 @@ const SelectInstance = () => {
                                                 }}
                                             />
                                             <InputNumber
+                                                className="dark-build-input"
                                                 style={{
                                                     width: '15%',
                                                     marginLeft: '10px',
@@ -407,17 +412,17 @@ const SelectInstance = () => {
                                                 onChange={
                                                     handleTrainingTimeChange
                                                 }
-                                                addonAfter="Hours"
+                                                addonAfter={<span style={{ color: 'white' }}>Hours</span>}
                                             />
                                         </div>
-                                        <Text type="secondary">
+                                        <Text className="dark-build-text">
                                             Recommended: 1-24 hours for most
                                             models
                                         </Text>
                                     </div>
 
                                     <div>
-                                        <Text strong>Manual Configuration</Text>
+                                        <Text className="dark-build-text-gradient">Manual Configuration</Text>
                                         <Space
                                             direction="vertical"
                                             size="middle"
@@ -427,8 +432,9 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <div>
-                                                <Text>Service Provider</Text>
+                                                <Text className="dark-build-text">Service Provider</Text>
                                                 <Select
+                                                    className="dark-build-select"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -453,8 +459,9 @@ const SelectInstance = () => {
                                             </div>
 
                                             <div>
-                                                <Text>GPU Type</Text>
+                                                <Text className="dark-build-text">GPU Type</Text>
                                                 <Select
+                                                    className="dark-build-select"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -477,8 +484,9 @@ const SelectInstance = () => {
                                             </div>
 
                                             <div>
-                                                <Text>Number of GPUs</Text>
+                                                <Text className="dark-build-text">Number of GPUs</Text>
                                                 <InputNumber
+                                                    className="dark-build-input"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -489,13 +497,16 @@ const SelectInstance = () => {
                                                     onChange={handleManualConfigChange(
                                                         'gpuNumber'
                                                     )}
-                                                    addonAfter="GPUs"
+                                                    addonAfter={
+                                                        <span style={{ color: 'white' }}>GPUs</span>
+                                                    }
                                                 />
                                             </div>
 
                                             <div>
-                                                <Text>Disk Space</Text>
+                                                <Text className="dark-build-text">Disk Space</Text>
                                                 <InputNumber
+                                                    className="dark-build-input"
                                                     style={{
                                                         width: '100%',
                                                         marginTop: 8,
@@ -506,7 +517,9 @@ const SelectInstance = () => {
                                                     onChange={handleManualConfigChange(
                                                         'disk'
                                                     )}
-                                                    addonAfter="GB"
+                                                    addonAfter={
+                                                        <span style={{ color: 'white' }}>GB</span>
+                                                    }
                                                 />
                                             </div>
                                         </Space>
@@ -568,14 +581,14 @@ const SelectInstance = () => {
                 >
                     <Row gutter={[24, 24]}>
                         <Col span={16}>
-                            <Card className="rounded-lg shadow-sm">
+                            <Card className="dark-build-card rounded-lg shadow-sm">
                                 <Space
                                     direction="vertical"
                                     size="large"
                                     style={{ width: '100%' }}
                                 >
                                     <div>
-                                        <Text strong>Training Duration</Text>
+                                        <Text className="dark-build-text-gradient">Training Duration</Text>
                                         <div
                                             style={{
                                                 display: 'flex',
@@ -584,6 +597,7 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <Slider
+                                                className="dark-build-slider"
                                                 style={{ width: '85%' }}
                                                 min={0}
                                                 max={24}
@@ -600,6 +614,7 @@ const SelectInstance = () => {
                                                 }}
                                             />
                                             <InputNumber
+                                                className="dark-build-input"
                                                 style={{
                                                     width: '15%',
                                                     marginLeft: '10px',
@@ -611,10 +626,10 @@ const SelectInstance = () => {
                                                 onChange={
                                                     handleTrainingTimeChange
                                                 }
-                                                addonAfter="Hours"
+                                                addonAfter={<span style={{ color: 'white' }}>Hours</span>}
                                             />
                                         </div>
-                                        <Text type="secondary">
+                                        <Text className="dark-build-text">
                                             Recommended: 1-24 hours for most
                                             models
                                         </Text>
@@ -629,8 +644,9 @@ const SelectInstance = () => {
                                             }}
                                         >
                                             <div>
-                                                <Text>SSH Public Key</Text>
+                                                <Text className="dark-build-text">SSH Public Key</Text>
                                                 <Input.TextArea
+                                                    className="dark-build-input"
                                                     value={sshKey}
                                                     rows={2}
                                                     readOnly
@@ -647,8 +663,9 @@ const SelectInstance = () => {
                                                 </Button>
                                             </div>
                                             <div>
-                                                <Text>Instance ID</Text>
+                                                <Text className="dark-build-text">Instance ID</Text>
                                                 <Input
+                                                    className="dark-build-input"
                                                     value={
                                                         infrastructureData.id
                                                     }
@@ -662,8 +679,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>SSH Port</Text>
+                                                <Text className="dark-build-text">SSH Port</Text>
                                                 <InputNumber
+                                                    className="dark-build-input"
                                                     value={
                                                         infrastructureData.sshPort
                                                     }
@@ -680,8 +698,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Public IP</Text>
+                                                <Text className="dark-build-text">Public IP</Text>
                                                 <Input
+                                                    className="dark-build-input"
                                                     value={
                                                         infrastructureData.publicIP
                                                     }
@@ -695,8 +714,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Quality Presets</Text>
+                                                <Text className="dark-build-text">Quality Presets</Text>
                                                 <Select
+                                                    className="dark-build-select"
                                                     value={
                                                         infrastructureData.presets
                                                     }
@@ -720,8 +740,9 @@ const SelectInstance = () => {
                                                 </Select>
                                             </div>
                                             <div>
-                                                <Text>Deploy Port</Text>
+                                                <Text className="dark-build-text">Deploy Port</Text>
                                                 <InputNumber
+                                                    className="dark-build-input"
                                                     value={
                                                         infrastructureData.deployPort
                                                     }
@@ -738,8 +759,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Username</Text>
+                                                <Text className="dark-build-text">Username</Text>
                                                 <Input
+                                                    className="dark-build-input"
                                                     value={
                                                         infrastructureData.username
                                                     }
@@ -753,8 +775,9 @@ const SelectInstance = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <Text>Dataset Path</Text>
+                                                <Text className="dark-build-text">Dataset Path</Text>
                                                 <Input
+                                                    className="dark-build-input"
                                                     value={
                                                         infrastructureData.datasetPath
                                                     }
@@ -818,25 +841,444 @@ const SelectInstance = () => {
     ]
 
     return (
-        <div className="select-instance-container pl-6 pr-6">
-            {/* Modal tiến trình tìm instance, không thể tắt thủ công */}
-            <Modal
-                open={showFindingInstanceCard}
-                closable={false}
-                footer={null}
-                centered
-                maskClosable={false}
-                title={<span><RocketOutlined /> Finding the suitable instance...</span>}
-                width={500}
-                zIndex={2000}
-            >
-                <Space direction="vertical" align="center" style={{ width: '100%' }}>
-                    <Spin size="large" tip="Searching for the best instance for your project..." />
-                    <Text type="secondary">Please wait a moment while the system finds the most suitable resources.</Text>
-                </Space>
-            </Modal>
-            <Tabs items={items} onChange={(key) => setActiveTab(key)} />
-        </div>
+        <>
+            <style>{`
+                .dark-build-page {
+                    background: transparent;
+                    min-height: 100vh;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-page * {
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab {
+                    color: rgba(255, 255, 255, 0.7) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 500 !important;
+                    font-size: 16px !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab:hover {
+                    color: #5C8DFF !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab-active {
+                    color: #5C8DFF !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+                    color: #5C8DFF !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-ink-bar {
+                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    height: 3px !important;
+                }
+                
+                .dark-build-tabs .ant-tabs-content-holder {
+                    background: transparent !important;
+                }
+                
+                .dark-build-card {
+                    background: rgba(0, 0, 0, 0.4) !important;
+                    backdrop-filter: blur(20px) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border-radius: 20px !important;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+                }
+                
+                .dark-build-text {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 400 !important;
+                }
+                
+                .dark-build-text-strong {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-text-gradient {
+                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    -webkit-background-clip: text !important;
+                    -webkit-text-fill-color: transparent !important;
+                    background-clip: text !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                    font-size: 20px !important;
+                }
+                
+                .dark-build-slider .ant-slider-track {
+                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    height: 6px !important;
+                }
+                
+                .dark-build-slider .ant-slider-rail {
+                    background: rgba(255, 255, 255, 0.2) !important;
+                    height: 6px !important;
+                }
+                
+                .dark-build-slider .ant-slider-handle {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                    width: 20px !important;
+                    height: 20px !important;
+                    margin-top: 0px !important;
+                }
+                
+                .dark-build-slider .ant-slider-handle:hover {
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2) !important;
+                }
+                
+                .dark-build-slider .ant-slider-tooltip {
+                    color: white !important;
+                    background: rgba(0, 0, 0, 0.8) !important;
+                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                }
+                
+                .dark-build-input .ant-input-number {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-input .ant-input-number:hover {
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number-focused {
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number-input {
+                    color: white !important;
+                    background: transparent !important;
+                    font-size: 16px !important;
+                    font-weight: 500 !important;
+                }
+                
+                .dark-build-input .ant-input-number-addon {
+                    color: white !important;
+                    background: rgba(92, 141, 255, 0.2) !important;
+                    border-color: rgba(92, 141, 255, 0.3) !important;
+                    font-weight: 500 !important;
+                }
+                
+                .dark-build-input .ant-input-number-addon .ant-input-number-addon-text {
+                    color: white !important;
+                }
+                
+                .dark-build-input .ant-input-number-addon-after {
+                    color: white !important;
+                    background: rgba(92, 141, 255, 0.2) !important;
+                    border-color: rgba(92, 141, 255, 0.3) !important;
+                }
+                
+                .dark-build-input .ant-input-number-addon-after span {
+                    color: white !important;
+                }
+                
+                .dark-build-input .ant-input-number-addon-after {
+                    color: white !important;
+                }
+                
+                .dark-build-input .ant-input-number-addon-after * {
+                    color: white !important;
+                }
+                
+                .dark-build-input .ant-input-number .ant-input-number-addon-after {
+                    color: white !important;
+                    background: rgba(92, 141, 255, 0.2) !important;
+                    border-color: rgba(92, 141, 255, 0.3) !important;
+                }
+                
+                .dark-build-input .ant-input-number .ant-input-number-addon-after span {
+                    color: white !important;
+                }
+                
+                .dark-build-input .ant-input-number .ant-input-number-addon-after .ant-input-number-addon-text {
+                    color: white !important;
+                }
+                
+                .dark-build-select .ant-select-selector {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-select .ant-select-selector:hover {
+                    border-color: #8B5CF6 !important;
+                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+                }
+                
+                .dark-build-select .ant-select-selection-item {
+                    color: white !important;
+                }
+                
+                .dark-build-select .ant-select-arrow {
+                    color: #8B5CF6 !important;
+                }
+                
+                .dark-build-button {
+                    background: linear-gradient(135deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    border: none !important;
+                    border-radius: 12px !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                    box-shadow: 0 4px 16px rgba(92, 141, 255, 0.3) !important;
+                    height: 48px !important;
+                }
+                
+                .dark-build-button:hover {
+                    background: linear-gradient(135deg, #4A7CFF 0%, #7C4AFF 100%) !important;
+                    box-shadow: 0 6px 20px rgba(92, 141, 255, 0.4) !important;
+                    transform: translateY(-2px) !important;
+                }
+                
+                .dark-build-button:disabled {
+                    background: rgba(255, 255, 255, 0.1) !important;
+                    color: rgba(255, 255, 255, 0.3) !important;
+                    box-shadow: none !important;
+                    transform: none !important;
+                }
+                
+                .dark-build-modal .ant-modal-content {
+                    background: rgba(0, 0, 0, 0.95) !important;
+                    backdrop-filter: blur(20px) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border-radius: 20px !important;
+                }
+                
+                .dark-build-modal .ant-modal-header {
+                    background: transparent !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                }
+                
+                .dark-build-modal .ant-modal-title {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-modal .ant-modal-body {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                }
+                
+                .dark-build-statistic .ant-statistic-title {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-statistic .ant-statistic-content {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .dark-build-statistic .ant-statistic-content-value {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-cost-estimator {
+                    background: rgba(92, 141, 255, 0.1) !important;
+                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                    border-radius: 16px !important;
+                    padding: 20px !important;
+                }
+                
+                .dark-build-cost-estimator h4 {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .dark-build-cost-estimator p {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .instance-size-card {
+                    background: rgba(255, 255, 255, 0.05) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                    border-radius: 16px !important;
+                    transition: all 0.3s ease !important;
+                    backdrop-filter: blur(10px) !important;
+                }
+                
+                .instance-size-card:hover {
+                    background: rgba(92, 141, 255, 0.15) !important;
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 8px 24px rgba(92, 141, 255, 0.2) !important;
+                    transform: translateY(-2px) !important;
+                }
+                
+                .instance-size-card.selected {
+                    background: rgba(92, 141, 255, 0.25) !important;
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 8px 24px rgba(92, 141, 255, 0.3) !important;
+                }
+                
+                .instance-size-card .ant-card-body {
+                    color: white !important;
+                }
+                
+                .instance-size-card .ant-card-body h5 {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .instance-size-card .ant-card-body .ant-typography {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .instance-size-card .ant-collapse {
+                    background: transparent !important;
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-item {
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-header {
+                    color: white !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    background: transparent !important;
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-content {
+                    background: transparent !important;
+                    border: none !important;
+                }
+                
+                .instance-size-card .ant-collapse .ant-collapse-content-box {
+                    color: rgba(255, 255, 255, 0.8) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                /* Input and TextArea styling - More specific selectors */
+                .dark-build-input .ant-input,
+                .dark-build-input .ant-input-textarea,
+                .dark-build-input .ant-input-affix-wrapper,
+                .dark-build-input .ant-input-affix-wrapper .ant-input {
+                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%) !important;
+                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-input .ant-input:hover,
+                .dark-build-input .ant-input-textarea:hover,
+                .dark-build-input .ant-input-affix-wrapper:hover,
+                .dark-build-input .ant-input-affix-wrapper:hover .ant-input {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input:focus,
+                .dark-build-input .ant-input-textarea:focus,
+                .dark-build-input .ant-input-affix-wrapper:focus,
+                .dark-build-input .ant-input-affix-wrapper:focus .ant-input {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input::placeholder,
+                .dark-build-input .ant-input-textarea::placeholder,
+                .dark-build-input .ant-input-affix-wrapper .ant-input::placeholder {
+                    color: rgba(255, 255, 255, 0.6) !important;
+                }
+                
+                /* Force styling on all input elements */
+                .dark-build-page input[type="text"],
+                .dark-build-page textarea {
+                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%) !important;
+                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-page input[type="text"]:hover,
+                .dark-build-page textarea:hover {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                }
+                
+                .dark-build-page input[type="text"]:focus,
+                .dark-build-page textarea:focus {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                }
+                
+                .dark-build-page input[type="text"]::placeholder,
+                .dark-build-page textarea::placeholder {
+                    color: rgba(255, 255, 255, 0.6) !important;
+                }
+                
+                /* InputNumber specific styling */
+                .dark-build-input .ant-input-number {
+                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%) !important;
+                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                }
+                
+                .dark-build-input .ant-input-number:hover {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number:focus,
+                .dark-build-input .ant-input-number-focused {
+                    border-color: #5C8DFF !important;
+                    box-shadow: 0 0 0 2px rgba(92, 141, 255, 0.2) !important;
+                }
+                
+                .dark-build-input .ant-input-number-input {
+                    background: transparent !important;
+                    color: white !important;
+                }
+                
+                .dark-build-input .ant-input-number-input::placeholder {
+                    color: rgba(255, 255, 255, 0.6) !important;
+                }
+            `}</style>
+            <div className="dark-build-page font-poppins">
+                <div className="select-instance-container p-6">
+                    {/* Modal tiến trình tìm instance, không thể tắt thủ công */}
+                    <Modal
+                        open={showFindingInstanceCard}
+                        closable={false}
+                        footer={null}
+                        centered
+                        maskClosable={false}
+                        title={<span><RocketOutlined /> Finding the suitable instance...</span>}
+                        width={500}
+                        zIndex={2000}
+                        className="dark-build-modal"
+                    >
+                        <Space direction="vertical" align="center" style={{ width: '100%' }}>
+                            <Spin size="large" tip="Searching for the best instance for your project..." />
+                            <Text className="dark-build-text">Please wait a moment while the system finds the most suitable resources.</Text>
+                        </Space>
+                    </Modal>
+                    <Tabs items={items} onChange={(key) => setActiveTab(key)} className="dark-build-tabs" />
+                </div>
+            </div>
+        </>
     )
 }
 
