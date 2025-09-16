@@ -40,6 +40,13 @@ const getDatasets = (params) => {
 	return instance.get(URL, { params })
 }
 
+// New: server-side search + pagination for /datasets endpoint
+const getDatasetsByQuery = (params) => {
+	// Log the full URL and query parameters for debugging
+	console.log(`API Call: ${URL}`, params);
+	return instance.get(URL, { params });
+}
+
 const getDataset = (datasetID) => {
 	return instance.get(`${URL_SERVICE}/datasets/${datasetID}`)
 }
@@ -71,6 +78,7 @@ const addNewFiles = (datasetID, formData) => {
 export {
 	createDataset,
 	getDatasets,
+	getDatasetsByQuery,
 	getDataset,
 	getProcessingStatus,
 	deleteObjects,

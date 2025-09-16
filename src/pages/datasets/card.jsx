@@ -2,10 +2,15 @@ import React from 'react'
 import { Button, Typography, Tag, Tooltip, Progress, message } from 'antd'
 import {
     DeleteOutlined,
-    DatabaseOutlined,
+    FileImageOutlined,
     SyncOutlined,
     CheckCircleOutlined,
-    ExclamationCircleOutlined
+    ExclamationCircleOutlined,
+    FileTextOutlined,
+    TableOutlined,
+    ReconciliationOutlined,
+    PictureOutlined,
+    DatabaseOutlined
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -15,7 +20,20 @@ dayjs.extend(relativeTime)
 
 const { Text, Title } = Typography
 const { REACT_APP_LABEL_STUDIO_URL } = process.env
-
+const CardType = {
+    IMAGE: {
+        icon: <PictureOutlined />
+    },
+    TEXT: {
+        icon: <FileTextOutlined />
+    },
+    TABULAR: {
+        icon: <TableOutlined />
+    },
+    MULTIMODAL: {       
+        icon: <ReconciliationOutlined />
+    }
+}
 const PROCESSING_STATUS = {
     COMPLETED: {
         color: 'success',
@@ -55,9 +73,8 @@ const PROCESSING_STATUS = {
 }
 
 export default function DatasetCard({ dataset, onDelete, isDeleting }) {
-    const createdAt = dataset.createdAt
-    const bucketName = dataset?.bucketName || 'N/A'
-    const dataType = dataset.dataType || 'UNKNOWN'
+    const createdAt = dataset.createdAt ? dayjs(dataset.createdAt).format('M/D/YYYY h:mm A') : 'N/A' || 'UNKNOWN';
+    const dataType = dataset.dataType || 'UNKNOWN';
     const processingStatus = dataset.processingStatus || 'PROCESSING'
     const totalFiles = dataset.metaData?.totalFiles || 0
     const totalSizeKb = dataset.metaData?.totalSizeKb || 0
@@ -123,8 +140,9 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 						shadow-md ring-1 ring-white/20 transition-all duration-500
 						group-hover:scale-105 group-hover:shadow-lg
 					`}>
-                        <DatabaseOutlined className="text-3xl text-blue-600 drop-shadow-sm 
-							group-hover:text-blue-700 transition-all duration-300" />
+                        <span className="text-3xl text-blue-600 drop-shadow-sm group-hover:text-blue-700 transition-all duration-300">
+    {CardType[dataType]?.icon || <DatabaseOutlined />}
+</span>
                     </div>
 
                     {/* Title and Status */}
@@ -216,10 +234,10 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
                         {/* Bucket Info */}
                         <div className="bg-white/60 rounded-lg p-2.5 border border-slate-200/40">
                             <div className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wide">
-                                Bucket
+                                Created at
                             </div>
-                            <div className="text-sm font-semibold text-slate-700 truncate" title={bucketName}>
-                                {bucketName}
+                            <div className="text-sm font-semibold text-slate-700 truncate" title={createdAt}>
+                                {createdAt}
                             </div>
                         </div>
 

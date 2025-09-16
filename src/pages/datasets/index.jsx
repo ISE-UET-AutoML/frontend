@@ -6,9 +6,11 @@ import DatasetCard from './card'
 import CreateDatasetModal from './CreateDatasetModal'
 import { POLL_DATASET_PROCESSING_STATUS_TIME } from 'src/constants/time'
 import { usePollingStore } from 'src/store/pollingStore'
+import { Input } from 'antd';
 
+const { Search } = Input;
 const { Title } = Typography
-const pageSize = 9
+const pageSize = 6; 
 const initialState = {
 	datasets: [],
 	isLoading: false,
@@ -20,6 +22,9 @@ export default function Datasets() {
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
+	// Get all datasets for search functionality
+	const [allDatasetList, setAllDatasetList] = useState([]) 
+
 	const [deletingIds, setDeletingIds] = useState(new Set()) // Added to track deleting datasets
 
 	const [currentPage, setCurrentPage] = useState(1) // Added for pagination
@@ -29,7 +34,25 @@ export default function Datasets() {
 	const hasProcessingDatasets = (datasets) => {
 		return datasets.some(ds => ds.processingStatus === 'PROCESSING')
 	}
+	const [searchTerm, setSearchTerm] = useState('')
+	
+	const filteredDatasets = searchTerm ?
+		allDatasetList.filter(dataset => (dataset.title ?? '').toLowerCase().includes(searchTerm.toLowerCase())) :
+		datasetState.datasets
 
+	const allDatasets = async () => {
+		try {
+			const response = await datasetAPI.getDatasets({page: 1, limit: 10000})
+			setAllDatasetList(response.data.data) 
+			console.log('All datasets fetched for search:', response.data.data)
+		} catch (error) {
+			console.error('Error fetching all datasets:', error)
+		}
+	}
+	const sortedByTime = filteredDatasets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+
+	
 	const updateDatasetStatus = async (datasetId) => {
 		try {
 			const statusData = await datasetAPI.getProcessingStatus(datasetId).then(response => response.data)
@@ -74,6 +97,11 @@ export default function Datasets() {
 	}, [currentPage])
 
 	useEffect(() => {
+  		allDatasets()
+	}, [])
+
+
+	useEffect(() => {
 		if (datasetState.datasets.length > 0 && hasProcessingDatasets(datasetState.datasets)) {
 			startPolling()
 		}
@@ -85,13 +113,16 @@ export default function Datasets() {
 		}
 	}, [datasetState.datasets])
 
+	const sortDatasetsByTime = (datasets) => {
+		return datasets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+	}
 	const getDatasets = async (page = 1) => {
 		try {
 			updateDataState({ isLoading: true })
 			const response = await datasetAPI.getDatasets({page: page, limit: pageSize})
 			console.log('resDa', response)
 			updateDataState({
-				datasets: response.data.data,
+				datasets: sortDatasetsByTime(response.data.data),
 				isLoading: false
 			})
 			setTotalItems(response.data.total) 
@@ -109,6 +140,7 @@ export default function Datasets() {
 			// Thêm vào Zustand store để polling ngầm
 			usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues });
 			await getDatasets()
+			await allDatasets() // Refresh all datasets for search functionality
 		} catch (error) {
 			console.error('Error handling created dataset:', error)
 		}
@@ -120,6 +152,7 @@ export default function Datasets() {
 			await datasetAPI.deleteDataset(datasetId)
 			message.success('Dataset deleted successfully!') // Added user feedback
 			await getDatasets() // Refresh list after deletion
+			await allDatasets() // Refresh all datasets for search functionality
 		} catch (err) {
 			console.error('Failed to delete dataset:', err)
 			message.error('Failed to delete dataset') // Added error feedback
@@ -132,10 +165,20 @@ export default function Datasets() {
 		}
 	}
 
+
 	return (
 		<div className="p-6">
 			<div className="flex justify-between items-center mb-6">
 				<Title level={3}>Datasets</Title>
+				<div>
+					<Search
+						placeholder="Search datasets"
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						size="large"
+						allowClear
+					/>
+				</div>
 				<Button
 					type="primary"
 					icon={<PlusOutlined />}
@@ -150,7 +193,7 @@ export default function Datasets() {
 			) : datasetState.datasets.length > 0 ? (
 			<>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{datasetState.datasets.map((dataset) => (
+					{filteredDatasets.map((dataset) => (
 						<DatasetCard
 							key={dataset.id}
 							dataset={dataset}
@@ -159,6 +202,7 @@ export default function Datasets() {
 						/>
 					))}
 				</div>
+				{!searchTerm && (
 				<div className="flex justify-center mt-8">
                         <Pagination
                             current={currentPage}
@@ -170,7 +214,7 @@ export default function Datasets() {
 							}}
                             showSizeChanger={false}
                         />
-                </div>
+                </div>)}
 			</>	
 			) : (
 				<Card className="text-center">
