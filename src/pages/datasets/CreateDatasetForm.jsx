@@ -561,8 +561,18 @@ export default function CreateDatasetForm({
                 onFinish={handleSubmit}
                 className="dark-form"
             >
-                <Form.Item label="Title" name="title" rules={[{ required: true, message: 'Please enter a title' }]}>
-                    <Input placeholder="Enter dataset title" />
+                <Form.Item 
+                    label="Title" 
+                    name="title" 
+                    rules={[
+                        { required: true, message: 'Please enter a title' },
+                        {
+                            pattern: /^[a-zA-Z0-9]+$/,
+                            message: 'Title can only contain letters (a-z, A-Z) and numbers (0-9)'
+                        }
+                    ]}
+                >
+                    <Input placeholder="Enter dataset title (letters and numbers only)" />
                 </Form.Item>
 
                 <Form.Item name="description" label="Description">

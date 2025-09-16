@@ -20,7 +20,7 @@ const SignUp = () => {
 				setSizeHalf(360);
 				setOffsetX(-380);
 			} else if (w >= 1536) { // 2xl
-				setSizeHalf(320);
+				setSizeHalf(320);z
 				setOffsetX(-340);
 			} else if (w >= 1280) { // xl
 				setSizeHalf(280);
