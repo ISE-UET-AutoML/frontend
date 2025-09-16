@@ -2,15 +2,46 @@ import React from 'react';
 import { message } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import * as auth from 'src/api/auth';
-import logo from 'src/assets/images/logo.png';
 import useAuth from 'src/hooks/useAuth';
 import { validateEmail, validatePassword } from 'src/utils/validate';
 import { PATHS } from 'src/constants/paths';
+import BackgroundShapes from 'src/components/landing/BackgroundShapes';
+import TextCubeCanvas from 'src/components/login/TextCubeCanvas';
+import LoginCard from 'src/components/login/LoginCard';
+
+// moved TextCubeCanvas to src/components/login/TextCubeCanvas
 
 const Login = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
     const { state } = useLocation();
+    const [sizeHalf, setSizeHalf] = React.useState(220);
+    const [offsetX, setOffsetX] = React.useState(-260);
+
+    React.useEffect(() => {
+        const compute = () => {
+            const w = window.innerWidth || 1280;
+            if (w >= 1920) {
+                setSizeHalf(360);
+                setOffsetX(-380);
+            } else if (w >= 1536) { // 2xl
+                setSizeHalf(320);
+                setOffsetX(-340);
+            } else if (w >= 1280) { // xl
+                setSizeHalf(280);
+                setOffsetX(-310);
+            } else if (w >= 1024) { // lg
+                setSizeHalf(240);
+                setOffsetX(-290);
+            } else {
+                setSizeHalf(200);
+                setOffsetX(-240);
+            }
+        };
+        compute();
+        window.addEventListener('resize', compute);
+        return () => window.removeEventListener('resize', compute);
+    }, []);
 
     const onLogin = async (credential) => {
         try {
@@ -45,7 +76,7 @@ const Login = () => {
             console.log('Login response:', data);
             if (data.user && data.user.ls_token) {
                 console.log("Found ls_token, redirecting to Label Studio...");
-                const labelStudioBaseUrl = 'http://34.1.194.168:3003';
+                const labelStudioBaseUrl = process.env.REACT_APP_LABEL_STUDIO_URL || 'http://127.0.0.1:8080';
                 const labelStudioLoginUrl = `${labelStudioBaseUrl}/user/login?user_token=${data.user.ls_token}`;
                 fetch(labelStudioLoginUrl, { credentials: 'include' })
                     .then(response => response.json())
@@ -90,54 +121,42 @@ const Login = () => {
 
     return (
         <>
-            <main className="w-full h-screen flex flex-col items-center justify-center bg-gray-50 sm:px-4">
-                <div className="w-full space-y-6 text-gray-600 sm:max-w-md">
-                    <div className="bg-white shadow p-4 py-6 sm:p-6 sm:rounded-lg">
-                        <div className="text-center">
-                            <img
-                                src={logo}
-                                width={150}
-                                className="mx-auto"
-                                alt="logo"
-                            />
-                            <div className="mt-5 space-y-2">
-                                <h3 className="text-gray-800 text-2xl font-bold sm:text-3xl">
-                                    Login
-                                </h3>
-                            </div>
+            <main className="w-full h-screen" style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#01000A' }}>
+                <style>{`
+                    body, html { background-color: #01000A !important; }
+                `}</style>
+                <div className="relative w-full h-full">
+                    <BackgroundShapes 
+                        width="100%" 
+                        height="100%"
+                        shapes={[
+                            { id: 'loginBlue', shape: 'circle', size: '520px', gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] }, opacity: 0.45, blur: '220px', position: { top: '10%', right: '-140px' }, transform: 'none' },
+                            { id: 'loginCyan', shape: 'rounded', size: '420px', gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 40%'] }, opacity: 0.30, blur: '180px', position: { top: '5%', left: '-120px' }, transform: 'none' },
+                            { id: 'loginWarm', shape: 'rounded', size: '520px', gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 50%', 'transparent 85%'] }, opacity: 0.20, blur: '220px', position: { bottom: '-10%', left: '50%' }, transform: 'translate(-50%, 0%)' }
+                        ]}
+                    />
+                    {/* Full-screen background cube layer */}
+                    <div className="absolute inset-0 z-0 pointer-events-none">
+                        <TextCubeCanvas 
+                            shapeType='icosahedron'
+                            offsetX={offsetX}
+                            rollSpeed={0.005}
+                            mouseMaxYaw={0.6}
+                            mouseMaxPitch={0.6}
+                            followEasing={0.08}
+                            sizeHalf={sizeHalf}
+                            cameraZ={420}
+                            focalLength={360}
+                        />
+                    </div>
+                    <div className="relative z-10 w-full h-full flex items-center justify-center px-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 2xl:gap-32 items-center w-full max-w-6xl">
+                            {/* spacer column on large screens to keep layout balance */}
+                            <div className="hidden lg:block" />
+
+                            {/* Login Card */}
+                            <LoginCard handleLogin={handleLogin} />
                         </div>
-                        <form onSubmit={handleLogin} className="space-y-5">
-                            <div>
-                                <label className="font-medium">Email</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    required
-                                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
-                                />
-                            </div>
-                            <div>
-                                <label className="font-medium">Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    required
-                                    className="w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border focus:border-blue-600 shadow-sm rounded-lg"
-                                />
-                            </div>
-                            <button className="w-full px-4 py-2 text-white font-medium bg-blue-600 hover:bg-blue-500 active:bg-blue-600 rounded-lg duration-150">
-                                Login{' '}
-                            </button>
-                        </form>
-                        <p className="mt-4">
-                            Don't have an account?{' '}
-                            <a
-                                href="/signup"
-                                className="font-medium text-blue-600 hover:text-blue-500"
-                            >
-                                Sign up
-                            </a>
-                        </p>
                     </div>
                 </div>
             </main>

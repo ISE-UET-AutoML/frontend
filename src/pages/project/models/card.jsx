@@ -1,15 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Tag, Typography, Badge, Button, Tooltip, Space } from 'antd'
-import {
-    CloudOutlined,
-    ThunderboltOutlined,
-    CheckCircleOutlined,
-    ClockCircleOutlined,
-    DeploymentUnitOutlined,
-    RocketOutlined,
-    StopOutlined,
-} from '@ant-design/icons'
+import { Card, CardContent, CardHeader, CardTitle } from 'src/components/ui/card'
+import { Button } from 'src/components/ui/button'
+import { Tooltip } from 'src/components/ui/tooltip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -18,93 +11,237 @@ import { getExperimentById } from 'src/api/experiment'
 
 dayjs.extend(relativeTime)
 
-const { Text, Title } = Typography
+// Simple SVG icons
+const CloudIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M18 10H16.74C16.18 6.57 13.17 4 9.5 4C5.36 4 2 7.36 2 11.5C2 15.64 5.36 19 9.5 19H18C19.66 19 21 17.66 21 16V13C21 11.34 19.66 10 18 10Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const ThunderboltIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M13 2L3 14H12L11 22L21 10H12L13 2Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const CheckCircleIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const ClockIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<circle
+			cx="12"
+			cy="12"
+			r="10"
+			stroke="currentColor"
+			strokeWidth="2"
+		/>
+		<polyline
+			points="12,6 12,12 16,14"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const DeploymentUnitIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M12 2L2 7L12 12L22 7L12 2Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M2 17L12 22L22 17"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M2 12L12 17L22 12"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const RocketIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M4.5 16.5C4.5 12.5 7.5 6.5 12 6.5C16.5 6.5 19.5 12.5 19.5 16.5C19.5 18.5 18.5 20.5 16.5 20.5C14.5 20.5 13.5 18.5 13.5 16.5C13.5 14.5 12.5 12.5 10.5 12.5C8.5 12.5 7.5 14.5 7.5 16.5C7.5 18.5 6.5 20.5 4.5 20.5C2.5 20.5 1.5 18.5 1.5 16.5C1.5 14.5 2.5 12.5 4.5 12.5C6.5 12.5 7.5 14.5 7.5 16.5Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M12 6.5V2L15 5L12 6.5Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const StopIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<rect
+			x="6"
+			y="6"
+			width="12"
+			height="12"
+			rx="2"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+// Define status colors and styles
+const getStatusConfig = (status) => {
+    switch (status) {
+        case 'ONLINE':
+            return {
+                color: 'text-green-400',
+                bgColor: 'bg-green-500/10',
+                borderColor: 'border-green-500/20',
+                icon: <CheckCircleIcon className="h-6 w-6" />,
+                badge: 'Online'
+            }
+        case 'OFFLINE':
+            return {
+                color: 'text-red-400',
+                bgColor: 'bg-red-500/10',
+                borderColor: 'border-red-500/20',
+                icon: <StopIcon className="h-6 w-6" />,
+                badge: 'Offline'
+            }
+        case 'SETTING_UP':
+            return {
+                color: 'text-orange-400',
+                bgColor: 'bg-orange-500/10',
+                borderColor: 'border-orange-500/20',
+                icon: <ThunderboltIcon className="h-6 w-6" />,
+                badge: 'Setting Up'
+            }
+        case 'onCloud':
+            return {
+                color: 'text-blue-400',
+                bgColor: 'bg-blue-500/10',
+                borderColor: 'border-blue-500/20',
+                icon: <CloudIcon className="h-6 w-6" />,
+                badge: 'Ready for Deployment'
+            }
+        case 'inProduction':
+            return {
+                color: 'text-green-400',
+                bgColor: 'bg-green-500/10',
+                borderColor: 'border-green-500/20',
+                icon: <CheckCircleIcon className="h-6 w-6" />,
+                badge: 'Live in Production'
+            }
+        default:
+            return {
+                color: 'text-gray-400',
+                bgColor: 'bg-gray-500/10',
+                borderColor: 'border-gray-500/20',
+                icon: <ClockIcon className="h-6 w-6" />,
+                badge: 'Processing'
+            }
+    }
+}
 
 export default function ModelCard({ model }) {
     const { id, name, deployStatus, createdAt, project_id, experiment_id, experiment_name: experimentName } = model
-    console.log(model)
     const navigate = useNavigate()
-
-    // Get status icon based on deployStatus
-    // const getStatusIcon = (status) => {
-    //     switch (status) {
-    //         case 'onCloud':
-    //             return <CloudOutlined />
-    //         case 'deploying':
-    //             return <ThunderboltOutlined />
-    //         case 'inProduction':
-    //             return <CheckCircleOutlined />
-    //         default:
-    //             return <ClockCircleOutlined />
-    //     }
-    // }
-
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'OFFLINE':
-                return <StopOutlined />
-            case 'SETTING_UP':
-                return <ThunderboltOutlined />
-            case 'ONLINE':
-                return <CheckCircleOutlined />
-            default:
-                return <ThunderboltOutlined />
-        }
-    }
-
-    // Define status color based on deployStatus
-    // const getStatusColor = (status) => {
-    //     switch (status) {
-    //         case 'onCloud':
-    //             return 'blue'
-    //         case 'deploying':
-    //             return 'orange'
-    //         case 'inProduction':
-    //             return 'green'
-    //         default:
-    //             return 'gray'
-    //     }
-    // }
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'OFFLINE':
-                return 'red'
-            case 'SETTING_UP':
-                return 'orange'
-            case 'ONLINE':
-                return 'green'
-            default:
-                return 'green'
-        }
-    }
-
-    // Friendly readable status text
-    // const getStatusText = (status) => {
-    //     switch (status) {
-    //         case 'onCloud':
-    //             return 'Ready for Deployment'
-    //         case 'deploying':
-    //             return 'Deploying to Production'
-    //         case 'inProduction':
-    //             return 'Live in Production'
-    //         default:
-    //             return 'Processing'
-    //     }
-    // }
-
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'OFFLINE':
-                return 'Offline'
-            case 'SETTING_UP':
-                return 'Deploying to Production'
-            case 'ONLINE':
-                return 'Live in Production'
-            default:
-                return 'Ready For Deployment'
-        }
-    }
+    const statusConfig = getStatusConfig(deployStatus)
 
     // Handle card click to navigate to details
     const handleCardClick = () => {
@@ -132,94 +269,89 @@ export default function ModelCard({ model }) {
     }
 
     return (
-        <div
-            className="relative bg-white pt-2 pl-6 pb-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 hover:border-blue-200"
+        <Card 
+            className={`group cursor-pointer bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 hover:border-white/20 ${statusConfig.borderColor}`}
             onClick={handleCardClick}
         >
-            {/* Status Badge */}
-            <Badge.Ribbon
-                text={getStatusText(deployStatus)}
-                color={getStatusColor(deployStatus)}
-                className="right-0"
-            >
-                <div className="flex flex-col h-full">
-                    {/* Header with icon */}
-                    <div className="flex justify-between items-center mb-4">
-                        <div
-                            className="text-3xl"
-                            style={{
-                                color: getStatusColor(deployStatus),
-                            }}
-                        >
-                            {getStatusIcon(deployStatus)}
-                        </div>
-
-                    </div>
-
-                    <div className="flex flex-row items-center gap-x-3 my-2">
-                        <div className="flex items-center gap-x-5">
-                            <span className="text-lg font-semibold">{name}</span>
-                            <Tag
-                                color="green"
-                                className="text-sm px-2 py-0.5 rounded"
-                                style={{ lineHeight: 1.25 }}
-                            >
-                                {`Model Id: ${model.id}`}
-                            </Tag>
+            <CardHeader className="pb-4">
+                <div className="flex justify-between items-start">
+                    <div className={`p-3 rounded-xl ${statusConfig.bgColor}`}>
+                        <div className={statusConfig.color}>
+                            {statusConfig.icon}
                         </div>
                     </div>
-
-                    <Text type="secondary" className="text-xs">
-                        Experiment Name: {experimentName}
-                    </Text>
-
-                    {/* Creation Time */}
-                    <Text type="secondary" className="text-xs">
-                        Created {dayjs(createdAt).fromNow()}
-                    </Text>
-
-                    {/* Action Buttons based on status */}
-                    <div className="mt-6 pt-4 border-t border-gray-100">
-                        <Space>
-                            {deployStatus === 'onCloud' && (
-                                <Tooltip title="Deploy this model to production">
-                                    <Button
-                                        type="primary"
-                                        icon={<RocketOutlined />}
-                                        onClick={handleDeploy}
-                                    >
-                                        Deploy
-                                    </Button>
-                                </Tooltip>
-                            )}
-
-                            {deployStatus === 'inProduction' && (
-                                <>
-                                    <Tooltip title="Stop this model in production">
-                                        <Button
-                                            type="danger"
-                                            icon={<StopOutlined />}
-                                            onClick={handleStop}
-                                            className="bg-red-100 text-red-800"
-                                        >
-                                            Shut down
-                                        </Button>
-                                    </Tooltip>
-                                    <Tooltip title="Redeploy this model">
-                                        <Button
-                                            type="primary"
-                                            icon={<DeploymentUnitOutlined />}
-                                            onClick={handleRedeploy}
-                                        >
-                                            Redeploy
-                                        </Button>
-                                    </Tooltip>
-                                </>
-                            )}
-                        </Space>
+                    <div className="flex flex-col gap-2">
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border ${statusConfig.borderColor}`}>
+                            {statusConfig.badge}
+                        </div>
+                        <div className="px-2 py-1 rounded text-xs font-medium bg-gray-800/50 text-gray-300">
+                            ID: {id}
+                        </div>
                     </div>
                 </div>
-            </Badge.Ribbon>
-        </div>
+            </CardHeader>
+            
+            <CardContent className="pt-0">
+                <CardTitle className="text-white text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors">
+                    {name}
+                </CardTitle>
+                
+                <div className="space-y-2 text-sm text-gray-400 mb-4">
+                    {experimentName && (
+                        <p className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            Experiment: {experimentName}
+                        </p>
+                    )}
+                    {createdAt && (
+                        <p className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            Created {dayjs(createdAt).fromNow()}
+                        </p>
+                    )}
+                </div>
+
+                {/* Action Buttons based on status */}
+                <div className="flex gap-2">
+                    {deployStatus === 'onCloud' && (
+                        <Tooltip title="Deploy this model to production">
+                            <Button
+                                size="sm"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={handleDeploy}
+                            >
+                                <RocketIcon className="h-4 w-4 mr-1" />
+                                Deploy
+                            </Button>
+                        </Tooltip>
+                    )}
+
+                    {deployStatus === 'inProduction' && (
+                        <>
+                            <Tooltip title="Stop this model in production">
+                                <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={handleStop}
+                                >
+                                    <StopIcon className="h-4 w-4 mr-1" />
+                                    Stop
+                                </Button>
+                            </Tooltip>
+                            <Tooltip title="Redeploy this model">
+                                <Button
+                                    size="sm"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    onClick={handleRedeploy}
+                                >
+                                    <DeploymentUnitIcon className="h-4 w-4 mr-1" />
+                                    Redeploy
+                                </Button>
+                            </Tooltip>
+                        </>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
     )
 }

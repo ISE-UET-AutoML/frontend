@@ -50,14 +50,20 @@ const GlowingShape = ({
 		zIndex: zIndex,
 		pointerEvents: 'none' // Don't interfere with interactions
 	}
-
 	return <div style={shapeStyles} />
 }
 
-// Main component with predefined shapes (easy to modify)
-const BackgroundShapes = () => {
-	// Array of shapes - Your custom colors: FFAF40, 5970FF, 40FFFF
-	const shapes = [
+// Main reusable component with configurable shapes and canvas
+const BackgroundShapes = ({
+	shapes: shapesProp,
+	width = '1280px',
+	height = '800px',
+	center = true,
+	className = '',
+	style = {}
+}) => {
+	// Default shapes (backward compatible): Your custom colors: FFAF40, 5970FF, 40FFFF
+	const defaultShapes = [
 		// BOX 1: Yellow/Orange (#FFAF40)
 		{
 			id: 'yellowBox',
@@ -123,14 +129,17 @@ const BackgroundShapes = () => {
 		}
 	]
 
+	const shapes = Array.isArray(shapesProp) ? shapesProp : defaultShapes
+
 	return (
 		<div 
-			className="absolute top-0 left-1/2 transform -translate-x-1/2 pointer-events-none" 
+			className={`${center ? 'absolute top-0 left-1/2 transform -translate-x-1/2' : 'absolute top-0 left-0'} pointer-events-none ${className}`} 
 			style={{ 
 				zIndex: 1,
-				width: '1280px', // Same as max-w-7xl content width
-				height: '800px', // Fixed content-relative height
-				overflow: 'visible'
+				width,
+				height,
+				overflow: 'visible',
+				...style
 			}}
 		>
 			{shapes.map((shapeProps) => (

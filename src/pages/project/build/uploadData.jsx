@@ -1,36 +1,128 @@
 import React, { useEffect, useState } from 'react'
 import {
-    Button,
-    Radio,
-    Select,
-    Table,
-    Typography,
-    Card,
-    Space,
-    Row,
-    Col,
-    Spin,
-    Alert,
-    Tooltip,
-    Empty,
-    Tag,
-    Modal,
-    message,
-} from 'antd'
-import {
-    CloudUploadOutlined,
-    ArrowRightOutlined,
-    InfoCircleOutlined,
-    FilterOutlined,
-} from '@ant-design/icons'
-import { createLbProject, getLbProjByTask, startExport, getExportStatus } from 'src/api/labelProject'
+	createLbProject,
+	getLbProjByTask,
+	startExport,
+	getExportStatus,
+} from 'src/api/labelProject'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import CreateLabelProjectModal from 'src/pages/labels/CreateLabelProjectModal'
 import config from './config'
 import { PATHS } from 'src/constants/paths'
+import { Button } from 'src/components/ui/button'
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from 'src/components/ui/card'
+import { CustomSelect, Option } from 'src/components/ui/custom-select'
+import { RadioGroup, RadioGroupItem } from 'src/components/ui/radio-group'
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from 'src/components/ui/table'
+import { Alert, AlertDescription, AlertTitle } from 'src/components/ui/alert'
+import { Modal } from 'src/components/ui/modal'
+import { Tooltip } from 'src/components/ui/tooltip'
+import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import { message } from 'antd'
+// Simple SVG icons
+const CloudUploadIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M7 18C4.79086 18 3 16.2091 3 14C3 12.9857 3.37764 12.0596 4 11.3542V11C4 7.68629 6.68629 5 10 5C10.3416 5 10.6734 5.03015 10.9925 5.08738C11.7212 3.73139 13.1772 3 14.5 3C16.433 3 18 4.567 18 6.5C18.0001 6.5 18 6.5 18 6.5V7C19.6569 7 21 8.34315 21 10C21 11.6569 19.6569 13 18 13H17V14C17 16.2091 15.2091 18 13 18H7Z"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<path
+			d="M12 15L12 9M12 15L9 12M12 15L15 12"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
 
-const { Title, Text, Paragraph } = Typography
-const { Option } = Select
+const ArrowRightIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M5 12H19M19 12L12 5M19 12L12 19"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const InfoCircledIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+		<path
+			d="M12 16V12M12 8H12.01"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+	</svg>
+)
+
+const MixerHorizontalIcon = ({ className, ...props }) => (
+	<svg
+		className={className}
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+		{...props}
+	>
+		<path
+			d="M3 12H21M3 6H21M3 18H21"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		/>
+		<circle cx="6" cy="6" r="2" fill="currentColor" />
+		<circle cx="18" cy="12" r="2" fill="currentColor" />
+		<circle cx="6" cy="18" r="2" fill="currentColor" />
+	</svg>
+)
 
 const UploadData = () => {
     const { updateFields, projectInfo } = useOutletContext()
@@ -48,8 +140,8 @@ const UploadData = () => {
         return new Promise((resolve, reject) => {
             const intervalId = setInterval(async () => {
                 try {
-                    const response = await getExportStatus(taskId);
-                    const { status, result, error } = response.data;
+					const response = await getExportStatus(taskId)
+					const { status, result, error } = response.data
 
                     console.log(`[pollExportStatus] Task ${taskId} → status: ${status}`);
 
@@ -112,15 +204,19 @@ const UploadData = () => {
     )
 
     const handleContinue = async () => {
-        const selectedProject = filteredProjects.find(p => p.project_id === selectedRowKeys)
+		const selectedProject = filteredProjects.find(
+			(p) => p.project_id === selectedRowKeys
+		)
 
         if (!selectedProject) return
 
         console.log('selectedProject', selectedProject)
         setIsExporting(true)
         try {
-            const startResponse = await startExport(selectedProject.label_studio_id)
-            const {task_id} = startResponse.data
+			const startResponse = await startExport(
+				selectedProject.label_studio_id
+			)
+			const { task_id } = startResponse.data
             console.log('Export started, task ID:', startResponse)
             
             const finalResult = await pollExportStatus(task_id);
@@ -133,16 +229,15 @@ const UploadData = () => {
             })
             const object = config[projectInfo.task_type]
             if (!object) {
-            console.error("Config not found for task type:", projectInfo.task_type);
-            return;
+                console.error("Config not found for task type:", projectInfo.task_type);
+                return;
             }
             navigate(`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`)
-
         } catch (error) {
             console.error('Error exporting labels to S3:', error)
-            message.error('Không thể chuẩn bị dữ liệu. Vui lòng thử lại.');
+			message.error('Không thể chuẩn bị dữ liệu. Vui lòng thử lại.')
         } finally {
-            setIsExporting(false); // Luôn ẩn dialog sau khi hoàn tất
+			setIsExporting(false) // Luôn ẩn dialog sau khi hoàn tất
         }
         //if (!selectedProject.isLabeled) {
           //  navigate(PATHS.LABEL_VIEW(selectedProject.project_id, 'labeling'))
@@ -172,83 +267,113 @@ const UploadData = () => {
         }
     }
 
-
-    const columns = [
-        {
-            title: 'Title',
-            dataIndex: 'title',
-            key: 'title',
-            align: 'left',
-            render: (text) => <Text strong>{text}</Text>,
-        },
-        {
-            title: 'Service',
-            dataIndex: 'service',
-            key: 'service',
-            align: 'center',
-            render: (service) => (
-                <Tag color={service === 'AWS_S3' ? 'orange' : 'blue'}>
+	const renderServiceTag = (service) => (
+		<span
+			className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${
+				service === 'AWS_S3'
+					? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+					: 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+			}`}
+		>
                     {service === 'AWS_S3' ? 'AWS' : 'Google Cloud'}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Bucket',
-            dataIndex: 'bucketName',
-            key: 'bucket',
-            align: 'center',
-        },
-        {
-            title: 'Labeled',
-            dataIndex: 'isLabeled',
-            key: 'labeled',
-            align: 'center',
-            render: (isLabeled) => (
-                <Tag color={isLabeled ? 'success' : 'warning'}>
-                    {isLabeled ? 'Yes' : 'No'}
-                </Tag>
-            ),
-        },
-    ]
+		</span>
+	)
 
-    const selectedProject =
-        selectedRowKeys.length > 0 ? filteredProjects[selectedRowKeys[0]] : null
+	const renderLabeledTag = (isLabeled) => (
+		<span
+			className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${
+				isLabeled
+					? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+					: 'bg-gray-500/10 text-gray-500 border-gray-500/20'
+			}`}
+		>
+                    {isLabeled ? 'Yes' : 'No (Disabled)'}
+		</span>
+	)
+
+	const selectedProject = selectedRowKeys ? filteredProjects.find(p => p.project_id === selectedRowKeys) : null
     const isSelectedProjectLabeled = selectedProject?.isLabeled
 
     return (
-        <div className="pl-6 pr-6">
-            <Row justify="center">
-                <Col xs={24} md={16}>
-                    <Title level={1} className="text-center">
-                        Choose Your Label Project
-                    </Title>
-                    <Paragraph className="text-center text-gray-600">
-                        Select an existing label project or create a new one for your labeling task
-                    </Paragraph>
-                </Col>
-            </Row>
+        <>
+            <style>{`
+				body, html {
+					background-color: #01000A !important;
+                }
+            `}</style>
+			<div className="min-h-screen bg-[#01000A]">
+				<div className="relative pt-20 px-6 pb-20">
+					<BackgroundShapes 
+						width="1280px" 
+						height="1200px"
+						shapes={[
+							{
+								id: 'uploadBlue',
+								shape: 'circle',
+								size: '480px',
+								gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
+								opacity: 0.4,
+								blur: '200px',
+								position: { top: '200px', right: '-120px' },
+								transform: 'none'
+							},
+							{
+								id: 'uploadCyan',
+								shape: 'rounded',
+								size: '380px',
+								gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 85%'] },
+								opacity: 0.25,
+								blur: '160px',
+								position: { top: '50px', left: '-100px' },
+								transform: 'none'
+							},
+							{
+								id: 'uploadWarm',
+								shape: 'rounded',
+								size: '450px',
+								gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 50%', 'transparent 85%'] },
+								opacity: 0.2,
+								blur: '180px',
+								position: { top: '700px', left: '50%' },
+								transform: 'translate(-50%, -50%)'
+							}
+						]}
+					/>
+					
+					<div className="relative z-10">
+						{/* Header Section */}
+						<div className="flex justify-center mb-12">
+							<div className="w-full max-w-4xl text-center">
+								<h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-6">
+                                Choose Your Label Project
+								</h1>
+								<p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                                Select an existing label project or create a new one for your labeling task
+								</p>
+							</div>
+						</div>
 
-            <Row gutter={[24, 24]}>
-                <Col xs={24} lg={6}>
-                    <Card
-                        title={
-                            <Space>
-                                <FilterOutlined />
-                                <span>Filter Options</span>
-                            </Space>
-                        }
-                        className="shadow-md rounded-lg sticky top-4"
-                    >
-                        <Space direction="vertical" className="w-full">
+						{/* Main Content */}
+						<div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+							{/* Filter Sidebar */}
+							<div className="lg:col-span-1">
+								<Card className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl sticky top-4">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-3 text-white text-lg">
+											<MixerHorizontalIcon className="h-5 w-5 text-blue-400" />
+											Filter Options
+										</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-6">
+										{/* Cloud Service Filter */}
                             <div>
-                                <Title level={5}>
+											<label className="flex items-center gap-2 text-white font-medium mb-3">
                                     Cloud Service
                                     <Tooltip title="Choose the cloud storage service where your label project is stored">
-                                        <InfoCircleOutlined className="ml-2 text-gray-400" />
+													<InfoCircledIcon className="h-4 w-4 text-gray-500 cursor-help" />
                                     </Tooltip>
-                                </Title>
-                                <Select
-                                    className="w-full"
+											</label>
+											<CustomSelect
                                     value={serviceFilter}
                                     onChange={setServiceFilter}
                                     placeholder="Select Service"
@@ -256,18 +381,18 @@ const UploadData = () => {
                                     <Option value="">All Services</Option>
                                     <Option value="AWS_S3">Amazon S3</Option>
                                     <Option value="GCP_STORAGE">Google Cloud Storage</Option>
-                                </Select>
+											</CustomSelect>
                             </div>
 
+										{/* Storage Bucket Filter */}
                             <div>
-                                <Title level={5}>
+											<label className="flex items-center gap-2 text-white font-medium mb-3">
                                     Storage Bucket
                                     <Tooltip title="Select the specific storage bucket containing your label project">
-                                        <InfoCircleOutlined className="ml-2 text-gray-400" />
+													<InfoCircledIcon className="h-4 w-4 text-gray-500 cursor-help" />
                                     </Tooltip>
-                                </Title>
-                                <Select
-                                    className="w-full"
+											</label>
+											<CustomSelect
                                     value={bucketFilter}
                                     onChange={setBucketFilter}
                                     placeholder="Select Bucket"
@@ -275,104 +400,185 @@ const UploadData = () => {
                                     <Option value="">All Buckets</Option>
                                     <Option value="user-private-project">User Private Project</Option>
                                     <Option value="bucket-1">Bucket 1</Option>
-                                </Select>
+											</CustomSelect>
                             </div>
 
+										{/* Project Status Filter */}
                             <div>
-                                <Title level={5}>
+											<label className="flex items-center gap-2 text-white font-medium mb-3">
                                     Project Status
                                     <Tooltip title="Filter projects based on whether they're already labeled">
-                                        <InfoCircleOutlined className="ml-2 text-gray-400" />
+													<InfoCircledIcon className="h-4 w-4 text-gray-500 cursor-help" />
                                     </Tooltip>
-                                </Title>
-                                <Radio.Group
+											</label>
+											<RadioGroup
                                     value={labeledFilter}
-                                    onChange={(e) => setLabeledFilter(e.target.value)}
-                                    className="w-full"
-                                >
-                                    <Space direction="vertical" className="w-full">
-                                        <Radio value="">All Projects</Radio>
-                                        <Radio value="yes">Labeled Projects</Radio>
-                                        <Radio value="no">Unlabeled Projects</Radio>
-                                    </Space>
-                                </Radio.Group>
+												onValueChange={setLabeledFilter}
+												className="space-y-3"
+											>
+												<div 
+													className="flex items-center space-x-3 cursor-pointer"
+													onClick={() => setLabeledFilter('')}
+												>
+													<RadioGroupItem value="" id="all" />
+													<label htmlFor="all" className="text-gray-300 cursor-pointer">
+														All Projects
+													</label>
+												</div>
+												<div 
+													className="flex items-center space-x-3 cursor-pointer"
+													onClick={() => setLabeledFilter('yes')}
+												>
+													<RadioGroupItem value="yes" id="labeled" />
+													<label htmlFor="labeled" className="text-gray-300 cursor-pointer">
+														Labeled Projects
+													</label>
+												</div>
+												<div 
+													className="flex items-center space-x-3 cursor-pointer"
+													onClick={() => setLabeledFilter('no')}
+												>
+													<RadioGroupItem value="no" id="unlabeled" />
+													<label htmlFor="unlabeled" className="text-gray-300 cursor-pointer">
+														Unlabeled Projects
+													</label>
+												</div>
+											</RadioGroup>
                             </div>
 
+										{/* Continue Button */}
                             {selectedRowKeys && (
                                 <Button
-                                    type="primary"
-                                    size="large"
                                     onClick={handleContinue}
-                                    className="mt-4 flex items-center justify-between"
-                                    block
-                                >
-                                    <>
-                                        Go to Training <ArrowRightOutlined />
-                                    </>
+												className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+											>
+												<span className="flex items-center justify-center gap-2">
+													Go to Training
+													<ArrowRightIcon className="h-4 w-4" />
+												</span>
                                 </Button>
                             )}
-                        </Space>
+									</CardContent>
                     </Card>
-                </Col>
+							</div>
 
-                <Col xs={24} lg={18}>
-                    <Card className="shadow-md rounded-lg mb-6">
-                        <Alert
-                            message="Need help choosing a label project?"
-                            description="If you're unsure about which project to select, look for one that matches your task type and is already labeled (marked with 'Yes'). This will help you get started faster."
-                            type="info"
-                            showIcon
-                            className="mb-4"
-                        />
+							{/* Main Content Area */}
+							<div className="lg:col-span-3 space-y-6">
+								{/* Projects Table */}
+								<Card className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl">
+									<CardContent className="p-8">
+										<Alert className="mb-8 bg-blue-500/5 border-blue-500/20 text-blue-100">
+											<InfoCircledIcon className="h-4 w-4 text-blue-400" />
+											<AlertTitle className="text-blue-100 font-medium">
+												Need help choosing a label project?
+											</AlertTitle>
+											<AlertDescription className="text-blue-200/80 mt-1">
+												If you're unsure about which project to select, look for one that matches your task type and is already labeled (marked with 'Yes'). This will help you get started faster.
+											</AlertDescription>
+										</Alert>
 
-                        <Spin spinning={tableLoading} tip="Processing label project creation...">
-                            <Table
-                                columns={columns}
-                                dataSource={filteredProjects}
-                                rowSelection={{
-                                    type: 'radio',
-                                    selectedRowKeys: selectedRowKeys ? [selectedRowKeys] : [],
-
-                                    onChange: (keys) => setSelectedRowKeys(keys[0]),
-                                    getCheckboxProps: (record) => ({
-                                        name: record.project_id ? record.project_id.toString() : '',
-                                        // Thêm disabled nếu project_id không tồn tại
-                                        disabled: !record.project_id || record.annotated_nums === 0
-                                    }),
-                                }}
-                                rowKey="project_id"
-                                pagination={{ pageSize: 2 }}
-                                className="border rounded-lg"
-                                locale={{
-                                    emptyText: (
-                                        <Empty
-                                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                            description="No label projects match your current filters"
-                                        />
-                                    ),
-                                }}
-                            />
-                        </Spin>
+										{tableLoading ? (
+											<div className="flex items-center justify-center py-16">
+												<div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+												<span className="ml-4 text-gray-300 text-lg">
+													Processing label project creation...
+												</span>
+											</div>
+										) : (
+											<div className="overflow-x-auto">
+												<Table>
+													<TableHeader>
+														<TableRow className="border-gray-800">
+															<TableHead className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-white font-semibold text-left py-4">
+																Title
+															</TableHead>
+															<TableHead className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-white font-semibold text-center py-4">
+																Service
+															</TableHead>
+															<TableHead className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-white font-semibold text-center py-4">
+																Bucket
+															</TableHead>
+															<TableHead className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-white font-semibold text-center py-4">
+																Labeled
+															</TableHead>
+														</TableRow>
+													</TableHeader>
+													<TableBody>
+														{filteredProjects.length === 0 ? (
+															<TableRow>
+																<TableCell colSpan={4} className="text-center py-16">
+																	<div className="text-gray-500">
+																		<CloudUploadIcon className="h-16 w-16 mx-auto mb-4 opacity-30" />
+																		<p className="text-lg">No label projects match your current filters</p>
+																	</div>
+																</TableCell>
+															</TableRow>
+														) : (
+															filteredProjects.map((project) => (
+																<TableRow
+																	key={project.project_id}
+																	className={`border-gray-800 transition-all duration-200 ${
+																		project.isLabeled 
+																			? 'hover:bg-blue-500/5 cursor-pointer' 
+																			: 'opacity-50 cursor-not-allowed'
+																	} ${
+																		selectedRowKeys === project.project_id
+																			? 'bg-blue-500/10 border-blue-500/20'
+																			: ''
+																	}`}
+																	onClick={() => {
+																		if (project.isLabeled) {
+																			setSelectedRowKeys(project.project_id)
+																		}
+																	}}
+																>
+																	<TableCell className="text-white font-medium py-4">
+																		{project.title}
+																	</TableCell>
+																	<TableCell className="text-center py-4">
+																		{renderServiceTag(project.service)}
+																	</TableCell>
+																	<TableCell className="text-center text-gray-300 py-4">
+																		{project.bucketName}
+																	</TableCell>
+																	<TableCell className="text-center py-4">
+																		{project.isLabeled ? (
+																			renderLabeledTag(project.isLabeled)
+																		) : (
+																			<Tooltip title="This project has no labeled data and cannot be selected">
+																				{renderLabeledTag(project.isLabeled)}
+																			</Tooltip>
+																		)}
+																	</TableCell>
+																</TableRow>
+															))
+														)}
+													</TableBody>
+												</Table>
+											</div>
+										)}
+									</CardContent>
                     </Card>
 
+								{/* Create New Project Card */}
                     <Card
-                        hoverable
-                        className="shadow-md rounded-lg text-center cursor-pointer"
+									className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl hover:bg-black/50 hover:border-blue-500/30 hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer group"
                         onClick={showModal}
                     >
-                        <Space direction="vertical" size="medium" className="w-full py-6">
-                            <CloudUploadOutlined className="text-5xl text-blue-500" />
-                            <div>
-                                <Title level={4}>Create a New Label Project</Title>
-                                <Text type="secondary">
+									<CardContent className="p-12 text-center">
+										<CloudUploadIcon className="h-20 w-20 text-blue-400 mx-auto mb-6 group-hover:text-blue-300 transition-colors" />
+										<h3 className="text-2xl font-semibold text-white mb-3 group-hover:text-gray-100 transition-colors">
+											Create a New Label Project
+										</h3>
+										<p className="text-gray-400 text-lg group-hover:text-gray-300 transition-colors">
                                     Don't see what you need? Click here to create a new label project
-                                </Text>
+										</p>
+									</CardContent>
+								</Card>
+							</div>
                             </div>
-                        </Space>
-                    </Card>
-                </Col>
-            </Row>
 
+						{/* Modals */}
             <CreateLabelProjectModal
                 visible={isModalVisible}
                 onCancel={hideModal}
@@ -380,22 +586,24 @@ const UploadData = () => {
             />
 
             <Modal
+							open={isExporting}
+							onClose={() => {}} // Prevent closing during export
                 title="Đang chuẩn bị dữ liệu"
-                open={isExporting}
-                closable={false}
-                footer={null}
-                centered
+							className="bg-black/95 backdrop-blur-sm border border-white/10"
             >
                 <div className="text-center py-8">
-                    <Spin size="large" />
-                    <Paragraph className="mt-4 text-gray-600">
+								<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+								<p className="text-gray-300 text-lg">
                         Hệ thống đang export nhãn và chuẩn bị dữ liệu.
                         <br />
                         Quá trình này có thể mất vài phút, vui lòng không đóng cửa sổ này.
-                    </Paragraph>
+								</p>
                 </div>
             </Modal>
+					</div>
+            </div>
         </div>
+        </>
     )
 }
 
