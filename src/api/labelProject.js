@@ -7,6 +7,9 @@ const URL = `${API_BASE_URL}/api/data`
 const URL_SERVICE = `${API_BASE_URL}/api/service/data`
 const LABEL_STUDIO_URL = process.env.REACT_APP_LABEL_STUDIO_URL
 
+const cookies = new Cookies();
+const userId = cookies.get('x-user-id');
+
 export const createLbProject = (payload) => {
     const options = {
         headers: {
@@ -43,6 +46,7 @@ export const getLbProjByTask = (taskType) => {
         withCredentials: true,
         params: {
             task_type: taskType,
+            owner_id: userId,
         },
     }
 
