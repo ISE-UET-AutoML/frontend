@@ -45,6 +45,7 @@ import {
     AreaChart,
 } from 'recharts'
 import { PATHS } from 'src/constants/paths'
+import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 const { Step } = Steps
 // import { calcGeneratorDuration } from 'framer-motion'
 
@@ -71,16 +72,25 @@ const TrainingMetricCard = ({
     icon,
 }) => {
     return (
-        <Card className="h-max shadow-md">
+        <Card 
+            className="h-max border-0 bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+            style={{
+                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                fontFamily: 'Poppins, sans-serif'
+            }}
+        >
             {loading ? (
                 <Skeleton active paragraph={{ rows: 1 }} />
             ) : (
                 <div className="flex">
-                    <div className="text-lg font-semibold text-gray-600 flex items-center">
-                        {icon && <span className="mr-2">{icon}</span>}
+                    <div className="text-lg font-medium text-gray-300 flex items-center">
+                        {icon && <span className="mr-2 text-blue-400">{icon}</span>}
                         {title}
                     </div>
-                    <div className="text-xl font-bold text-blue-600 ml-8">
+                    <div className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent ml-8">
                         {prefix && <span className="mr-1">{prefix}</span>}
                         {typeof value === 'number'
                             ? value % 1 === 0
@@ -107,12 +117,14 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex justify-center items-center h-64 w-full border border-dashed border-gray-300 rounded-lg">
+            <div className="flex justify-center items-center h-64 w-full border border-dashed border-slate-600/50 rounded-lg bg-slate-800/20">
                 <Space direction="vertical" align="center">
                     <LineChartOutlined
-                        style={{ fontSize: 48, color: '#d9d9d9' }}
+                        style={{ fontSize: 48, color: '#64748b' }}
                     />
-                    <Text type="secondary">Waiting for training data...</Text>
+                    <Text type="secondary" style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                        Waiting for training data...
+                    </Text>
                 </Space>
             </div>
         )
@@ -134,25 +146,26 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                     >
                         <stop
                             offset="5%"
-                            stopColor="#1890ff"
+                            stopColor="#60a5fa"
                             stopOpacity={0.8}
                         />
                         <stop
                             offset="95%"
-                            stopColor="#1890ff"
+                            stopColor="#22d3ee"
                             stopOpacity={0.1}
                         />
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
                     dataKey="time"
                     label={{
                         value: 'Time (min)',
                         position: 'insideBottomRight',
                         offset: -5,
+                        style: { fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }
                     }}
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}
                     domain={[0, maxTrainingTime ? maxTrainingTime : 'auto']}
                 />
                 <YAxis
@@ -160,9 +173,10 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         value: valMetric,
                         angle: -90,
                         position: 'insideLeft',
+                        style: { fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }
                     }}
                     domain={['auto', 'auto']}   // auto-fit to your data
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}
                 />
                 <RechartsTooltip
                     formatter={(value) => [
@@ -171,24 +185,27 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                     ]}
                     labelFormatter={(label) => `Time: ${label} min`}
                     contentStyle={{
-                        backgroundColor: '#fff',
-                        borderRadius: '4px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        color: '#e2e8f0',
+                        fontFamily: 'Poppins, sans-serif'
                     }}
                 />
                 <Legend />
                 <Area
                     type="monotone"
                     dataKey="accuracy"
-                    stroke="#1890ff"
+                    stroke="#60a5fa"
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorAccuracy)"
                     activeDot={{
                         r: 8,
-                        stroke: '#1890ff',
+                        stroke: '#60a5fa',
                         strokeWidth: 2,
-                        fill: '#fff',
+                        fill: '#0f172a',
                     }}
                     name={`Validation ${valMetric}`}
                 />
@@ -229,21 +246,38 @@ const TrainingInfoCard = ({
     return (
         <Card
             title={
-                <Title level={5}>
-                    <DashboardOutlined /> Training Information:{' '}
-                    <Tag color="blue" icon={<ExperimentOutlined />}>
+                <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                    <DashboardOutlined style={{ color: '#60a5fa' }} /> Training Information:{' '}
+                    <Tag 
+                        color="blue" 
+                        icon={<ExperimentOutlined />}
+                        style={{ 
+                            background: 'linear-gradient(135deg, #3b82f6, #22d3ee)', 
+                            border: 'none',
+                            color: 'white',
+                            fontFamily: 'Poppins, sans-serif'
+                        }}
+                    >
                         {experimentName}
                     </Tag>
                 </Title>
             }
-            className="shadow-md hover:shadow-lg transition-shadow duration-300"
+            className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+            style={{
+                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                fontFamily: 'Poppins, sans-serif'
+            }}
             extra={
                 <>
                     {status === 'DONE' && (
                         <div className="text-center">
                             <button
                                 onClick={onViewResults}
-                                className="border border-green-500 bg-green-50 text-green-500 p-2 rounded-md hover:bg-green-500 hover:text-white"
+                                className="border border-blue-400 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 p-3 rounded-lg hover:from-blue-500 hover:to-cyan-500 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                                style={{ fontFamily: 'Poppins, sans-serif' }}
                             >
                                 <CheckCircleOutlined className="mr-2" />
                                 View Training Results
@@ -287,7 +321,16 @@ const TrainingInfoCard = ({
                     </div>
                 </Row>
 
-                <Divider orientation="left">Training Progress</Divider>
+                <Divider 
+                    orientation="left" 
+                    style={{ 
+                        borderColor: 'rgba(255, 255, 255, 0.2)', 
+                        color: '#94a3b8',
+                        fontFamily: 'Poppins, sans-serif'
+                    }}
+                >
+                    Training Progress
+                </Divider>
 
                 <Row gutter={[16, 16]}>
                     {maxTrainingTime > 0 && (
@@ -296,17 +339,27 @@ const TrainingInfoCard = ({
                                 percent={trainProgress}
                                 status={getProgressStatus()}
                                 strokeColor={{
-                                    '0%': '#108ee9',
-                                    '100%': '#87d068',
+                                    '0%': '#3b82f6',
+                                    '100%': '#22d3ee',
                                 }}
+                                trailColor="rgba(51, 65, 85, 0.5)"
                                 format={(percent) =>
                                     status === 'DONE'
                                         ? 'Completed'
                                         : `${percent.toFixed(1)}%`
                                 }
+                                style={{
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
                             />
                             <div className="mt-2">
-                                <Text type="secondary">
+                                <Text 
+                                    type="secondary" 
+                                    style={{ 
+                                        color: '#94a3b8',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
+                                >
                                     {status === 'DONE'
                                         ? `Training completed in ${elapsedTime} minutes`
                                         : timeProgress < 100
@@ -320,7 +373,13 @@ const TrainingInfoCard = ({
                                             description="Training has reached the maximum time limit and will complete soon."
                                             type="warning"
                                             showIcon
-                                            style={{ marginTop: '8px' }}
+                                            style={{ 
+                                                marginTop: '8px',
+                                                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))',
+                                                border: '1px solid rgba(251, 191, 36, 0.3)',
+                                                borderRadius: '8px',
+                                                fontFamily: 'Poppins, sans-serif'
+                                            }}
                                         />
                                     )}
                             </div>
@@ -418,14 +477,58 @@ const Training = () => {
     }, [chartData, maxTrainingTime])
 
     return (
-        <div className="p-4">
-            <animated.div
-                style={useSpring({
-                    from: { opacity: 0, transform: 'translateY(20px)' },
-                    to: { opacity: 1, transform: 'translateY(0)' },
-                    config: { tension: 280, friction: 20 },
-                })}
-            >
+        <>
+            <style>{`
+                body, html {
+                    background-color: #01000A !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+            `}</style>
+            <div className="min-h-screen bg-[#01000A] relative">
+                <BackgroundShapes 
+                    width="1280px" 
+                    height="1200px"
+                    shapes={[
+                        {
+                            id: 'trainingBlue',
+                            shape: 'circle',
+                            size: '600px',
+                            gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
+                            opacity: 0.35,
+                            blur: '240px',
+                            position: { top: '120px', right: '-200px' },
+                            transform: 'none'
+                        },
+                        {
+                            id: 'trainingCyan',
+                            shape: 'rounded',
+                            size: '500px',
+                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 45%', 'transparent 80%'] },
+                            opacity: 0.25,
+                            blur: '200px',
+                            position: { top: '300px', left: '-180px' },
+                            transform: 'none'
+                        },
+                        {
+                            id: 'trainingWarm',
+                            shape: 'rounded',
+                            size: '450px',
+                            gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 55%', 'transparent 90%'] },
+                            opacity: 0.20,
+                            blur: '180px',
+                            position: { bottom: '100px', right: '20%' },
+                            transform: 'none'
+                        }
+                    ]}
+                />
+                <div className="relative z-10 p-6">
+                    <animated.div
+                        style={useSpring({
+                            from: { opacity: 0, transform: 'translateY(20px)' },
+                            to: { opacity: 1, transform: 'translateY(0)' },
+                            config: { tension: 280, friction: 20 },
+                        })}
+                    >
                 <Space
                     direction="vertical"
                     size="large"
@@ -445,16 +548,29 @@ const Training = () => {
 
                     <Card
                         title={
-                            <Title level={5}>
-                                <LineChartOutlined /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
+                            <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                                <LineChartOutlined style={{ color: '#60a5fa' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
                             </Title>
                         }
-                        className="shadow-md hover:shadow-lg transition-shadow duration-300"
+                        className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                        style={{
+                            background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '12px',
+                            fontFamily: 'Poppins, sans-serif'
+                        }}
                         extra={
                             maxTrainingTime ? (
                                 <Tag
                                     color="orange"
                                     icon={<HourglassOutlined />}
+                                    style={{ 
+                                        background: 'linear-gradient(135deg, #f59e0b, #f97316)', 
+                                        border: 'none',
+                                        color: 'white',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
                                 >
                                     Time Limit: {maxTrainingTime.toFixed(2)} min
                                 </Tag>
@@ -487,6 +603,16 @@ const Training = () => {
                                             : `This experiment is configured to run for maximum ${maxTrainingTime} minutes.`
                                     }
                                     showIcon
+                                    style={{
+                                        background: elapsedTime >= maxTrainingTime 
+                                            ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))'
+                                            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                        border: elapsedTime >= maxTrainingTime 
+                                            ? '1px solid rgba(251, 191, 36, 0.3)'
+                                            : '1px solid rgba(59, 130, 246, 0.3)',
+                                        borderRadius: '8px',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
                                 />
                             </div>
                         )}
@@ -495,48 +621,61 @@ const Training = () => {
                     <Alert
                         description={
                             <div>
-                                <Paragraph>
-                                    <RadarChartOutlined className="mr-2" />
-                                    <Text strong>Understand Metrics:</Text>{' '}
-                                    {metricExplain}
+                                <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
+                                    <RadarChartOutlined className="mr-2" style={{ color: '#60a5fa' }} />
+                                    <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
+                                    <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                        {metricExplain}
+                                    </Text>
                                 </Paragraph>
 
                                 {maxTrainingTime && (
-                                    <Paragraph>
+                                    <Paragraph style={{ margin: '12px 0 0 0', fontFamily: 'Poppins, sans-serif' }}>
                                         <Tooltip title="Time constraints can affect model performance">
-                                            <HourglassOutlined className="mr-2" />
-                                            <Text strong>
+                                            <HourglassOutlined className="mr-2" style={{ color: '#f59e0b' }} />
+                                            <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
                                                 Training Time Limit:
                                             </Text>{' '}
-                                            This experiment has a maximum
-                                            training time of {maxTrainingTime}{' '}
-                                            minutes. If the training doesn't
-                                            converge within this time, consider
-                                            adjusting model complexity or
-                                            training parameters.
+                                            <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                                This experiment has a maximum
+                                                training time of {maxTrainingTime}{' '}
+                                                minutes. If the training doesn't
+                                                converge within this time, consider
+                                                adjusting model complexity or
+                                                training parameters.
+                                            </Text>
                                         </Tooltip>
                                     </Paragraph>
                                 )}
                             </div>
                         }
                         type="info"
+                        style={{
+                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            borderRadius: '12px',
+                            fontFamily: 'Poppins, sans-serif'
+                        }}
                     />
-                </Space>
-            </animated.div>
+                    </Space>
+                    </animated.div>
+                </div>
 
-            <Modal
+                <Modal
                 title={
                     <div
                         style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '10px',
+                            fontFamily: 'Poppins, sans-serif',
+                            color: '#e2e8f0'
                         }}
                     >
                         Resource Preparation
                         <Tooltip
                             title={
-                                <div>
+                                <div style={{ fontFamily: 'Poppins, sans-serif' }}>
                                     <p>
                                         This process ensures a smooth and
                                         secure setup:
@@ -564,7 +703,7 @@ const Training = () => {
                         >
                             <InfoCircleOutlined
                                 style={{
-                                    color: '#1890ff',
+                                    color: '#60a5fa',
                                     cursor: 'pointer',
                                 }}
                             />
@@ -575,19 +714,39 @@ const Training = () => {
                 onCancel={handleModalCancel}
                 footer={null}
                 width={1000}
+                styles={{
+                    mask: {
+                        backdropFilter: 'blur(8px)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.6)'
+                    }
+                }}
             >
-                <Card className="preparation-card">
-                    <Steps current={currentStep}>
+                <Card 
+                    className="preparation-card border-0"
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        fontFamily: 'Poppins, sans-serif'
+                    }}
+                >
+                    <Steps 
+                        current={currentStep}
+                        style={{
+                            fontFamily: 'Poppins, sans-serif'
+                        }}
+                    >
                         {steps.map((step, index) => (
                             <Step
                                 key={index}
-                                title={step.title}
+                                title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>{step.title}</span>}
                                 description={step.description}
                                 icon={
                                     currentStep === index ? (
-                                        <LoadingOutlined />
+                                        <LoadingOutlined style={{ color: '#60a5fa' }} />
                                     ) : (
-                                        step.icon
+                                        <span style={{ color: '#94a3b8' }}>{step.icon}</span>
                                     )
                                 }
                             />
@@ -595,7 +754,8 @@ const Training = () => {
                     </Steps>
                 </Card>
             </Modal>
-        </div>
+            </div>
+        </>
     )
 }
 

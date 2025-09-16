@@ -31,21 +31,22 @@ import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import * as modelServiceAPI from 'src/api/model'
 import { PATHS } from 'src/constants/paths'
+import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 const { Title, Text } = Typography
 
 // Performance Metrics Configuration
 const getAccuracyStatus = (score) => {
     if (score >= 0.9) {
-        return <Tag color="green">Excellent</Tag>
+        return <Tag style={{ background: 'linear-gradient(135deg, #10b981, #34d399)', border: 'none', color: 'white', fontFamily: 'Poppins, sans-serif' }}>Excellent</Tag>
     }
     else if (score >= 0.7) {
-        return <Tag color="blue">Good</Tag>
+        return <Tag style={{ background: 'linear-gradient(135deg, #3b82f6, #60a5fa)', border: 'none', color: 'white', fontFamily: 'Poppins, sans-serif' }}>Good</Tag>
     }
     else if (score >= 0.6) {
-        return <Tag color="orange">Medium</Tag>
+        return <Tag style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24)', border: 'none', color: 'white', fontFamily: 'Poppins, sans-serif' }}>Medium</Tag>
     }
     else {
-        return <Tag color='red'>Bad</Tag>
+        return <Tag style={{ background: 'linear-gradient(135deg, #ef4444, #f87171)', border: 'none', color: 'white', fontFamily: 'Poppins, sans-serif' }}>Bad</Tag>
     }
 }
 
@@ -57,9 +58,9 @@ const columns = [
         key: 'metric',
         render: (text, record) => (
             <Tooltip title={record.description}>
-                {text}{' '}
+                <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>{text}</span>{' '}
                 <InfoCircleOutlined
-                    style={{ color: '#1890ff', marginLeft: 5 }}
+                    style={{ color: '#60a5fa', marginLeft: 5 }}
                 />
             </Tooltip>
         ),
@@ -68,6 +69,9 @@ const columns = [
         title: 'Value',
         dataIndex: 'value',
         key: 'value',
+        render: (text) => (
+            <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>{text}</span>
+        ),
     },
     {
         title: 'Status',
@@ -168,61 +172,185 @@ const TrainResult = () => {
     }, [])
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <Space direction="vertical" size="large" className="w-full">
+        <>
+            <style>{`
+                body, html {
+                    background-color: #01000A !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                .dark-table .ant-table {
+                    background: transparent !important;
+                    color: #e2e8f0 !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                .dark-table .ant-table-thead > tr > th {
+                    background: rgba(51, 65, 85, 0.4) !important;
+                    color: #e2e8f0 !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                .dark-table .ant-table-tbody > tr > td {
+                    background: rgba(15, 23, 42, 0.3) !important;
+                    color: #e2e8f0 !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                .dark-table .ant-table-tbody > tr:hover > td {
+                    background: rgba(51, 65, 85, 0.5) !important;
+                }
+                .dark-table .ant-empty-description {
+                    color: #94a3b8 !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+            `}</style>
+            <div className="min-h-screen bg-[#01000A] relative">
+                <BackgroundShapes 
+                    width="1280px" 
+                    height="1200px"
+                    shapes={[
+                        {
+                            id: 'resultBlue',
+                            shape: 'circle',
+                            size: '580px',
+                            gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 38%', 'transparent 78%'] },
+                            opacity: 0.32,
+                            blur: '230px',
+                            position: { top: '160px', right: '-170px' },
+                            transform: 'none'
+                        },
+                        {
+                            id: 'resultCyan',
+                            shape: 'rounded',
+                            size: '500px',
+                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 48%', 'transparent 82%'] },
+                            opacity: 0.28,
+                            blur: '200px',
+                            position: { top: '380px', left: '-180px' },
+                            transform: 'none'
+                        },
+                        {
+                            id: 'resultWarm',
+                            shape: 'rounded',
+                            size: '460px',
+                            gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 58%', 'transparent 88%'] },
+                            opacity: 0.22,
+                            blur: '180px',
+                            position: { bottom: '120px', right: '22%' },
+                            transform: 'none'
+                        }
+                    ]}
+                />
+                <div className="relative z-10 p-6">
+                    <Space direction="vertical" size="large" className="w-full">
                 {/* Key Metrics Cards */}
                 <Row gutter={[16, 16]}>
                     <Col xs={24} sm={12} md={8}>
-                        <Card className="shadow-md ">
+                        <Card 
+                            className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '12px',
+                                fontFamily: 'Poppins, sans-serif'
+                            }}
+                        >
                             <Statistic
-                                title={`Final ${metrics[0]?.metric} score`}
+                                title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>{`Final ${metrics[0]?.metric} score`}</span>}
                                 value={metrics[0]?.value * 100 || 0}
                                 precision={2}
-                                prefix={<TrophyOutlined />}
+                                prefix={<TrophyOutlined style={{ color: '#10b981' }} />}
                                 suffix="%"
                                 valueStyle={{
-                                    color: '#3f8600',
+                                    background: 'linear-gradient(135deg, #10b981, #34d399)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 'bold'
                                 }}
                             />
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
-                        <Card className="shadow-md ">
+                        <Card 
+                            className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '12px',
+                                fontFamily: 'Poppins, sans-serif'
+                            }}
+                        >
                             <Statistic
-                                title="Training Duration"
+                                title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>Training Duration</span>}
                                 value={experiment.actual_training_time || 0}
                                 valueStyle={{
-                                    color: '#f0b100',
+                                    background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 'bold'
                                 }}
                                 precision={2}
-                                prefix={<ClockCircleOutlined />}
+                                prefix={<ClockCircleOutlined style={{ color: '#f59e0b' }} />}
                                 suffix="m"
                             />
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
-                        <Card className="shadow-md ">
+                        <Card 
+                            className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                backdropFilter: 'blur(10px)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '12px',
+                                fontFamily: 'Poppins, sans-serif'
+                            }}
+                        >
                             <Statistic
-                                title="Total Epochs"
+                                title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>Total Epochs</span>}
                                 value={trainingInfo?.latestEpoch || 0}
-                                prefix={<ExperimentOutlined />}
+                                prefix={<ExperimentOutlined style={{ color: '#3b82f6' }} />}
                                 valueStyle={{
-                                    color: '#2b7fff',
+                                    background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 'bold'
                                 }}
                             />
                         </Card>
                     </Col>
                 </Row>
 
-                <Card title="Next Steps" className="rounded-xl shadow-sm">
+                <Card 
+                    title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Next Steps</span>}
+                    className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        fontFamily: 'Poppins, sans-serif'
+                    }}
+                >
                     <Row gutter={[16, 16]}>
                         <Col xs={24} sm={8}>
                             <Alert
-                                message="Check Out Model"
-                                description="Check out your newly created AI model for this experiment."
+                                message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Check Out Model</span>}
+                                description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Check out your newly created AI model for this experiment.</span>}
                                 type="success"
                                 showIcon
-                                style={{ height: 130 }}
+                                style={{ 
+                                    height: 130,
+                                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1))',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                                    borderRadius: '8px',
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
                             />
                             <Button
                                 type="primary"
@@ -238,9 +366,11 @@ const TrainResult = () => {
                                     width: '100%',
                                     fontWeight: 'bold',
                                     marginTop: 15,
-                                    backgroundColor: '#52c41a',
-                                    borderColor: '#52c41a',
+                                    background: 'linear-gradient(135deg, #10b981, #34d399)',
+                                    border: 'none',
+                                    fontFamily: 'Poppins, sans-serif'
                                 }}
+                                className="hover:shadow-lg transition-all duration-300"
                             >
                                 View Model
                             </Button>
@@ -249,12 +379,25 @@ const TrainResult = () => {
                 </Card>
 
                 {/* Expandable Details Section */}
-                <Card>
+                <Card
+                    className="border-0 backdrop-blur-sm shadow-lg"
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        fontFamily: 'Poppins, sans-serif'
+                    }}
+                >
                     <Button
                         type="link"
-                        icon={<BarChartOutlined />}
+                        icon={<BarChartOutlined style={{ color: '#60a5fa' }} />}
                         onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
                         className="text-xl"
+                        style={{
+                            color: '#e2e8f0',
+                            fontFamily: 'Poppins, sans-serif'
+                        }}
                     >
                         {isDetailsExpanded
                             ? 'Hide Details'
@@ -268,7 +411,17 @@ const TrainResult = () => {
                             className="w-full mt-4"
                         >
                             {/* Performance Charts */}
-                            <Card title="Training Performance">
+                            <Card 
+                                title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Training Performance</span>}
+                                className="border-0 backdrop-blur-sm"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
+                            >
                                 <Row gutter={[16, 16]}>
                                     {Object.entries(valGraphs).map(([metricName, metricData]) => (
                                         <Col xs={24} md={12} key={metricName}>
@@ -284,18 +437,35 @@ const TrainResult = () => {
                             </Card>
 
                             {/* Detailed Metrics Table */}
-                            <Card title="Comprehensive Metrics">
+                            <Card 
+                                title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Comprehensive Metrics</span>}
+                                className="border-0 backdrop-blur-sm"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
+                            >
                                 <Table
                                     columns={columns}
                                     dataSource={metrics}
                                     pagination={false}
+                                    style={{
+                                        background: 'transparent',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
+                                    className="dark-table"
                                 />
                             </Card>
                         </Space>
                     )}
                 </Card>
-            </Space>
-        </div>
+                    </Space>
+                </div>
+            </div>
+        </>
     )
 }
 
