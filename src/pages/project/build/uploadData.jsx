@@ -594,10 +594,9 @@ const UploadData = () => {
                 <div className="text-center py-8">
 								<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
 								<p className="text-gray-300 text-lg">
-                        Hệ thống đang export nhãn và chuẩn bị dữ liệu.
+                        The system is exporting labels and preparing your data.
                         <br />
-                        Quá trình này có thể mất vài phút, vui lòng không đóng cửa sổ này.
-								</p>
+                        This process may take a few minutes. Please do not close this window. </p>
                 </div>
             </Modal>
 					</div>
