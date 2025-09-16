@@ -141,10 +141,10 @@ export default function Datasets() {
 		try {
 			message.success('Dataset created successfully!')
 			updateDataState({ showCreator: false })
-			// Thêm vào Zustand store để polling ngầm
+			// Thêm vào Zustand store để polling 
 			usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues });
 			await getDatasets()
-			await allDatasets() // Refresh all datasets for search functionality
+			await allDatasets() 
 			setSortBy('latest')
     		setFilterBy('none')
 		} catch (error) {
@@ -202,66 +202,71 @@ export default function Datasets() {
 
 
 
-	return (
-		<div className="p-6">
-			<div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-				{/* Left side - New Dataset button */}
-				<Button
-					type="primary"
-					icon={<PlusOutlined />}
-					onClick={() => updateDataState({ showCreator: true })}
+return (
+	<div className="p-6">
+		<div className="h-8"></div>
+		<div className="flex items-center gap-4 mb-6">
+			{/* New Dataset Button */}
+			<Button
+				type="primary"
+				icon={<PlusOutlined />}
+				onClick={() => updateDataState({ showCreator: true })}
+			>
+				New Dataset
+			</Button>
+			<div className="flex-1" /> {/* Spacer */}
+
+			{/* Search */}
+			<div className="flex-1 max-w-md">
+				<Search
+					placeholder="Search datasets"
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
 					size="large"
+					allowClear
+				/>
+			</div>
+			
+
+			{/* Sort */}
+			<div className="flex items-center gap-2">
+				<span className="font-medium">Sort by:</span>
+				<Select
+					value={sortBy}
+					onChange={(value) => setSortBy(value)}
+					style={{ width: 90}}
 				>
-					New Dataset
-				</Button>
-
-				{/* Right side - Search, Sort, Filter controls */}
-				<div className="flex items-center gap-3">
-					{/* Search */}
-					<Search
-						placeholder="Search datasets"
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						allowClear
-						style={{ width: 280 }}
-					/>
-
-					{/* Sort */}
-					<div className="flex items-center gap-2">
-						<span className="text-gray-600 text-sm whitespace-nowrap">Sort:</span>
-						<Select
-							value={sortBy}
-							onChange={(value) => setSortBy(value)}
-							style={{ width: 120 }}
-						>
-							<Option value="name">Name</Option>
-							<Option value="latest">Latest</Option>
-							<Option value="oldest">Oldest</Option>
-						</Select>
-					</div>
-
-					{/* Filter */}
-					<div className="flex items-center gap-2">
-						<span className="text-gray-600 text-sm whitespace-nowrap">Type:</span>
-						<Select
-							value={filterBy}
-							onChange={(value) => setFilterBy(value)}
-							style={{ width: 130 }}
-						>
-							<Option value="none">All</Option>
-							<Option value="TEXT">Text</Option>
-							<Option value="IMAGE">Image</Option>
-							<Option value="TABULAR">Tabular</Option>
-							<Option value="MULTIMODAL">Multimodal</Option>
-						</Select>
-					</div>
-				</div>
+					<Option value="name">Name</Option>
+					<Option value="latest">Latest</Option>
+					<Option value="oldest">Oldest</Option>
+				</Select>
 			</div>
 
+			{/* Filter */}
+			<div className="flex items-center gap-2">
+				<span className="font-medium">Type:</span>
+				<Select
+					value={filterBy}
+					onChange={(value) => setFilterBy(value)}
+					style={{ width: 120 }}
+				>
+					<Option value="none">None</Option>
+					<Option value="TEXT">Text</Option>
+					<Option value="IMAGE">Image</Option>
+					<Option value="TABULAR">Tabular</Option>
+					<Option value="MULTIMODAL">Multimodal</Option>
+				</Select>
+			</div>
+		</div>
+
+		{/* Space between controls and content */}
+		<div className="h-12"></div>
+
+		{/* Content container */}
+		<div className="min-h-[600px] relative">
 			{datasetState.isLoading ? (
 				<Card loading={true} className="text-center" />
 			) : processedData.length > 0 ? (
-			<>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 					{paginatedData.map((dataset) => (
 						<DatasetCard
@@ -272,32 +277,33 @@ export default function Datasets() {
 						/>
 					))}
 				</div>
-				
-				<div className="flex justify-center mt-8">
-                        <Pagination
-                            current={currentPage}
-                            total={processedData.length}
-                            pageSize={pageSize}
-                            onChange={(page) => {
-								console.log('Pagination clicked. New page:', page);
-								setCurrentPage(page);
-							}}
-                            showSizeChanger={false}
-                        />
-                </div>
-			</>	
 			) : (
-				<Card className="text-center">
-					<Title level={4}>No Datasets Found</Title>
-					<p>Get started by creating a new dataset.</p>
-				</Card>
+				<div className="absolute inset-0 flex items-center justify-center">
+					<Card className="text-center">
+						<Title level={4}>No Datasets Found</Title>
+						<p>Get started by creating a new dataset.</p>
+					</Card>
+				</div>
 			)}
-
-			<CreateDatasetModal
-				visible={datasetState.showCreator}
-				onCancel={() => updateDataState({ showCreator: false })}
-				onCreate={handleCreateDataset}
+		</div>
+		
+		{/* pagination*/}
+		<div className="flex justify-center mt-8">
+			<Pagination
+				current={currentPage}
+				total={processedData.length}
+				pageSize={pageSize}
+				onChange={(page) => {
+					setCurrentPage(page);
+				}}
+				showSizeChanger={false}
 			/>
 		</div>
-	)
-}
+
+		<CreateDatasetModal
+			visible={datasetState.showCreator}
+			onCancel={() => updateDataState({ showCreator: false })}
+			onCreate={handleCreateDataset}
+		/>
+	</div>
+)}
