@@ -7,6 +7,9 @@ import CreateDatasetModal from './CreateDatasetModal'
 import { POLL_DATASET_PROCESSING_STATUS_TIME } from 'src/constants/time'
 import { usePollingStore } from 'src/store/pollingStore'
 import { Input } from 'antd';
+import { Select, Space } from 'antd';
+
+const { Option } = Select;
 
 const { Search } = Input;
 const { Title } = Typography
@@ -22,11 +25,16 @@ export default function Datasets() {
 		(state, newState) => ({ ...state, ...newState }),
 		initialState
 	)
+
+	// New states for sorting, filtering, and search
+	const [sortBy, setSortBy] = useState('latest');
+	const [filterBy, setFilterBy] = useState('none');
+	const [processedData, setProcessedData] = useState([]);
+
 	// Get all datasets for search functionality
 	const [allDatasetList, setAllDatasetList] = useState([]) 
 
 	const [deletingIds, setDeletingIds] = useState(new Set()) // Added to track deleting datasets
-
 	const [currentPage, setCurrentPage] = useState(1) // Added for pagination
 	const [totalItems, setTotalItems] = useState(0) 
 
@@ -36,10 +44,7 @@ export default function Datasets() {
 	}
 	const [searchTerm, setSearchTerm] = useState('')
 	
-	const filteredDatasets = searchTerm ?
-		allDatasetList.filter(dataset => (dataset.title ?? '').toLowerCase().includes(searchTerm.toLowerCase())) :
-		datasetState.datasets
-
+	
 	const allDatasets = async () => {
 		try {
 			const response = await datasetAPI.getDatasets({page: 1, limit: 10000})
@@ -49,8 +54,7 @@ export default function Datasets() {
 			console.error('Error fetching all datasets:', error)
 		}
 	}
-	const sortedByTime = filteredDatasets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+	
 
 	
 	const updateDatasetStatus = async (datasetId) => {
@@ -141,6 +145,8 @@ export default function Datasets() {
 			usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues });
 			await getDatasets()
 			await allDatasets() // Refresh all datasets for search functionality
+			setSortBy('latest')
+    		setFilterBy('none')
 		} catch (error) {
 			console.error('Error handling created dataset:', error)
 		}
@@ -165,35 +171,99 @@ export default function Datasets() {
 		}
 	}
 
+	useEffect(() => {
+		let data = [...allDatasetList];
+
+		if (searchTerm) {
+			data = data.filter(dataset =>
+				(dataset.title ?? '').toLowerCase().includes(searchTerm.toLowerCase())
+			);
+		}
+
+		// filter
+		if (filterBy !== 'none') {
+			data = data.filter(dataset=>dataset.dataType === filterBy)
+		}
+
+		// sort
+		if (sortBy === 'name') {
+			data.sort((a, b) => a.title.localeCompare(b.title));
+		} else if (sortBy === 'latest') {
+			data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+		} else if (sortBy === 'oldest') {
+			data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+		}
+		setProcessedData(data)
+		setCurrentPage(1) 
+	}, [allDatasetList, searchTerm, sortBy, filterBy])
+
+	const startIndex = (currentPage - 1) * pageSize
+  	const paginatedData = processedData.slice(startIndex, startIndex + pageSize)
+
+
 
 	return (
 		<div className="p-6">
-			<div className="flex justify-between items-center mb-6">
-				<Title level={3}>Datasets</Title>
-				<div>
-					<Search
-						placeholder="Search datasets"
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						size="large"
-						allowClear
-					/>
-				</div>
+			<div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+				{/* Left side - New Dataset button */}
 				<Button
 					type="primary"
 					icon={<PlusOutlined />}
 					onClick={() => updateDataState({ showCreator: true })}
+					size="large"
 				>
 					New Dataset
 				</Button>
+
+				{/* Right side - Search, Sort, Filter controls */}
+				<div className="flex items-center gap-3">
+					{/* Search */}
+					<Search
+						placeholder="Search datasets"
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						allowClear
+						style={{ width: 280 }}
+					/>
+
+					{/* Sort */}
+					<div className="flex items-center gap-2">
+						<span className="text-gray-600 text-sm whitespace-nowrap">Sort:</span>
+						<Select
+							value={sortBy}
+							onChange={(value) => setSortBy(value)}
+							style={{ width: 120 }}
+						>
+							<Option value="name">Name</Option>
+							<Option value="latest">Latest</Option>
+							<Option value="oldest">Oldest</Option>
+						</Select>
+					</div>
+
+					{/* Filter */}
+					<div className="flex items-center gap-2">
+						<span className="text-gray-600 text-sm whitespace-nowrap">Type:</span>
+						<Select
+							value={filterBy}
+							onChange={(value) => setFilterBy(value)}
+							style={{ width: 130 }}
+						>
+							<Option value="none">All</Option>
+							<Option value="TEXT">Text</Option>
+							<Option value="IMAGE">Image</Option>
+							<Option value="TABULAR">Tabular</Option>
+							<Option value="MULTIMODAL">Multimodal</Option>
+						</Select>
+					</div>
+				</div>
 			</div>
 
 			{datasetState.isLoading ? (
 				<Card loading={true} className="text-center" />
-			) : datasetState.datasets.length > 0 ? (
+			) : processedData.length > 0 ? (
 			<>
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-					{filteredDatasets.map((dataset) => (
+					{paginatedData.map((dataset) => (
 						<DatasetCard
 							key={dataset.id}
 							dataset={dataset}
@@ -202,11 +272,11 @@ export default function Datasets() {
 						/>
 					))}
 				</div>
-				{!searchTerm && (
+				
 				<div className="flex justify-center mt-8">
                         <Pagination
                             current={currentPage}
-                            total={totalItems}
+                            total={processedData.length}
                             pageSize={pageSize}
                             onChange={(page) => {
 								console.log('Pagination clicked. New page:', page);
@@ -214,7 +284,7 @@ export default function Datasets() {
 							}}
                             showSizeChanger={false}
                         />
-                </div>)}
+                </div>
 			</>	
 			) : (
 				<Card className="text-center">
