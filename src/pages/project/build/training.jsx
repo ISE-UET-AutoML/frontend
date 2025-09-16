@@ -633,10 +633,10 @@ const Training = () => {
                                     <Paragraph style={{ margin: '12px 0 0 0', fontFamily: 'Poppins, sans-serif' }}>
                                         <Tooltip title="Time constraints can affect model performance">
                                             <HourglassOutlined className="mr-2" style={{ color: '#f59e0b' }} />
-                                            <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                                            <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
                                                 Training Time Limit:
                                             </Text>{' '}
-                                            <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                            <Text style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
                                                 This experiment has a maximum
                                                 training time of {maxTrainingTime}{' '}
                                                 minutes. If the training doesn't
@@ -669,7 +669,7 @@ const Training = () => {
                             alignItems: 'center',
                             gap: '10px',
                             fontFamily: 'Poppins, sans-serif',
-                            color: '#e2e8f0'
+                            color: 'black'
                         }}
                     >
                         Resource Preparation

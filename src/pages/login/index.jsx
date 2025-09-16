@@ -123,7 +123,12 @@ const Login = () => {
         <>
             <main className="w-full h-screen" style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#01000A' }}>
                 <style>{`
-                    body, html { background-color: #01000A !important; }
+                    body, html { 
+                        background-color: #01000A !important;
+                        overflow: hidden !important;
+                        height: 100vh !important;
+                        width: 100vw !important;
+                    }
                 `}</style>
                 <div className="relative w-full h-full">
                     <BackgroundShapes 
