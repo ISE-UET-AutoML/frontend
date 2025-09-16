@@ -204,7 +204,7 @@ export default function Datasets() {
 
 return (
 	<div className="p-6">
-		<div className="h-8"></div>
+		<div className="h-16"></div>
 		<div className="flex items-center gap-4 mb-6">
 			{/* New Dataset Button */}
 			<Button
@@ -234,7 +234,7 @@ return (
 				<Select
 					value={sortBy}
 					onChange={(value) => setSortBy(value)}
-					style={{ width: 90}}
+					style={{ width: 90, height: 40 }}
 				>
 					<Option value="name">Name</Option>
 					<Option value="latest">Latest</Option>
@@ -248,7 +248,7 @@ return (
 				<Select
 					value={filterBy}
 					onChange={(value) => setFilterBy(value)}
-					style={{ width: 120 }}
+					style={{ width: 120, height: 40 }}
 				>
 					<Option value="none">None</Option>
 					<Option value="TEXT">Text</Option>
