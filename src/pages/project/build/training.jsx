@@ -421,6 +421,7 @@ const Training = () => {
 
     const { trainingTasks, startTrainingTask } = useTrainingStore()
     const trainingTask = trainingTasks[experimentId]
+    console.log("Training Task:", trainingTask)
     // Handle view results button click
     const handleViewResults = () => {
         navigate(

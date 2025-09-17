@@ -2,6 +2,7 @@ import React from 'react'
 import { Row, Col, Select, Button } from 'antd'
 import { TrainingTask } from 'src/constants/trainingTasks'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { SortDropdown, ProjectSearchBar } from 'src/components/projects'
 
 // Custom styles for dark select
 const darkSelectStyles = `
@@ -63,30 +64,41 @@ const trainingTaskOptions = Object.values(TrainingTask).map((task) => ({
     ),
 }))
 
-const TaskFilter = ({ selectedTrainingTask, onTaskChange, onReset, showFilter }) => {
+const TaskFilter = ({ selectedTrainingTask, onTaskChange, onReset, showFilter, onSearch, selectedSort, onSortChange, isReset, searchValue }) => {
     return (
         <>
             <style>{darkSelectStyles}</style>
             <div 
                 className={`mb-6 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 ease-in-out overflow-hidden ${
                     showFilter 
-                        ? 'max-h-20 opacity-100 transform translate-y-0' 
+                        ? 'max-h-96 opacity-100 transform translate-y-0' 
                         : 'max-h-0 opacity-0 transform -translate-y-4'
                 }`}
             >
-            <Row align="middle" gutter={16}>
-                <Col>
-                    <span className="text-sm font-poppins font-medium text-gray-300">
-                        Filter by Task:
-                    </span>
+            <div>
+                <span className="text-sm font-poppins font-medium text-gray-300 block mb-2">Search:</span>
+                <ProjectSearchBar
+                    onSearch={onSearch}
+                    isReset={isReset}
+                />
+            </div>
+            <Row align="middle" gutter={[16, 16]}>
+                <Col xs={24} sm={8}>
+                    <span className="text-sm font-poppins font-medium text-gray-300 block mb-2">Sort by:</span>
+                    <SortDropdown
+                    selectedSort={selectedSort}
+                    onSortChange={onSortChange}
+                    />
                 </Col>
+                {/* Task Type Filter */}
                 <Col flex="auto">
+                    <span className="text-sm font-poppins font-medium text-gray-300 block mb-2">Type:</span>
                     <Select
                         key="task"
                         options={trainingTaskOptions}
                         value={selectedTrainingTask}
                         placeholder={
-                            <span className="font-poppins text-gray-400">
+                            <span stylel={{color: 'white'}} className="font-poppins text-gray-400">
                                 Select task type
                             </span>
                         }
@@ -107,17 +119,19 @@ const TaskFilter = ({ selectedTrainingTask, onTaskChange, onReset, showFilter })
                         popupClassName="dark-select-dropdown"
                     />
                 </Col>
-                {selectedTrainingTask && (
-                    <Col>
-                        <button
-                            onClick={onReset}
-                            className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all duration-200"
-                        >
-                            <XMarkIcon className="h-4 w-4 text-white" />
-                        </button>
-                    </Col>
-                )}
             </Row>
+            {(selectedTrainingTask || searchValue !== '' || selectedSort !== 'created_at') && (
+                <div className="flex justify-end pt-2">
+                    <button
+                        onClick={onReset}
+                        className="px-4 py-2 rounded-lg bg-white/10 flex items-center gap-2 hover:bg-white/20 transition-all duration-200 text-white"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                    >
+                        <XMarkIcon className="h-4 w-4" />
+                        Reset Filters
+                    </button>
+                </div>
+            )}
             </div>
         </>
     )

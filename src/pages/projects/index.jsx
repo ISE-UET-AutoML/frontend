@@ -41,9 +41,13 @@ export default function Projects() {
         getProjects,
         handleCreateProject,
         setTask,
-        filterProjectsByName,
+        handleSearch,
         selectedSort,
         handleSortChange,
+        searchValue,
+        setSearchValue,
+        isReset,
+        resetFilters
     } = useProjects()
 
     const {
@@ -143,15 +147,13 @@ export default function Projects() {
                     <TaskFilter
                         selectedTrainingTask={selectedTrainingTask}
                         onTaskChange={setSelectedTrainingTask}
-                        onReset={() => setSelectedTrainingTask(null)}
+                        onReset={resetFilters}
                         showFilter={showFilter}
-                    />
-
-                    {/* Search Bar + Sort */}
-                    <ProjectSearchBar
-                        onSearch={filterProjectsByName}
+                        onSearch={handleSearch}
                         selectedSort={selectedSort}
                         onSortChange={handleSortChange}
+                        isReset={isReset}
+                        searchValue={searchValue}
                     />
 
                     {/* Projects Grid */}

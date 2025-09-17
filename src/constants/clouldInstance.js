@@ -95,6 +95,7 @@ export const INSTANCE_SIZE_DETAILS = {
         memory: 'Basic memory allocation',
         recommended: 'Testing and development',
         color: '#91d5ff',
+        instanceDetails: GPU_LEVELS[0]
     },
     Medium: {
         title: '⚖️ Balanced Setup',
@@ -103,6 +104,7 @@ export const INSTANCE_SIZE_DETAILS = {
         memory: 'Increased memory capacity',
         recommended: 'Regular training tasks',
         color: '#b7eb8f',
+        instanceDetails: GPU_LEVELS[1]
     },
     Strong: {
         title: '🔥 Enhanced Performance',
@@ -111,6 +113,7 @@ export const INSTANCE_SIZE_DETAILS = {
         memory: 'High memory allocation',
         recommended: 'Complex model training',
         color: '#ffd666',
+        instanceDetails: GPU_LEVELS[2]
     },
     'Super Strong': {
         title: '⚡ High Performance',
@@ -119,6 +122,7 @@ export const INSTANCE_SIZE_DETAILS = {
         memory: 'Extended memory capacity',
         recommended: 'Large-scale training',
         color: '#ff9c6e',
+        instanceDetails: GPU_LEVELS[3]
     },
     Rocket: {
         title: '🚀 Maximum Power',
@@ -127,6 +131,7 @@ export const INSTANCE_SIZE_DETAILS = {
         memory: 'Maximum memory allocation',
         recommended: 'Production deployment',
         color: '#ff7875',
+        instanceDetails: GPU_LEVELS[4]
     },
 }
 
@@ -303,7 +308,7 @@ export const InstanceInfo = ({ formData }) => {
                                     {formData.trainingTime} hours
                                 </Text>
                                 <Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                                    <DollarOutlined style={{ color: '#5C8DFF' }} /> Cost: ${formData.budget}
+                                    <DollarOutlined style={{ color: '#5C8DFF' }} /> Cost: ${formData.cost}
                                     /hour
                                 </Text>
                             </Space>

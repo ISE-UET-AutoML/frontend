@@ -1,5 +1,5 @@
 import React from 'react'
-import { CubeTransparentIcon, StarIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { CubeTransparentIcon, StarIcon, TrashIcon, DocumentTextIcon, PhotoIcon, TableCellsIcon, PuzzlePieceIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -33,6 +33,19 @@ export default function ProjectCard({ project, getProjects }) {
     const taskType = project?.task_type
     const tagColor = TASK_TYPES[taskType]?.card || TASK_TYPES["IMAGE_CLASSIFICATION"].card  // in case of no task assigned
 
+    let IconComponent = CubeTransparentIcon
+    if (taskType?.includes("TEXT")) {
+        IconComponent = DocumentTextIcon
+    } else if (taskType?.includes("IMAGE")) {
+        IconComponent = PhotoIcon
+    } else if (taskType?.includes("TABULAR")) {
+        IconComponent = TableCellsIcon
+    } else if (taskType?.includes("SEGMENTATION")) {
+        IconComponent = PuzzlePieceIcon
+    } else if (taskType?.includes("TIME_SERIES")) {
+        IconComponent = ArrowTrendingUpIcon
+    }
+
     const handleCardClick = () => {
         window.location.href = PATHS.PROJECT_INFO(project?.id)
     }
@@ -46,7 +59,7 @@ export default function ProjectCard({ project, getProjects }) {
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div className="w-20 h-20 rounded-xl bg-white/10 shadow-md flex items-center justify-center">
-                    <CubeTransparentIcon
+                    <IconComponent
                         className="h-10 w-10 text-white transition-transform duration-500 ease-out group-hover:rotate-45"
                         aria-hidden="true"
                     />
@@ -73,7 +86,7 @@ export default function ProjectCard({ project, getProjects }) {
 			{/* Meta Info Grouped */}
 			<div className="flex flex-col gap-2 mb-4">
 				<div className="text-xs text-gray-400 mb-1">
-					<b>Created at:</b> <span className="font-bold" style={{color: 'white'}}>{dayjs(project?.created_at).format('YYYY-MM-DD HH:mm')}</span>
+					<span>Created at:  </span> <span className="font-bold" style={{color: 'white'}}>{dayjs(project?.created_at).format('YYYY-MM-DD HH:mm')}</span>
 				</div>
 				<div>
 					<span 
@@ -94,9 +107,9 @@ export default function ProjectCard({ project, getProjects }) {
 						borderRadius: 2,
 					}} />
 				</div>
-				<div className="flex items-center justify-around mt-2">
-					<span className="text-xs text-gray-400"><b>Trained:</b> <span className="font-bold" style={{color: 'white'}}>{project?.done_experiments || 0}</span></span>
-					<span className="text-xs text-gray-400"><b>Training:</b> <span className="font-bold" style={{color: 'white'}}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span></span>
+				<div className="flex items-center justify-start mt-2">
+					<span style={{marginRight: '35%'}} className="text-xs text-gray-400"><span>Trained:  </span> <span className="font-bold" style={{color: 'white'}}>{project?.done_experiments || 0}</span></span>
+					<span className="text-xs text-gray-400"><span>Training:  </span> <span className="font-bold" style={{color: 'white'}}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span></span>
 				</div>
 			</div>
 		</div>

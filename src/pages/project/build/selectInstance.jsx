@@ -46,11 +46,12 @@ const SelectInstance = () => {
     const [isProcessing, setIsProcessing] = useState(false)
     const [formData, setFormData] = useState({
         service: SERVICES[0].name,
-        gpuNumber: '',
-        gpuName: GPU_NAMES[0],
-        disk: '',
+        gpuNumber: GPU_LEVELS[0].gpuNumber,
+        gpuName: GPU_LEVELS[0].name,
+        disk: GPU_LEVELS[0].disk,
         trainingTime: '',
         budget: '',
+        cost: GPU_LEVELS[0].cost,
         instanceSize: 'Weak',
     })
     const [instanceInfo, setInstanceInfo] = useState(null)
@@ -149,9 +150,11 @@ const SelectInstance = () => {
             gpuName: selectedGPU.name,
             disk: selectedGPU.disk,
             budget: (selectedGPU.cost * formData.trainingTime).toFixed(2),
+            cost: selectedGPU.cost,
         }))
         const time = formData.trainingTime
-        const cost = (selectedGPU.cost * formData.trainingTime).toFixed(2)
+        const cost = formData.cost * formData.trainingTime
+        console.log("Cost: ", cost)
         const createInstancePayload = {
             training_time: time,
             presets: "medium_quality",
@@ -310,6 +313,10 @@ const SelectInstance = () => {
                                                     onClick={() =>
                                                         setFormData((prev) => ({
                                                             ...prev,
+                                                            gpuNumber: details.instanceDetails.gpuNumber,
+                                                            gpuName: details.instanceDetails.name,
+                                                            disk: details.instanceDetails.disk,
+                                                            cost: details.instanceDetails.cost,
                                                             instanceSize: size,
                                                         }))
                                                     }

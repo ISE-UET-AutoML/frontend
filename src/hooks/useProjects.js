@@ -28,25 +28,20 @@ export const useProjects = () => {
     const [projectName, setProjectName] = useState('')
     const [description, setDescription] = useState('')
     const [jsonSumm, setJsonSumm] = useState('')
-    // Sort state
     const [selectedSort, setSelectedSort] = useState('created_at')
+    const [searchValue, setSearchValue] = useState('')
+    const [isReset, setIsReset] = useState(false)
 
     const navigate = useNavigate()
 
-    // Lọc project theo name
-    const filterProjectsByName = (value) => {
-        let filtered = allProjects
-        if (value) {
-            filtered = filtered.filter((p) =>
-                p.name && p.name.toLowerCase().includes(value.toLowerCase())
-            )
-        }
-        // Apply sort after filter
-        filtered = sortProjects(filtered, selectedSort)
-        updateProjState({ projects: filtered })
+    const resetFilters = () => {
+        setSearchValue('')
+        setSelectedTrainingTask(null)
+        setSelectedSort('created_at')
+        setIsReset(true)
     }
 
-    // Sort projects by selectedSort
+    // Sort projects
     const sortProjects = (projects, sortKey = selectedSort) => {
         if (sortKey === 'name') {
             return [...projects].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
@@ -56,25 +51,49 @@ export const useProjects = () => {
         return projects
     }
 
+    // Apply filters + sort
+    const applyFilters = () => {
+        let filtered = allProjects
+
+        // 1. filter theo search
+        if (searchValue) {
+            filtered = filtered.filter(
+                (p) => p.name && p.name.toLowerCase().includes(searchValue.toLowerCase())
+            )
+        }
+
+        // 2. filter theo task
+        if (selectedTrainingTask) {
+            filtered = filtered.filter((p) => p.task_type === selectedTrainingTask)
+        }
+
+        // 3. sort
+        filtered = sortProjects(filtered, selectedSort)
+
+        updateProjState({ projects: filtered })
+    }
+
+    useEffect(() => {
+        applyFilters()
+    }, [searchValue, selectedTrainingTask, selectedSort, allProjects])
+
     // Handle sort change
     const handleSortChange = (sortKey) => {
         setSelectedSort(sortKey)
-        // Re-sort current projects
-        updateProjState({ projects: sortProjects(projectState.projects, sortKey) })
+    }
+
+    // Handle search
+    const handleSearch = (value) => {
+        setSearchValue(value)
     }
 
     const selectType = (e, idx) => {
-        const tmpArr = isSelected.map((el, index) => {
-            if (index === idx) el = true
-            else el = false
-            return el
-        })
+        const tmpArr = isSelected.map((el, index) => (index === idx ? true : false))
         setIsSelected(tmpArr)
     }
 
     const getProjects = async () => {
         const response = await instance.get(API_URL.all_projects)
-        console.log(response.data)
         let proj = response.data.owned
 
         // Lấy experiments cho từng project và đếm status
@@ -83,9 +102,15 @@ export const useProjects = () => {
                 try {
                     const experiments_res = await getAllExperiments(project.id)
                     const experiments = experiments_res.data
-                    const done_experiments = experiments.filter(exp => exp.status === 'DONE').length
-                    const training_experiments = experiments.filter(exp => exp.status === 'TRAINING').length
-                    const setting_experiments = experiments.filter(exp => exp.status === 'SETTING_UP').length
+                    const done_experiments = experiments.filter(
+                        (exp) => exp.status === 'DONE'
+                    ).length
+                    const training_experiments = experiments.filter(
+                        (exp) => exp.status === 'TRAINING'
+                    ).length
+                    const setting_experiments = experiments.filter(
+                        (exp) => exp.status === 'SETTING_UP'
+                    ).length
                     return {
                         ...project,
                         done_experiments,
@@ -93,7 +118,6 @@ export const useProjects = () => {
                         setting_experiments,
                     }
                 } catch (err) {
-                    // Nếu lỗi thì trả về project không có các trường này
                     return {
                         ...project,
                         done_experiments: 0,
@@ -104,10 +128,7 @@ export const useProjects = () => {
             })
         )
 
-        setAllProjects(prev => projectsWithExp)
-        // Apply sort
-        updateProjState({ projects: sortProjects(projectsWithExp) })
-        console.log('All Project', projectsWithExp)
+        setAllProjects(projectsWithExp)
         return projectsWithExp
     }
 
@@ -123,8 +144,7 @@ export const useProjects = () => {
         if (jsonSumm) {
             const givenJson = JSON.parse(jsonSumm)
             const metricsExplain = givenJson.metrics_explain
-            if (metricsExplain)
-                data.metrics_explain = JSON.stringify(metricsExplain)
+            if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
         }
 
         try {
@@ -133,8 +153,6 @@ export const useProjects = () => {
                     'Content-Type': 'application/json',
                 },
             })
-
-            console.log('create Project response', { response })
 
             if (response.status === 200) {
                 navigate(PATHS.PROJECT_BUILD(response.data.id))
@@ -152,27 +170,16 @@ export const useProjects = () => {
             const givenName = givenSumm.project_name
             setDescription(givenDescription)
             setProjectName(givenName)
-            let task = -1
-            task = Object.values(TASK_TYPES).findIndex(
+            let task = Object.values(TASK_TYPES).findIndex(
                 (value) => value.task_type === givenTask
             )
             if (task !== -1) selectType(undefined, task)
         }
     }
 
-    // Filter projects by training task
-    useEffect(() => {
-        let filtered = allProjects
-        if (selectedTrainingTask) {
-            filtered = filtered.filter((p) => p.task_type === selectedTrainingTask)
-        }
-        filtered = sortProjects(filtered)
-        updateProjState({ projects: filtered })
-    }, [selectedTrainingTask, allProjects, selectedSort])
-
     // Load projects on mount
     useEffect(() => {
-        projectState.projects.length >= 0 && getProjects()
+        getProjects()
     }, [])
 
     return {
@@ -190,11 +197,16 @@ export const useProjects = () => {
         jsonSumm,
         setJsonSumm,
         selectedSort,
+        searchValue,
+        setSearchValue,
+        isReset,
         selectType,
         getProjects,
         handleCreateProject,
         setTask,
-        filterProjectsByName,
+        handleSearch,
         handleSortChange,
+        resetFilters
     }
 }
+

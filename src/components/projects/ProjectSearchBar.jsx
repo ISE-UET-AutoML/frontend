@@ -33,7 +33,7 @@ const darkInputStyles = `
 }
 `
 
-export default function ProjectSearchBar({ onSearch, selectedSort, onSortChange }) {
+export default function ProjectSearchBar({ onSearch, isReset }) {
     const [searchValue, setSearchValue] = React.useState('')
 
     const handleChange = (e) => {
@@ -42,12 +42,16 @@ export default function ProjectSearchBar({ onSearch, selectedSort, onSortChange 
         onSearch(value)
     }
 
+    React.useEffect(() => {
+        setSearchValue('')
+    }, [isReset])
+
     return (
         <>
             <style>{darkInputStyles}</style>
             <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Input
-                    placeholder="Search projects by name..."
+                    placeholder="Search projects..."
                     value={searchValue}
                     onChange={handleChange}
                     allowClear
@@ -55,10 +59,6 @@ export default function ProjectSearchBar({ onSearch, selectedSort, onSortChange 
                     className="dark-input"
                     spellCheck={false}
                     style={{ flex: 1 }}
-                />
-                <SortDropdown
-                    selectedSort={selectedSort}
-                    onSortChange={onSortChange}
                 />
             </div>
         </>
