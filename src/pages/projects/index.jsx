@@ -9,6 +9,7 @@ import {
     CreationMethodModal,
     ManualCreationModal,
     DatasetSelectionModal,
+    ProjectSearchBar
 } from 'src/components/projects'
 import AIAssistantModal from './AIAssistantModal'
 import ContentContainer from 'src/components/ContentContainer'
@@ -40,6 +41,7 @@ export default function Projects() {
         getProjects,
         handleCreateProject,
         setTask,
+        filterProjectsByName,
     } = useProjects()
 
     const {
@@ -141,6 +143,11 @@ export default function Projects() {
                         onTaskChange={setSelectedTrainingTask}
                         onReset={() => setSelectedTrainingTask(null)}
                         showFilter={showFilter}
+                    />
+
+                    {/* Search Bar */}
+                    <ProjectSearchBar
+                        onSearch={filterProjectsByName}
                     />
 
                     {/* Projects Grid */}

@@ -30,6 +30,18 @@ export const useProjects = () => {
     
     const navigate = useNavigate()
 
+    // Lọc project theo name
+    const filterProjectsByName = (value) => {
+        if (!value) {
+            updateProjState({ projects: allProjects })
+        } else {
+            const filtered = allProjects.filter((p) =>
+                p.name && p.name.toLowerCase().includes(value.toLowerCase())
+            )
+            updateProjState({ projects: filtered })
+        }
+    }
+
     const selectType = (e, idx) => {
         const tmpArr = isSelected.map((el, index) => {
             if (index === idx) el = true
@@ -128,11 +140,11 @@ export const useProjects = () => {
         setDescription,
         jsonSumm,
         setJsonSumm,
-        
         // Actions
         selectType,
         getProjects,
         handleCreateProject,
         setTask,
+        filterProjectsByName,
     }
 }
