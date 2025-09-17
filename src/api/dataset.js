@@ -1,6 +1,9 @@
 import { API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
+import Cookies from 'universal-cookie'
 
+const cookies = new Cookies();
+const userId = cookies.get('x-user-id');
 const URL = `${API_BASE_URL}/api/data`
 const URL_SERVICE = `${API_BASE_URL}/api/service/data`
 
@@ -10,6 +13,9 @@ const createDataset = (payload) => {
 			'Content-Type': 'application/json',
 		},
 		withCredentials: true,
+		params: {
+			userId: userId,
+		}
 	}
 	return instance.post(`${URL}/createDataset`, payload, options)
 }
@@ -37,6 +43,7 @@ const createDownZipPU = async (datasetTitle) => {
 }
 
 const getDatasets = (params) => {
+	params = { ...params, userId: userId }
 	return instance.get(URL, { params })
 }
 
