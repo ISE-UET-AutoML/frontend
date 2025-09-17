@@ -583,8 +583,30 @@ const Training = () => {
                                     loading={loading && chartData?.length === 0}
                                     maxTrainingTime={maxTrainingTime}
                                 />
-
-                                {maxTrainingTime && status !== 'TRAINING' && (
+                                <div className="mt-4">
+                                    <Alert
+                                        type={'info'}
+                                        message={
+                                            <span style={{ color: 'white' }}>
+                                                Status
+                                            </span>
+                                        }
+                                        description={
+                                            <span style={{ color: 'white' }}>
+                                                {trainingTask.status}
+                                            </span>
+                                        }
+                                        showIcon
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(59, 130, 246, 0.6)',
+                                            fontFamily: 'Poppins, sans-serif',
+                                        }}
+                                    />
+                                </div>
+                                {maxTrainingTime && status === 'TRAINING' && (
                                     <div className="mt-4">
                                         <Alert
                                             type={elapsedTime >= maxTrainingTime ? 'warning' : 'info'}
@@ -599,7 +621,7 @@ const Training = () => {
                                                 <span style={{ color: 'white' }}>
                                                     {elapsedTime >= maxTrainingTime
                                                         ? 'The training has reached its maximum allocated time. It may automatically stop soon.'
-                                                        : `This experiment is configured to run for maximum ${maxTrainingTime} minutes.`}
+                                                        : `This experiment is configured to run for maximum ${maxTrainingTime.toFixed(2)} minutes.`}
                                                 </span>
                                             }
                                             showIcon
@@ -641,7 +663,7 @@ const Training = () => {
                                                     </Text>{' '}
                                                     <Text style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
                                                         This experiment has a maximum
-                                                        training time of {maxTrainingTime}{' '}
+                                                        training time of {maxTrainingTime.toFixed(2)}{' '}
                                                         minutes. If the training doesn't
                                                         converge within this time, consider
                                                         adjusting model complexity or

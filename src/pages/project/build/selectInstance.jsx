@@ -176,7 +176,7 @@ const SelectInstance = () => {
         const presignUrl = await createDownZipPU(selectedProject.dataset_title)
         const creating_instance_time = instanceInfoData.creating_time || 60
         const payload = {
-            trainingTime: time * 3600 - creating_instance_time,
+            trainingTime: time * 3600,
             instanceInfo: instanceInfoData,
             presets: 'medium_quality',
             datasetUrl: presignUrl.data,
