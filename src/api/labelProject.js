@@ -16,6 +16,9 @@ export const createLbProject = (payload) => {
             'Content-Type': 'application/json',
         },
         withCredentials: true,
+        params: {
+            userId: userId,
+        }
     }
     return instance.post(`${URL}/createLbProject`, payload, options)
 }
