@@ -8,40 +8,34 @@ import {
 } from 'src/components/icons'
 import clsx from 'clsx'
 import { PATHS } from 'src/constants/paths'
-import { useLocation } from 'react-router-dom' // Assuming you're using react-router
-const ProjectSidebar = ({ projectID, className }) => {
-    const location = useLocation()
+import { NavLink } from 'react-router-dom' // ✅ use NavLink
 
+const ProjectSidebar = ({ projectID, className }) => {
     const navigation = [
         {
             name: 'Info',
             href: PATHS.PROJECT_INFO(projectID),
             icon: InfoIcon,
-            current: location.pathname === PATHS.PROJECT_INFO(projectID)
         },
         {
             name: 'Build',
             href: PATHS.PROJECT_BUILD(projectID),
             icon: BuildIcon,
-            current: location.pathname === PATHS.PROJECT_BUILD(projectID),
         },
         {
             name: 'Experiment',
             href: PATHS.PROJECT_EXPERIMENT(projectID),
             icon: TasksIcon,
-            current: location.pathname === PATHS.PROJECT_EXPERIMENT(projectID),
         },
         {
             name: 'Model',
             href: PATHS.PROJECT_MODEL(projectID),
             icon: ModelIcon,
-            current: location.pathname === PATHS.PROJECT_MODEL(projectID),
         },
         {
             name: 'Deploy',
             href: PATHS.PROJECT_DEPLOY(projectID),
             icon: DeployIcon,
-            current: location.pathname === PATHS.PROJECT_DEPLOY(projectID),
         },
     ]
 
@@ -154,20 +148,22 @@ const ProjectSidebar = ({ projectID, className }) => {
                 .project-sidebar::-webkit-scrollbar-thumb:hover {
                     background: linear-gradient(180deg, #9333EA 0%, #5C8DFF 100%);
                 }
-            `}</style>
+             `}</style>
             <div className={clsx('duration-300 project-sidebar', className)}>
                 <div className="h-[calc(100vh-60px)] flex flex-grow flex-col overflow-y-auto">
                     <div className="py-6 flex flex-grow flex-col justify-between">
                         <nav className="flex flex-col gap-2 px-2 pb-4">
                             {navigation.map((item) => (
-                                <a
+                                <NavLink
                                     key={item.name}
-                                    href={item.href}
-                                    className={clsx(
-                                        'sidebar-nav-item',
-                                        item.current ? 'active' : '',
-                                        'group flex flex-col items-center justify-center text-sm font-medium'
-                                    )}
+                                    to={item.href}
+                                    className={({ isActive }) =>
+                                        clsx(
+                                            'sidebar-nav-item',
+                                            isActive && 'active', // ✅ NavLink auto-applies
+                                            'group flex flex-col items-center justify-center text-sm font-medium'
+                                        )
+                                    }
                                 >
                                     <item.icon
                                         className={clsx(
@@ -175,20 +171,22 @@ const ProjectSidebar = ({ projectID, className }) => {
                                             'mx-auto flex-shrink-0 rounded-xl w-10 h-10',
                                             'p-2 text-gray-400'
                                         )}
-                                        aria-hidden="true"
                                     />
                                     <span className="sidebar-text text-xs text-gray-400 mt-1">
                                         {item.name}
                                     </span>
-                                </a>
+                                </NavLink>
                             ))}
                         </nav>
-                        <a
-                            href={PATHS.PROJECT_SETTINGS(projectID)}
-                            className={clsx(
-                                'sidebar-settings',
-                                'group flex flex-col items-center text-sm font-medium px-2 py-3 rounded-lg transition-all duration-300'
-                            )}
+                        <NavLink
+                            to={PATHS.PROJECT_SETTINGS(projectID)}
+                            className={({ isActive }) =>
+                                clsx(
+                                    'sidebar-settings',
+                                    isActive && 'active', // ✅ gets same active class
+                                    'group flex flex-col items-center text-sm font-medium px-2 py-3 rounded-lg transition-all duration-300'
+                                )
+                            }
                         >
                             <SettingIcon
                                 className={clsx(
@@ -198,7 +196,7 @@ const ProjectSidebar = ({ projectID, className }) => {
                                 )}
                             />
                             <span className="sidebar-text text-xs text-gray-400 mt-1">Settings</span>
-                        </a>
+                        </NavLink>
                     </div>
                 </div>
             </div>

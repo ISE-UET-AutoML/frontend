@@ -5,6 +5,18 @@ import { getAllExperiments } from 'src/api/experiment'
 import { getAllDeployedModel } from 'src/api/deploy'
 import { getModels } from 'src/api/model'
 
+// Ant Design icons
+import {
+    CheckCircleOutlined,
+    SyncOutlined,
+    CloseCircleOutlined,
+    CloudServerOutlined,
+    SettingOutlined,
+    ExperimentOutlined,
+    DatabaseOutlined,
+    CloudOutlined
+} from '@ant-design/icons'
+
 const ProjectInfo = () => {
     const { projectInfo } = useOutletContext()
     const [experiments, setExperiments] = useState([])
@@ -21,6 +33,7 @@ const ProjectInfo = () => {
                 setExperiments(Array.isArray(experimentsData) ? experimentsData : experimentsData.data || [])
                 setModels(Array.isArray(modelsData) ? modelsData : modelsData.data || [])
                 setDeployedModels(Array.isArray(deployedModelsData) ? deployedModelsData : deployedModelsData.data || [])
+                console.log(projectInfo)
             } catch (error) {
                 console.error('Error fetching project data:', error)
             }
@@ -39,11 +52,14 @@ const ProjectInfo = () => {
         minute: '2-digit'
     })
 
-    // Reusable mini status card
-    const StatusCard = ({ label, value, color }) => (
-        <div className={`p-3 rounded-lg border ${color.border} ${color.bg} flex flex-col items-center`}>
-            <span className={`font-semibold ${color.text}`}>{label}</span>
-            <span className="text-white text-lg">{value}</span>
+    // Mini status card component
+    const StatusCard = ({ label, value, color, Icon }) => (
+        <div className={`flex items-center p-4 rounded-xl border ${color.border} ${color.bg} shadow`}>
+            <Icon className={`mr-3 text-2xl ${color.text}`} />
+            <div>
+                <p className={`font-semibold ${color.text}`}>{label}</p>
+                <p className="text-white">{value}</p>
+            </div>
         </div>
     )
 
@@ -93,94 +109,68 @@ const ProjectInfo = () => {
                         ]}
                     />
 
-                    <div className="relative z-10 max-w-6xl mx-auto">
-                        {/* Header Section */}
-                        <div className="flex justify-center mb-12">
-                            <div className="w-full max-w-4xl text-center">
-                                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-6">
-                                    Project Info
-                                </h1>
-                                <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-                                    Detailed information about your project
-                                </p>
-                            </div>
+                    <div className="relative z-10 max-w-full mx-auto space-y-10">
+                        {/* Header */}
+                        <div className="text-center mb-12">
+                            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-6">
+                                Project Info
+                            </h1>
+                            <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                                Detailed information about your project
+                            </p>
                         </div>
 
-                        {/* Outer Card */}
-                        <div className="p-8 rounded-2xl border border-gray-600/40 bg-white/5 shadow-2xl space-y-8">
-                            {/* Project Metadata */}
-                            <div className="space-y-2">
-                                <p><span className="text-gray-400">Project Id: </span><span className="text-white">{projectInfo?.id}</span></p>
-                                <p><span className="text-gray-400">Project Name: </span><span className="text-white">{projectInfo?.name}</span></p>
-                                <p><span className="text-gray-400">Created At: </span><span className="text-white">{formattedDate}</span></p>
-                                <p><span className="text-gray-400">Task Type: </span><span className="text-white">{projectInfo?.task_type}</span></p>
+                        {/* Main Content */}
+                        <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+                            <div className="lg:col-span-2">
+                                {/* Metadata */}
+                                <div className="p-6 rounded-2xl border border-gray-600/40 bg-white/5 shadow space-y-2">
+                                    <p><span className="text-gray-400">Project Id: </span><span className="text-white">{projectInfo?.id}</span></p>
+                                    <p><span className="text-gray-400">Project Name: </span><span className="text-white">{projectInfo?.name}</span></p>
+                                    <p><span className="text-gray-400">Description: </span><span className="text-white">{projectInfo?.description}</span></p>
+                                    <p><span className="text-gray-400">Created At: </span><span className="text-white">{formattedDate}</span></p>
+                                    <p><span className="text-gray-400">Task Type: </span><span className="text-white">{projectInfo?.task_type}</span></p>
+                                    <p><span className="text-gray-400">Expected Accuracy: </span><span className="text-white">{projectInfo?.expected_accuracy}</span></p>
+                                    <p><span className="text-gray-400">Visibility: </span><span className="text-white">{projectInfo?.visibility}</span></p>
+                                </div>
                             </div>
 
-                            {/* Inner Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Main Content Area */}
+                            <div className="lg:col-span-4 space-y-6">
                                 {/* Experiments Card */}
-                                <div className="p-6 rounded-xl border border-blue-400/30 bg-blue-500/10 shadow-lg">
-                                    <h3 className="text-lg font-semibold text-blue-300 mb-4">Experiments</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <StatusCard
-                                            label="Total"
-                                            value={experiments.length}
-                                            color={{ bg: 'bg-gray-500/10', border: 'border-gray-400/30', text: 'text-gray-300' }}
-                                        />
-                                        <StatusCard
-                                            label="Done"
-                                            value={experiments.filter(e => e.status === 'done').length}
-                                            color={{ bg: 'bg-green-500/10', border: 'border-green-400/30', text: 'text-green-300' }}
-                                        />
-                                        <StatusCard
-                                            label="Training"
-                                            value={experiments.filter(e => e.status === 'training').length}
-                                            color={{ bg: 'bg-orange-500/10', border: 'border-orange-400/30', text: 'text-orange-300' }}
-                                        />
+                                <div className="p-6 rounded-2xl border border-gray-600/40 bg-white/5 shadow-lg space-y-4">
+                                    <h3 className="text-xl font-semibold text-white flex items-center">
+                                        <ExperimentOutlined className="mr-2 text-2xl text-blue-300" />
+                                        Experiments
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <StatusCard label="Done" value={experiments.filter(e => e.status === 'DONE').length} color={{ bg: 'bg-green-500/10', border: 'border-green-400/30', text: 'text-green-300' }} Icon={CheckCircleOutlined} />
+                                        <StatusCard label="Training" value={experiments.filter(e => e.status === 'TRAINING' || e.status == 'SETTING_UP').length} color={{ bg: 'bg-blue-500/10', border: 'border-blue-400/30', text: 'text-blue-300' }} Icon={SyncOutlined} />
+                                        <StatusCard label="Failed" value={experiments.filter(e => e.status === 'FAILED').length} color={{ bg: 'bg-red-500/10', border: 'border-red-400/30', text: 'text-red-300' }} Icon={CloseCircleOutlined} />
                                     </div>
                                 </div>
 
                                 {/* Models Card */}
-                                <div className="p-6 rounded-xl border border-green-400/30 bg-green-500/10 shadow-lg">
-                                    <h3 className="text-lg font-semibold text-green-300 mb-4">Models</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <StatusCard
-                                            label="Total"
-                                            value={models.length}
-                                            color={{ bg: 'bg-gray-500/10', border: 'border-gray-400/30', text: 'text-gray-300' }}
-                                        />
-                                        <StatusCard
-                                            label="Ready"
-                                            value={models.filter(m => m.status === 'ready').length}
-                                            color={{ bg: 'bg-green-500/10', border: 'border-green-400/30', text: 'text-green-300' }}
-                                        />
-                                        <StatusCard
-                                            label="Failed"
-                                            value={models.filter(m => m.status === 'failed').length}
-                                            color={{ bg: 'bg-red-500/10', border: 'border-red-400/30', text: 'text-red-300' }}
-                                        />
+                                <div className="p-6 rounded-2xl border border-gray-600/40 bg-white/5 shadow-lg space-y-4">
+                                    <h3 className="text-xl font-semibold text-white flex items-center">
+                                        <DatabaseOutlined className="mr-2 text-2xl text-green-300" />
+                                        Models
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <StatusCard label="Ready" value={models.length} color={{ bg: 'bg-green-500/10', border: 'border-green-400/30', text: 'text-green-300' }} Icon={CheckCircleOutlined} />
                                     </div>
                                 </div>
 
                                 {/* Deployed Models Card */}
-                                <div className="p-6 rounded-xl border border-purple-400/30 bg-purple-500/10 shadow-lg">
-                                    <h3 className="text-lg font-semibold text-purple-300 mb-4">Deployed Models</h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <StatusCard
-                                            label="Total"
-                                            value={deployedModels.length}
-                                            color={{ bg: 'bg-gray-500/10', border: 'border-gray-400/30', text: 'text-gray-300' }}
-                                        />
-                                        <StatusCard
-                                            label="Active"
-                                            value={deployedModels.filter(d => d.status === 'active').length}
-                                            color={{ bg: 'bg-green-500/10', border: 'border-green-400/30', text: 'text-green-300' }}
-                                        />
-                                        <StatusCard
-                                            label="Inactive"
-                                            value={deployedModels.filter(d => d.status === 'inactive').length}
-                                            color={{ bg: 'bg-red-500/10', border: 'border-red-400/30', text: 'text-red-300' }}
-                                        />
+                                <div className="p-6 rounded-2xl border border border-gray-600/40 bg-white/5 shadow-lg space-y-4">
+                                    <h3 className="text-xl font-semibold text-white flex items-center">
+                                        <CloudOutlined className="mr-2 text-2xl text-purple-300" />
+                                        Deployed Models
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <StatusCard label="ONLINE" value={deployedModels.filter(d => d.status === 'ONLINE').length} color={{ bg: 'bg-green-500/10', border: 'border-green-400/30', text: 'text-green-300' }} Icon={CloudServerOutlined} />
+                                        <StatusCard label="SETTING_UP" value={deployedModels.filter(d => d.status === 'SETTING_UP').length} color={{ bg: 'bg-blue-500/10', border: 'border-blue-400/30', text: 'text-blue-300' }} Icon={SettingOutlined} />
+                                        <StatusCard label="OFFLINE" value={deployedModels.filter(d => d.status === 'OFFLINE').length} color={{ bg: 'bg-red-500/10', border: 'border-red-400/30', text: 'text-red-300' }} Icon={CloseCircleOutlined} />
                                     </div>
                                 </div>
                             </div>
