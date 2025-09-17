@@ -7,10 +7,11 @@ const URL = `${API_BASE_URL}/api/data`
 const URL_SERVICE = `${API_BASE_URL}/api/service/data`
 const LABEL_STUDIO_URL = process.env.REACT_APP_LABEL_STUDIO_URL
 
-const cookies = new Cookies();
-const userId = cookies.get('x-user-id');
+
 
 export const createLbProject = (payload) => {
+    const cookies = new Cookies();
+    const userId = cookies.get('x-user-id');
     const options = {
         headers: {
             'Content-Type': 'application/json',
@@ -24,6 +25,7 @@ export const createLbProject = (payload) => {
 }
 
 export const getLbProjects = (ownerId) => {
+
     const options = {
         headers: {
             'Content-Type': 'application/json',
@@ -42,6 +44,8 @@ export const deleteProject = async (projectID) => {
 
 
 export const getLbProjByTask = (taskType) => {
+    const cookies = new Cookies();
+    const userId = cookies.get('x-user-id');
     const options = {
         headers: {
             'Content-Type': 'application/json',
