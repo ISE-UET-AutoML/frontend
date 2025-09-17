@@ -4,15 +4,21 @@ import {
     ModelIcon,
     DeployIcon,
     TasksIcon,
+    InfoIcon
 } from 'src/components/icons'
 import clsx from 'clsx'
 import { PATHS } from 'src/constants/paths'
 import { useLocation } from 'react-router-dom' // Assuming you're using react-router
-
 const ProjectSidebar = ({ projectID, className }) => {
     const location = useLocation()
 
     const navigation = [
+        {
+            name: 'Info',
+            href: PATHS.PROJECT_INFO(projectID),
+            icon: InfoIcon,
+            current: location.pathname === PATHS.PROJECT_INFO(projectID)
+        },
         {
             name: 'Build',
             href: PATHS.PROJECT_BUILD(projectID),
