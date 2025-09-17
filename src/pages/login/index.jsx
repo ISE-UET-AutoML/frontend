@@ -51,7 +51,8 @@ const Login = () => {
                 await login({
                     accessToken: data.access_token,
                     refreshToken: data.refresh_token,
-                    userId: data.user.id
+                    userId: data.user.id,
+                    user: data.user
                 });
 
                 console.log('Authentication state updated successfully');

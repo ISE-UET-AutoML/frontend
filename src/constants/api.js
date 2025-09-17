@@ -3,6 +3,7 @@ export const API_URL = {
 	login: `${API_BASE_URL}/api/users/login`,
 	signup: `${API_BASE_URL}/api/users/register`,
 	refresh_token: `${API_BASE_URL}/api/users/refresh-token`,
+	me: `${API_BASE_URL}/api/service/users/me`,
 	all_projects: `${API_BASE_URL}/api/service/users/projects`,
 	all_models: `${API_BASE_URL}/projects/models`,
 	train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,

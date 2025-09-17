@@ -10,7 +10,7 @@ export default function RequireAuth() {
 
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
+    useEffect(() => {
 		const refreshAuth = async () => {
 			await refresh();
 			setLoading(false);
@@ -18,10 +18,10 @@ export default function RequireAuth() {
 
 		refreshAuth();
 
-		return () => {
-			setLoading(true);
-		};
-	}, [refresh]);
+        return () => {
+            setLoading(true);
+        };
+    }, []);
 
 	if (loading) {
 		return <Loading />;

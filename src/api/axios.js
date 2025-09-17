@@ -32,9 +32,7 @@ instance.interceptors.request.use(
         const userId = cookies.get('x-user-id');
         
         if (accessToken) {
-            // Remove the '<Bearer> ' prefix if it exists and add proper Bearer format
-            const token = accessToken.replace('<Bearer> ', '');
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
         
         if (userId) {
@@ -115,21 +113,6 @@ instance.interceptors.response.use(
         });
 
         // Trả về lỗi cho các trường hợp khác (không phải 401)
-        return Promise.reject(error);
-    }
-);
-
-// --- BỘ CHẶN YÊU CẦU (REQUEST INTERCEPTOR) ---
-// Đảm bảo mọi yêu cầu đi đều có accessToken mới nhất từ cookie
-instance.interceptors.request.use(
-    (config) => {
-        const accessToken = cookies.get('accessToken');
-        if (accessToken) {
-            config.headers['Authorization'] = accessToken;
-        }
-        return config;
-    },
-    (error) => {
         return Promise.reject(error);
     }
 );

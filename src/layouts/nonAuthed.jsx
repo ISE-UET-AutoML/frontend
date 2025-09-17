@@ -22,7 +22,7 @@ export default function NonAuthed() {
         return () => {
             setLoading(true);
         };
-    }, [refresh]);
+    }, []);
 
     if (loading) {
         return <Loading />;

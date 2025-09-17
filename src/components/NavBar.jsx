@@ -12,7 +12,7 @@ const NavBar = () => {
 	const [scrolled, setScrolled] = useState(false)
 	const navigate = useNavigate()
 	const location = useLocation()
-	const { authed, logout: authLogout } = useAuth()
+    const { authed, logout: authLogout, user } = useAuth()
 
 	useEffect(() => {
 		const getScrollTop = () => {
@@ -142,16 +142,16 @@ const NavBar = () => {
 							/* Profile dropdown for authenticated users */
 							<Menu as="div" className="relative">
 								<div>
-									<Menu.Button className="transition flex gap-2 rounded-xl bg-gray-800 text-sm focus:outline-none hover:bg-gray-700 py-2 px-3">
-										<span className="font-regular text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
-											astralnaut
-										</span>
-										<img
-											className="h-6 w-6 border-solid border-2 border-blue-500 rounded-full"
-											src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-											alt=""
-										/>
-									</Menu.Button>
+                                    <Menu.Button className="transition flex gap-2 rounded-xl bg-gray-800 text-sm focus:outline-none hover:bg-gray-700 py-2 px-3">
+                                        <span className="font-regular text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                            {user?.name || user?.username || user?.email || 'User'}
+                                        </span>
+                                        <img
+                                            className="h-6 w-6 border-solid border-2 border-blue-500 rounded-full"
+                                            src={user?.avatarUrl || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'}
+                                            alt=""
+                                        />
+                                    </Menu.Button>
 								</div>
 								<Transition
 									as={Fragment}
