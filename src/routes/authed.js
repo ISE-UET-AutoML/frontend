@@ -33,6 +33,7 @@ import DeployView from 'src/pages/project/build/deployView'
 import DeployedModelView from 'src/pages/project/deploy/deployedModelView'
 import DeploySettingUpView from 'src/pages/project/deploy/deploySettingUpView'
 import ModelView from 'src/pages/project/models/modelView'
+import ProjectInfo from 'src/pages/project/build/info'
 
 const routes = {
     element: <DefaultLayout />,
@@ -66,6 +67,10 @@ const routes = {
                                     path: 'build',
                                     element: <ProjectBuild />,
                                     children: [
+                                        {
+                                            path: 'info',
+                                            element: <ProjectInfo />
+                                        },
                                         {
                                             path: 'uploadData',
                                             element: <UploadData />,

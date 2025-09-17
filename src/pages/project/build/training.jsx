@@ -72,7 +72,7 @@ const TrainingMetricCard = ({
     icon,
 }) => {
     return (
-        <Card 
+        <Card
             className="h-max border-0 bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
             style={{
                 background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
@@ -248,11 +248,11 @@ const TrainingInfoCard = ({
             title={
                 <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
                     <DashboardOutlined style={{ color: '#60a5fa' }} /> Training Information:{' '}
-                    <Tag 
-                        color="blue" 
+                    <Tag
+                        color="blue"
                         icon={<ExperimentOutlined />}
-                        style={{ 
-                            background: 'linear-gradient(135deg, #3b82f6, #22d3ee)', 
+                        style={{
+                            background: 'linear-gradient(135deg, #3b82f6, #22d3ee)',
                             border: 'none',
                             color: 'white',
                             fontFamily: 'Poppins, sans-serif'
@@ -303,7 +303,7 @@ const TrainingInfoCard = ({
                     <div className="w-[28%] ml-10">
                         <TrainingMetricCard
                             title={`Validation ${valMetric}`}
-                            value={(trainingInfo.accuracy * 1).toFixed(5)}
+                            value={(trainingInfo.accuracy * 1).toFixed(2)}
                             icon={<BarChartOutlined />}
                             loading={
                                 !trainingInfo.accuracy && status === 'TRAINING'
@@ -321,10 +321,10 @@ const TrainingInfoCard = ({
                     </div>
                 </Row>
 
-                <Divider 
-                    orientation="left" 
-                    style={{ 
-                        borderColor: 'rgba(255, 255, 255, 0.2)', 
+                <Divider
+                    orientation="left"
+                    style={{
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
                         color: '#94a3b8',
                         fontFamily: 'Poppins, sans-serif'
                     }}
@@ -353,9 +353,9 @@ const TrainingInfoCard = ({
                                 }}
                             />
                             <div className="mt-2">
-                                <Text 
-                                    type="secondary" 
-                                    style={{ 
+                                <Text
+                                    type="secondary"
+                                    style={{
                                         color: '#94a3b8',
                                         fontFamily: 'Poppins, sans-serif'
                                     }}
@@ -373,7 +373,7 @@ const TrainingInfoCard = ({
                                             description="Training has reached the maximum time limit and will complete soon."
                                             type="warning"
                                             showIcon
-                                            style={{ 
+                                            style={{
                                                 marginTop: '8px',
                                                 background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))',
                                                 border: '1px solid rgba(251, 191, 36, 0.3)',
@@ -485,8 +485,8 @@ const Training = () => {
                 }
             `}</style>
             <div className="min-h-screen bg-[#01000A] relative">
-                <BackgroundShapes 
-                    width="1280px" 
+                <BackgroundShapes
+                    width="1280px"
                     height="1200px"
                     shapes={[
                         {
@@ -529,231 +529,162 @@ const Training = () => {
                             config: { tension: 280, friction: 20 },
                         })}
                     >
-                <Space
-                    direction="vertical"
-                    size="large"
-                    style={{ width: '100%' }}
-                >
-                    <TrainingInfoCard
-                        valMetric={valMetric}
-                        experimentName={experimentName}
-                        experimentId={experimentId}
-                        trainingInfo={trainingInfo}
-                        elapsedTime={elapsedTime}
-                        status={status}
-                        maxTrainingTime={maxTrainingTime}
-                        onViewResults={handleViewResults}
-                        trainProgress={trainProgress}
-                    />
-
-                    <Card
-                        title={
-                            <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                                <LineChartOutlined style={{ color: '#60a5fa' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
-                            </Title>
-                        }
-                        className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-                        style={{
-                            background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '12px',
-                            fontFamily: 'Poppins, sans-serif'
-                        }}
-                        extra={
-                            maxTrainingTime ? (
-                                <Tag
-                                    color="orange"
-                                    icon={<HourglassOutlined />}
-                                    style={{ 
-                                        background: 'linear-gradient(135deg, #f59e0b, #f97316)', 
-                                        border: 'none',
-                                        color: 'white',
-                                        fontFamily: 'Poppins, sans-serif'
-                                    }}
-                                >
-                                    Time Limit: {maxTrainingTime.toFixed(2)} min
-                                </Tag>
-                            ) : null
-                        }
-                    >
-                        <EnhancedLineGraph
-                            valMetric={valMetric}
-                            data={enhancedChartData}
-                            loading={loading && chartData?.length === 0}
-                            maxTrainingTime={maxTrainingTime}
-                        />
-
-                        {maxTrainingTime && status === 'TRAINING' && (
-                            <div className="mt-4">
-                                <Alert
-                                    type={
-                                        elapsedTime >= maxTrainingTime
-                                            ? 'warning'
-                                            : 'info'
-                                    }
-                                    message={
-                                        elapsedTime >= maxTrainingTime
-                                            ? 'Training Time Limit Reached'
-                                            : 'Training Time Limit'
-                                    }
-                                    description={
-                                        elapsedTime >= maxTrainingTime
-                                            ? 'The training has reached its maximum allocated time. It may automatically stop soon.'
-                                            : `This experiment is configured to run for maximum ${maxTrainingTime} minutes.`
-                                    }
-                                    showIcon
-                                    style={{
-                                        background: elapsedTime >= maxTrainingTime 
-                                            ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))'
-                                            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
-                                        border: elapsedTime >= maxTrainingTime 
-                                            ? '1px solid rgba(251, 191, 36, 0.3)'
-                                            : '1px solid rgba(59, 130, 246, 0.3)',
-                                        borderRadius: '8px',
-                                        fontFamily: 'Poppins, sans-serif'
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </Card>
-
-                    <Alert
-                        description={
-                            <div>
-                                <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
-                                    <RadarChartOutlined className="mr-2" style={{ color: '#60a5fa' }} />
-                                    <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
-                                    <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
-                                        {metricExplain}
-                                    </Text>
-                                </Paragraph>
-
-                                {maxTrainingTime && (
-                                    <Paragraph style={{ margin: '12px 0 0 0', fontFamily: 'Poppins, sans-serif' }}>
-                                        <Tooltip title="Time constraints can affect model performance">
-                                            <HourglassOutlined className="mr-2" style={{ color: '#f59e0b' }} />
-                                            <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
-                                                Training Time Limit:
-                                            </Text>{' '}
-                                            <Text style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
-                                                This experiment has a maximum
-                                                training time of {maxTrainingTime}{' '}
-                                                minutes. If the training doesn't
-                                                converge within this time, consider
-                                                adjusting model complexity or
-                                                training parameters.
-                                            </Text>
-                                        </Tooltip>
-                                    </Paragraph>
-                                )}
-                            </div>
-                        }
-                        type="info"
-                        style={{
-                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                            borderRadius: '12px',
-                            fontFamily: 'Poppins, sans-serif'
-                        }}
-                    />
-                    </Space>
-                    </animated.div>
-                </div>
-
-                <Modal
-                title={
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            fontFamily: 'Poppins, sans-serif',
-                            color: 'black'
-                        }}
-                    >
-                        Resource Preparation
-                        <Tooltip
-                            title={
-                                <div style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                    <p>
-                                        This process ensures a smooth and
-                                        secure setup:
-                                    </p>
-                                    <ul>
-                                        <li>
-                                            1. Create an isolated virtual
-                                            machine
-                                        </li>
-                                        <li>
-                                            2. Download required resources
-                                            safely
-                                        </li>
-                                        <li>
-                                            3. Configure the environment for
-                                            optimal performance
-                                        </li>
-                                    </ul>
-                                    <p>
-                                        Each step is carefully monitored to
-                                        prevent potential issues.
-                                    </p>
-                                </div>
-                            }
+                        <Space
+                            direction="vertical"
+                            size="large"
+                            style={{ width: '100%' }}
                         >
-                            <InfoCircleOutlined
+                            <TrainingInfoCard
+                                valMetric={valMetric}
+                                experimentName={experimentName}
+                                experimentId={experimentId}
+                                trainingInfo={trainingInfo}
+                                elapsedTime={elapsedTime}
+                                status={status}
+                                maxTrainingTime={maxTrainingTime}
+                                onViewResults={handleViewResults}
+                                trainProgress={trainProgress}
+                            />
+
+                            <Card
+                                title={
+                                    <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                                        <LineChartOutlined style={{ color: '#60a5fa' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
+                                    </Title>
+                                }
+                                className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                                 style={{
-                                    color: '#60a5fa',
-                                    cursor: 'pointer',
+                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
+                                extra={
+                                    maxTrainingTime ? (
+                                        <Tag
+                                            color="orange"
+                                            icon={<HourglassOutlined />}
+                                            style={{
+                                                background: 'linear-gradient(135deg, #f59e0b, #f97316)',
+                                                border: 'none',
+                                                color: 'white',
+                                                fontFamily: 'Poppins, sans-serif'
+                                            }}
+                                        >
+                                            Time Limit: {maxTrainingTime.toFixed(2)} min
+                                        </Tag>
+                                    ) : null
+                                }
+                            >
+                                <EnhancedLineGraph
+                                    valMetric={valMetric}
+                                    data={enhancedChartData}
+                                    loading={loading && chartData?.length === 0}
+                                    maxTrainingTime={maxTrainingTime}
+                                />
+                                <div className="mt-4">
+                                    <Alert
+                                        type={'info'}
+                                        message={
+                                            <span style={{ color: 'white' }}>
+                                                Status
+                                            </span>
+                                        }
+                                        description={
+                                            <span style={{ color: 'white' }}>
+                                                {trainingTask.status}
+                                            </span>
+                                        }
+                                        showIcon
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(59, 130, 246, 0.6)',
+                                            fontFamily: 'Poppins, sans-serif',
+                                        }}
+                                    />
+                                </div>
+                                {maxTrainingTime && status === 'TRAINING' && (
+                                    <div className="mt-4">
+                                        <Alert
+                                            type={elapsedTime >= maxTrainingTime ? 'warning' : 'info'}
+                                            message={
+                                                <span style={{ color: 'white' }}>
+                                                    {elapsedTime >= maxTrainingTime
+                                                        ? 'Training Time Limit Reached'
+                                                        : 'Training Time Limit'}
+                                                </span>
+                                            }
+                                            description={
+                                                <span style={{ color: 'white' }}>
+                                                    {elapsedTime >= maxTrainingTime
+                                                        ? 'The training has reached its maximum allocated time. It may automatically stop soon.'
+                                                        : `This experiment is configured to run for maximum ${maxTrainingTime.toFixed(2)} minutes.`}
+                                                </span>
+                                            }
+                                            showIcon
+                                            style={{
+                                                background: elapsedTime >= maxTrainingTime
+                                                    ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1))'
+                                                    : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                                border: elapsedTime >= maxTrainingTime
+                                                    ? '1px solid rgba(251, 191, 36, 0.3)'
+                                                    : '1px solid rgba(59, 130, 246, 0.3)',
+                                                borderRadius: '8px',
+                                                border: elapsedTime >= maxTrainingTime
+                                                    ? '1px solid rgba(251, 191, 36, 0.6)'
+                                                    : '1px solid rgba(59, 130, 246, 0.6)',
+                                                fontFamily: 'Poppins, sans-serif',
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                            </Card>
+
+                            <Alert
+                                description={
+                                    <div>
+                                        <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
+                                            <RadarChartOutlined className="mr-2" style={{ color: '#60a5fa' }} />
+                                            <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
+                                            <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                                {metricExplain}
+                                            </Text>
+                                        </Paragraph>
+
+                                        {maxTrainingTime && (
+                                            <Paragraph style={{ margin: '12px 0 0 0', fontFamily: 'Poppins, sans-serif' }}>
+                                                <Tooltip title="Time constraints can affect model performance">
+                                                    <HourglassOutlined className="mr-2" style={{ color: '#f59e0b' }} />
+                                                    <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                                        Training Time Limit:
+                                                    </Text>{' '}
+                                                    <Text style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                                        This experiment has a maximum
+                                                        training time of {maxTrainingTime.toFixed(2)}{' '}
+                                                        minutes. If the training doesn't
+                                                        converge within this time, consider
+                                                        adjusting model complexity or
+                                                        training parameters.
+                                                    </Text>
+                                                </Tooltip>
+                                            </Paragraph>
+                                        )}
+                                    </div>
+                                }
+                                type="info"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif'
                                 }}
                             />
-                        </Tooltip>
-                    </div>
-                }
-                open={isModalVisible}
-                onCancel={handleModalCancel}
-                footer={null}
-                width={1000}
-                styles={{
-                    mask: {
-                        backdropFilter: 'blur(8px)',
-                        backgroundColor: 'rgba(0, 0, 0, 0.6)'
-                    }
-                }}
-            >
-                <Card 
-                    className="preparation-card border-0"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '12px',
-                        fontFamily: 'Poppins, sans-serif'
-                    }}
-                >
-                    <Steps 
-                        current={currentStep}
-                        style={{
-                            fontFamily: 'Poppins, sans-serif'
-                        }}
-                    >
-                        {steps.map((step, index) => (
-                            <Step
-                                key={index}
-                                title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>{step.title}</span>}
-                                description={step.description}
-                                icon={
-                                    currentStep === index ? (
-                                        <LoadingOutlined style={{ color: '#60a5fa' }} />
-                                    ) : (
-                                        <span style={{ color: '#94a3b8' }}>{step.icon}</span>
-                                    )
-                                }
-                            />
-                        ))}
-                    </Steps>
-                </Card>
-            </Modal>
+                        </Space>
+                    </animated.div>
+                </div>
             </div>
         </>
     )

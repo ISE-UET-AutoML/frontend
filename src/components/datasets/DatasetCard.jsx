@@ -1,5 +1,5 @@
 import React from 'react'
-import { CircleStackIcon, StarIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { CircleStackIcon, StarIcon, TrashIcon, PhotoIcon, DocumentTextIcon, TableCellsIcon, Squares2X2Icon, ChartBarIcon } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -72,6 +72,29 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
     const annotatedCount = lsProject.annotatedNums || 0
     const totalAnnotations = lsProject.annotationNums || dataset.quantity || 0
 
+    // Choose icon by dataset type
+    const TYPE_ICON_MAP = {
+        IMAGE: PhotoIcon,
+        TEXT: DocumentTextIcon,
+        TABULAR: TableCellsIcon,
+        TEXT_CLASSIFICATION: DocumentTextIcon,
+        MULTILABEL_TEXT_CLASSIFICATION: DocumentTextIcon,
+        TABULAR_CLASSIFICATION: TableCellsIcon,
+        TABULAR_REGRESSION: TableCellsIcon,
+        MULTILABEL_TABULAR_CLASSIFICATION: TableCellsIcon,
+        MULTIMODAL_CLASSIFICATION: Squares2X2Icon,
+        MULTILABEL_IMAGE_CLASSIFICATION: PhotoIcon,
+        OBJECT_DETECTION: PhotoIcon,
+        SEMANTIC_SEGMENTATION: PhotoIcon,
+        MULTIMODAL: Squares2X2Icon,
+        TIME_SERIES: ChartBarIcon
+    }
+    const normalizedTypeKey = (taskType || dataType || 'UNKNOWN')
+        .toString()
+        .toUpperCase()
+        .replace(/\s+/g, '_')
+    const TypeIcon = TYPE_ICON_MAP[normalizedTypeKey] || CircleStackIcon
+
     const progress = totalAnnotations > 0 ? Math.round((annotatedCount / totalAnnotations) * 100) : 0
 
     const handleCardClick = () => {
@@ -93,8 +116,8 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div className="w-20 h-20 rounded-xl bg-white/10 shadow-md flex items-center justify-center group">
-                    <CircleStackIcon
-                        className="h-10 w-10 text-white transition-transform duration-500 ease-out group-hover:rotate-45"
+                    <TypeIcon
+                        className="h-10 w-10 text-white transition-transform duration-500 ease-out"
                         aria-hidden="true"
                     />
                 </div>
