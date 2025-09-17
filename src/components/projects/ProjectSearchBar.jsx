@@ -1,5 +1,6 @@
 import React from 'react'
 import { Input } from 'antd'
+import SortDropdown from './SortDropdown'
 
 // Custom styles cho dark input
 const darkInputStyles = `
@@ -32,7 +33,7 @@ const darkInputStyles = `
 }
 `
 
-export default function ProjectSearchBar({ onSearch }) {
+export default function ProjectSearchBar({ onSearch, selectedSort, onSortChange }) {
     const [searchValue, setSearchValue] = React.useState('')
 
     const handleChange = (e) => {
@@ -44,7 +45,7 @@ export default function ProjectSearchBar({ onSearch }) {
     return (
         <>
             <style>{darkInputStyles}</style>
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Input
                     placeholder="Search projects by name..."
                     value={searchValue}
@@ -53,6 +54,11 @@ export default function ProjectSearchBar({ onSearch }) {
                     size="large"
                     className="dark-input"
                     spellCheck={false}
+                    style={{ flex: 1 }}
+                />
+                <SortDropdown
+                    selectedSort={selectedSort}
+                    onSortChange={onSortChange}
                 />
             </div>
         </>

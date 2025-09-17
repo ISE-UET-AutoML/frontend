@@ -5,6 +5,7 @@ import instance from 'src/api/axios'
 import { API_URL } from 'src/constants/api'
 import { PATHS } from 'src/constants/paths'
 import { TASK_TYPES } from 'src/constants/types'
+import { getAllExperiments } from 'src/api/experiment'
 
 const initialState = {
     showUploader: false,
@@ -27,19 +28,39 @@ export const useProjects = () => {
     const [projectName, setProjectName] = useState('')
     const [description, setDescription] = useState('')
     const [jsonSumm, setJsonSumm] = useState('')
-    
+    // Sort state
+    const [selectedSort, setSelectedSort] = useState('created_at')
+
     const navigate = useNavigate()
 
     // Lọc project theo name
     const filterProjectsByName = (value) => {
-        if (!value) {
-            updateProjState({ projects: allProjects })
-        } else {
-            const filtered = allProjects.filter((p) =>
+        let filtered = allProjects
+        if (value) {
+            filtered = filtered.filter((p) =>
                 p.name && p.name.toLowerCase().includes(value.toLowerCase())
             )
-            updateProjState({ projects: filtered })
         }
+        // Apply sort after filter
+        filtered = sortProjects(filtered, selectedSort)
+        updateProjState({ projects: filtered })
+    }
+
+    // Sort projects by selectedSort
+    const sortProjects = (projects, sortKey = selectedSort) => {
+        if (sortKey === 'name') {
+            return [...projects].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        } else if (sortKey === 'created_at') {
+            return [...projects].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        }
+        return projects
+    }
+
+    // Handle sort change
+    const handleSortChange = (sortKey) => {
+        setSelectedSort(sortKey)
+        // Re-sort current projects
+        updateProjState({ projects: sortProjects(projectState.projects, sortKey) })
     }
 
     const selectType = (e, idx) => {
@@ -54,11 +75,40 @@ export const useProjects = () => {
     const getProjects = async () => {
         const response = await instance.get(API_URL.all_projects)
         console.log(response.data)
-        const proj = response.data.owned
-        setAllProjects(prev => proj)
-        updateProjState({ projects: proj })
-        console.log('All Project', response.data)
-        return response.data
+        let proj = response.data.owned
+
+        // Lấy experiments cho từng project và đếm status
+        const projectsWithExp = await Promise.all(
+            proj.map(async (project) => {
+                try {
+                    const experiments_res = await getAllExperiments(project.id)
+                    const experiments = experiments_res.data
+                    const done_experiments = experiments.filter(exp => exp.status === 'DONE').length
+                    const training_experiments = experiments.filter(exp => exp.status === 'TRAINING').length
+                    const setting_experiments = experiments.filter(exp => exp.status === 'SETTING_UP').length
+                    return {
+                        ...project,
+                        done_experiments,
+                        training_experiments,
+                        setting_experiments,
+                    }
+                } catch (err) {
+                    // Nếu lỗi thì trả về project không có các trường này
+                    return {
+                        ...project,
+                        done_experiments: 0,
+                        training_experiments: 0,
+                        setting_experiments: 0,
+                    }
+                }
+            })
+        )
+
+        setAllProjects(prev => projectsWithExp)
+        // Apply sort
+        updateProjState({ projects: sortProjects(projectsWithExp) })
+        console.log('All Project', projectsWithExp)
+        return projectsWithExp
     }
 
     const handleCreateProject = async (event) => {
@@ -112,14 +162,13 @@ export const useProjects = () => {
 
     // Filter projects by training task
     useEffect(() => {
+        let filtered = allProjects
         if (selectedTrainingTask) {
-            updateProjState({
-                projects: allProjects.filter((p) => p.task_type === selectedTrainingTask)
-            })
-        } else {
-            updateProjState({ projects: allProjects })
+            filtered = filtered.filter((p) => p.task_type === selectedTrainingTask)
         }
-    }, [selectedTrainingTask, allProjects])
+        filtered = sortProjects(filtered)
+        updateProjState({ projects: filtered })
+    }, [selectedTrainingTask, allProjects, selectedSort])
 
     // Load projects on mount
     useEffect(() => {
@@ -140,11 +189,12 @@ export const useProjects = () => {
         setDescription,
         jsonSumm,
         setJsonSumm,
-        // Actions
+        selectedSort,
         selectType,
         getProjects,
         handleCreateProject,
         setTask,
         filterProjectsByName,
+        handleSortChange,
     }
 }

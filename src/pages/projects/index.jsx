@@ -42,6 +42,8 @@ export default function Projects() {
         handleCreateProject,
         setTask,
         filterProjectsByName,
+        selectedSort,
+        handleSortChange,
     } = useProjects()
 
     const {
@@ -145,9 +147,11 @@ export default function Projects() {
                         showFilter={showFilter}
                     />
 
-                    {/* Search Bar */}
+                    {/* Search Bar + Sort */}
                     <ProjectSearchBar
                         onSearch={filterProjectsByName}
+                        selectedSort={selectedSort}
+                        onSortChange={handleSortChange}
                     />
 
                     {/* Projects Grid */}

@@ -66,20 +66,39 @@ export default function ProjectCard({ project, getProjects }) {
 
 			{/* Title & Description */}
 			<h2 className="text-xl font-semibold mb-2">{project?.name}</h2>
-			<p className="text-sm text-gray-300 leading-relaxed mb-4">
+			<p className="text-sm text-gray-300 leading-relaxed mb-3">
 				{project?.description}
 			</p>
 
-			{/* Tag */}
-			<span 
-				className="px-4 py-1 text-sm font-semibold rounded-full text-white shadow-md"
-				style={{
-					background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
-					border: `1px solid rgba(255, 255, 255, 0.2)`,
-				}}
-			>
-				{project?.task_type}
-			</span>
+			{/* Meta Info Grouped */}
+			<div className="flex flex-col gap-2 mb-4">
+				<div className="text-xs text-gray-400 mb-1">
+					<b>Created at:</b> <span className="font-bold" style={{color: 'white'}}>{dayjs(project?.created_at).format('YYYY-MM-DD HH:mm')}</span>
+				</div>
+				<div>
+					<span 
+						className="px-3 py-1 text-xs font-semibold rounded-full text-white shadow-md"
+						style={{
+							background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
+							border: `1px solid rgba(255, 255, 255, 0.2)`,
+						}}
+					>
+						{project?.task_type}
+					</span>
+					<div style={{
+						width: '100%',
+						height: '1px',
+						background: 'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 100%)',
+						marginTop: 20,
+						marginBottom: 2,
+						borderRadius: 2,
+					}} />
+				</div>
+				<div className="flex items-center justify-around mt-2">
+					<span className="text-xs text-gray-400"><b>Trained:</b> <span className="font-bold" style={{color: 'white'}}>{project?.done_experiments || 0}</span></span>
+					<span className="text-xs text-gray-400"><b>Training:</b> <span className="font-bold" style={{color: 'white'}}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span></span>
+				</div>
+			</div>
 		</div>
 	)
 }
