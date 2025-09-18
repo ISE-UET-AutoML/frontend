@@ -234,11 +234,12 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
     return (
         <div
             key={dataset.id}
-            className="group rounded-2xl p-6 shadow-lg w-[380px] text-white font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            className="group rounded-2xl p-6 shadow-lg w-[380px] font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             style={{
-                background: gradientTheme.card,
-                border: `1px solid ${gradientTheme.border}`,
-                boxShadow: '0 10px 30px rgba(0,0,0,0.35)'
+                background: 'var(--card-gradient)',
+                border: '1px solid var(--border)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                color: 'var(--text)'
             }}
             onClick={isClickable ? handleCardClick : undefined}
         >
@@ -247,43 +248,57 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
                 <div
                     className="w-20 h-20 rounded-xl shadow-md flex items-center justify-center group"
                     style={{
-                        background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.04) 100%)',
-                        border: `1px solid ${gradientTheme.border}`,
-                        boxShadow: `0 6px 18px ${gradientTheme.border}`
+                        background: 'var(--accent-gradient)',
+                        border: '1px solid var(--border)',
+                        boxShadow: '0 6px 18px var(--border)'
                     }}
                 >
                     <TypeIcon
-                        className="h-10 w-10 text-white transition-transform duration-500 ease-out"
+                        className="h-10 w-10 transition-transform duration-500 ease-out"
+                        style={{ color: 'var(--accent-text)' }}
                         aria-hidden="true"
                     />
                 </div>
                 <div className="flex gap-3">
-                    <button className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
-                        <StarIcon className="h-5 w-5 text-white" />
+                    <button 
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition"
+                        style={{ 
+                            background: 'var(--hover-bg)', 
+                            border: '1px solid var(--border)'
+                        }}
+                    >
+                        <StarIcon className="h-5 w-5" style={{ color: 'var(--secondary-text)' }} />
                     </button>
                     <button 
-                        className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-red-400 transition"
+                        className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/20 transition"
+                        style={{ 
+                            background: 'var(--hover-bg)', 
+                            border: '1px solid var(--border)'
+                        }}
                         onClick={(e) => handleDelete(e, dataset.id)}
                     >
-                        <TrashIcon className="h-5 w-5 text-white" />
+                        <TrashIcon className="h-5 w-5 text-red-500" />
                     </button>
                 </div>
             </div>
 
             {/* Title & Description */}
             <div className="flex items-center justify-between gap-3 mb-2">
-                <h2 className="text-xl font-semibold">{dataset.title || 'Untitled Dataset'}</h2>
+                <h2 className="text-xl font-semibold" style={{ color: 'var(--text)' }}>
+                    {dataset.title || 'Untitled Dataset'}
+                </h2>
                 <span 
-                    className="px-4 py-1 text-sm font-semibold rounded-full text-white shadow-md shrink-0"
+                    className="px-4 py-1 text-sm font-semibold rounded-full shadow-md shrink-0"
                     style={{
-                        background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
-                        border: `1px solid rgba(255, 255, 255, 0.2)`,
+                        background: 'var(--tag-gradient)',
+                        border: '1px solid var(--border)',
+                        color: 'var(--text)'
                     }}
                 >
                     {dataType.replace(/_/g, ' ')}
                 </span>
             </div>
-            <p className="text-sm text-gray-300 leading-relaxed mb-4">
+            <p className="text-sm leading-relaxed mb-4" style={{ color: 'var(--secondary-text)' }}>
                 {dataset.description || 'No description available'}
             </p>
 
@@ -303,8 +318,8 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
                 {totalAnnotations > 0 && (
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-300">Progress</span>
-                            <span className="text-sm font-semibold text-white">
+                            <span className="text-sm" style={{ color: 'var(--secondary-text)' }}>Progress</span>
+                            <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
                                 {annotatedCount} / {totalAnnotations}
                             </span>
                         </div>
@@ -338,19 +353,23 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             </span>
 
             {/* Footer Info */}
-            <div className="mt-4 pt-4 border-t border-white/10">
-                <div className="flex flex-wrap gap-x-8 gap-y-2 text-xs text-gray-300">
+            <div className="mt-4 pt-4" style={{ borderTop: '1px solid var(--divider)' }}>
+                <div className="flex flex-wrap gap-x-8 gap-y-2 text-xs">
                     <div>
-                        <span className="block text-gray-400">Created at</span>
-                        <span className="block mt-0.5 font-semibold text-white whitespace-nowrap">{createdAtDisplay}</span>
+                        <span className="block" style={{ color: 'var(--secondary-text)' }}>Created at</span>
+                        <span className="block mt-0.5 font-semibold whitespace-nowrap" style={{ color: 'var(--text)' }}>
+                            {createdAtDisplay}
+                        </span>
                     </div>
                     <div>
-                        <span className="block text-gray-400">Total files:</span>
-                        <span className="block mt-0.5 font-semibold text-white whitespace-nowrap">{totalFiles}</span>
+                        <span className="block" style={{ color: 'var(--secondary-text)' }}>Total files:</span>
+                        <span className="block mt-0.5 font-semibold whitespace-nowrap" style={{ color: 'var(--text)' }}>
+                            {totalFiles}
+                        </span>
                     </div>
                     <div>
-                        <span className="block text-gray-400">Size</span>
-                        <span className="block mt-0.5 font-semibold text-white">
+                        <span className="block" style={{ color: 'var(--secondary-text)' }}>Size</span>
+                        <span className="block mt-0.5 font-semibold" style={{ color: 'var(--text)' }}>
                             {totalSizeKb ? (totalSizeKb / 1024).toFixed(1) + ' MB' : 'N/A'}
                         </span>
                     </div>

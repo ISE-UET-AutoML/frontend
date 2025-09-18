@@ -2,33 +2,33 @@ import React from 'react'
 import { Input } from 'antd'
 import SortDropdown from './SortDropdown'
 
-// Custom styles cho dark input
-const darkInputStyles = `
-.dark-input .ant-input,
-.dark-input.ant-input-affix-wrapper {
-    background: rgba(15, 32, 39, 0.8) !important;
-    color: white !important;
+// Theme-aware styles for input
+const themeInputStyles = `
+.theme-input .ant-input,
+.theme-input.ant-input-affix-wrapper {
+    background: var(--filter-input-bg) !important;
+    color: var(--text) !important;
     border-radius: 0.75rem !important;
     transition: all 0.3s ease;
     padding: 0.3rem 0.5rem !important;
 }
 
-.dark-input.ant-input-affix-wrapper {
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+.theme-input.ant-input-affix-wrapper {
+    border: 1px solid var(--filter-input-border) !important;
 }
 
-.dark-input .ant-input::placeholder {
-    color: #9CA3AF !important;
+.theme-input .ant-input::placeholder {
+    color: var(--secondary-text) !important;
 }
 
-.dark-input.ant-input-affix-wrapper:hover,
-.dark-input:hover {
-    border-color: rgba(255, 255, 255, 0.4) !important;
+.theme-input.ant-input-affix-wrapper:hover,
+.theme-input:hover {
+    border-color: var(--filter-input-hover) !important;
 }
 
-.dark-input.ant-input-affix-wrapper-focused,
-.dark-input:focus {
-    border-color: rgba(59, 130, 246, 0.5) !important;
+.theme-input.ant-input-affix-wrapper-focused,
+.theme-input:focus {
+    border-color: var(--filter-input-focus) !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
 }
 `
@@ -48,7 +48,7 @@ export default function ProjectSearchBar({ onSearch, isReset }) {
 
     return (
         <>
-            <style>{darkInputStyles}</style>
+            <style>{themeInputStyles}</style>
             <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Input
                     placeholder="Search projects..."
@@ -56,7 +56,7 @@ export default function ProjectSearchBar({ onSearch, isReset }) {
                     onChange={handleChange}
                     allowClear
                     size="large"
-                    className="dark-input"
+                    className="theme-input"
                     spellCheck={false}
                     style={{ flex: 1 }}
                 />

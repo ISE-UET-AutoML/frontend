@@ -17,6 +17,7 @@ import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 
 // Hooks
 import { useProjects, useChatbot, useDatasets } from 'src/hooks'
+import { useTheme } from 'src/theme/ThemeProvider'
 
 const { Content } = Layout
 
@@ -89,17 +90,15 @@ export default function Projects() {
         }
     }
 
+    const { theme } = useTheme()
+    
     return (
         <>
-            <style>{`
-                body, html {
-                    background-color: #01000A !important;
-                }
-            `}</style>
-            <div className="min-h-screen bg-[#01000A]">
-                <Layout className="min-h-screen bg-[#01000A] pt-12">
+            <div className="min-h-screen" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
+                <Layout className="min-h-screen pt-12" style={{ background: 'var(--surface)' }}>
                     <Content className="relative pt-20 px-6 pb-20">
-                <BackgroundShapes 
+                {theme === 'dark' && (
+                    <BackgroundShapes 
                     width="1280px" 
                     height="1100px"
                     shapes={[
@@ -134,7 +133,8 @@ export default function Projects() {
                             transform: 'translate(-50%, -50%)'
                         }
                     ]}
-                />
+                    />
+                )}
                 <ContentContainer className="relative z-10">
                     {/* Header Section */}
                     <ProjectHeader 

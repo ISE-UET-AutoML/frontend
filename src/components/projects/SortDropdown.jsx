@@ -1,54 +1,54 @@
 import React from 'react'
 import { Select } from 'antd'
 
-// Custom styles cho dark select (copy từ TaskFilter để đồng bộ)
-const darkSelectStyles = `
-.dark-select .ant-select-selector {
-    background: rgba(15, 32, 39, 0.8) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: white !important;
+// Theme-aware styles for select components
+const themeSelectStyles = `
+.theme-select .ant-select-selector {
+    background: var(--filter-input-bg) !important;
+    border: 1px solid var(--filter-input-border) !important;
+    color: var(--text) !important;
 }
 
-.dark-select .ant-select-selection-item {
-    color: white !important;
+.theme-select .ant-select-selection-item {
+    color: var(--text) !important;
 }
 
-.dark-select .ant-select-selection-placeholder {
-    color: #9CA3AF !important;
+.theme-select .ant-select-selection-placeholder {
+    color: var(--secondary-text) !important;
 }
 
-.dark-select .ant-select-arrow {
-    color: white !important;
+.theme-select .ant-select-arrow {
+    color: var(--text) !important;
 }
 
-.dark-select:hover .ant-select-selector {
-    border-color: rgba(255, 255, 255, 0.4) !important;
+.theme-select:hover .ant-select-selector {
+    border-color: var(--filter-input-hover) !important;
 }
 
-.dark-select.ant-select-focused .ant-select-selector {
-    border-color: rgba(59, 130, 246, 0.5) !important;
+.theme-select.ant-select-focused .ant-select-selector {
+    border-color: var(--filter-input-focus) !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
 }
 
 /* Dropdown options styling */
-.dark-select-dropdown .ant-select-item {
-    color: white !important;
+.theme-select-dropdown .ant-select-item {
+    color: var(--text) !important;
     background: transparent !important;
 }
 
-.dark-select-dropdown .ant-select-item:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
+.theme-select-dropdown .ant-select-item:hover {
+    background: var(--filter-item-hover) !important;
+    color: var(--text) !important;
 }
 
-.dark-select-dropdown .ant-select-item-option-selected {
+.theme-select-dropdown .ant-select-item-option-selected {
     background: rgba(59, 130, 246, 0.2) !important;
-    color: white !important;
+    color: var(--text) !important;
 }
 
-.dark-select-dropdown .ant-select-item-option-active {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
+.theme-select-dropdown .ant-select-item-option-active {
+    background: var(--filter-item-hover) !important;
+    color: var(--text) !important;
 }
 `
 
@@ -60,37 +60,34 @@ const SORT_OPTIONS = [
 export default function SortDropdown({ selectedSort, onSortChange }) {
   return (
     <>
-      <style>{darkSelectStyles}</style>
+      <style>{themeSelectStyles}</style>
       <Select
         options={SORT_OPTIONS.map(opt => ({
           ...opt,
           label: (
-            <span className="font-poppins font-medium text-white">
+            <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
               {opt.label}
             </span>
           )
         }))}
         value={selectedSort || 'created_at'}
         placeholder={
-          <span className="font-poppins text-gray-400">
+          <span className="font-poppins" style={{ color: 'var(--secondary-text)' }}>
             Sort by
           </span>
         }
-        className="w-full dark-select"
+        className="w-full theme-select"
         onChange={onSortChange}
         dropdownStyle={{
-          background: 'rgba(15, 32, 39, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'var(--filter-dropdown-bg)',
+          border: '1px solid var(--filter-dropdown-border)',
           borderRadius: '12px',
           backdropFilter: 'blur(10px)',
         }}
         style={{
-          background: 'rgba(15, 32, 39, 0.8) !important',
-          border: '1px solid rgba(255, 255, 255, 0.2) !important',
-          color: 'white !important',
           minWidth: 140,
         }}
-        popupClassName="dark-select-dropdown"
+        popupClassName="theme-select-dropdown"
       />
     </>
   )

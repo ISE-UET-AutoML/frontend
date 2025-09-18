@@ -20,8 +20,11 @@ const DatasetGrid = ({
         return (
             <div className="flex justify-center items-center py-20">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                    <Text className="text-white font-poppins">Loading datasets...</Text>
+                    <div 
+                        className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4"
+                        style={{ borderColor: 'var(--accent-text)' }}
+                    ></div>
+                    <Text className="font-poppins" style={{ color: 'var(--text)' }}>Loading datasets...</Text>
                 </div>
             </div>
         )
@@ -38,14 +41,19 @@ const DatasetGrid = ({
                 }}
                 description={
                     <Space direction="vertical" align="center">
-                        <Text strong className="text-white font-poppins text-h2" style={{ color: 'white' }}>No Datasets Yet</Text>
-                        <Text className="text-white font-poppins text-body" style={{ color: 'white' }}>
+                        <Text strong className="font-poppins text-h2" style={{ color: 'var(--text)' }}>No Datasets Yet</Text>
+                        <Text className="font-poppins text-body" style={{ color: 'var(--secondary-text)' }}>
                             Start by creating your first dataset
                         </Text>
                         <Button
                             type="primary"
                             onClick={onCreateDataset}
-                            className="font-poppins bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+                            className="font-poppins"
+                            style={{
+                                background: 'var(--button-gradient)',
+                                border: '1px solid var(--border)',
+                                color: '#ffffff'
+                            }}
                         >
                             Create Dataset
                         </Button>

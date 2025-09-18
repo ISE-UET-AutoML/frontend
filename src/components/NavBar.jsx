@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { PATHS } from 'src/constants/paths'
 import useAuth from 'src/hooks/useAuth'
 import clsx from 'clsx'
+import { useTheme } from 'src/theme/ThemeProvider'
+import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 
 const NavBar = () => {
 	const [navbarOpen, setNavbarOpen] = useState(false)
@@ -13,6 +15,7 @@ const NavBar = () => {
 	const navigate = useNavigate()
 	const location = useLocation()
     const { authed, logout: authLogout, user } = useAuth()
+    const { theme, toggle } = useTheme()
 
 	useEffect(() => {
 		const getScrollTop = () => {
@@ -80,13 +83,14 @@ const NavBar = () => {
 		}
 	}
 	return (
-		<header 
-			className="fixed top-0 w-full z-50 transition-all duration-300" 
-			style={{ 
-				backgroundColor: scrolled ? 'rgba(1, 0, 10, 0.95)' : 'rgba(1, 0, 10, 0)',
-				backdropFilter: scrolled ? 'blur(10px)' : 'none',
-				zIndex: 999
-			}}
+        <header 
+            className="fixed top-0 w-full z-50 transition-all duration-300" 
+            style={{ 
+                backgroundColor: scrolled ? 'var(--nav-bg)' : 'transparent',
+                color: 'var(--nav-text)',
+                backdropFilter: scrolled ? 'blur(10px)' : 'none',
+                zIndex: 999
+            }}
 		>
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex justify-between items-center h-16">
@@ -110,16 +114,19 @@ const NavBar = () => {
 									onMouseEnter={() => setHoveredItem(item.name)}
 									onMouseLeave={() => setHoveredItem(null)}
 								>
-									<button
-										onClick={() => handleNavigation(item.href)}
-										className={clsx(
-											"px-3 py-2 text-sm font-bold transition-all duration-200 relative",
-											isActive(item.href)
-												? "text-white opacity-100"
-												: "text-white opacity-80 hover:opacity-100"
-										)}
-										style={{ fontFamily: 'Poppins, sans-serif' }}
-									>
+					<button
+						onClick={() => handleNavigation(item.href)}
+						className={clsx(
+							"px-3 py-2 text-sm font-bold transition-all duration-200 relative",
+							isActive(item.href)
+								? "opacity-100"
+								: "opacity-80 hover:opacity-100"
+						)}
+						style={{ 
+							fontFamily: 'Poppins, sans-serif',
+							color: 'var(--nav-text)'
+						}}
+					>
 										{item.name}
 										
 										{/* Animated underline */}
@@ -136,14 +143,24 @@ const NavBar = () => {
 						</div>
 					</div>
 
-					{/* Right: Login/Profile */}
-					<div className="hidden md:block">
+                    {/* Right: Theme + Login/Profile */}
+                    <div className="hidden md:flex items-center gap-2">
 						{authed ? (
 							/* Profile dropdown for authenticated users */
 							<Menu as="div" className="relative">
 								<div>
-                                    <Menu.Button className="transition flex gap-2 rounded-xl bg-gray-800 text-sm focus:outline-none hover:bg-gray-700 py-2 px-3">
-                                        <span className="font-regular text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                    <Menu.Button 
+                                        className="transition flex gap-2 rounded-xl text-sm focus:outline-none py-2 px-3"
+                                        style={{
+                                            background: 'var(--hover-bg)',
+                                            border: '1px solid var(--border)',
+                                            color: 'var(--nav-text)'
+                                        }}
+                                    >
+                                        <span className="font-regular" style={{ 
+                                            fontFamily: 'Poppins, sans-serif',
+                                            color: 'var(--nav-text)'
+                                        }}>
                                             {user?.name || user?.username || user?.email || 'User'}
                                         </span>
                                         <img
@@ -218,12 +235,33 @@ const NavBar = () => {
 							/* Login button for non-authenticated users */
 							<button 
 								onClick={() => navigate('/login')}
-								className="bg-gray-800 text-white px-6 py-2 rounded-full text-sm font-medium hover:bg-gray-700 transition-colors duration-200"
-								style={{ fontFamily: 'Poppins, sans-serif' }}
+								className="px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
+								style={{ 
+									fontFamily: 'Poppins, sans-serif',
+									background: 'var(--button-gradient)',
+									color: '#ffffff',
+									border: '1px solid var(--border)'
+								}}
 							>
 								Login
 							</button>
 						)}
+                        <button
+                            onClick={toggle}
+                            aria-label="Toggle theme"
+                            className="ml-2 h-9 w-9 rounded-full grid place-items-center transition"
+                            style={{
+                                background: 'var(--nav-hover)',
+                                color: 'var(--nav-text)',
+                                border: '1px solid rgba(0,0,0,0.06)'
+                            }}
+                        >
+                            {theme === 'dark' ? (
+                                <SunIcon className="h-5 w-5" />
+                            ) : (
+                                <MoonIcon className="h-5 w-5" />
+                            )}
+                        </button>
 					</div>
 
 					{/* Mobile menu button */}
@@ -251,12 +289,18 @@ const NavBar = () => {
 									{(authed ? authNavigationItems : publicNavigationItems).map((item) => (
 										<button
 											key={item.name}
-											onClick={() => {
-												handleNavigation(item.href)
-												setNavbarOpen(false)
-											}}
-											className="block w-full text-left px-3 py-2 text-base font-medium text-white opacity-80 hover:opacity-100 hover:bg-gray-800 transition-all duration-200"
-											style={{ fontFamily: 'Poppins, sans-serif' }}
+							onClick={() => {
+								handleNavigation(item.href)
+								setNavbarOpen(false)
+							}}
+							className="block w-full text-left px-3 py-2 text-base font-medium opacity-80 hover:opacity-100 transition-all duration-200"
+							style={{ 
+								fontFamily: 'Poppins, sans-serif',
+								color: 'var(--nav-text)',
+								backgroundColor: 'transparent'
+							}}
+							onMouseEnter={(e) => e.target.style.background = 'var(--nav-hover)'}
+							onMouseLeave={(e) => e.target.style.background = 'transparent'}
 										>
 											{item.name}
 										</button>

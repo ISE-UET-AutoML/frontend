@@ -53,26 +53,45 @@ export default function ProjectCard({ project, getProjects }) {
     return (
 		<div
             key={project.id}
-			className="group bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] rounded-2xl p-6 shadow-lg w-[380px] h-[280px] overflow-hidden text-white font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col"
+			className="group rounded-2xl p-6 shadow-lg w-[380px] h-[280px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col"
+            style={{ 
+                background: 'var(--card-gradient)', 
+                border: '1px solid var(--border)',
+                color: 'var(--text)'
+            }}
             onClick={handleCardClick}
         >
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
-                <div className="w-20 h-20 rounded-xl bg-white/10 shadow-md flex items-center justify-center">
+                <div 
+                    className="w-20 h-20 rounded-xl shadow-md flex items-center justify-center"
+                    style={{ background: 'var(--accent-gradient)' }}
+                >
                     <IconComponent
-                        className="h-10 w-10 text-white transition-transform duration-500 ease-out group-hover:rotate-45"
+                        className="h-10 w-10 transition-transform duration-500 ease-out group-hover:rotate-45"
+                        style={{ color: 'var(--accent-text)' }}
                         aria-hidden="true"
                     />
                 </div>
                 <div className="flex gap-3">
-                    <button className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
-                        <StarIcon className="h-5 w-5 text-white" />
+                    <button 
+                        className="w-10 h-10 rounded-full flex items-center justify-center transition"
+                        style={{ 
+                            background: 'var(--hover-bg)', 
+                            border: '1px solid var(--border)'
+                        }}
+                    >
+                        <StarIcon className="h-5 w-5" style={{ color: 'var(--secondary-text)' }} />
                     </button>
                     <button
-                        className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-red-400 transition"
+                        className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/20 transition"
+                        style={{ 
+                            background: 'var(--hover-bg)', 
+                            border: '1px solid var(--border)'
+                        }}
                         onClick={(e) => handleDelete(e, project.id)}
                     >
-                        <TrashIcon className="h-5 w-5 text-white" />
+                        <TrashIcon className="h-5 w-5 text-red-500" />
                     </button>
                 </div>
             </div>
@@ -80,24 +99,27 @@ export default function ProjectCard({ project, getProjects }) {
 		{/* Title & Description */}
 		<div className="flex-1 flex flex-col">
 			<div className="flex items-center justify-between gap-3 mb-2">
-				<h2 className="text-xl font-semibold truncate">{project?.name}</h2>
+				<h2 className="text-xl font-semibold truncate" style={{ color: 'var(--text)' }}>
+					{project?.name}
+				</h2>
 			<span 
-				className="px-3 py-1 text-xs font-semibold rounded-full text-white shadow-md shrink-0"
+				className="px-3 py-1 text-xs font-semibold rounded-full shadow-md shrink-0"
 				style={{
-					background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
-					border: `1px solid rgba(255, 255, 255, 0.2)`,
+					background: 'var(--tag-gradient)',
+					border: '1px solid var(--border)',
+					color: 'var(--text)'
 				}}
 			>
 				{project?.task_type.replace(/_/g, ' ')}
 			</span>
 			</div>
-			<p className="text-sm text-gray-300 leading-relaxed mb-3 max-h-12 overflow-hidden">
+			<p className="text-sm leading-relaxed mb-3 max-h-12 overflow-hidden" style={{ color: 'var(--secondary-text)' }}>
 				{project?.description}
 			</p>
 			<div style={{
 				width: '100%',
 				height: '1px',
-				background: 'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 100%)',
+				background: 'var(--divider)',
 				marginTop: 12,
 				marginBottom: 8,
 				borderRadius: 2,
@@ -106,15 +128,18 @@ export default function ProjectCard({ project, getProjects }) {
             
 			{/* Meta Info Grouped */}
 			<div className="flex flex-col gap-2 mb-8">
-				<div className="text-xs text-gray-500 mb-1">
-					<span>Created at:  </span> <span className="font-bold" style={{color: 'white'}}>{dayjs(project?.created_at).format('YYYY-MM-DD HH:mm')}</span>
+				<div className="text-xs mb-1" style={{ color: 'var(--secondary-text)' }}>
+					<span>Created at: </span> 
+					<span className="font-bold" style={{ color: 'var(--text)' }}>
+						{dayjs(project?.created_at).format('YYYY-MM-DD HH:mm')}
+					</span>
 				</div>
-			<div className="flex items-center justify-between mt-2 text-xs tsext-gray-400">
+			<div className="flex items-center justify-between mt-2 text-xs" style={{ color: 'var(--secondary-text)' }}>
 				<span>
-					Trained: <span className="font-bold" style={{color: 'white'}}>{project?.done_experiments || 0}</span>
+					Trained: <span className="font-bold" style={{ color: 'var(--text)' }}>{project?.done_experiments || 0}</span>
 				</span>
 				<span>
-					Training: <span className="font-bold" style={{color: 'white'}}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span>
+					Training: <span className="font-bold" style={{ color: 'var(--text)' }}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span>
 				</span>
 			</div>
 		</div>

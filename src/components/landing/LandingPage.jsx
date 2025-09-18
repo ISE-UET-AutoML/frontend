@@ -29,11 +29,11 @@ const LandingPage = () => {
 		return () => window.removeEventListener('scroll', handleScroll)
 	}, [])
 
-	return (
-		<div 
-			className="min-h-screen text-white relative" 
-			style={{ backgroundColor: '#01000A' }}
-		>
+    return (
+        <div 
+            className="min-h-screen text-white relative dark" 
+            style={{ backgroundColor: '#01000A' }}
+        >
 			{/* Background Effects Layer */}
 			<BackgroundShapes />
 			
