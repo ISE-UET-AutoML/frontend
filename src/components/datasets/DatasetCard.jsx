@@ -58,6 +58,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
     const processingStatus = dataset.processingStatus || 'PROCESSING'
     const totalFiles = dataset.metaData?.totalFiles || 0
     const totalSizeKb = dataset.metaData?.totalSizeKb || 0
+    const createdAtDisplay = dataset?.createdAt ? dayjs(dataset.createdAt).format('M/D/YYYY h:mm A') : 'N/A'
 
     const isClickable = processingStatus === 'COMPLETED'
     const statusConfig = PROCESSING_STATUS[processingStatus] || PROCESSING_STATUS.PROCESSING
@@ -68,7 +69,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
         border: '#d9d9d9'
     }
     const lsProject = dataset.lsProject || {}
-    const taskType = lsProject.taskType || dataset.dataType || 'UNKNOWN'
+    const taskType = dataset.dataType || 'UNKNOWN'
     const annotatedCount = lsProject.annotatedNums || 0
     const totalAnnotations = lsProject.annotationNums || dataset.quantity || 0
 
@@ -89,7 +90,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
         MULTIMODAL: Squares2X2Icon,
         TIME_SERIES: ChartBarIcon
     }
-    const normalizedTypeKey = (taskType || dataType || 'UNKNOWN')
+    const normalizedTypeKey = (dataType || 'UNKNOWN')
         .toString()
         .toUpperCase()
         .replace(/\s+/g, '_')
@@ -135,7 +136,18 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             </div>
 
             {/* Title & Description */}
-            <h2 className="text-xl font-semibold mb-2">{dataset.title || 'Untitled Dataset'}</h2>
+            <div className="flex items-center justify-between gap-3 mb-2">
+                <h2 className="text-xl font-semibold">{dataset.title || 'Untitled Dataset'}</h2>
+                <span 
+                    className="px-4 py-1 text-sm font-semibold rounded-full text-white shadow-md shrink-0"
+                    style={{
+                        background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
+                        border: `1px solid rgba(255, 255, 255, 0.2)`,
+                    }}
+                >
+                    {dataType.replace(/_/g, ' ')}
+                </span>
+            </div>
             <p className="text-sm text-gray-300 leading-relaxed mb-4">
                 {dataset.description || 'No description available'}
             </p>
@@ -180,26 +192,22 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             </div>
 
             {/* Tag */}
-            <span 
-                className="px-4 py-1 text-sm font-semibold rounded-full text-white shadow-md"
-                style={{
-                    background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
-                    border: `1px solid rgba(255, 255, 255, 0.2)`,
-                }}
-            >
-                {taskType.replace(/_/g, ' ')}
-            </span>
+            
 
             {/* Footer Info */}
             <div className="mt-4 pt-4 border-t border-white/10">
-                <div className="grid grid-cols-2 gap-4 text-xs text-gray-300">
+                <div className="flex flex-wrap gap-x-8 gap-y-2 text-xs text-gray-300">
                     <div>
-                        <span className="block text-gray-400">Files</span>
-                        <span className="font-semibold text-white">{totalFiles}</span>
+                        <span className="block text-gray-400">Created at</span>
+                        <span className="block mt-0.5 font-semibold text-white whitespace-nowrap">{createdAtDisplay}</span>
+                    </div>
+                    <div>
+                        <span className="block text-gray-400">Total files:</span>
+                        <span className="block mt-0.5 font-semibold text-white whitespace-nowrap">{totalFiles}</span>
                     </div>
                     <div>
                         <span className="block text-gray-400">Size</span>
-                        <span className="font-semibold text-white">
+                        <span className="block mt-0.5 font-semibold text-white">
                             {totalSizeKb ? (totalSizeKb / 1024).toFixed(1) + ' MB' : 'N/A'}
                         </span>
                     </div>

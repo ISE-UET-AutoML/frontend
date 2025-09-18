@@ -594,7 +594,7 @@ const Training = () => {
                                         }
                                         description={
                                             <span style={{ color: 'white' }}>
-                                                {trainingTask.status}
+                                                {trainingTask?.status}
                                             </span>
                                         }
                                         showIcon
