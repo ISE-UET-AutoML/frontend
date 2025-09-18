@@ -56,91 +56,120 @@ const themeSelectStyles = `
 `
 
 const trainingTaskOptions = Object.values(TrainingTask).map((task) => ({
-    value: task,
-    label: (
-        <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
-            {task.replace(/_/g, " ")}
-        </span>
-    ),
+	value: task,
+	label: (
+		<span
+			className="font-poppins font-medium"
+			style={{ color: 'var(--text)' }}
+		>
+			{task.replace(/_/g, ' ')}
+		</span>
+	),
 }))
 
-const TaskFilter = ({ selectedTrainingTask, onTaskChange, onReset, showFilter, onSearch, selectedSort, onSortChange, isReset, searchValue }) => {
-    return (
-        <>
-            <style>{themeSelectStyles}</style>
-            <div 
-                className={`mb-6 p-4 rounded-xl backdrop-blur-sm transition-all duration-300 ease-in-out overflow-hidden ${
-                    showFilter 
-                        ? 'max-h-96 opacity-100 transform translate-y-0' 
-                        : 'max-h-0 opacity-0 transform -translate-y-4'
-                }`}
-                style={{
-                    background: 'var(--filter-bg)',
-                    border: '1px solid var(--filter-border)'
-                }}
-            >
-            <div>
-                <span className="text-sm font-poppins font-medium block mb-2" style={{ color: 'var(--secondary-text)' }}>Search:</span>
-                <ProjectSearchBar
-                    onSearch={onSearch}
-                    isReset={isReset}
-                />
-            </div>
-            <Row align="middle" gutter={[16, 16]}>
-                <Col xs={24} sm={8}>
-                    <span className="text-sm font-poppins font-medium block mb-2" style={{ color: 'var(--secondary-text)' }}>Sort by:</span>
-                    <SortDropdown
-                    selectedSort={selectedSort}
-                    onSortChange={onSortChange}
-                    />
-                </Col>
-                {/* Task Type Filter */}
-                <Col flex="auto">
-                    <span className="text-sm font-poppins font-medium block mb-2" style={{ color: 'var(--secondary-text)' }}>Type:</span>
-                    <Select
-                        key="task"
-                        options={trainingTaskOptions}
-                        value={selectedTrainingTask}
-                        placeholder={
-                            <span className="font-poppins" style={{ color: 'var(--secondary-text)' }}>
-                                Select task type
-                            </span>
-                        }
-                        className="w-full theme-select"
-                        onChange={onTaskChange}
-                        allowClear
-                        dropdownStyle={{
-                            background: 'var(--filter-dropdown-bg)',
-                            border: '1px solid var(--filter-dropdown-border)',
-                            borderRadius: '12px',
-                            backdropFilter: 'blur(10px)',
-                        }}
-                        popupClassName="theme-select-dropdown"
-                    />
-                </Col>
-            </Row>
-            {(selectedTrainingTask || searchValue !== '' || selectedSort !== 'created_at') && (
-                <div className="flex justify-end pt-2">
-                    <button
-                        onClick={onReset}
-                        className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
-                        style={{ 
-                            fontFamily: 'Poppins, sans-serif',
-                            background: 'var(--hover-bg)',
-                            border: '1px solid var(--border)',
-                            color: 'var(--text)'
-                        }}
-                        onMouseEnter={(e) => e.target.style.background = 'var(--active-bg)'}
-                        onMouseLeave={(e) => e.target.style.background = 'var(--hover-bg)'}
-                    >
-                        <XMarkIcon className="h-4 w-4" />
-                        Reset Filters
-                    </button>
-                </div>
-            )}
-            </div>
-        </>
-    )
+const TaskFilter = ({
+	selectedTrainingTask,
+	onTaskChange,
+	onReset,
+	onSearch,
+	selectedSort,
+	onSortChange,
+	isReset,
+	searchValue,
+}) => {
+	return (
+		<>
+			<style>{themeSelectStyles}</style>
+			<div
+				className={`mb-6 p-4 rounded-xl backdrop-blur-sm transition-all duration-300 ease-in-out overflow-hidden max-h-96 opacity-100 transform translate-y-0`}
+				style={{
+					background: 'var(--filter-bg)',
+					border: '1px solid var(--filter-border)',
+				}}
+			>
+				<div>
+					<span
+						className="text-sm font-poppins font-medium block mb-2"
+						style={{ color: 'var(--secondary-text)' }}
+					>
+						Search:
+					</span>
+					<ProjectSearchBar onSearch={onSearch} isReset={isReset} />
+				</div>
+				<Row align="middle" gutter={[16, 16]}>
+					<Col xs={24} sm={8}>
+						<span
+							className="text-sm font-poppins font-medium block mb-2"
+							style={{ color: 'var(--secondary-text)' }}
+						>
+							Sort by:
+						</span>
+						<SortDropdown
+							selectedSort={selectedSort}
+							onSortChange={onSortChange}
+						/>
+					</Col>
+					{/* Task Type Filter */}
+					<Col flex="auto">
+						<span
+							className="text-sm font-poppins font-medium block mb-2"
+							style={{ color: 'var(--secondary-text)' }}
+						>
+							Type:
+						</span>
+						<Select
+							key="task"
+							options={trainingTaskOptions}
+							value={selectedTrainingTask}
+							placeholder={
+								<span
+									className="font-poppins"
+									style={{ color: 'var(--secondary-text)' }}
+								>
+									Select task type
+								</span>
+							}
+							className="w-full theme-select"
+							onChange={onTaskChange}
+							allowClear
+							dropdownStyle={{
+								background: 'var(--filter-dropdown-bg)',
+								border: '1px solid var(--filter-dropdown-border)',
+								borderRadius: '12px',
+								backdropFilter: 'blur(10px)',
+							}}
+							popupClassName="theme-select-dropdown"
+						/>
+					</Col>
+				</Row>
+				{(selectedTrainingTask ||
+					searchValue !== '' ||
+					selectedSort !== 'created_at') && (
+					<div className="flex justify-end pt-2">
+						<button
+							onClick={onReset}
+							className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
+							style={{
+								fontFamily: 'Poppins, sans-serif',
+								background: 'var(--hover-bg)',
+								border: '1px solid var(--border)',
+								color: 'var(--text)',
+							}}
+							onMouseEnter={(e) =>
+								(e.target.style.background = 'var(--active-bg)')
+							}
+							onMouseLeave={(e) =>
+								(e.target.style.background = 'var(--hover-bg)')
+							}
+						>
+							<XMarkIcon className="h-4 w-4" />
+							Reset Filters
+						</button>
+					</div>
+				)}
+			</div>
+		</>
+	)
 }
 
 export default TaskFilter
