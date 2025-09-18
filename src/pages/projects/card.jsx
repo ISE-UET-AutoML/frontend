@@ -1,5 +1,5 @@
 import React from 'react'
-import { CubeTransparentIcon, StarIcon, TrashIcon, DocumentTextIcon, PhotoIcon, TableCellsIcon, PuzzlePieceIcon, ArrowTrendingUpIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
+import { CubeTransparentIcon, StarIcon, TrashIcon, DocumentTextIcon, PhotoIcon, TableCellsIcon, PuzzlePieceIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -51,9 +51,9 @@ export default function ProjectCard({ project, getProjects }) {
     }
 
     return (
-        <div
+		<div
             key={project.id}
-            className="group bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] rounded-2xl p-6 shadow-lg w-[380px] text-white font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+			className="group bg-gradient-to-br from-[#0F2027] via-[#203A43] to-[#2C5364] rounded-2xl p-6 shadow-lg w-[380px] h-[280px] overflow-hidden text-white font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col"
             onClick={handleCardClick}
         >
             {/* Header */}
@@ -77,59 +77,47 @@ export default function ProjectCard({ project, getProjects }) {
                 </div>
             </div>
 
-			{/* Title & Description */}
-			<h2 className="text-xl font-semibold mb-2">{project?.name}</h2>
-			<p className="text-sm text-gray-300 leading-relaxed mb-3">
+		{/* Title & Description */}
+		<div className="flex-1 flex flex-col">
+			<div className="flex items-center justify-between gap-3 mb-2">
+				<h2 className="text-xl font-semibold truncate">{project?.name}</h2>
+			<span 
+				className="px-3 py-1 text-xs font-semibold rounded-full text-white shadow-md shrink-0"
+				style={{
+					background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
+					border: `1px solid rgba(255, 255, 255, 0.2)`,
+				}}
+			>
+				{project?.task_type.replace(/_/g, ' ')}
+			</span>
+			</div>
+			<p className="text-sm text-gray-300 leading-relaxed mb-3 max-h-12 overflow-hidden">
 				{project?.description}
 			</p>
-
+			<div style={{
+				width: '100%',
+				height: '1px',
+				background: 'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 100%)',
+				marginTop: 12,
+				marginBottom: 8,
+				borderRadius: 2,
+			}} />
+           
+            
 			{/* Meta Info Grouped */}
-			<div className="flex flex-col gap-2 mb-4">
-				<div className="text-xs text-gray-400 mb-1">
+			<div className="flex flex-col gap-2 mb-8">
+				<div className="text-xs text-gray-500 mb-1">
 					<span>Created at:  </span> <span className="font-bold" style={{color: 'white'}}>{dayjs(project?.created_at).format('YYYY-MM-DD HH:mm')}</span>
 				</div>
-				<div>
-					<span 
-						className="px-3 py-1 text-xs font-semibold rounded-full text-white shadow-md"
-						style={{
-							background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
-							border: `1px solid rgba(255, 255, 255, 0.2)`,
-						}}
-					>
-						{project?.task_type}
-					</span>
-					<div style={{
-						width: '100%',
-						height: '1px',
-						background: 'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.08) 100%)',
-						marginTop: 20,
-						marginBottom: 2,
-						borderRadius: 2,
-					}} />
-				</div>
-				<div className="flex items-center justify-start mt-2">
-					<span style={{ marginRight: '35%' }} className="text-xs text-gray-400">
-                        <span>Trained: </span>
-                        <span className="font-bold" style={{ color: 'white' }}>
-                            {project?.done_experiments === null ? (
-                            <ArrowPathIcon className="w-3 h-3 animate-spin inline-block" />
-                            ) : (
-                            project.done_experiments
-                            )}
-                        </span>
-                    </span>
-
-                    <span className="text-xs text-gray-400">
-                        <span>Training: </span>
-                        <span className="font-bold" style={{ color: 'white' }}>
-                            {project?.training_experiments === null || project?.setting_experiments === null ? (
-                            <ArrowPathIcon className="w-3 h-3 animate-spin inline-block" />
-                            ) : (
-                            (project.training_experiments || 0) + (project.setting_experiments || 0)
-                            )}
-                        </span>
-                    </span>
-				</div>
+			<div className="flex items-center justify-between mt-2 text-xs tsext-gray-400">
+				<span>
+					Trained: <span className="font-bold" style={{color: 'white'}}>{project?.done_experiments || 0}</span>
+				</span>
+				<span>
+					Training: <span className="font-bold" style={{color: 'white'}}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span>
+				</span>
+			</div>
+		</div>
 			</div>
 		</div>
 	)
