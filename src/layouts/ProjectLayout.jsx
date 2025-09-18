@@ -1,23 +1,25 @@
 import { Outlet, useParams } from 'react-router-dom'
 import ProjectSidebar from 'src/components/ProjectSidebar'
+import { useTheme } from 'src/theme/ThemeProvider'
 
 export default function ProjectLayout() {
 	const params = useParams()
+	const { theme } = useTheme()
 
 	return (
 		<>
 			<style>{`
 				body, html {
-					background-color: #01000A !important;
+					background-color: var(--surface) !important;
 					min-height: 100vh !important;
 				}
 				
 				.project-main-content {
-					background: rgba(0, 0, 0, 0.4);
+					background: var(--card-gradient);
 					backdrop-filter: blur(10px);
-					border: 1px solid rgba(255, 255, 255, 0.1);
+					border: 1px solid var(--border);
 					border-radius: 20px;
-					box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+					box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 				}
 				
 				.project-content-wrapper {
@@ -25,8 +27,8 @@ export default function ProjectLayout() {
 					min-height: calc(100vh - 80px);
 				}
 				
-				/* Glowing background shapes */
-				.project-bg-shapes::before {
+				/* Glowing background shapes - only in dark mode */
+				.project-bg-shapes.dark-mode::before {
 					content: '';
 					position: fixed;
 					top: 20%;
@@ -39,7 +41,7 @@ export default function ProjectLayout() {
 					z-index: -1;
 				}
 				
-				.project-bg-shapes::after {
+				.project-bg-shapes.dark-mode::after {
 					content: '';
 					position: fixed;
 					bottom: 20%;
@@ -57,7 +59,7 @@ export default function ProjectLayout() {
 					50% { transform: translateY(-20px) rotate(180deg); }
 				}
 			`}</style>
-			<div className="project-bg-shapes">
+			<div className={`project-bg-shapes ${theme === 'dark' ? 'dark-mode' : ''}`}>
 				<ProjectSidebar
 					projectID={params.id}
 					className="fixed h-[calc(100vh-60px)] w-[80px] top-[60px] z-50"

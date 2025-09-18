@@ -12,126 +12,126 @@ const DatasetSelectionModal = ({
     return (
         <>
             <style>{`
-                .dark-dataset-modal .ant-modal-content {
-                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                .theme-dataset-modal .ant-modal-content {
+                    background: var(--modal-bg) !important;
+                    border: 1px solid var(--modal-border) !important;
                     border-radius: 16px !important;
                 }
                 
-                .dark-dataset-modal .ant-modal-header {
-                    background: transparent !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-dataset-modal .ant-modal-header {
+                    background: var(--modal-header-bg) !important;
+                    border-bottom: 1px solid var(--modal-header-border) !important;
                 }
                 
-                .dark-dataset-modal .ant-modal-title {
-                    color: white !important;
+                .theme-dataset-modal .ant-modal-title {
+                    color: var(--modal-title-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-dataset-modal .ant-modal-close {
-                    color: white !important;
+                .theme-dataset-modal .ant-modal-close {
+                    color: var(--modal-close-color) !important;
                 }
                 
-                .dark-dataset-modal .ant-modal-close:hover {
-                    color: #65FFA0 !important;
+                .theme-dataset-modal .ant-modal-close:hover {
+                    color: var(--modal-close-hover) !important;
                 }
                 
-                .dark-dataset-modal .ant-modal-footer {
-                    background: transparent !important;
-                    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-dataset-modal .ant-modal-footer {
+                    background: var(--modal-header-bg) !important;
+                    border-top: 1px solid var(--modal-header-border) !important;
                 }
                 
-                .dark-dataset-modal .ant-alert {
-                    background: rgba(24, 144, 255, 0.1) !important;
-                    border: 1px solid rgba(24, 144, 255, 0.3) !important;
-                    color: white !important;
+                .theme-dataset-modal .ant-alert {
+                    background: var(--alert-info-bg) !important;
+                    border: 1px solid var(--alert-info-border) !important;
+                    color: var(--alert-color) !important;
                 }
                 
-                .dark-dataset-modal .ant-alert-message {
-                    color: white !important;
+                .theme-dataset-modal .ant-alert-message {
+                    color: var(--alert-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                 }
                 
-                .dark-dataset-modal .ant-alert-description {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                .theme-dataset-modal .ant-alert-description {
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-dataset-modal .ant-table {
+                .theme-dataset-modal .ant-table {
                     background: transparent !important;
                 }
                 
-                .dark-dataset-modal .ant-table-thead > tr > th {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-                    color: white !important;
+                .theme-dataset-modal .ant-table-thead > tr > th {
+                    background: var(--table-header-bg) !important;
+                    border-bottom: 1px solid var(--table-header-border) !important;
+                    color: var(--table-header-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-dataset-modal .ant-table-tbody > tr > td {
-                    background: transparent !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-                    color: white !important;
+                .theme-dataset-modal .ant-table-tbody > tr > td {
+                    background: var(--table-cell-bg) !important;
+                    border-bottom: 1px solid var(--table-cell-border) !important;
+                    color: var(--table-cell-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-dataset-modal .ant-table-tbody > tr:hover > td {
-                    background: rgba(255, 255, 255, 0.05) !important;
+                .theme-dataset-modal .ant-table-tbody > tr:hover > td {
+                    background: var(--table-row-hover) !important;
                 }
                 
-                .dark-dataset-modal .ant-table-tbody > tr.ant-table-row-selected > td {
-                    background: rgba(101, 255, 160, 0.1) !important;
+                .theme-dataset-modal .ant-table-tbody > tr.ant-table-row-selected > td {
+                    background: var(--table-row-selected) !important;
                 }
                 
-                .dark-dataset-modal .ant-radio-wrapper {
-                    color: white !important;
+                .theme-dataset-modal .ant-radio-wrapper {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-dataset-modal .ant-radio-inner {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: rgba(255, 255, 255, 0.3) !important;
+                .theme-dataset-modal .ant-radio-inner {
+                    background: var(--radio-bg) !important;
+                    border-color: var(--radio-border) !important;
                 }
                 
-                .dark-dataset-modal .ant-radio-checked .ant-radio-inner {
-                    background: #65FFA0 !important;
-                    border-color: #65FFA0 !important;
+                .theme-dataset-modal .ant-radio-checked .ant-radio-inner {
+                    background: var(--radio-checked-bg) !important;
+                    border-color: var(--radio-checked-border) !important;
                 }
                 
-                .dark-dataset-modal .ant-btn-primary {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-dataset-modal .ant-btn-primary {
+                    background: var(--button-primary-bg) !important;
+                    border: 1px solid var(--button-primary-border) !important;
+                    color: var(--button-primary-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                 }
                 
-                .dark-dataset-modal .ant-btn-primary:hover {
-                    background: linear-gradient(135deg, #2a2a3e 0%, #26314e 50%, #1f4460 100%) !important;
-                    border-color: #65FFA0 !important;
+                .theme-dataset-modal .ant-btn-primary:hover {
+                    background: var(--button-primary-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
                     transform: translateY(-1px) !important;
                 }
                 
-                .dark-dataset-modal .ant-btn-default {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-dataset-modal .ant-btn-default {
+                    background: var(--button-default-bg) !important;
+                    border: 1px solid var(--button-default-border) !important;
+                    color: var(--button-default-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-dataset-modal .ant-btn-default:hover {
-                    background: rgba(255, 255, 255, 0.2) !important;
-                    border-color: rgba(255, 255, 255, 0.4) !important;
-                    color: white !important;
+                .theme-dataset-modal .ant-btn-default:hover {
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border-hover) !important;
+                    color: var(--text) !important;
                 }
                 
-                .dark-dataset-modal .ant-btn-primary:disabled {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border-color: rgba(255, 255, 255, 0.1) !important;
-                    color: rgba(255, 255, 255, 0.3) !important;
+                .theme-dataset-modal .ant-btn-primary:disabled {
+                    background: var(--input-disabled-bg) !important;
+                    border-color: var(--border) !important;
+                    color: var(--input-disabled-color) !important;
                 }
             `}</style>
             <Modal
@@ -153,28 +153,28 @@ const DatasetSelectionModal = ({
                 ]}
                 width={800}
                 style={{ zIndex: 1000 }}
-                className="dark-dataset-modal"
+                className="theme-dataset-modal"
                 styles={{
                     content: {
-                        background: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'var(--modal-bg)',
+                        border: '1px solid var(--modal-border)',
                         borderRadius: '16px',
                     },
                     header: {
-                        background: 'transparent',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: 'var(--modal-header-bg)',
+                        borderBottom: '1px solid var(--modal-header-border)',
                     },
                     title: {
-                        color: 'white',
+                        color: 'var(--modal-title-color)',
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 600,
                     },
                     close: {
-                        color: 'white',
+                        color: 'var(--modal-close-color)',
                     },
                     footer: {
-                        background: 'transparent',
-                        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: 'var(--modal-header-bg)',
+                        borderTop: '1px solid var(--modal-header-border)',
                     }
                 }}
             >

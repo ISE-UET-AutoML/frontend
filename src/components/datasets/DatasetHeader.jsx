@@ -1,30 +1,28 @@
 import React from 'react'
-import { Row, Col, Space, Typography, Button, Tooltip } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
-import { FunnelIcon } from '@heroicons/react/24/outline'
+import { Row, Col, Space, Typography, Tooltip } from 'antd'
 
 const { Title, Paragraph } = Typography
 
-const DatasetHeader = ({ onNewDataset, onFilterClick, showFilter }) => {
+const DatasetHeader = ({ onNewDataset }) => {
     return (
         <Row justify="space-between" align="top" className="mb-4">
             <Col>
                 <Space direction="vertical" size={1}>
-                    <Title 
+                    <Title
                         level={1}
-                        className="text-h1 font-poppins text-white !mb-2 inline-block"
-                        style={{ 
-                            color: 'transparent', 
-                            background: 'linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%)',
+                        className="text-h1 font-poppins !mb-2 inline-block"
+                        style={{
+                            color: 'var(--title-color)',
+                            background: 'var(--title-gradient)',
                             WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
+                            WebkitTextFillColor: 'var(--title-color)',
                             backgroundClip: 'text',
-                            margin: 0 
+                            margin: 0
                         }}
                     >
                         Datasets
                     </Title>
-                    <Paragraph className="text-body font-poppins text-gray-300 !mb-0" style={{ color: '#D1D5DB', margin: 0 }}>
+                    <Paragraph className="text-body font-poppins !mb-0" style={{ color: 'var(--secondary-text)', margin: 0 }}>
                         Upload and manage your datasets. Organize your data
                         for machine learning projects and label your data
                         for training.
@@ -33,32 +31,15 @@ const DatasetHeader = ({ onNewDataset, onFilterClick, showFilter }) => {
             </Col>
             <Col>
                 <Space size={12} align="center">
-                    {/* Filter Button */}
-                    <Tooltip title="Filter datasets">
-                        <button
-                            onClick={onFilterClick}
-                            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group ${
-                                showFilter 
-                                    ? 'bg-blue-500/20 border border-blue-400/30' 
-                                    : 'bg-white/10 hover:bg-white/20'
-                            }`}
-                        >
-                            <FunnelIcon className={`h-6 w-6 transition-all duration-200 ${
-                                showFilter 
-                                    ? 'text-blue-300 group-hover:scale-110' 
-                                    : 'text-white group-hover:scale-110'
-                            }`} />
-                        </button>
-                    </Tooltip>
-                    
                     {/* New Dataset Button */}
                     <Tooltip title="Create a new dataset">
                         <button
                             onClick={onNewDataset}
-                            className="px-6 py-3 rounded-xl font-poppins font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                            className="px-6 py-3 rounded-xl font-poppins font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
                             style={{
-                                background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                background: 'var(--button-gradient-dark)',
+                                border: '1px solid var(--border)',
+                                color: '#ffffff'
                             }}
                         >
                             New Dataset

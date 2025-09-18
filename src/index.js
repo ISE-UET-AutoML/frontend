@@ -7,6 +7,7 @@ import { LibraryProvider } from './utils/LibProvider';
 import { MultiProvider } from './utils/MultiProvider';
 import { message } from 'antd';
 import App from './App';
+import ThemeProvider from 'src/theme/ThemeProvider';
 
 
 const libraries = {
@@ -24,6 +25,8 @@ root.render(
             <LibraryProvider key="lsf" libraries={libraries} />,
             <AuthProvider />
         ]}>
-        <App />
+        <ThemeProvider>
+            <App />
+        </ThemeProvider>
     </MultiProvider>
 );

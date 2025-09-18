@@ -9,8 +9,10 @@ import {
 import clsx from 'clsx'
 import { PATHS } from 'src/constants/paths'
 import { NavLink } from 'react-router-dom' // ✅ use NavLink
+import { useTheme } from 'src/theme/ThemeProvider'
 
 const ProjectSidebar = ({ projectID, className }) => {
+    const { theme } = useTheme()
     const navigation = [
         {
             name: 'Info',
@@ -43,8 +45,8 @@ const ProjectSidebar = ({ projectID, className }) => {
         <>
             <style>{`
                 .project-sidebar {
-                    background: rgba(0, 0, 0, 0.4);
-                    border-right: 1px solid rgba(255, 255, 255, 0.1);
+                    background: var(--card-gradient);
+                    border-right: 1px solid var(--border);
                     backdrop-filter: blur(10px);
                     width: 120px;
                     position: fixed;
@@ -64,14 +66,14 @@ const ProjectSidebar = ({ projectID, className }) => {
                 }
                 
                 .sidebar-nav-item:hover {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: var(--hover-bg);
                     transform: translateX(2px);
                 }
                 
                 .sidebar-nav-item.active {
-                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%);
-                    border: 1px solid rgba(92, 141, 255, 0.4);
-                    box-shadow: 0 4px 16px rgba(92, 141, 255, 0.3);
+                    background: var(--selection-bg);
+                    border: 1px solid var(--accent-text);
+                    box-shadow: 0 4px 16px var(--selection-bg);
                 }
                 
                 .sidebar-nav-item.active::before {
@@ -82,59 +84,62 @@ const ProjectSidebar = ({ projectID, className }) => {
                     transform: translateY(-50%);
                     width: 6px;
                     height: 32px;
-                    background: linear-gradient(180deg, #5C8DFF 0%, #9333EA 100%);
+                    background: var(--accent-gradient);
                     border-radius: 0 3px 3px 0;
-                    box-shadow: 0 0 8px rgba(92, 141, 255, 0.4);
+                    box-shadow: 0 0 8px var(--accent-text);
                 }
                 
                 .sidebar-icon {
                     transition: all 0.3s ease;
                     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+                    color: var(--secondary-text);
                 }
                 
                 .sidebar-nav-item:hover .sidebar-icon {
                     transform: scale(1.1);
-                    filter: drop-shadow(0 4px 8px rgba(92, 141, 255, 0.4));
+                    filter: drop-shadow(0 4px 8px var(--accent-text));
+                    color: var(--accent-text) !important;
                 }
                 
                 .sidebar-nav-item.active .sidebar-icon {
-                    color: #5C8DFF !important;
-                    filter: drop-shadow(0 4px 8px rgba(92, 141, 255, 0.5));
+                    color: var(--accent-text) !important;
+                    filter: drop-shadow(0 4px 8px var(--accent-text));
                 }
                 
                 .sidebar-text {
                     font-family: 'Poppins', sans-serif;
                     font-weight: 500;
                     transition: all 0.3s ease;
+                    color: var(--secondary-text);
                 }
                 
                 .sidebar-nav-item:hover .sidebar-text {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                 }
                 
                 .sidebar-nav-item.active .sidebar-text {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                     font-weight: 600;
                 }
                 
                 .sidebar-settings {
-                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    border-top: 1px solid var(--border);
                     margin-top: 16px;
                     padding-top: 16px;
                 }
                 
                 .sidebar-settings:hover {
-                    background: rgba(255, 255, 255, 0.05);
+                    background: var(--hover-bg);
                     transform: translateX(2px);
                 }
                 
                 .sidebar-settings:hover .sidebar-icon {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                     transform: scale(1.1);
                 }
                 
                 .sidebar-settings:hover .sidebar-text {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                 }
                 
                 /* Custom scrollbar */
@@ -160,10 +165,10 @@ const ProjectSidebar = ({ projectID, className }) => {
                                         className={clsx(
                                             'sidebar-icon',
                                             'mx-auto flex-shrink-0 rounded-xl w-10 h-10',
-                                            'p-2 text-gray-400'
+                                            'p-2'
                                         )}
                                     />
-                                    <span className="sidebar-text text-xs text-gray-400 mt-1">
+                                    <span className="sidebar-text text-xs mt-1">
                                         {item.name}
                                     </span>
                                 </NavLink>

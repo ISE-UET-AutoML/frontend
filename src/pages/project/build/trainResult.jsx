@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
+import { useTheme } from 'src/theme/ThemeProvider'
 import {
     Card,
     Row,
@@ -81,6 +82,7 @@ const columns = [
 ]
 
 const TrainResult = () => {
+    const { theme } = useTheme()
     const { projectInfo, trainingInfo, elapsedTime } = useOutletContext()
     console.log('Train Info', trainingInfo)
     console.log(projectInfo)
@@ -175,72 +177,74 @@ const TrainResult = () => {
         <>
             <style>{`
                 body, html {
-                    background-color: #01000A !important;
+                    background-color: var(--surface) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
-                .dark-table .ant-table {
+                .theme-table .ant-table {
                     background: transparent !important;
-                    color: #e2e8f0 !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
-                .dark-table .ant-table-thead > tr > th {
-                    background: rgba(51, 65, 85, 0.4) !important;
-                    color: #e2e8f0 !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-table .ant-table-thead > tr > th {
+                    background: var(--table-header-bg) !important;
+                    color: var(--table-header-color) !important;
+                    border-bottom: 1px solid var(--table-header-border) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
-                .dark-table .ant-table-tbody > tr > td {
-                    background: rgba(15, 23, 42, 0.3) !important;
-                    color: #e2e8f0 !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+                .theme-table .ant-table-tbody > tr > td {
+                    background: var(--table-cell-bg) !important;
+                    color: var(--table-cell-color) !important;
+                    border-bottom: 1px solid var(--table-cell-border) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
-                .dark-table .ant-table-tbody > tr:hover > td {
-                    background: rgba(51, 65, 85, 0.5) !important;
+                .theme-table .ant-table-tbody > tr:hover > td {
+                    background: var(--table-row-hover) !important;
                 }
-                .dark-table .ant-empty-description {
-                    color: #94a3b8 !important;
+                .theme-table .ant-empty-description {
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
             `}</style>
-            <div className="min-h-screen bg-[#01000A] relative">
-                <BackgroundShapes
-                    width="1280px"
-                    height="1200px"
-                    shapes={[
-                        {
-                            id: 'resultBlue',
-                            shape: 'circle',
-                            size: '580px',
-                            gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 38%', 'transparent 78%'] },
-                            opacity: 0.32,
-                            blur: '230px',
-                            position: { top: '160px', right: '-170px' },
-                            transform: 'none'
-                        },
-                        {
-                            id: 'resultCyan',
-                            shape: 'rounded',
-                            size: '500px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 48%', 'transparent 82%'] },
-                            opacity: 0.28,
-                            blur: '200px',
-                            position: { top: '380px', left: '-180px' },
-                            transform: 'none'
-                        },
-                        {
-                            id: 'resultWarm',
-                            shape: 'rounded',
-                            size: '460px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 58%', 'transparent 88%'] },
-                            opacity: 0.22,
-                            blur: '180px',
-                            position: { bottom: '120px', right: '22%' },
-                            transform: 'none'
-                        }
-                    ]}
-                />
+            <div className="min-h-screen relative" style={{ background: 'var(--surface)' }}>
+                {theme === 'dark' && (
+                    <BackgroundShapes
+                        width="1280px"
+                        height="1200px"
+                        shapes={[
+                            {
+                                id: 'resultBlue',
+                                shape: 'circle',
+                                size: '580px',
+                                gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 38%', 'transparent 78%'] },
+                                opacity: 0.32,
+                                blur: '230px',
+                                position: { top: '160px', right: '-170px' },
+                                transform: 'none'
+                            },
+                            {
+                                id: 'resultCyan',
+                                shape: 'rounded',
+                                size: '500px',
+                                gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 48%', 'transparent 82%'] },
+                                opacity: 0.28,
+                                blur: '200px',
+                                position: { top: '380px', left: '-180px' },
+                                transform: 'none'
+                            },
+                            {
+                                id: 'resultWarm',
+                                shape: 'rounded',
+                                size: '460px',
+                                gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 58%', 'transparent 88%'] },
+                                opacity: 0.22,
+                                blur: '180px',
+                                position: { bottom: '120px', right: '22%' },
+                                transform: 'none'
+                            }
+                        ]}
+                    />
+                )}
                 <div className="relative z-10 p-6">
                     <Space direction="vertical" size="large" className="w-full">
                         {/* Key Metrics Cards */}
@@ -249,23 +253,21 @@ const TrainResult = () => {
                                 <Card
                                     className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                        background: 'var(--card-gradient)',
                                         backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        border: '1px solid var(--border)',
                                         borderRadius: '12px',
                                         fontFamily: 'Poppins, sans-serif'
                                     }}
                                 >
                                     <Statistic
-                                        title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>{`Final ${metrics[0]?.metric} score`}</span>}
+                                        title={<span style={{ color: 'var(--secondary-text)', fontFamily: 'Poppins, sans-serif' }}>{`Final ${metrics[0]?.metric} score`}</span>}
                                         value={metrics[0]?.value * 100 || 0}
                                         precision={2}
-                                        prefix={<TrophyOutlined style={{ color: '#10b981' }} />}
+                                        prefix={<TrophyOutlined style={{ color: 'var(--accent-text)' }} />}
                                         suffix="%"
                                         valueStyle={{
-                                            background: 'linear-gradient(135deg, #10b981, #34d399)',
-                                            WebkitBackgroundClip: 'text',
-                                            WebkitTextFillColor: 'transparent',
+                                            color: 'var(--accent-text)',
                                             fontFamily: 'Poppins, sans-serif',
                                             fontWeight: 'bold'
                                         }}
@@ -276,9 +278,9 @@ const TrainResult = () => {
                                 <Card
                                     className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                        background: 'var(--card-gradient)',
                                         backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        border: '1px solid var(--border)',
                                         borderRadius: '12px',
                                         fontFamily: 'Poppins, sans-serif'
                                     }}
@@ -303,9 +305,9 @@ const TrainResult = () => {
                                 <Card
                                     className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                        background: 'var(--card-gradient)',
                                         backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        border: '1px solid var(--border)',
                                         borderRadius: '12px',
                                         fontFamily: 'Poppins, sans-serif'
                                     }}
@@ -327,12 +329,12 @@ const TrainResult = () => {
                         </Row>
 
                         <Card
-                            title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Next Steps</span>}
+                            title={<span style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>Next Steps</span>}
                             className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                             style={{
-                                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                background: 'var(--card-gradient)',
                                 backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                border: '1px solid var(--border)',
                                 borderRadius: '12px',
                                 fontFamily: 'Poppins, sans-serif'
                             }}
@@ -382,9 +384,9 @@ const TrainResult = () => {
                         <Card
                             className="border-0 backdrop-blur-sm shadow-lg"
                             style={{
-                                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                background: 'var(--card-gradient)',
                                 backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                border: '1px solid var(--border)',
                                 borderRadius: '12px',
                                 fontFamily: 'Poppins, sans-serif'
                             }}
@@ -417,7 +419,7 @@ const TrainResult = () => {
                                         style={{
                                             background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
                                             backdropFilter: 'blur(10px)',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            border: '1px solid var(--border)',
                                             borderRadius: '12px',
                                             fontFamily: 'Poppins, sans-serif'
                                         }}
@@ -443,7 +445,7 @@ const TrainResult = () => {
                                         style={{
                                             background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
                                             backdropFilter: 'blur(10px)',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            border: '1px solid var(--border)',
                                             borderRadius: '12px',
                                             fontFamily: 'Poppins, sans-serif'
                                         }}
@@ -456,7 +458,7 @@ const TrainResult = () => {
                                                 background: 'transparent',
                                                 fontFamily: 'Poppins, sans-serif'
                                             }}
-                                            className="dark-table"
+                                            className="theme-table"
                                         />
                                     </Card>
                                 </Space>
