@@ -47,6 +47,12 @@ const ProjectSidebar = ({ projectID, className }) => {
                     border-right: 1px solid rgba(255, 255, 255, 0.1);
                     backdrop-filter: blur(10px);
                     width: 120px;
+                    position: fixed;
+                    top: 60px; /* align below top navbar */
+                    left: 0;
+                    bottom: 0;
+                    height: calc(100vh - 60px);
+                    overflow: hidden; /* prevent sidebar scroll */
                 }
                 
                 .sidebar-nav-item {
@@ -132,25 +138,10 @@ const ProjectSidebar = ({ projectID, className }) => {
                 }
                 
                 /* Custom scrollbar */
-                .project-sidebar::-webkit-scrollbar {
-                    width: 4px;
-                }
-                
-                .project-sidebar::-webkit-scrollbar-track {
-                    background: rgba(255, 255, 255, 0.1);
-                }
-                
-                .project-sidebar::-webkit-scrollbar-thumb {
-                    background: linear-gradient(180deg, #5C8DFF 0%, #9333EA 100%);
-                    border-radius: 2px;
-                }
-                
-                .project-sidebar::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(180deg, #9333EA 0%, #5C8DFF 100%);
-                }
+                /* Remove custom scrollbar: sidebar is fixed and not scrollable */
              `}</style>
             <div className={clsx('duration-300 project-sidebar', className)}>
-                <div className="h-[calc(100vh-60px)] flex flex-grow flex-col overflow-y-auto">
+                <div className="h-full flex flex-grow flex-col">
                     <div className="py-6 flex flex-grow flex-col justify-between">
                         <nav className="flex flex-col gap-2 px-2 pb-4">
                             {navigation.map((item) => (
