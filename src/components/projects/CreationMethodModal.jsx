@@ -30,78 +30,78 @@ const CreationMethodModal = ({ open, onCancel, onSelectChatbot, onSelectManual }
     return (
         <>
             <style>{`
-                .dark-creation-modal .ant-modal-content {
-                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                .theme-creation-modal .ant-modal-content {
+                    background: var(--modal-bg) !important;
+                    border: 1px solid var(--modal-border) !important;
                     border-radius: 16px !important;
                 }
                 
-                .dark-creation-modal .ant-modal-header {
-                    background: transparent !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-creation-modal .ant-modal-header {
+                    background: var(--modal-header-bg) !important;
+                    border-bottom: 1px solid var(--modal-header-border) !important;
                 }
                 
-                .dark-creation-modal .ant-modal-title {
-                    color: white !important;
+                .theme-creation-modal .ant-modal-title {
+                    color: var(--modal-title-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-creation-modal .ant-modal-close {
-                    color: white !important;
+                .theme-creation-modal .ant-modal-close {
+                    color: var(--modal-close-color) !important;
                 }
                 
-                .dark-creation-modal .ant-modal-close:hover {
-                    color: #65FFA0 !important;
+                .theme-creation-modal .ant-modal-close:hover {
+                    color: var(--modal-close-hover) !important;
                 }
                 
-                .dark-creation-modal .ant-card {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-creation-modal .ant-card {
+                    background: var(--card-gradient) !important;
+                    border: 1px solid var(--border) !important;
                     border-radius: 12px !important;
                     transition: all 0.3s ease !important;
                 }
                 
-                .dark-creation-modal .ant-card:hover {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
+                .theme-creation-modal .ant-card:hover {
+                    background: var(--hover-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
                     transform: translateY(-2px) !important;
-                    box-shadow: 0 8px 32px rgba(101, 255, 160, 0.2) !important;
+                    box-shadow: 0 8px 32px var(--selection-bg) !important;
                 }
                 
-                .dark-creation-modal .ant-card-meta-title {
-                    color: white !important;
+                .theme-creation-modal .ant-card-meta-title {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-creation-modal .ant-card-meta-description {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-creation-modal .ant-card-meta-description {
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-creation-modal .ant-card-meta-avatar .anticon {
-                    color: #65FFA0 !important;
+                .theme-creation-modal .ant-card-meta-avatar .anticon {
+                    color: var(--accent-text) !important;
                     font-size: 24px !important;
                 }
                 
-                .dark-creation-modal .ant-card-cover img {
+                .theme-creation-modal .ant-card-cover img {
                     border-radius: 8px !important;
                     filter: brightness(0.9) !important;
                 }
                 
-                .dark-creation-modal .ant-card-cover {
+                .theme-creation-modal .ant-card-cover {
                     border-radius: 8px 8px 0 0 !important;
                     overflow: hidden !important;
                 }
                 
-                .dark-creation-modal .ant-typography {
-                    color: white !important;
+                .theme-creation-modal .ant-typography {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-creation-modal .ant-typography.ant-typography-secondary {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-creation-modal .ant-typography.ant-typography-secondary {
+                    color: var(--secondary-text) !important;
                 }
             `}</style>
             <Modal
@@ -110,32 +110,32 @@ const CreationMethodModal = ({ open, onCancel, onSelectChatbot, onSelectManual }
                 footer={null}
                 width={1000}
                 centered
-                className="dark-creation-modal"
+                className="theme-creation-modal"
                 styles={{
                     content: {
-                        background: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'var(--modal-bg)',
+                        border: '1px solid var(--modal-border)',
                         borderRadius: '16px',
                     },
                     header: {
-                        background: 'transparent',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: 'var(--modal-header-bg)',
+                        borderBottom: '1px solid var(--modal-header-border)',
                     },
                     title: {
-                        color: 'white',
+                        color: 'var(--modal-title-color)',
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 600,
                     },
                     close: {
-                        color: 'white',
+                        color: 'var(--modal-close-color)',
                     }
                 }}
             >
                 <div className="text-center mb-8">
-                    <Title level={2} style={{ color: 'white', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                    <Title level={2} style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                         How would you like to create your project?
                     </Title>
-                    <Text style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
+                    <Text style={{ color: 'var(--secondary-text)', fontFamily: 'Poppins, sans-serif' }}>
                         Choose the method that works best for you
                     </Text>
                 </div>

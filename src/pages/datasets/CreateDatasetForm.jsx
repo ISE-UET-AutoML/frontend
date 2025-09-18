@@ -162,25 +162,25 @@ export default function CreateDatasetForm({
                         justifyContent: 'center', 
                         alignItems: 'center', 
                         height: '120px', 
-                        border: '2px dashed rgba(255, 255, 255, 0.3)', 
+                        border: '2px dashed var(--upload-border)', 
                         borderRadius: '12px', 
                         cursor: 'pointer', 
                         marginBottom: '16px',
-                        background: 'rgba(255, 255, 255, 0.05)',
+                        background: 'var(--upload-bg)',
                         transition: 'all 0.3s ease'
                     }}
                     onMouseEnter={(e) => {
-                        e.target.style.borderColor = '#65FFA0'
-                        e.target.style.background = 'rgba(101, 255, 160, 0.1)'
+                        e.target.style.borderColor = 'var(--modal-close-hover)'
+                        e.target.style.background = 'var(--hover-bg)'
                     }}
                     onMouseLeave={(e) => {
-                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
-                        e.target.style.background = 'rgba(255, 255, 255, 0.05)'
+                        e.target.style.borderColor = 'var(--upload-border)'
+                        e.target.style.background = 'var(--upload-bg)'
                     }}
                     >
                         <div style={{ textAlign: 'center' }}>
-                            <FolderOutlined style={{ fontSize: '48px', color: '#65FFA0' }} />
-                            <p style={{ marginTop: '8px', color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                            <FolderOutlined style={{ fontSize: '48px', color: 'var(--upload-icon)' }} />
+                            <p style={{ marginTop: '8px', color: 'var(--upload-text)', fontFamily: 'Poppins, sans-serif' }}>
                                 Drag and drop a folder or click to upload
                             </p>
                         </div>
@@ -195,15 +195,15 @@ export default function CreateDatasetForm({
                             onChange={handleFileChange}
                         />
                     </label>
-                    <div style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                    <div style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                         <span style={{ fontWeight: '500' }}>{files.length} Files</span>
-                        <span style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.7)' }}>({totalKbytes} kB)</span>
+                        <span style={{ marginLeft: '8px', color: 'var(--secondary-text)' }}>({totalKbytes} kB)</span>
                     </div>
                     {files.length > 0 && (
                         <div style={{ 
                             maxHeight: '200px', 
                             overflowY: 'auto',
-                            background: 'rgba(255, 255, 255, 0.05)',
+                            background: 'var(--upload-bg)',
                             borderRadius: '8px',
                             padding: '8px',
                             marginTop: '12px'
@@ -212,20 +212,20 @@ export default function CreateDatasetForm({
                                 <div key={file.path} style={{ 
                                     display: 'flex', 
                                     alignItems: 'center', 
-                                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
+                                    borderBottom: '1px solid var(--divider-color)', 
                                     padding: '8px 0',
-                                    color: 'white'
+                                    color: 'var(--text)'
                                 }}>
-                                    <FileOutlined style={{ marginRight: '8px', color: '#65FFA0' }} />
+                                    <FileOutlined style={{ marginRight: '8px', color: 'var(--upload-icon)' }} />
                                     <span style={{ flex: 1, fontFamily: 'Poppins, sans-serif' }}>{file.path}</span>
-                                    <span style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}>
+                                    <span style={{ marginLeft: '8px', color: 'var(--secondary-text)', fontSize: '12px' }}>
                                         ({(file.fileObject?.size / 1024 || 0).toFixed(2)} kB)
                                     </span>
                                     <Button 
                                         type="text" 
                                         icon={<DeleteOutlined />} 
                                         onClick={() => handleDeleteFile(file.fileId)}
-                                        style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                                        style={{ color: 'var(--secondary-text)' }}
                                     />
                                 </div>
                             ))}
@@ -266,291 +266,180 @@ export default function CreateDatasetForm({
     return (
         <>
             <style>{`
-                .dark-form .ant-form-item-label > label {
-                    color: white !important;
+                .theme-form .ant-form-item-label > label {
+                    color: var(--form-label-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                 }
                 
-                .dark-form .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    font-family: 'Poppins', sans-serif !important;
-                }
-                
-                .dark-form .ant-input,
-                .dark-form textarea.ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     border-radius: 12px !important;
                 }
                 
-                .dark-form .ant-input::placeholder {
-                    color: rgba(255, 255, 255, 0.5) !important;
+                .theme-form .ant-input::placeholder {
+                    color: var(--placeholder-color) !important;
                 }
                 
-                .dark-form .ant-input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-form .ant-input:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                .dark-form .ant-input:focus {
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                .theme-form .ant-input:focus {
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
-                .dark-form .ant-input:focus,
-                .dark-form .ant-input-focused,
-                .dark-form textarea.ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    color: white !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                .theme-form .ant-input:disabled {
+                    background: var(--input-disabled-bg) !important;
+                    color: var(--input-disabled-color) !important;
                 }
                 
-                .dark-form .ant-input-filled {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    border-radius: 12px !important;
-                }
-                
-                .dark-form .ant-input-filled:focus,
-                .dark-form .ant-input-filled:focus-within {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                }
-                
-                /* Specific TextArea styling */
-                .dark-form .ant-input[type="textarea"],
-                .dark-form textarea,
-                .dark-form .ant-input-textarea {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    font-family: 'Poppins', sans-serif !important;
-                    border-radius: 12px !important;
-                    resize: vertical !important;
-                }
-                
-                .dark-form .ant-input[type="textarea"]:focus,
-                .dark-form textarea:focus,
-                .dark-form .ant-input-textarea:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
-                }
-                
-                .dark-form .ant-input[type="textarea"]:hover,
-                .dark-form textarea:hover,
-                .dark-form .ant-input-textarea:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
-                }
-                
-                /* Count display styling */
-                .dark-form .ant-input-textarea-show-count::after {
-                    color: rgba(255, 255, 255, 0.7) !important;
-                    font-family: 'Poppins', sans-serif !important;
-                }
-                
-                /* Override any Ant Design defaults */
-                .dark-form .ant-input-textarea .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    border-radius: 12px !important;
-                }
-                
-                .dark-form .ant-input-textarea .ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
-                }
-                
-                /* Force override for all textarea elements */
-                .dark-form textarea {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    border-radius: 12px !important;
-                }
-                
-                .dark-form textarea:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
-                }
-                
-                /* Target the specific Ant Design TextArea structure */
-                .dark-form .ant-input-textarea .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                /* TextArea styling */
+                .theme-form .ant-input-textarea .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                     box-shadow: none !important;
                 }
                 
-                .dark-form .ant-input-textarea .ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input-textarea .ant-input:focus {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
+                    color: var(--input-color) !important;
                 }
                 
-                .dark-form .ant-input-textarea .ant-input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-form .ant-input-textarea .ant-input:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                /* Override the wrapper div background */
-                .dark-form .ant-input-textarea {
+                .theme-form .ant-input-textarea {
                     background: transparent !important;
                 }
                 
-                /* Target the count wrapper */
-                .dark-form .ant-input-textarea-show-count .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input-textarea-show-count .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                 }
                 
-                .dark-form .ant-input-textarea-show-count .ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input-textarea-show-count .ant-input:focus {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
+                    color: var(--input-color) !important;
                 }
                 
-                /* Most aggressive targeting - override all possible Ant Design classes */
-                .dark-form .ant-input-textarea-show-count,
-                .dark-form .ant-input-textarea-show-count .ant-input,
-                .dark-form .ant-input-textarea-show-count textarea {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    border-radius: 12px !important;
-                }
-                
-                .dark-form .ant-input-textarea-show-count:focus,
-                .dark-form .ant-input-textarea-show-count .ant-input:focus,
-                .dark-form .ant-input-textarea-show-count textarea:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
-                }
-                
-                /* Remove any default box-shadow that might create rectangular overlay */
-                .dark-form .ant-input-textarea-show-count .ant-input:focus,
-                .dark-form .ant-input-textarea .ant-input:focus,
-                .dark-form textarea:focus {
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                }
-                
-                .dark-form .ant-select-selector {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                }
-                
-                .dark-form .ant-select-selection-item {
-                    color: white !important;
-                }
-                
-                .dark-form .ant-select-selection-placeholder {
-                    color: rgba(255, 255, 255, 0.5) !important;
-                }
-                
-                .dark-form .ant-select-arrow {
-                    color: white !important;
-                }
-                
-                .dark-form .ant-radio-wrapper {
-                    color: white !important;
+                .theme-form .ant-input-textarea-show-count::after {
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-radio-inner {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: rgba(255, 255, 255, 0.3) !important;
+                .theme-form .ant-select-selector {
+                    background: var(--select-selector-bg) !important;
+                    border: 1px solid var(--select-selector-border) !important;
+                    color: var(--select-selector-color) !important;
                 }
                 
-                .dark-form .ant-radio-checked .ant-radio-inner {
-                    background: #65FFA0 !important;
-                    border-color: #65FFA0 !important;
+                .theme-form .ant-select-selection-item {
+                    color: var(--select-item-color) !important;
                 }
                 
-                .dark-form .ant-tabs-tab {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-form .ant-select-selection-placeholder {
+                    color: var(--select-placeholder-color) !important;
+                }
+                
+                .theme-form .ant-select-arrow {
+                    color: var(--select-arrow-color) !important;
+                }
+                
+                .theme-form .ant-radio-wrapper {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-tabs-tab-active {
-                    color: white !important;
+                .theme-form .ant-radio-inner {
+                    background: var(--radio-bg) !important;
+                    border-color: var(--radio-border) !important;
                 }
                 
-                .dark-form .ant-tabs-ink-bar {
-                    background: #65FFA0 !important;
+                .theme-form .ant-radio-checked .ant-radio-inner {
+                    background: var(--radio-checked-bg) !important;
+                    border-color: var(--radio-checked-border) !important;
                 }
                 
-                .dark-form .ant-tabs-content-holder {
+                .theme-form .ant-tabs-tab {
+                    color: var(--tabs-text) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                
+                .theme-form .ant-tabs-tab-active {
+                    color: var(--tabs-active-text) !important;
+                }
+                
+                .theme-form .ant-tabs-ink-bar {
+                    background: var(--tabs-ink-bar) !important;
+                }
+                
+                .theme-form .ant-tabs-content-holder {
                     background: transparent !important;
                 }
                 
-                .dark-form .ant-btn-primary {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-btn-primary {
+                    background: var(--button-primary-bg) !important;
+                    border: 1px solid var(--button-primary-border) !important;
+                    color: var(--button-primary-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                 }
                 
-                .dark-form .ant-btn-primary:hover {
-                    background: linear-gradient(135deg, #2a2a3e 0%, #26314e 50%, #1f4460 100%) !important;
-                    border-color: #65FFA0 !important;
+                .theme-form .ant-btn-primary:hover {
+                    background: var(--button-primary-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
                     transform: translateY(-1px) !important;
                 }
                 
-                .dark-form .ant-btn-default {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-btn-default {
+                    background: var(--button-default-bg) !important;
+                    border: 1px solid var(--button-default-border) !important;
+                    color: var(--button-default-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-btn-default:hover {
-                    background: rgba(255, 255, 255, 0.2) !important;
-                    border-color: rgba(255, 255, 255, 0.4) !important;
-                    color: white !important;
+                .theme-form .ant-btn-default:hover {
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border-hover) !important;
+                    color: var(--text) !important;
                 }
                 
-                .dark-form .ant-upload-drag {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+                .theme-form .ant-upload-drag {
+                    background: var(--upload-bg) !important;
+                    border: 2px dashed var(--upload-border) !important;
                     border-radius: 12px !important;
                 }
                 
-                .dark-form .ant-upload-drag:hover {
-                    border-color: #65FFA0 !important;
-                    background: rgba(101, 255, 160, 0.1) !important;
+                .theme-form .ant-upload-drag:hover {
+                    border-color: var(--modal-close-hover) !important;
+                    background: var(--hover-bg) !important;
                 }
                 
-                .dark-form .ant-upload-drag .ant-upload-drag-icon {
-                    color: #65FFA0 !important;
+                .theme-form .ant-upload-drag .ant-upload-drag-icon {
+                    color: var(--upload-icon) !important;
                 }
                 
-                .dark-form .ant-upload-drag .ant-upload-text {
-                    color: white !important;
+                .theme-form .ant-upload-drag .ant-upload-text {
+                    color: var(--upload-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-upload-drag .ant-upload-hint {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-form .ant-upload-drag .ant-upload-hint {
+                    color: var(--upload-hint) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
             `}</style>
@@ -559,7 +448,7 @@ export default function CreateDatasetForm({
                 layout="vertical"
                 initialValues={initialValues}
                 onFinish={handleSubmit}
-                className="dark-form"
+                className="theme-form"
             >
                 <Form.Item 
                     label="Title" 

@@ -53,6 +53,100 @@
     --filter-dropdown-bg: rgba(255, 255, 255, 0.95);
     --filter-dropdown-border: rgba(31, 41, 55, 0.1);
     --filter-item-hover: rgba(59, 130, 246, 0.1);
+    
+    /* Modal components */
+    --modal-bg: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+    --modal-border: rgba(31, 41, 55, 0.15);
+    --modal-header-bg: transparent;
+    --modal-header-border: rgba(31, 41, 55, 0.1);
+    --modal-title-color: #1f2937;
+    --modal-close-color: #6b7280;
+    --modal-close-hover: #3b82f6;
+    
+    /* Form styling */
+    --form-label-color: #374151;
+    --input-color: #1f2937;
+    --placeholder-color: #9ca3af;
+    --input-hover-border: rgba(31, 41, 55, 0.25);
+    --input-disabled-bg: #f9fafb;
+    --input-disabled-color: #9ca3af;
+    
+    /* Select styling */
+    --select-selector-bg: #ffffff;
+    --select-selector-border: rgba(31, 41, 55, 0.15);
+    --select-selector-color: #1f2937;
+    --select-item-color: #1f2937;
+    --select-placeholder-color: #9ca3af;
+    --select-arrow-color: #6b7280;
+    
+    /* Button styling */
+    --button-primary-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --button-primary-border: rgba(59, 130, 246, 0.5);
+    --button-primary-color: #ffffff;
+    --button-default-bg: #ffffff;
+    --button-default-border: rgba(31, 41, 55, 0.2);
+    --button-default-color: #374151;
+    --button-dashed-bg: transparent;
+    --button-dashed-border: rgba(31, 41, 55, 0.3);
+    --button-dashed-color: #6b7280;
+    
+    /* Table styling */
+    --table-header-bg: rgba(243, 244, 246, 0.8);
+    --table-header-border: rgba(31, 41, 55, 0.1);
+    --table-header-color: #374151;
+    --table-cell-bg: transparent;
+    --table-cell-border: rgba(31, 41, 55, 0.05);
+    --table-cell-color: #1f2937;
+    --table-row-hover: rgba(59, 130, 246, 0.05);
+    --table-row-selected: rgba(59, 130, 246, 0.1);
+    
+    /* Tag styling */
+    --tag-bg: rgba(59, 130, 246, 0.1);
+    --tag-border: rgba(59, 130, 246, 0.3);
+    --tag-color: #1e40af;
+    --tag-close-icon-color: #6b7280;
+    
+    /* Alert styling */
+    --alert-bg: rgba(243, 244, 246, 0.8);
+    --alert-border: rgba(31, 41, 55, 0.15);
+    --alert-color: #374151;
+    --alert-warning-bg: rgba(251, 191, 36, 0.1);
+    --alert-warning-border: rgba(251, 191, 36, 0.3);
+    --alert-info-bg: rgba(59, 130, 246, 0.1);
+    --alert-info-border: rgba(59, 130, 246, 0.3);
+    
+    /* Radio styling */
+    --radio-bg: #ffffff;
+    --radio-border: rgba(31, 41, 55, 0.3);
+    --radio-checked-bg: #3b82f6;
+    --radio-checked-border: #3b82f6;
+    
+    /* Tabs styling */
+    --tabs-text: #6b7280;
+    --tabs-active-text: #1f2937;
+    --tabs-ink-bar: #3b82f6;
+    
+    /* Upload styling */
+    --upload-bg: rgba(243, 244, 246, 0.5);
+    --upload-border: rgba(31, 41, 55, 0.3);
+    --upload-icon: #3b82f6;
+    --upload-text: #374151;
+    --upload-hint: #6b7280;
+    
+    /* Steps styling */
+    --steps-title-color: #374151;
+    --steps-description-color: #6b7280;
+    --steps-icon-bg: rgba(243, 244, 246, 0.8);
+    --steps-icon-border: rgba(31, 41, 55, 0.3);
+    --steps-icon-color: #6b7280;
+    --steps-process-icon-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --steps-process-icon-border: #3b82f6;
+    --steps-finish-icon-bg: #10b981;
+    --steps-finish-icon-border: #10b981;
+    --steps-finish-icon-color: #ffffff;
+    
+    /* Divider */
+    --divider-color: rgba(31, 41, 55, 0.1);
 }
 
 .dark {
@@ -105,6 +199,100 @@
     --filter-dropdown-bg: rgba(15, 32, 39, 0.95);
     --filter-dropdown-border: rgba(255, 255, 255, 0.1);
     --filter-item-hover: rgba(255, 255, 255, 0.1);
+    
+    /* Modal components - preserve original dark theme */
+    --modal-bg: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%);
+    --modal-border: rgba(255, 255, 255, 0.2);
+    --modal-header-bg: transparent;
+    --modal-header-border: rgba(255, 255, 255, 0.1);
+    --modal-title-color: white;
+    --modal-close-color: white;
+    --modal-close-hover: #65FFA0;
+    
+    /* Form styling - preserve original dark theme */
+    --form-label-color: white;
+    --input-color: white;
+    --placeholder-color: rgba(255, 255, 255, 0.5);
+    --input-hover-border: rgba(255, 255, 255, 0.4);
+    --input-disabled-bg: rgba(255, 255, 255, 0.05);
+    --input-disabled-color: rgba(255, 255, 255, 0.7);
+    
+    /* Select styling - preserve original dark theme */
+    --select-selector-bg: rgba(255, 255, 255, 0.1);
+    --select-selector-border: rgba(255, 255, 255, 0.2);
+    --select-selector-color: white;
+    --select-item-color: white;
+    --select-placeholder-color: rgba(255, 255, 255, 0.5);
+    --select-arrow-color: white;
+    
+    /* Button styling - preserve original dark theme */
+    --button-primary-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --button-primary-border: rgba(255, 255, 255, 0.2);
+    --button-primary-color: white;
+    --button-default-bg: rgba(255, 255, 255, 0.1);
+    --button-default-border: rgba(255, 255, 255, 0.2);
+    --button-default-color: white;
+    --button-dashed-bg: rgba(255, 255, 255, 0.05);
+    --button-dashed-border: rgba(255, 255, 255, 0.3);
+    --button-dashed-color: white;
+    
+    /* Table styling - preserve original dark theme */
+    --table-header-bg: rgba(255, 255, 255, 0.05);
+    --table-header-border: rgba(255, 255, 255, 0.1);
+    --table-header-color: white;
+    --table-cell-bg: transparent;
+    --table-cell-border: rgba(255, 255, 255, 0.05);
+    --table-cell-color: white;
+    --table-row-hover: rgba(255, 255, 255, 0.05);
+    --table-row-selected: rgba(101, 255, 160, 0.1);
+    
+    /* Tag styling - preserve original dark theme */
+    --tag-bg: rgba(101, 255, 160, 0.2);
+    --tag-border: #65FFA0;
+    --tag-color: white;
+    --tag-close-icon-color: white;
+    
+    /* Alert styling - preserve original dark theme */
+    --alert-bg: rgba(255, 255, 255, 0.05);
+    --alert-border: rgba(255, 255, 255, 0.2);
+    --alert-color: white;
+    --alert-warning-bg: rgba(255, 193, 7, 0.1);
+    --alert-warning-border: rgba(255, 193, 7, 0.3);
+    --alert-info-bg: rgba(24, 144, 255, 0.1);
+    --alert-info-border: rgba(24, 144, 255, 0.3);
+    
+    /* Radio styling - preserve original dark theme */
+    --radio-bg: rgba(255, 255, 255, 0.1);
+    --radio-border: rgba(255, 255, 255, 0.3);
+    --radio-checked-bg: #65FFA0;
+    --radio-checked-border: #65FFA0;
+    
+    /* Tabs styling - preserve original dark theme */
+    --tabs-text: rgba(255, 255, 255, 0.7);
+    --tabs-active-text: white;
+    --tabs-ink-bar: #65FFA0;
+    
+    /* Upload styling - preserve original dark theme */
+    --upload-bg: rgba(255, 255, 255, 0.05);
+    --upload-border: rgba(255, 255, 255, 0.3);
+    --upload-icon: #65FFA0;
+    --upload-text: white;
+    --upload-hint: rgba(255, 255, 255, 0.7);
+    
+    /* Steps styling - preserve original dark theme */
+    --steps-title-color: white;
+    --steps-description-color: rgba(255, 255, 255, 0.7);
+    --steps-icon-bg: rgba(255, 255, 255, 0.1);
+    --steps-icon-border: rgba(255, 255, 255, 0.3);
+    --steps-icon-color: white;
+    --steps-process-icon-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --steps-process-icon-border: #65FFA0;
+    --steps-finish-icon-bg: #65FFA0;
+    --steps-finish-icon-border: #65FFA0;
+    --steps-finish-icon-color: #0F2027;
+    
+    /* Divider */
+    --divider-color: rgba(255, 255, 255, 0.1);
 }
 
 @keyframes ping {

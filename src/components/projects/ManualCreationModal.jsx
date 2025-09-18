@@ -67,209 +67,203 @@ const ManualCreationModal = ({
     return (
         <>
             <style>{`
-                .dark-manual-modal .ant-modal-content {
-                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                .theme-manual-modal .ant-modal-content {
+                    background: var(--modal-bg) !important;
+                    border: 1px solid var(--modal-border) !important;
                     border-radius: 16px !important;
                 }
                 
-                .dark-manual-modal .ant-modal-header {
-                    background: transparent !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-manual-modal .ant-modal-header {
+                    background: var(--modal-header-bg) !important;
+                    border-bottom: 1px solid var(--modal-header-border) !important;
                 }
                 
-                .dark-manual-modal .ant-modal-title {
-                    color: white !important;
+                .theme-manual-modal .ant-modal-title {
+                    color: var(--modal-title-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-manual-modal .ant-modal-close {
-                    color: white !important;
+                .theme-manual-modal .ant-modal-close {
+                    color: var(--modal-close-color) !important;
                 }
                 
-                .dark-manual-modal .ant-modal-close:hover {
-                    color: #65FFA0 !important;
+                .theme-manual-modal .ant-modal-close:hover {
+                    color: var(--modal-close-hover) !important;
                 }
                 
-                .dark-manual-modal .ant-typography {
-                    color: white !important;
+                .theme-manual-modal .ant-typography {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-manual-modal .ant-typography.ant-typography-secondary {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-manual-modal .ant-typography.ant-typography-secondary {
+                    color: var(--secondary-text) !important;
                 }
                 
-                .dark-manual-modal .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-manual-modal .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     border-radius: 8px !important;
                 }
                 
-                .dark-manual-modal .ant-input:focus,
-                .dark-manual-modal .ant-input-focused {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
+                .theme-manual-modal .ant-input:focus,
+                .theme-manual-modal .ant-input-focused {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
+                    color: var(--input-color) !important;
                 }
                 
-                .dark-manual-modal .ant-input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-manual-modal .ant-input:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                .dark-manual-modal .ant-input::placeholder {
-                    color: rgba(255, 255, 255, 0.5) !important;
+                .theme-manual-modal .ant-input::placeholder {
+                    color: var(--placeholder-color) !important;
                 }
                 
-                .dark-manual-modal .ant-input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-manual-modal .ant-input-prefix .anticon {
+                    color: var(--accent-text) !important;
                 }
                 
-                .dark-manual-modal .ant-input:focus {
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                .theme-manual-modal .ant-input-suffix .anticon {
+                    color: var(--secondary-text) !important;
                 }
                 
-                .dark-manual-modal .ant-input-prefix .anticon {
-                    color: #65FFA0 !important;
-                }
-                
-                .dark-manual-modal .ant-input-suffix .anticon {
-                    color: rgba(255, 255, 255, 0.5) !important;
-                }
-                
-                /* More aggressive targeting for Input component */
-                .dark-manual-modal .ant-input-affix-wrapper {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                /* Input wrapper styling */
+                .theme-manual-modal .ant-input-affix-wrapper {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 8px !important;
                 }
                 
-                .dark-manual-modal .ant-input-affix-wrapper:focus,
-                .dark-manual-modal .ant-input-affix-wrapper-focused {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                .theme-manual-modal .ant-input-affix-wrapper:focus,
+                .theme-manual-modal .ant-input-affix-wrapper-focused {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
-                .dark-manual-modal .ant-input-affix-wrapper:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-manual-modal .ant-input-affix-wrapper:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                .dark-manual-modal .ant-input-affix-wrapper .ant-input {
+                .theme-manual-modal .ant-input-affix-wrapper .ant-input {
                     background: transparent !important;
-                    color: white !important;
+                    color: var(--input-color) !important;
                 }
                 
-                .dark-manual-modal .ant-input-affix-wrapper .ant-input:focus {
+                .theme-manual-modal .ant-input-affix-wrapper .ant-input:focus {
                     background: transparent !important;
-                    color: white !important;
+                    color: var(--input-color) !important;
                 }
                 
                 /* Force override for all input elements */
-                .dark-manual-modal input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-manual-modal input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 8px !important;
                 }
                 
-                .dark-manual-modal input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
+                .theme-manual-modal input:focus {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
+                    color: var(--input-color) !important;
                 }
                 
-                .dark-manual-modal input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-manual-modal input:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                .dark-manual-modal .ant-card {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-manual-modal .ant-card {
+                    background: var(--card-gradient) !important;
+                    border: 1px solid var(--border) !important;
                     border-radius: 12px !important;
                     transition: all 0.3s ease !important;
                 }
                 
-                .dark-manual-modal .ant-card:hover {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: rgba(255, 255, 255, 0.3) !important;
+                .theme-manual-modal .ant-card:hover {
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border-hover) !important;
                     transform: translateY(-2px) !important;
                 }
                 
-                .dark-manual-modal .ant-card.selected {
-                    background: rgba(101, 255, 160, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 4px 16px rgba(101, 255, 160, 0.2) !important;
+                .theme-manual-modal .ant-card.selected {
+                    background: var(--selection-bg) !important;
+                    border-color: var(--accent-text) !important;
+                    box-shadow: 0 4px 16px var(--selection-bg) !important;
                 }
                 
-                .dark-manual-modal .ant-card img {
+                .theme-manual-modal .ant-card img {
                     border-radius: 8px !important;
                     filter: brightness(0.9) !important;
                 }
                 
-                .dark-manual-modal .ant-btn-primary {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-manual-modal .ant-btn-primary {
+                    background: var(--button-primary-bg) !important;
+                    border: 1px solid var(--button-primary-border) !important;
+                    color: var(--button-primary-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                     border-radius: 8px !important;
                 }
                 
-                .dark-manual-modal .ant-btn-primary:hover {
-                    background: linear-gradient(135deg, #2a2a3e 0%, #26314e 50%, #1f4460 100%) !important;
-                    border-color: #65FFA0 !important;
+                .theme-manual-modal .ant-btn-primary:hover {
+                    background: var(--button-primary-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
                     transform: translateY(-1px) !important;
                 }
                 
-                .dark-manual-modal .ant-tooltip .ant-tooltip-inner {
-                    background: rgba(0, 0, 0, 0.8) !important;
-                    color: white !important;
+                .theme-manual-modal .ant-tooltip .ant-tooltip-inner {
+                    background: var(--surface) !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
+                    border: 1px solid var(--border) !important;
                 }
                 
-                .dark-manual-modal .ant-tooltip .ant-tooltip-arrow::before {
-                    background: rgba(0, 0, 0, 0.8) !important;
+                .theme-manual-modal .ant-tooltip .ant-tooltip-arrow::before {
+                    background: var(--surface) !important;
+                    border: 1px solid var(--border) !important;
                 }
                 
                 /* TextArea styling */
-                .dark-manual-modal .ant-input-textarea .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-manual-modal .ant-input-textarea .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 8px !important;
                 }
                 
-                .dark-manual-modal .ant-input-textarea .ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                .theme-manual-modal .ant-input-textarea .ant-input:focus {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
                 /* Scrollbar styling */
-                .dark-manual-modal .overflow-auto::-webkit-scrollbar {
+                .theme-manual-modal .overflow-auto::-webkit-scrollbar {
                     width: 6px !important;
                 }
                 
-                .dark-manual-modal .overflow-auto::-webkit-scrollbar-track {
-                    background: rgba(255, 255, 255, 0.1) !important;
+                .theme-manual-modal .overflow-auto::-webkit-scrollbar-track {
+                    background: var(--border) !important;
                     border-radius: 3px !important;
                 }
                 
-                .dark-manual-modal .overflow-auto::-webkit-scrollbar-thumb {
-                    background: rgba(101, 255, 160, 0.5) !important;
+                .theme-manual-modal .overflow-auto::-webkit-scrollbar-thumb {
+                    background: var(--accent-text) !important;
                     border-radius: 3px !important;
+                    opacity: 0.5 !important;
                 }
                 
-                .dark-manual-modal .overflow-auto::-webkit-scrollbar-thumb:hover {
-                    background: rgba(101, 255, 160, 0.7) !important;
+                .theme-manual-modal .overflow-auto::-webkit-scrollbar-thumb:hover {
+                    opacity: 0.7 !important;
                 }
             `}</style>
             <Modal
@@ -278,30 +272,30 @@ const ManualCreationModal = ({
                 footer={null}
                 width={1000}
                 centered
-                className="dark-manual-modal"
+                className="theme-manual-modal"
                 styles={{
                     content: {
-                        background: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'var(--modal-bg)',
+                        border: '1px solid var(--modal-border)',
                         borderRadius: '16px',
                     },
                     header: {
-                        background: 'transparent',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: 'var(--modal-header-bg)',
+                        borderBottom: '1px solid var(--modal-header-border)',
                     },
                     title: {
-                        color: 'white',
+                        color: 'var(--modal-title-color)',
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 600,
                     },
                     close: {
-                        color: 'white',
+                        color: 'var(--modal-close-color)',
                     }
                 }}
             >
                 <Row gutter={[24, 24]}>
                     <Col span={12}>
-                        <Title level={3} style={{ color: 'white', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                        <Title level={3} style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                             Project Details
                         </Title>
                         <form onSubmit={onSubmit}>
@@ -311,7 +305,7 @@ const ManualCreationModal = ({
                                 className="w-full"
                             >
                                 <div>
-                                    <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                    <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                         Project Name
                                     </Text>
                                     <Tooltip title="Choose a descriptive name for your project">
@@ -328,7 +322,7 @@ const ManualCreationModal = ({
                                                 <Tooltip title="Minimum 10 characters">
                                                     <InfoCircleOutlined
                                                         style={{
-                                                            color: 'rgba(255, 255, 255, 0.5)',
+                                                            color: 'var(--secondary-text)',
                                                         }}
                                                     />
                                                 </Tooltip>
@@ -338,7 +332,7 @@ const ManualCreationModal = ({
                                 </div>
 
                                 <div>
-                                    <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                    <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                         Description
                                     </Text>
                                     <Tooltip title="Explain what your project aims to achieve">
@@ -356,7 +350,7 @@ const ManualCreationModal = ({
                                 </div>
 
                                 <div>
-                                    <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                    <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                         Expected Accuracy (%)
                                     </Text>
                                     <Tooltip title="Set your desired model accuracy target">
@@ -383,7 +377,7 @@ const ManualCreationModal = ({
                     </Col>
 
                     <Col span={12}>
-                        <Title level={3} style={{ color: 'white', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                        <Title level={3} style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                             Project Type
                         </Title>
 
@@ -405,10 +399,10 @@ const ManualCreationModal = ({
                                                     />
                                                 </Col>
                                                 <Col span={16}>
-                                                    <Title level={4} style={{ color: 'white', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
+                                                    <Title level={4} style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif', fontWeight: 600 }}>
                                                         {TASK_TYPES[type].type}
                                                     </Title>
-                                                    <Text style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
+                                                    <Text style={{ color: 'var(--secondary-text)', fontFamily: 'Poppins, sans-serif' }}>
                                                         {typeDescription[idx]}
                                                     </Text>
                                                 </Col>
