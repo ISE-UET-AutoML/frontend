@@ -1,6 +1,7 @@
 import useTrainingStore from 'src/stores/trainingStore'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
+import { useTheme } from 'src/theme/ThemeProvider'
 import {
     Card,
     Row,
@@ -75,9 +76,9 @@ const TrainingMetricCard = ({
         <Card
             className="h-max border-0 bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
             style={{
-                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                background: 'var(--card-gradient)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: '1px solid var(--border)',
                 borderRadius: '12px',
                 fontFamily: 'Poppins, sans-serif'
             }}
@@ -188,7 +189,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         backgroundColor: 'rgba(15, 23, 42, 0.95)',
                         borderRadius: '8px',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        border: '1px solid var(--border)',
                         color: '#e2e8f0',
                         fontFamily: 'Poppins, sans-serif'
                     }}
@@ -264,9 +265,9 @@ const TrainingInfoCard = ({
             }
             className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
             style={{
-                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                background: 'var(--card-gradient)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: '1px solid var(--border)',
                 borderRadius: '12px',
                 fontFamily: 'Poppins, sans-serif'
             }}
@@ -393,6 +394,7 @@ const TrainingInfoCard = ({
 
 // Main Component
 const Training = () => {
+    const { theme } = useTheme()
     const { projectInfo, updateFields } = useOutletContext()
     const navigate = useNavigate()
     const location = useLocation()
@@ -481,47 +483,49 @@ const Training = () => {
         <>
             <style>{`
                 body, html {
-                    background-color: #01000A !important;
+                    background-color: var(--surface) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
             `}</style>
-            <div className="min-h-screen bg-[#01000A] relative">
-                <BackgroundShapes
-                    width="1280px"
-                    height="1200px"
-                    shapes={[
-                        {
-                            id: 'trainingBlue',
-                            shape: 'circle',
-                            size: '600px',
-                            gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
-                            opacity: 0.35,
-                            blur: '240px',
-                            position: { top: '120px', right: '-200px' },
-                            transform: 'none'
-                        },
-                        {
-                            id: 'trainingCyan',
-                            shape: 'rounded',
-                            size: '500px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 45%', 'transparent 80%'] },
-                            opacity: 0.25,
-                            blur: '200px',
-                            position: { top: '300px', left: '-180px' },
-                            transform: 'none'
-                        },
-                        {
-                            id: 'trainingWarm',
-                            shape: 'rounded',
-                            size: '450px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 55%', 'transparent 90%'] },
-                            opacity: 0.20,
-                            blur: '180px',
-                            position: { bottom: '100px', right: '20%' },
-                            transform: 'none'
-                        }
-                    ]}
-                />
+            <div className="min-h-screen relative" style={{ background: 'var(--surface)' }}>
+                {theme === 'dark' && (
+                    <BackgroundShapes
+                        width="1280px"
+                        height="1200px"
+                        shapes={[
+                            {
+                                id: 'trainingBlue',
+                                shape: 'circle',
+                                size: '600px',
+                                gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
+                                opacity: 0.35,
+                                blur: '240px',
+                                position: { top: '120px', right: '-200px' },
+                                transform: 'none'
+                            },
+                            {
+                                id: 'trainingCyan',
+                                shape: 'rounded',
+                                size: '500px',
+                                gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 45%', 'transparent 80%'] },
+                                opacity: 0.25,
+                                blur: '200px',
+                                position: { top: '300px', left: '-180px' },
+                                transform: 'none'
+                            },
+                            {
+                                id: 'trainingWarm',
+                                shape: 'rounded',
+                                size: '450px',
+                                gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 55%', 'transparent 90%'] },
+                                opacity: 0.20,
+                                blur: '180px',
+                                position: { bottom: '100px', right: '20%' },
+                                transform: 'none'
+                            }
+                        ]}
+                    />
+                )}
                 <div className="relative z-10 p-6">
                     <animated.div
                         style={useSpring({
@@ -549,15 +553,15 @@ const Training = () => {
 
                             <Card
                                 title={
-                                    <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                                        <LineChartOutlined style={{ color: '#60a5fa' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
+                                    <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
+                                        <LineChartOutlined style={{ color: 'var(--accent-text)' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
                                     </Title>
                                 }
                                 className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                                 style={{
-                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                    background: 'var(--card-gradient)',
                                     backdropFilter: 'blur(10px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid var(--border)',
                                     borderRadius: '12px',
                                     fontFamily: 'Poppins, sans-serif'
                                 }}

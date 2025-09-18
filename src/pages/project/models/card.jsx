@@ -6,6 +6,7 @@ import { Tooltip } from 'src/components/ui/tooltip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
+import { useTheme } from 'src/theme/ThemeProvider'
 import { useEffect } from 'react'
 import { getExperimentById } from 'src/api/experiment'
 
@@ -239,6 +240,7 @@ const getStatusConfig = (status) => {
 }
 
 export default function ModelCard({ model }) {
+    const { theme } = useTheme()
     const { id, name, deployStatus, createdAt, project_id, experiment_id, experiment_name: experimentName } = model
     const navigate = useNavigate()
     const statusConfig = getStatusConfig('onCloud')
@@ -270,21 +272,22 @@ export default function ModelCard({ model }) {
 
     return (
         <Card
-            className={`group cursor-pointer bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 hover:border-white/20 ${statusConfig.borderColor}`}
+            className={`group cursor-pointer rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105`}
+            style={{ background: 'var(--card-gradient)', border: '1px solid var(--border)' }}
             onClick={handleCardClick}
         >
             <CardHeader className="pb-4">
                 <div className="flex justify-between items-start">
-                    <div className={`p-3 rounded-xl ${statusConfig.bgColor}`}>
+                    <div className={`p-3 rounded-xl`} style={{ background: 'var(--hover-bg)' }}>
                         <div className={statusConfig.color}>
                             {statusConfig.icon}
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border ${statusConfig.borderColor}`}>
+                        <div className={`px-3 py-1 rounded-full text-xs font-medium border ${statusConfig.borderColor}`} style={{ background: 'var(--hover-bg)', color: 'var(--text)' }}>
                             {statusConfig.badge}
                         </div>
-                        <div className="px-2 py-1 rounded text-xs font-medium bg-gray-800/50 text-gray-300">
+                        <div className="px-2 py-1 rounded text-xs font-medium" style={{ background: 'var(--hover-bg)', color: 'var(--secondary-text)' }}>
                             ID: {id}
                         </div>
                     </div>
@@ -292,20 +295,20 @@ export default function ModelCard({ model }) {
             </CardHeader>
 
             <CardContent className="pt-0">
-                <CardTitle className="text-white text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors">
+                <CardTitle className="text-lg font-semibold mb-3 transition-colors" style={{ color: 'var(--text)' }}>
                     {name}
                 </CardTitle>
 
-                <div className="space-y-2 text-sm text-gray-400 mb-4">
+                <div className="space-y-2 text-sm mb-4" style={{ color: 'var(--secondary-text)' }}>
                     {experimentName && (
                         <p className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--secondary-text)' }}></span>
                             Experiment: {experimentName}
                         </p>
                     )}
                     {createdAt && (
                         <p className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--secondary-text)' }}></span>
                             Created {dayjs(createdAt).fromNow()}
                         </p>
                     )}
@@ -317,7 +320,8 @@ export default function ModelCard({ model }) {
                         <Tooltip title="Deploy this model to production">
                             <Button
                                 size="sm"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                className="text-white"
+                                style={{ background: 'var(--button-gradient)', border: '1px solid var(--border)' }}
                                 onClick={handleDeploy}
                             >
                                 <RocketIcon className="h-4 w-4 mr-1" />
@@ -341,7 +345,8 @@ export default function ModelCard({ model }) {
                             <Tooltip title="Redeploy this model">
                                 <Button
                                     size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="text-white"
+                                    style={{ background: 'var(--button-gradient)', border: '1px solid var(--border)' }}
                                     onClick={handleRedeploy}
                                 >
                                     <DeploymentUnitIcon className="h-4 w-4 mr-1" />

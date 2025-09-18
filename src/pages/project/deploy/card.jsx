@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from 'src/components/ui/card'
+import { useTheme } from 'src/theme/ThemeProvider'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -175,6 +176,7 @@ const getStatusConfig = (status) => {
 
 
 export default function DeployedModelCard({ deployedModel }) {
+    const { theme } = useTheme()
     const { id: projectId } = useParams()
     const { id: deploy_id, model_id, name, create_time, status, instance_info, api_base_url } = deployedModel
     const navigate = useNavigate()
@@ -191,50 +193,52 @@ export default function DeployedModelCard({ deployedModel }) {
 
     return (
         <Card 
-            className={`group cursor-pointer bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 hover:border-white/20 ${statusConfig.borderColor}`}
+            className={`group cursor-pointer rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105`}
+            style={{ background: 'var(--card-gradient)', border: '1px solid var(--border)' }}
             onClick={handleCardClick}
         >
             <CardHeader className="pb-4">
                 <div className="flex justify-between items-start">
-                    <div className={`p-3 rounded-xl ${statusConfig.bgColor}`}>
+                    <div className={`p-3 rounded-xl`} style={{ background: 'var(--hover-bg)' }}>
                         <div className={statusConfig.color}>
                             {statusConfig.icon}
                         </div>
                     </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border ${statusConfig.borderColor}`}>
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium border ${statusConfig.borderColor}`} style={{ background: 'var(--hover-bg)', color: 'var(--text)' }}>
                         {statusConfig.badge}
                     </div>
                 </div>
             </CardHeader>
             
             <CardContent className="pt-0">
-                <CardTitle className="text-white text-lg font-semibold mb-3 group-hover:text-blue-400 transition-colors">
+                <CardTitle className="text-lg font-semibold mb-3 transition-colors" style={{ color: 'var(--text)' }}>
                     {name}
                 </CardTitle>
                 
-                <div className="space-y-2 text-sm text-gray-400">
+                <div className="space-y-2 text-sm" style={{ color: 'var(--secondary-text)' }}>
                     {create_time && (
                         <p className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--secondary-text)' }}></span>
                             Created {dayjs(create_time).fromNow()}
                         </p>
                     )}
                     {api_base_url && (
                         <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--secondary-text)' }}></span>
                             <a
                                 href={api_base_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-blue-400 hover:text-blue-300 underline truncate"
+                                className="underline truncate"
+                                style={{ color: 'var(--accent-text)' }}
                             >
                                 {api_base_url}
                             </a>
                         </div>
                     )}
                     <p className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--secondary-text)' }}></span>
                         Model ID: {model_id}
                     </p>
                 </div>

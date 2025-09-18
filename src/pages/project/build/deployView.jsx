@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useLocation, useOutletContext, useNavigate, useParams } from 'react-router-dom'
+import { useTheme } from 'src/theme/ThemeProvider'
 import {
     Steps,
     Card,
@@ -85,6 +86,7 @@ const AnimatedCard = ({ children, onClick, isSelected }) => {
 }
 
 const DeployView = () => {
+    const { theme } = useTheme()
     const navigate = useNavigate()
     const location = useLocation()
     const searchParams = new URLSearchParams(location.search)
@@ -200,125 +202,128 @@ const DeployView = () => {
     return (
         <>
             <style>{`
-                .dark-build-page {
-                    background: #01000A;
+                .theme-build-page {
+                    background: var(--surface);
                     min-height: 100vh;
                     padding: 24px;
                 }
                 
-                .dark-build-card {
-                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.8) 0%, rgba(32, 58, 67, 0.6) 50%, rgba(44, 83, 100, 0.8) 100%);
+                .theme-build-card {
+                    background: var(--card-gradient);
                     backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border: 1px solid var(--border);
                     border-radius: 16px;
                     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                 }
                 
-                .dark-build-title {
-                    background: linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%);
+                .theme-build-title {
+                    background: var(--title-gradient);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
+                    color: var(--title-color);
                     font-family: 'Poppins', sans-serif;
                     font-weight: 700;
                 }
                 
-                .dark-build-text {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                .theme-build-text {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-build-text-strong {
-                    color: white !important;
+                .theme-build-text-strong {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-build-button {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                .theme-build-button {
+                    background: var(--button-primary-bg) !important;
+                    border: 1px solid var(--button-primary-border) !important;
                     border-radius: 12px !important;
+                    color: var(--button-primary-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
                 }
                 
-                .dark-build-button:hover {
-                    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%) !important;
+                .theme-build-button:hover {
+                    background: var(--button-primary-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
                     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
                     transform: translateY(-2px) !important;
                 }
                 
-                .dark-build-button:disabled {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    color: rgba(255, 255, 255, 0.3) !important;
+                .theme-build-button:disabled {
+                    background: var(--input-disabled-bg) !important;
+                    color: var(--input-disabled-color) !important;
                     box-shadow: none !important;
                     transform: none !important;
                 }
                 
-                .dark-build-deploy-card {
-                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.1) 0%, rgba(101, 255, 160, 0.1) 100%);
-                    border: 1px solid rgba(92, 141, 255, 0.3);
+                .theme-build-deploy-card {
+                    background: var(--card-gradient);
+                    border: 1px solid var(--border);
                     border-radius: 12px;
                     transition: all 0.3s ease;
                 }
                 
-                .dark-build-deploy-card:hover {
-                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.2) 0%, rgba(101, 255, 160, 0.2) 100%);
-                    border-color: #5C8DFF;
-                    box-shadow: 0 8px 24px rgba(92, 141, 255, 0.2);
+                .theme-build-deploy-card:hover {
+                    background: var(--hover-bg);
+                    border-color: var(--border-hover);
+                    box-shadow: 0 8px 24px var(--selection-bg);
                     transform: translateY(-2px);
                 }
                 
-                .dark-build-deploy-card.selected {
-                    background: linear-gradient(135deg, rgba(92, 141, 255, 0.3) 0%, rgba(101, 255, 160, 0.3) 100%);
-                    border-color: #65FFA0;
-                    box-shadow: 0 8px 24px rgba(101, 255, 160, 0.3);
+                .theme-build-deploy-card.selected {
+                    background: var(--selection-bg);
+                    border-color: var(--accent-text);
+                    box-shadow: 0 8px 24px var(--selection-bg);
                 }
                 
-                .dark-build-modal .ant-modal-content {
-                    background: linear-gradient(135deg, rgba(15, 32, 39, 0.95) 0%, rgba(32, 58, 67, 0.95) 100%);
+                .theme-build-modal .ant-modal-content {
+                    background: var(--modal-bg);
                     backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border: 1px solid var(--modal-border);
                     border-radius: 16px;
                 }
                 
-                .dark-build-modal .ant-modal-header {
-                    background: transparent;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                .theme-build-modal .ant-modal-header {
+                    background: var(--modal-header-bg);
+                    border-bottom: 1px solid var(--modal-header-border);
                 }
                 
-                .dark-build-modal .ant-modal-title {
-                    color: white;
+                .theme-build-modal .ant-modal-title {
+                    color: var(--modal-title-color);
                     font-family: 'Poppins', sans-serif;
                     font-weight: 600;
                 }
                 
-                .dark-build-modal .ant-modal-body {
-                    color: rgba(255, 255, 255, 0.8);
+                .theme-build-modal .ant-modal-body {
+                    color: var(--text);
                 }
                 
-                .dark-build-steps .ant-steps-item-title {
-                    color: white !important;
+                .theme-build-steps .ant-steps-item-title {
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-build-steps .ant-steps-item-description {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-build-steps .ant-steps-item-description {
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-build-steps .ant-steps-item-icon {
-                    background: linear-gradient(90deg, #5C8DFF 0%, #65FFA0 100%) !important;
-                    border-color: #5C8DFF !important;
+                .theme-build-steps .ant-steps-item-icon {
+                    background: var(--button-gradient) !important;
+                    border-color: var(--accent-text) !important;
                 }
                 
-                .dark-build-steps .ant-steps-item-process .ant-steps-item-icon {
-                    background: linear-gradient(90deg, #65FFA0 0%, #5C8DFF 100%) !important;
-                    border-color: #65FFA0 !important;
+                .theme-build-steps .ant-steps-item-process .ant-steps-item-icon {
+                    background: var(--accent-gradient) !important;
+                    border-color: var(--accent-text) !important;
                 }
             `}</style>
-            <div className="dark-build-page">
+            <div className="theme-build-page">
                 <div style={{ margin: '0 auto' }}>
                     <Modal
                         title={
@@ -360,7 +365,7 @@ const DeployView = () => {
                                 >
                                     <InfoCircleOutlined
                                         style={{
-                                            color: '#00D4FF',
+                                            color: 'var(--accent-text)',
                                             cursor: 'pointer',
                                         }}
                                     />
@@ -370,10 +375,10 @@ const DeployView = () => {
                         open={isModalVisible}
                         footer={null}
                         width={1000}
-                        className="dark-build-modal"
+                        className="theme-build-modal"
                     >
-                <Card className="dark-build-card preparation-card">
-                    <Steps current={currentStep} className="dark-build-steps">
+                <Card className="theme-build-card preparation-card">
+                    <Steps current={currentStep} className="theme-build-steps">
                         {steps.map((step, index) => (
                             <Step
                                 key={index}
@@ -392,22 +397,22 @@ const DeployView = () => {
                 </Card>
             </Modal>
             <>
-                <Card className="dark-build-card" style={{ marginBottom: '24px' }}>
+                <Card className="theme-build-card" style={{ marginBottom: '24px' }}>
                     <Row align="middle" style={{ marginBottom: '24px' }}>
                         <Col span={24}>
                             <Space align="center">
                                 <RocketOutlined
                                     style={{
                                         fontSize: '28px',
-                                        color: '#00D4FF',
+                                        color: 'var(--accent-text)',
                                     }}
                                 />
-                                <Title level={3} className="dark-build-title" style={{ margin: 0 }}>
+                                <Title level={3} className="theme-build-title" style={{ margin: 0 }}>
                                     Deploy Model {modelId}
                                 </Title>
                             </Space>
                             <Paragraph
-                                className="dark-build-text"
+                                className="theme-build-text"
                                 style={{
                                     margin: '16px 0 0',
                                     fontSize: '16px',
@@ -431,7 +436,7 @@ const DeployView = () => {
                                     }
                                 >
                                     <Card
-                                        className={`dark-build-deploy-card ${selectedOption === option.id ? 'selected' : ''}`}
+                                        className={`theme-build-deploy-card ${selectedOption === option.id ? 'selected' : ''}`}
                                         bordered={false}
                                         styles={{ padding: '24px' }}
                                     >
@@ -457,7 +462,7 @@ const DeployView = () => {
                                                     </div>
                                                     <Title
                                                         level={4}
-                                                        className="dark-build-text-strong"
+                                                        className="theme-build-text-strong"
                                                         style={{
                                                             margin: 0,
                                                         }}
@@ -479,7 +484,7 @@ const DeployView = () => {
                                             </Row>
 
                                             <Text
-                                                className="dark-build-text"
+                                                className="theme-build-text"
                                                 style={{ fontSize: '14px' }}
                                             >
                                                 {option.description}
@@ -534,11 +539,11 @@ const DeployView = () => {
                             type="default"
                             size="large"
                             onClick={handleCancel}
-                            className="dark-build-button"
+                            className="theme-build-button"
                             style={{ 
-                                background: 'rgba(255, 255, 255, 0.1)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                color: 'white'
+                                background: 'var(--input-bg)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text)'
                             }}
                         >
                             Cancel
@@ -549,7 +554,7 @@ const DeployView = () => {
                             style={{ fontWeight: 'bold' }}
                             onClick={startDeployment}
                             disabled={!selectedOption}
-                            className="dark-build-button"
+                            className="theme-build-button"
                         >
                             Deploy Now
                         </Button>

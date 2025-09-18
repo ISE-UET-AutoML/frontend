@@ -32,6 +32,7 @@ import { Modal } from 'src/components/ui/modal'
 import { Tooltip } from 'src/components/ui/tooltip'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { message } from 'antd'
+import { useTheme } from 'src/theme/ThemeProvider'
 // Simple SVG icons
 const CloudUploadIcon = ({ className, ...props }) => (
     <svg
@@ -126,6 +127,7 @@ const MixerHorizontalIcon = ({ className, ...props }) => (
 
 const UploadData = () => {
     const { updateFields, projectInfo } = useOutletContext()
+    const { theme } = useTheme()
     const navigate = useNavigate()
     const [labelProjects, setLabelProjects] = useState([])
     const [serviceFilter, setServiceFilter] = useState('')
@@ -296,11 +298,12 @@ const UploadData = () => {
         <>
             <style>{`
 				body, html {
-					background-color: #01000A !important;
-                }
-            `}</style>
-            <div className="min-h-screen bg-[#01000A]">
+					background-color: var(--surface) !important;
+				}
+			`}</style>
+            <div className="min-h-screen" style={{ background: 'var(--surface)' }}>
                 <div className="relative pt-20 px-6 pb-20">
+                    {theme === 'dark' && (
                     <BackgroundShapes
                         width="1280px"
                         height="1200px"
@@ -337,15 +340,18 @@ const UploadData = () => {
                             }
                         ]}
                     />
+                    )}
 
                     <div className="relative z-10">
                         {/* Header Section */}
                         <div className="flex justify-center mb-12">
                             <div className="w-full max-w-4xl text-center">
-                                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-6">
+                                <h1 className="text-5xl md:text-6xl font-bold mb-6" style={{
+                                    color: 'var(--title-project)'
+                                }}>
                                     Choose Your Label Project
                                 </h1>
-                                <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                                <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--secondary-text)' }}>
                                     Select an existing label project or create a new one for your labeling task
                                 </p>
                             </div>
@@ -355,26 +361,27 @@ const UploadData = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                             {/* Filter Sidebar */}
                             <div className="lg:col-span-1">
-                                <Card className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl sticky top-4">
+                                <Card className="rounded-2xl shadow-2xl sticky top-4" style={{ background: 'var(--card-gradient)', border: '1px solid var(--border)' }}>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-3 text-white text-lg">
-                                            <MixerHorizontalIcon className="h-5 w-5 text-blue-400" />
+                                        <CardTitle className="flex items-center gap-3 text-lg" style={{ color: 'var(--text)' }}>
+                                            <MixerHorizontalIcon className="h-5 w-5" style={{ color: 'var(--accent-text)' }} />
                                             Filter Options
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         {/* Cloud Service Filter */}
                                         <div>
-                                            <label className="flex items-center gap-2 text-white font-medium mb-3">
+                                            <label className="flex items-center gap-2 font-medium mb-3" style={{ color: 'var(--text)' }}>
                                                 Cloud Service
                                                 <Tooltip title="Choose the cloud storage service where your label project is stored">
-                                                    <InfoCircledIcon className="h-4 w-4 text-gray-500 cursor-help" />
+                                                    <InfoCircledIcon className="h-4 w-4 cursor-help" style={{ color: 'var(--secondary-text)' }} />
                                                 </Tooltip>
                                             </label>
                                             <CustomSelect
                                                 value={serviceFilter}
                                                 onChange={setServiceFilter}
                                                 placeholder="Select Service"
+                                                className="theme-dropdown"
                                             >
                                                 <Option value="">All Services</Option>
                                                 <Option value="AWS_S3">Amazon S3</Option>
@@ -384,16 +391,17 @@ const UploadData = () => {
 
                                         {/* Storage Bucket Filter */}
                                         <div>
-                                            <label className="flex items-center gap-2 text-white font-medium mb-3">
+                                            <label className="flex items-center gap-2 font-medium mb-3" style={{ color: 'var(--text)' }}>
                                                 Storage Bucket
                                                 <Tooltip title="Select the specific storage bucket containing your label project">
-                                                    <InfoCircledIcon className="h-4 w-4 text-gray-500 cursor-help" />
+                                                    <InfoCircledIcon className="h-4 w-4 cursor-help" style={{ color: 'var(--secondary-text)' }} />
                                                 </Tooltip>
                                             </label>
                                             <CustomSelect
                                                 value={bucketFilter}
                                                 onChange={setBucketFilter}
                                                 placeholder="Select Bucket"
+                                                className="theme-dropdown"
                                             >
                                                 <Option value="">All Buckets</Option>
                                                 <Option value="user-private-project">User Private Project</Option>
@@ -403,10 +411,10 @@ const UploadData = () => {
 
                                         {/* Project Status Filter */}
                                         <div>
-                                            <label className="flex items-center gap-2 text-white font-medium mb-3">
+                                            <label className="flex items-center gap-2 font-medium mb-3" style={{ color: 'var(--text)' }}>
                                                 Project Status
                                                 <Tooltip title="Filter projects based on whether they're already labeled">
-                                                    <InfoCircledIcon className="h-4 w-4 text-gray-500 cursor-help" />
+                                                    <InfoCircledIcon className="h-4 w-4 cursor-help" style={{ color: 'var(--secondary-text)' }} />
                                                 </Tooltip>
                                             </label>
                                             <RadioGroup
@@ -419,7 +427,7 @@ const UploadData = () => {
                                                     onClick={() => setLabeledFilter('')}
                                                 >
                                                     <RadioGroupItem value="" id="all" />
-                                                    <label htmlFor="all" className="text-gray-300 cursor-pointer">
+                                                    <label htmlFor="all" className="cursor-pointer" style={{ color: 'var(--secondary-text)' }}>
                                                         All Projects
                                                     </label>
                                                 </div>
@@ -428,7 +436,7 @@ const UploadData = () => {
                                                     onClick={() => setLabeledFilter('yes')}
                                                 >
                                                     <RadioGroupItem value="yes" id="labeled" />
-                                                    <label htmlFor="labeled" className="text-gray-300 cursor-pointer">
+                                                    <label htmlFor="labeled" className="cursor-pointer" style={{ color: 'var(--secondary-text)' }}>
                                                         Labeled Projects
                                                     </label>
                                                 </div>
@@ -437,7 +445,7 @@ const UploadData = () => {
                                                     onClick={() => setLabeledFilter('no')}
                                                 >
                                                     <RadioGroupItem value="no" id="unlabeled" />
-                                                    <label htmlFor="unlabeled" className="text-gray-300 cursor-pointer">
+                                                    <label htmlFor="unlabeled" className="cursor-pointer" style={{ color: 'var(--secondary-text)' }}>
                                                         Unlabeled Projects
                                                     </label>
                                                 </div>
@@ -448,7 +456,8 @@ const UploadData = () => {
                                         {selectedRowKeys && (
                                             <Button
                                                 onClick={handleContinue}
-                                                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+                                                className="w-full font-semibold py-3 rounded-xl transition-all duration-200"
+                                                style={{ background: 'var(--button-gradient)', border: '1px solid var(--border)', color: '#ffffff' }}
                                             >
                                                 <span className="flex items-center justify-center gap-2">
                                                     Go to Training
@@ -463,14 +472,14 @@ const UploadData = () => {
                             {/* Main Content Area */}
                             <div className="lg:col-span-3 space-y-6">
                                 {/* Projects Table */}
-                                <Card className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl">
+                                <Card className="rounded-2xl shadow-2xl" style={{ background: 'var(--card-gradient)', border: '1px solid var(--border)' }}>
                                     <CardContent className="p-8">
-                                        <Alert className="mb-8 bg-blue-500/5 border-blue-500/20 text-blue-100">
-                                            <InfoCircledIcon className="h-4 w-4 text-blue-400" />
-                                            <AlertTitle className="text-blue-100 font-medium">
+                                        <Alert className="mb-8" style={{ background: 'var(--alert-info-bg)', border: '1px solid var(--alert-info-border)', color: 'var(--text)' }}>
+                                            <InfoCircledIcon className="h-4 w-4" style={{ color: 'var(--accent-text)' }} />
+                                            <AlertTitle className="font-medium" style={{ color: 'var(--text)' }}>
                                                 Need help choosing a label project?
                                             </AlertTitle>
-                                            <AlertDescription className="text-blue-200/80 mt-1">
+                                            <AlertDescription className="mt-1" style={{ color: 'var(--secondary-text)' }}>
                                                 If you're unsure about which project to select, look for one that matches your task type and is already labeled (marked with 'Yes'). This will help you get started faster.
                                             </AlertDescription>
                                         </Alert>
@@ -486,17 +495,17 @@ const UploadData = () => {
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-gray-800">
-                                                            <TableHead className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-white font-semibold text-left py-4">
+                                                        <TableRow>
+                                                            <TableHead className="font-semibold text-left py-4" style={{ background: 'var(--table-header-bg)', color: 'var(--table-header-color)', borderBottom: '1px solid var(--table-header-border)' }}>
                                                                 Title
                                                             </TableHead>
-                                                            <TableHead className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-white font-semibold text-center py-4">
+                                                            <TableHead className="font-semibold text-center py-4" style={{ background: 'var(--table-header-bg)', color: 'var(--table-header-color)', borderBottom: '1px solid var(--table-header-border)' }}>
                                                                 Service
                                                             </TableHead>
-                                                            <TableHead className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-white font-semibold text-center py-4">
+                                                            <TableHead className="font-semibold text-center py-4" style={{ background: 'var(--table-header-bg)', color: 'var(--table-header-color)', borderBottom: '1px solid var(--table-header-border)' }}>
                                                                 Bucket
                                                             </TableHead>
-                                                            <TableHead className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-white font-semibold text-center py-4">
+                                                            <TableHead className="font-semibold text-center py-4" style={{ background: 'var(--table-header-bg)', color: 'var(--table-header-color)', borderBottom: '1px solid var(--table-header-border)' }}>
                                                                 Labeled
                                                             </TableHead>
                                                         </TableRow>
@@ -505,7 +514,7 @@ const UploadData = () => {
                                                         {filteredProjects.length === 0 ? (
                                                             <TableRow>
                                                                 <TableCell colSpan={4} className="text-center py-16">
-                                                                    <div className="text-gray-500">
+                                                                    <div style={{ color: 'var(--secondary-text)' }}>
                                                                         <CloudUploadIcon className="h-16 w-16 mx-auto mb-4 opacity-30" />
                                                                         <p className="text-lg">No label projects match your current filters</p>
                                                                     </div>
@@ -515,26 +524,21 @@ const UploadData = () => {
                                                             filteredProjects.map((project) => (
                                                                 <TableRow
                                                                     key={project.project_id}
-                                                                    className={`border-gray-800 transition-all duration-200 ${project.isLabeled
-                                                                            ? 'hover:bg-blue-500/5 cursor-pointer'
-                                                                            : 'opacity-50 cursor-not-allowed'
-                                                                        } ${selectedRowKeys === project.project_id
-                                                                            ? 'bg-blue-500/10 border-blue-500/20'
-                                                                            : ''
-                                                                        }`}
+                                                                    className={`transition-all duration-200 ${project.isLabeled ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                                                                    style={{ background: selectedRowKeys === project.project_id ? 'var(--selection-bg)' : 'transparent' }}
                                                                     onClick={() => {
                                                                         if (project.isLabeled) {
                                                                             setSelectedRowKeys(project.project_id)
                                                                         }
                                                                     }}
                                                                 >
-                                                                    <TableCell className="text-white font-medium py-4">
+                                                                    <TableCell className="font-medium py-4" style={{ color: 'var(--text)' }}>
                                                                         {project.title}
                                                                     </TableCell>
                                                                     <TableCell className="text-center py-4">
                                                                         {renderServiceTag(project.service)}
                                                                     </TableCell>
-                                                                    <TableCell className="text-center text-gray-300 py-4">
+                                                                    <TableCell className="text-center py-4" style={{ color: 'var(--secondary-text)' }}>
                                                                         {project.bucketName}
                                                                     </TableCell>
                                                                     <TableCell className="text-center py-4">
@@ -558,15 +562,16 @@ const UploadData = () => {
 
                                 {/* Create New Project Card */}
                                 <Card
-                                    className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl hover:bg-black/50 hover:border-blue-500/30 hover:shadow-blue-500/10 transition-all duration-300 cursor-pointer group"
+                                    className="rounded-2xl shadow-2xl transition-all duration-300 cursor-pointer group"
+                                    style={{ background: 'var(--card-gradient)', border: '1px solid var(--border)' }}
                                     onClick={showModal}
                                 >
                                     <CardContent className="p-12 text-center">
-                                        <CloudUploadIcon className="h-20 w-20 text-blue-400 mx-auto mb-6 group-hover:text-blue-300 transition-colors" />
-                                        <h3 className="text-2xl font-semibold text-white mb-3 group-hover:text-gray-100 transition-colors">
+                                        <CloudUploadIcon className="h-20 w-20 mx-auto mb-6 transition-colors" style={{ color: 'var(--accent-text)' }} />
+                                        <h3 className="text-2xl font-semibold mb-3 transition-colors" style={{ color: 'var(--text)' }}>
                                             Create a New Label Project
                                         </h3>
-                                        <p className="text-gray-400 text-lg group-hover:text-gray-300 transition-colors">
+                                        <p className="text-lg transition-colors" style={{ color: 'var(--secondary-text)' }}>
                                             Don't see what you need? Click here to create a new label project
                                         </p>
                                     </CardContent>
@@ -585,11 +590,11 @@ const UploadData = () => {
                             open={isExporting}
                             onClose={() => { }} // Prevent closing during export
                             title="Đang chuẩn bị dữ liệu"
-                            className="bg-black/95 backdrop-blur-sm border border-white/10"
+                            className="theme-upload-modal"
                         >
-                            <div className="text-center py-8">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                                <p className="text-gray-300 text-lg">
+                            <div className="text-center py-8" style={{ color: 'var(--text)' }}>
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--accent-text)' }}></div>
+                                <p className="text-lg" style={{ color: 'var(--secondary-text)' }}>
                                     The system is exporting labels and preparing your data.
                                     <br />
                                     This process may take a few minutes. Please do not close this window. </p>

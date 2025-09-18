@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { useOutletContext } from 'react-router-dom'
+import { useTheme } from 'src/theme/ThemeProvider'
 import { getAllExperiments } from 'src/api/experiment'
 import { getAllDeployedModel } from 'src/api/deploy'
 import { getModels } from 'src/api/model'
@@ -18,6 +19,7 @@ import {
 } from '@ant-design/icons'
 
 const ProjectInfo = () => {
+    const { theme } = useTheme()
     const { projectInfo } = useOutletContext()
     const [experiments, setExperiments] = useState([])
     const [models, setModels] = useState([])
@@ -54,11 +56,14 @@ const ProjectInfo = () => {
 
     // Mini status card component
     const StatusCard = ({ label, value, color, Icon }) => (
-        <div className={`flex items-center p-4 rounded-xl border ${color.border} ${color.bg} shadow`}>
-            <Icon className={`mr-3 text-2xl ${color.text}`} />
+        <div className="flex items-center p-4 rounded-xl shadow" style={{ 
+            border: '1px solid var(--border)', 
+            background: 'var(--hover-bg)' 
+        }}>
+            <Icon className="mr-3 text-2xl" style={{ color: 'var(--accent-text)' }} />
             <div>
-                <p className={`font-semibold ${color.text}`}>{label}</p>
-                <p className="text-white">{value}</p>
+                <p className="font-semibold" style={{ color: 'var(--accent-text)' }}>{label}</p>
+                <p style={{ color: 'var(--text)' }}>{value}</p>
             </div>
         </div>
     )
@@ -67,55 +72,59 @@ const ProjectInfo = () => {
         <>
             <style>{`
         body, html {
-          background-color: #01000A !important;
+          background-color: var(--surface) !important;
         }
       `}</style>
-            <div className="min-h-screen bg-[#01000A]">
+            <div className="min-h-screen" style={{ background: 'var(--surface)' }}>
                 <div className="relative pt-20 px-6 pb-20">
-                    <BackgroundShapes
-                        width="1280px"
-                        height="1200px"
-                        shapes={[
-                            {
-                                id: 'uploadBlue',
-                                shape: 'circle',
-                                size: '480px',
-                                gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
-                                opacity: 0.4,
-                                blur: '200px',
-                                position: { top: '200px', right: '-120px' },
-                                transform: 'none'
-                            },
-                            {
-                                id: 'uploadCyan',
-                                shape: 'rounded',
-                                size: '380px',
-                                gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 85%'] },
-                                opacity: 0.25,
-                                blur: '160px',
-                                position: { top: '50px', left: '-100px' },
-                                transform: 'none'
-                            },
-                            {
-                                id: 'uploadWarm',
-                                shape: 'rounded',
-                                size: '450px',
-                                gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 50%', 'transparent 85%'] },
-                                opacity: 0.2,
-                                blur: '180px',
-                                position: { top: '700px', left: '50%' },
-                                transform: 'translate(-50%, -50%)'
-                            }
-                        ]}
-                    />
+                    {theme === 'dark' && (
+                        <BackgroundShapes
+                            width="1280px"
+                            height="1200px"
+                            shapes={[
+                                {
+                                    id: 'uploadBlue',
+                                    shape: 'circle',
+                                    size: '480px',
+                                    gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
+                                    opacity: 0.4,
+                                    blur: '200px',
+                                    position: { top: '200px', right: '-120px' },
+                                    transform: 'none'
+                                },
+                                {
+                                    id: 'uploadCyan',
+                                    shape: 'rounded',
+                                    size: '380px',
+                                    gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 85%'] },
+                                    opacity: 0.25,
+                                    blur: '160px',
+                                    position: { top: '50px', left: '-100px' },
+                                    transform: 'none'
+                                },
+                                {
+                                    id: 'uploadWarm',
+                                    shape: 'rounded',
+                                    size: '450px',
+                                    gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 50%', 'transparent 85%'] },
+                                    opacity: 0.2,
+                                    blur: '180px',
+                                    position: { top: '700px', left: '50%' },
+                                    transform: 'translate(-50%, -50%)'
+                                }
+                            ]}
+                        />
+                    )}
 
                     <div className="relative z-10 max-w-full mx-auto space-y-10">
                         {/* Header */}
                         <div className="text-center mb-12">
-                            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent mb-6">
+                            <h1 className="text-5xl md:text-6xl font-bold mb-6" style={{ 
+                                color: 'var(--title-project)'
+                            }}>
                                 Project Info
                             </h1>
-                            <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                            <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--secondary-text)' }}>
                                 Detailed information about your project
                             </p>
                         </div>
@@ -124,23 +133,29 @@ const ProjectInfo = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
                             <div className="lg:col-span-2">
                                 {/* Metadata */}
-                                <div className="p-6 rounded-2xl border border-gray-600/40 bg-white/5 shadow space-y-2">
-                                    <p><span className="text-gray-400">Project Id: </span><span className="text-white">{projectInfo?.id}</span></p>
-                                    <p><span className="text-gray-400">Project Name: </span><span className="text-white">{projectInfo?.name}</span></p>
-                                    <p><span className="text-gray-400">Description: </span><span className="text-white">{projectInfo?.description}</span></p>
-                                    <p><span className="text-gray-400">Created At: </span><span className="text-white">{formattedDate}</span></p>
-                                    <p><span className="text-gray-400">Task Type: </span><span className="text-white">{projectInfo?.task_type}</span></p>
-                                    <p><span className="text-gray-400">Expected Accuracy: </span><span className="text-white">{projectInfo?.expected_accuracy}</span></p>
-                                    <p><span className="text-gray-400">Visibility: </span><span className="text-white">{projectInfo?.visibility}</span></p>
+                                <div className="p-6 rounded-2xl shadow space-y-2" style={{ 
+                                    border: '1px solid var(--border)', 
+                                    background: 'var(--card-gradient)' 
+                                }}>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Project Id: </span><span style={{ color: 'var(--text)' }}>{projectInfo?.id}</span></p>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Project Name: </span><span style={{ color: 'var(--text)' }}>{projectInfo?.name}</span></p>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Description: </span><span style={{ color: 'var(--text)' }}>{projectInfo?.description}</span></p>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Created At: </span><span style={{ color: 'var(--text)' }}>{formattedDate}</span></p>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Task Type: </span><span style={{ color: 'var(--text)' }}>{projectInfo?.task_type}</span></p>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Expected Accuracy: </span><span style={{ color: 'var(--text)' }}>{projectInfo?.expected_accuracy}</span></p>
+                                    <p><span style={{ color: 'var(--secondary-text)' }}>Visibility: </span><span style={{ color: 'var(--text)' }}>{projectInfo?.visibility}</span></p>
                                 </div>
                             </div>
 
                             {/* Main Content Area */}
                             <div className="lg:col-span-4 space-y-6">
                                 {/* Experiments Card */}
-                                <div className="p-6 rounded-2xl border border-gray-600/40 bg-white/5 shadow-lg space-y-4">
-                                    <h3 className="text-xl font-semibold text-white flex items-center">
-                                        <ExperimentOutlined className="mr-2 text-2xl text-blue-300" />
+                                <div className="p-6 rounded-2xl shadow-lg space-y-4" style={{ 
+                                    border: '1px solid var(--border)', 
+                                    background: 'var(--card-gradient)' 
+                                }}>
+                                    <h3 className="text-xl font-semibold flex items-center" style={{ color: 'var(--text)' }}>
+                                        <ExperimentOutlined className="mr-2 text-2xl" style={{ color: 'var(--accent-text)' }} />
                                         Experiments
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -151,9 +166,12 @@ const ProjectInfo = () => {
                                 </div>
 
                                 {/* Models Card */}
-                                <div className="p-6 rounded-2xl border border-gray-600/40 bg-white/5 shadow-lg space-y-4">
-                                    <h3 className="text-xl font-semibold text-white flex items-center">
-                                        <DatabaseOutlined className="mr-2 text-2xl text-green-300" />
+                                <div className="p-6 rounded-2xl shadow-lg space-y-4" style={{ 
+                                    border: '1px solid var(--border)', 
+                                    background: 'var(--card-gradient)' 
+                                }}>
+                                    <h3 className="text-xl font-semibold flex items-center" style={{ color: 'var(--text)' }}>
+                                        <DatabaseOutlined className="mr-2 text-2xl" style={{ color: 'var(--accent-text)' }} />
                                         Models
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -162,9 +180,12 @@ const ProjectInfo = () => {
                                 </div>
 
                                 {/* Deployed Models Card */}
-                                <div className="p-6 rounded-2xl border border border-gray-600/40 bg-white/5 shadow-lg space-y-4">
-                                    <h3 className="text-xl font-semibold text-white flex items-center">
-                                        <CloudOutlined className="mr-2 text-2xl text-purple-300" />
+                                <div className="p-6 rounded-2xl shadow-lg space-y-4" style={{ 
+                                    border: '1px solid var(--border)', 
+                                    background: 'var(--card-gradient)' 
+                                }}>
+                                    <h3 className="text-xl font-semibold flex items-center" style={{ color: 'var(--text)' }}>
+                                        <CloudOutlined className="mr-2 text-2xl" style={{ color: 'var(--accent-text)' }} />
                                         Deployed Models
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
