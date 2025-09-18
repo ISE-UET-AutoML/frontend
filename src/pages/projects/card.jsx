@@ -151,7 +151,7 @@ export default function ProjectCard({ project, getProjects }) {
 					<div
 						className="w-16 h-16 rounded-xl shadow-lg flex items-center justify-center"
 						style={{
-							background: 'rgba(255, 255, 255, 0.9)',
+							background: 'var(--tag-gradient)',
 							border: '2px solid rgba(255, 255, 255, 0.3)',
 						}}
 					>
@@ -165,7 +165,7 @@ export default function ProjectCard({ project, getProjects }) {
 						<button
 							className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200"
 							style={{
-								background: 'rgba(255, 255, 255, 0.9)',
+								background: 'var(--tag-gradient)',
 								border: '1px solid rgba(255, 255, 255, 0.3)',
 							}}
 							onClick={handleStarClick}
@@ -180,7 +180,7 @@ export default function ProjectCard({ project, getProjects }) {
 						<button
 							className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/20 transition"
 							style={{
-								background: 'rgba(255, 255, 255, 0.9)',
+								background: 'var(--tag-gradient)',
 								border: '1px solid rgba(255, 255, 255, 0.3)',
 							}}
 							onClick={(e) => handleDelete(e, project.id)}
@@ -195,7 +195,7 @@ export default function ProjectCard({ project, getProjects }) {
 					<span
 						className="px-3 py-1 text-sm font-semibold rounded-full shadow-md"
 						style={{
-							background: 'rgba(255, 255, 255, 0.9)',
+							background: 'var(--tag-gradient)',
 							border: '1px solid rgba(255, 255, 255, 0.3)',
 							color: 'var(--text)',
 						}}
