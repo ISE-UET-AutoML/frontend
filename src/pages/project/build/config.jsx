@@ -26,7 +26,7 @@ const config = {
         predictView: TextPredict,
         liveInferView: TextLiveInfer,
     },
-    MUTILABEL_TEXT_CLASSIFICATION: {
+    MULTILABEL_TEXT_CLASSIFICATION: {
         folder: UploadTypes.CSV_SINGLE,
         afterUploadURL: 'selectInstance',
         labelingView: LabelingTextClassification,
