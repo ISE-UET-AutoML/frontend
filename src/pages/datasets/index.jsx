@@ -33,10 +33,9 @@ const initialState = {
 }
 
 export default function Datasets() {
-    // State for filter visibility and filter values
+    // State for filter values
     const [selectedType, setSelectedType] = useState(null)
     const [selectedStatus, setSelectedStatus] = useState(null)
-    const [showFilter, setShowFilter] = useState(false)
 
     // Teammate's reducer pattern
     const [datasetState, updateDataState] = useReducer(
@@ -56,14 +55,14 @@ export default function Datasets() {
 
     // Polling functionality (teammate's addition)
     const pollingRef = useRef(null)
-    
+
     const hasProcessingDatasets = (datasets) => {
         return datasets.some(ds => ds.processingStatus === 'PROCESSING')
     }
 
     const allDatasets = async () => {
         try {
-            const response = await datasetAPI.getDatasets({page: 1, limit: 10000})
+            const response = await datasetAPI.getDatasets({ page: 1, limit: 10000 })
             setAllDatasetList(response.data.data)
             console.log('All datasets fetched for search:', response.data.data)
         } catch (error) {
@@ -117,7 +116,7 @@ export default function Datasets() {
     const getDatasets = async (page = 1) => {
         try {
             updateDataState({ isLoading: true })
-            const response = await datasetAPI.getDatasets({page: page, limit: pageSize})
+            const response = await datasetAPI.getDatasets({ page: page, limit: pageSize })
             console.log('resDa', response)
             updateDataState({
                 datasets: sortDatasetsByTime(response.data.data),
@@ -227,9 +226,6 @@ export default function Datasets() {
         setCurrentPage(page)
     }
 
-    const toggleFilter = () => {
-        setShowFilter(!showFilter)
-    }
 
     // Pagination logic
     const startIndex = (currentPage - 1) * pageSize
@@ -243,49 +239,47 @@ export default function Datasets() {
                 <Layout className="min-h-screen pt-12" style={{ background: 'var(--surface)' }}>
                     <Content className="relative pt-20 px-6 pb-20">
                         {theme === 'dark' && (
-                            <BackgroundShapes 
-                            width="1280px" 
-                            height="1100px"
-                            shapes={[
-                                {
-                                    id: 'datasetsBlue',
-                                    shape: 'circle',
-                                    size: '520px',
-                                    gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
-                                    opacity: 0.45,
-                                    blur: '220px',
-                                    position: { top: '240px', right: '-140px' },
-                                    transform: 'none'
-                                },
-                                {
-                                    id: 'datasetsCyan',
-                                    shape: 'rounded',
-                                    size: '420px',
-                                    gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 40%'] },
-                                    opacity: 0.30,
-                                    blur: '180px',
-                                    position: { top: '60px', left: '-120px' },
-                                    transform: 'none'
-                                },
-                                {
-                                    id: 'datasetsWarm',
-                                    shape: 'rounded',
-                                    size: '520px',
-                                    gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 50%', 'transparent 85%'] },
-                                    opacity: 0.25,
-                                    blur: '220px',
-                                    position: { top: '820px', left: '50%' },
-                                    transform: 'translate(-50%, -50%)'
-                                }
-                            ]}
+                            <BackgroundShapes
+                                width="1280px"
+                                height="1100px"
+                                shapes={[
+                                    {
+                                        id: 'datasetsBlue',
+                                        shape: 'circle',
+                                        size: '520px',
+                                        gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
+                                        opacity: 0.45,
+                                        blur: '220px',
+                                        position: { top: '240px', right: '-140px' },
+                                        transform: 'none'
+                                    },
+                                    {
+                                        id: 'datasetsCyan',
+                                        shape: 'rounded',
+                                        size: '420px',
+                                        gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 55%', 'transparent 40%'] },
+                                        opacity: 0.30,
+                                        blur: '180px',
+                                        position: { top: '60px', left: '-120px' },
+                                        transform: 'none'
+                                    },
+                                    {
+                                        id: 'datasetsWarm',
+                                        shape: 'rounded',
+                                        size: '520px',
+                                        gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 50%', 'transparent 85%'] },
+                                        opacity: 0.25,
+                                        blur: '220px',
+                                        position: { top: '820px', left: '50%' },
+                                        transform: 'translate(-50%, -50%)'
+                                    }
+                                ]}
                             />
                         )}
                         <ContentContainer className="relative z-10">
                             {/* Header Section */}
-                            <DatasetHeader 
+                            <DatasetHeader
                                 onNewDataset={() => updateDataState({ showCreator: true })}
-                                onFilterClick={toggleFilter}
-                                showFilter={showFilter}
                             />
 
                             <DatasetFilter
@@ -294,7 +288,6 @@ export default function Datasets() {
                                 onTypeChange={setSelectedType}
                                 onStatusChange={setSelectedStatus}
                                 onReset={handleResetFilters}
-                                showFilter={showFilter}
                                 // Search and sort props
                                 searchTerm={searchTerm}
                                 onSearchChange={setSearchTerm}

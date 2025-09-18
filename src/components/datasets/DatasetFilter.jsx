@@ -107,13 +107,12 @@ const typeFilterOptions = [
     { value: 'MULTIMODAL', label: 'Multimodal' },
 ]
 
-const DatasetFilter = ({ 
-    selectedType, 
-    onTypeChange, 
-    selectedStatus, 
-    onStatusChange, 
-    onReset, 
-    showFilter,
+const DatasetFilter = ({
+    selectedType,
+    onTypeChange,
+    selectedStatus,
+    onStatusChange,
+    onReset,
     // New props for search and sort
     searchTerm,
     onSearchChange,
@@ -125,12 +124,8 @@ const DatasetFilter = ({
     return (
         <>
             <style>{themeSelectStyles}</style>
-            <div 
-                className={`mb-6 p-4 rounded-xl backdrop-blur-sm transition-all duration-300 ease-in-out overflow-hidden ${
-                    showFilter 
-                        ? 'max-h-96 opacity-100 transform translate-y-0' 
-                        : 'max-h-0 opacity-0 transform -translate-y-4'
-                }`}
+            <div
+                className="mb-6 p-4 rounded-xl backdrop-blur-sm"
                 style={{
                     background: 'var(--filter-bg)',
                     border: '1px solid var(--filter-border)'
@@ -148,7 +143,7 @@ const DatasetFilter = ({
                             value={searchTerm || ''}
                             onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
                             className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
-                            style={{ 
+                            style={{
                                 fontFamily: 'Poppins, sans-serif',
                                 borderRadius: '6px'
                             }}
@@ -273,7 +268,7 @@ const DatasetFilter = ({
                             <button
                                 onClick={onReset}
                                 className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
-                                style={{ 
+                                style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     background: 'var(--hover-bg)',
                                     border: '1px solid var(--border)',

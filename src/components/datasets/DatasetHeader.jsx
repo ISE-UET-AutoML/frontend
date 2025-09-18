@@ -1,25 +1,23 @@
 import React from 'react'
-import { Row, Col, Space, Typography, Button, Tooltip } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
-import { FunnelIcon } from '@heroicons/react/24/outline'
+import { Row, Col, Space, Typography, Tooltip } from 'antd'
 
 const { Title, Paragraph } = Typography
 
-const DatasetHeader = ({ onNewDataset, onFilterClick, showFilter }) => {
+const DatasetHeader = ({ onNewDataset }) => {
     return (
         <Row justify="space-between" align="top" className="mb-4">
             <Col>
                 <Space direction="vertical" size={1}>
-                    <Title 
+                    <Title
                         level={1}
                         className="text-h1 font-poppins !mb-2 inline-block"
-                        style={{ 
+                        style={{
                             color: 'var(--title-color)',
                             background: 'var(--title-gradient)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'var(--title-color)',
                             backgroundClip: 'text',
-                            margin: 0 
+                            margin: 0
                         }}
                     >
                         Datasets
@@ -33,25 +31,6 @@ const DatasetHeader = ({ onNewDataset, onFilterClick, showFilter }) => {
             </Col>
             <Col>
                 <Space size={12} align="center">
-                    {/* Filter Button */}
-                    <Tooltip title="Filter datasets">
-                        <button
-                            onClick={onFilterClick}
-                            className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group"
-                            style={{
-                                background: showFilter ? 'var(--active-bg)' : 'var(--hover-bg)',
-                                border: `1px solid ${showFilter ? 'var(--border-hover)' : 'var(--border)'}`
-                            }}
-                        >
-                            <FunnelIcon 
-                                className="h-6 w-6 transition-all duration-200 group-hover:scale-110"
-                                style={{ 
-                                    color: showFilter ? 'var(--accent-text)' : 'var(--text)'
-                                }}
-                            />
-                        </button>
-                    </Tooltip>
-                    
                     {/* New Dataset Button */}
                     <Tooltip title="Create a new dataset">
                         <button
