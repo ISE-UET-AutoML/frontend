@@ -1,4 +1,3 @@
-import React from 'react'
 import {
 	CircleStackIcon,
 	StarIcon,
@@ -11,8 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { PATHS } from 'src/constants/paths'
-import { Button, Typography, Tag, Progress, message } from 'antd'
+import { Typography, Progress, message } from 'antd'
 import { DATASET_TYPES } from 'src/constants/types'
 
 dayjs.extend(relativeTime)
@@ -68,7 +66,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	const totalFiles = dataset.metaData?.totalFiles || 0
 	const totalSizeKb = dataset.metaData?.totalSizeKb || 0
 	const createdAtDisplay = dataset?.createdAt
-		? dayjs(dataset.createdAt).format('M/D/YYYY h:mm A')
+		? dayjs(dataset.createdAt).format('MMM D, YYYY')
 		: 'N/A'
 
 	const isClickable = processingStatus === 'COMPLETED'
@@ -242,10 +240,21 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 			? Math.round((annotatedCount / totalAnnotations) * 100)
 			: 0
 
+	const isCompleted = processingStatus === 'COMPLETED'
+	const isProcessing =
+		processingStatus === 'PROCESSING' ||
+		processingStatus === 'CREATING_DATASET' ||
+		processingStatus === 'CREATING_LABEL_PROJECT'
+	const isFailed = processingStatus === 'FAILED'
+
 	const handleCardClick = () => {
-		if (lsProjectId) {
+		if (isCompleted && lsProjectId) {
 			const url = `${process.env.REACT_APP_LABEL_STUDIO_URL}/projects/${lsProjectId}`
 			window.open(url, '_blank')
+		} else if (!isCompleted) {
+			message.info(
+				'Dataset is still processing. Please wait for completion.'
+			)
 		} else {
 			console.error('Label Studio ID is missing!')
 			message.error('Label Studio ID is missing for this project.')
@@ -255,168 +264,175 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	return (
 		<div
 			key={dataset.id}
-			className="group rounded-2xl p-6 shadow-lg w-[380px] font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+			className={`group rounded-2xl shadow-lg w-[380px] h-[400px] overflow-hidden font-poppins transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative ${
+				isCompleted ? 'cursor-pointer' : 'cursor-default'
+			} ${isProcessing ? 'opacity-75' : ''}`}
 			style={{
 				background: 'var(--card-gradient)',
-				border: '1px solid var(--border)',
-				boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+				border: isCompleted
+					? '2px solid #10b981'
+					: isFailed
+						? '2px solid #ef4444'
+						: '2px solid var(--accent-text)',
+				boxShadow: isCompleted
+					? '0 10px 30px rgba(16, 185, 129, 0.15)'
+					: isFailed
+						? '0 10px 30px rgba(239, 68, 68, 0.15)'
+						: '0 10px 30px var(--border)',
 				color: 'var(--text)',
 			}}
-			onClick={isClickable ? handleCardClick : undefined}
+			onClick={handleCardClick}
 		>
-			{/* Header */}
-			<div className="flex justify-between items-start mb-4">
-				<div
-					className="w-20 h-20 rounded-xl shadow-md flex items-center justify-center group"
-					style={{
-						background: 'var(--accent-gradient)',
-						border: '1px solid var(--border)',
-						boxShadow: '0 6px 18px var(--border)',
-					}}
-				>
-					<TypeIcon
-						className="h-10 w-10 transition-transform duration-500 ease-out"
-						style={{ color: 'var(--accent-text)' }}
-						aria-hidden="true"
-					/>
-				</div>
-				<div className="flex gap-3">
-					<button
-						className="w-10 h-10 rounded-full flex items-center justify-center transition"
-						style={{
-							background: 'var(--hover-bg)',
-							border: '1px solid var(--border)',
-						}}
-					>
-						<StarIcon
-							className="h-5 w-5"
-							style={{ color: 'var(--secondary-text)' }}
-						/>
-					</button>
-					<button
-						className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/20 transition"
-						style={{
-							background: 'var(--hover-bg)',
-							border: '1px solid var(--border)',
-						}}
-						onClick={(e) => handleDelete(e, dataset.id)}
-					>
-						<TrashIcon className="h-5 w-5 text-red-500" />
-					</button>
-				</div>
-			</div>
-
-			{/* Title & Description */}
-			<div className="flex items-center justify-between gap-3 mb-2">
-				<h2
-					className="text-xl font-semibold"
-					style={{ color: 'var(--text)' }}
-				>
-					{dataset.title || 'Untitled Dataset'}
-				</h2>
-				<span
-					className="px-4 py-1 text-sm font-semibold rounded-full shadow-md shrink-0"
-					style={{
-						background: 'var(--tag-gradient)',
-						border: '1px solid var(--border)',
-						color: 'var(--text)',
-					}}
-				>
-					{dataType.replace(/_/g, ' ')}
-				</span>
-			</div>
-			<p
-				className="text-sm leading-relaxed mb-4"
-				style={{ color: 'var(--secondary-text)' }}
-			>
-				{dataset.description || 'No description available'}
-			</p>
-
-			{/* Status and Progress */}
-			<div className="space-y-3 mb-4">
-				<div className="flex justify-between items-center">
-					<span className="text-sm text-gray-300">Status</span>
-					<span
-						className={`px-3 py-1 rounded-full text-xs font-semibold ${
-							statusConfig.color === 'success'
-								? 'bg-green-500/20 text-green-300'
-								: statusConfig.color === 'processing'
-									? 'bg-blue-500/20 text-blue-300'
-									: 'bg-red-500/20 text-red-300'
+			{/* Header Section */}
+			<div className="px-4 pt-4 pb-2">
+				{/* Top Row: Status on left, Star/Delete on right */}
+				<div className="flex justify-between items-center mb-4">
+					{/* Status Badge - Left */}
+					<div
+						className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+							isCompleted
+								? 'bg-green-100 text-green-800 border border-green-200'
+								: isFailed
+									? 'bg-red-100 text-red-800 border border-red-200'
+									: 'bg-blue-100 text-blue-800 border border-blue-200'
 						}`}
 					>
+						{isProcessing && (
+							<span className="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse mr-1.5" />
+						)}
 						{statusConfig.text}
-					</span>
+					</div>
+
+					{/* Action Buttons - Right */}
+					<div className="flex gap-1.5">
+						<button
+							className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-50"
+							style={{
+								background: 'var(--surface)',
+								border: '1px solid var(--border)',
+							}}
+						>
+							<StarIcon
+								className="h-3.5 w-3.5"
+								style={{ color: 'var(--secondary-text)' }}
+							/>
+						</button>
+						<button
+							className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-red-50 transition-all duration-200"
+							style={{
+								background: 'var(--surface)',
+								border: '1px solid var(--border)',
+							}}
+							onClick={(e) => handleDelete(e, dataset.id)}
+						>
+							<TrashIcon className="h-3.5 w-3.5 text-red-500" />
+						</button>
+					</div>
 				</div>
 
-				{totalAnnotations > 0 && (
-					<div className="space-y-2">
-						<div className="flex justify-between items-center">
-							<span
-								className="text-sm"
-								style={{ color: 'var(--secondary-text)' }}
-							>
-								Progress
-							</span>
-							<span
-								className="text-sm font-semibold"
-								style={{ color: 'var(--text)' }}
-							>
-								{annotatedCount} / {totalAnnotations}
-							</span>
-						</div>
-						<Progress
-							percent={progress}
-							size="small"
-							strokeColor={{
-								'0%': '#f97316',
-								'30%': '#2ae2a5ff',
-								'80%': '#259a75ff',
-								'100%': '#045f45ff',
+				{/* Dataset Type Icon - Below top row */}
+				<div className="flex justify-left mb-3">
+					<div
+						className="w-14 h-14 rounded-xl shadow-md flex items-center justify-center"
+						style={{
+							background: 'var(--surface)',
+							border: '1px solid var(--border)',
+						}}
+					>
+						<TypeIcon
+							className="h-7 w-7 transition-transform duration-500 ease-out"
+							style={{
+								color:
+									gradientTheme.accent ||
+									'var(--accent-text)',
 							}}
-							trailColor="rgba(255, 255, 255, 0.1)"
-							format={(percent) => (
-								<span className="text-emerald-300 text-xs">
-									{percent}%
-								</span>
-							)}
+							aria-hidden="true"
 						/>
 					</div>
-				)}
+				</div>
+
+				{/* Data Type Tag - Below icon */}
+				<div className="flex justify-left">
+					<span
+						className="px-2.5 py-1 text-xs font-medium rounded-full shadow-sm"
+						style={{
+							background: 'var(--tag-gradient)',
+							border: '1px solid var(--border)',
+							color: 'var(--text)',
+						}}
+					>
+						{dataType.replace(/_/g, ' ')}
+					</span>
+				</div>
 			</div>
 
-			{/* Footer Info */}
-			<div
-				className="mt-4 pt-4"
-				style={{ borderTop: '1px solid var(--divider)' }}
-			>
-				<div className="flex flex-wrap gap-x-8 gap-y-2 text-xs">
-					<div>
+			<div className="flex-1 px-5 py-4 flex flex-col">
+				{/* Title & Description */}
+				<div className="flex-1">
+					<h2
+						className="text-lg font-bold mb-2 truncate leading-tight"
+						style={{ color: 'var(--text)' }}
+					>
+						{dataset.title || 'Untitled Dataset'}
+					</h2>
+					<p
+						className="text-sm leading-relaxed font-normal"
+						style={{
+							color: 'var(--secondary-text)',
+							display: '-webkit-box',
+							WebkitLineClamp: 2,
+							WebkitBoxOrient: 'vertical',
+							overflow: 'hidden',
+							lineHeight: '1.4',
+						}}
+					>
+						{dataset.description || 'No description available'}
+					</p>
+				</div>
+
+				<div
+					style={{
+						width: '100%',
+						height: '1px',
+						background:
+							'linear-gradient(90deg, transparent 0%, var(--divider) 20%, var(--divider) 80%, transparent 100%)',
+						marginBottom: 12,
+					}}
+				/>
+
+				<div className="grid grid-cols-3 gap-4 text-sm mb-3">
+					<div className="flex flex-col">
 						<span
-							className="block"
-							style={{ color: 'var(--secondary-text)' }}
+							className="font-medium"
+							style={{
+								color: 'var(--secondary-text)',
+								fontSize: '14px',
+							}}
 						>
-							Created at
+							Created
 						</span>
 						<span
-							className="block mt-0.5 font-semibold whitespace-nowrap"
-							style={{ color: 'var(--text)' }}
+							className="font-semibold truncate mt-0.5"
+							style={{ color: 'var(--text)', fontSize: '14px' }}
 						>
 							{createdAtDisplay}
 						</span>
 					</div>
-					<div>
+					<div className="flex flex-col">
 						<span
-							className="block"
-							style={{ color: 'var(--secondary-text)' }}
+							className="font-medium"
+							style={{
+								color: 'var(--secondary-text)',
+								fontSize: '14px',
+							}}
 						>
-							Total files:
+							Files
 						</span>
 						<span
-							className="block mt-0.5 font-semibold whitespace-nowrap"
-							style={{ color: 'var(--text)' }}
+							className="font-semibold truncate mt-0.5"
+							style={{ color: 'var(--text)', fontSize: '14px' }}
 						>
-							{totalFiles}
+							{totalFiles.toLocaleString()}
 						</span>
 					</div>
 					<div>
@@ -436,6 +452,54 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 						</span>
 					</div>
 				</div>
+
+				{totalAnnotations > 0 && (
+					<div className="mt-2">
+						<div className="flex justify-between items-center mb-2">
+							<span
+								className="font-medium"
+								style={{
+									color: 'var(--secondary-text)',
+									fontSize: '14px',
+								}}
+							>
+								Progress
+							</span>
+							<span
+								className="font-bold"
+								style={{
+									color: 'var(--text)',
+									fontSize: '14px',
+								}}
+							>
+								{annotatedCount.toLocaleString()} /{' '}
+								{totalAnnotations.toLocaleString()}
+							</span>
+						</div>
+						<Progress
+							percent={progress}
+							size="small"
+							strokeColor={
+								isCompleted ? '#10b981' : 'var(--accent-text)'
+							}
+							trailColor="var(--divider)"
+							strokeWidth={6}
+							format={(percent) => (
+								<span
+									className="font-semibold"
+									style={{
+										color: isCompleted
+											? '#10b981'
+											: 'var(--accent-text)',
+										fontSize: '14px',
+									}}
+								>
+									{percent}%
+								</span>
+							)}
+						/>
+					</div>
+				)}
 			</div>
 		</div>
 	)
