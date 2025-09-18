@@ -1,4 +1,3 @@
-import useTrainingStore from 'src/stores/trainingStore'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
 import {
@@ -46,6 +45,7 @@ import {
 } from 'recharts'
 import { PATHS } from 'src/constants/paths'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import { getExperimentById } from 'src/api/experiment'
 const { Step } = Steps
 // import { calcGeneratorDuration } from 'framer-motion'
 
@@ -399,6 +399,7 @@ const Training = () => {
     const searchParams = new URLSearchParams(location.search)
     const experimentName = searchParams.get('experimentName')
     const experimentId = searchParams.get('experimentId')
+    const [trainingTask, setTrainingTask] = useState({})
     const [trainingInfo, setTrainingInfo] = useState({
         latestEpoch: 0,
         accuracy: 0,
@@ -419,9 +420,6 @@ const Training = () => {
         setIsModalVisible(false)
     }
 
-    const { trainingTasks, startTrainingTask } = useTrainingStore()
-    const trainingTask = trainingTasks[experimentId]
-    console.log("Training Task:", trainingTask)
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
@@ -429,42 +427,60 @@ const Training = () => {
         )
     }
 
-    useEffect(() => {
-        if (!trainingTask) {
-            startTrainingTask(experimentId)
-            console.log(`starting training for ${experimentId}`)
-        } else {
-            console.log(`Already trained or done for ${experimentId}`)
-        }
-    }, [experimentId])
+    // useEffect(() => {
+    //     if (trainingTask) {
+    //         if (trainingTask.status === 'SETTING_UP') {
+    //             setCurrentStep(0)
+    //             setIsModalVisible(true)
+    //         }
+    //         else if (trainingTask.status === 'DOWNLOADING_DATA') {
+    //             setCurrentStep(1)
+    //             setIsModalVisible(true)
+    //         }
+    //         else {
+    //             setCurrentStep(null)
+    //             setIsModalVisible(false)
+    //             console.log("Current Training stats:", trainingTask)
+    //             setTrainProgress(trainingTask.progress)
+    //             setStatus(trainingTask.status)
+    //             setTrainingInfo((prev) => ({
+    //                 latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
+    //                 accuracy: trainingTask.trainingInfo.accuracy || 0
+    //             }))
+    //             setValMetric((prev) => trainingTask.valMetric)
+    //             setElapsedTime(prev => trainingTask.elapsed)
+    //             setMaxTrainingTime(prev => trainingTask.expectedTrainingTime / 60)
+    //             setChartData(prev => trainingTask.accuracyTrend)
+    //         }
+    //     }
+    // }, [trainingTask]);
 
     useEffect(() => {
-        if (trainingTask) {
-            if (trainingTask.status === 'SETTING_UP') {
-                setCurrentStep(0)
-                setIsModalVisible(true)
+        let timeoutId;
+
+        const fetchExperiment = async () => {
+            if (!experimentId) return;
+
+            try {
+                const response = await getExperimentById(experimentId);
+                setStatus(response.data.status)
+                console.log(response.data.status)
+
+                // Schedule next poll in 5 seconds
+                timeoutId = setTimeout(fetchExperiment, 10000);
+            } catch (err) {
+                console.error("Failed to fetch experiment:", err);
+                // Retry after 5 seconds even if it failed
+                timeoutId = setTimeout(fetchExperiment, 10000);
             }
-            else if (trainingTask.status === 'DOWNLOADING_DATA') {
-                setCurrentStep(1)
-                setIsModalVisible(true)
-            }
-            else {
-                setCurrentStep(null)
-                setIsModalVisible(false)
-                console.log("Current Training stats:", trainingTask)
-                setTrainProgress(trainingTask.progress)
-                setStatus(trainingTask.status)
-                setTrainingInfo((prev) => ({
-                    latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
-                    accuracy: trainingTask.trainingInfo.accuracy || 0
-                }))
-                setValMetric((prev) => trainingTask.valMetric)
-                setElapsedTime(prev => trainingTask.elapsed)
-                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime / 60)
-                setChartData(prev => trainingTask.accuracyTrend)
-            }
-        }
-    }, [trainingTask]);
+        };
+
+        fetchExperiment();
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [experimentId]);
 
     // Create chart data with time limit reference line
     const enhancedChartData = React.useMemo(() => {
