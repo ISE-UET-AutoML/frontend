@@ -1,5 +1,5 @@
 import React from 'react'
-import { CubeTransparentIcon, StarIcon, TrashIcon, DocumentTextIcon, PhotoIcon, TableCellsIcon, PuzzlePieceIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline'
+import { CubeTransparentIcon, StarIcon, TrashIcon, DocumentTextIcon, PhotoIcon, TableCellsIcon, PuzzlePieceIcon, ArrowTrendingUpIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
@@ -108,8 +108,27 @@ export default function ProjectCard({ project, getProjects }) {
 					}} />
 				</div>
 				<div className="flex items-center justify-start mt-2">
-					<span style={{marginRight: '35%'}} className="text-xs text-gray-400"><span>Trained:  </span> <span className="font-bold" style={{color: 'white'}}>{project?.done_experiments || 0}</span></span>
-					<span className="text-xs text-gray-400"><span>Training:  </span> <span className="font-bold" style={{color: 'white'}}>{(project?.training_experiments || 0) + (project?.setting_experiments || 0)}</span></span>
+					<span style={{ marginRight: '35%' }} className="text-xs text-gray-400">
+                        <span>Trained: </span>
+                        <span className="font-bold" style={{ color: 'white' }}>
+                            {project?.done_experiments === null ? (
+                            <ArrowPathIcon className="w-3 h-3 animate-spin inline-block" />
+                            ) : (
+                            project.done_experiments
+                            )}
+                        </span>
+                    </span>
+
+                    <span className="text-xs text-gray-400">
+                        <span>Training: </span>
+                        <span className="font-bold" style={{ color: 'white' }}>
+                            {project?.training_experiments === null || project?.setting_experiments === null ? (
+                            <ArrowPathIcon className="w-3 h-3 animate-spin inline-block" />
+                            ) : (
+                            (project.training_experiments || 0) + (project.setting_experiments || 0)
+                            )}
+                        </span>
+                    </span>
 				</div>
 			</div>
 		</div>

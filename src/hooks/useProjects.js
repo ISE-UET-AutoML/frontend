@@ -96,40 +96,48 @@ export const useProjects = () => {
         const response = await instance.get(API_URL.all_projects)
         let proj = response.data.owned
 
-        // Lấy experiments cho từng project và đếm status
-        const projectsWithExp = await Promise.all(
-            proj.map(async (project) => {
-                try {
-                    const experiments_res = await getAllExperiments(project.id)
-                    const experiments = experiments_res.data
-                    const done_experiments = experiments.filter(
-                        (exp) => exp.status === 'DONE'
-                    ).length
-                    const training_experiments = experiments.filter(
-                        (exp) => exp.status === 'TRAINING'
-                    ).length
-                    const setting_experiments = experiments.filter(
-                        (exp) => exp.status === 'SETTING_UP'
-                    ).length
-                    return {
-                        ...project,
-                        done_experiments,
-                        training_experiments,
-                        setting_experiments,
-                    }
-                } catch (err) {
-                    return {
-                        ...project,
-                        done_experiments: 0,
-                        training_experiments: 0,
-                        setting_experiments: 0,
-                    }
-                }
-            })
+        setAllProjects(
+            proj.map((project) => ({
+            ...project,
+            done_experiments: null,
+            training_experiments: null,
+            setting_experiments: null,
+            }))
         )
 
-        setAllProjects(projectsWithExp)
-        return projectsWithExp
+        proj.forEach(async (project) => {
+            try {
+            const experiments_res = await getAllExperiments(project.id)
+            const experiments = experiments_res.data
+
+            const done_experiments = experiments.filter(
+                (exp) => exp.status === 'DONE'
+            ).length
+            const training_experiments = experiments.filter(
+                (exp) => exp.status === 'TRAINING'
+            ).length
+            const setting_experiments = experiments.filter(
+                (exp) => exp.status === 'SETTING_UP'
+            ).length
+
+            setAllProjects((prev) =>
+                prev.map((p) =>
+                p.id === project.id
+                    ? { ...p, done_experiments, training_experiments, setting_experiments }
+                    : p
+                )
+            )
+            } catch (err) {
+                return {
+                    ...project,
+                    done_experiments: 0,
+                    training_experiments: 0,
+                    setting_experiments: 0,
+                }
+            }
+        })
+
+        return allProjects
     }
 
     const handleCreateProject = async (event) => {
