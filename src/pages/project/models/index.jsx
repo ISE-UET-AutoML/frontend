@@ -4,6 +4,7 @@ import { getModels } from 'src/api/model'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from 'src/components/ui/card'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import { useTheme } from 'src/theme/ThemeProvider'
 
 // Simple SVG icons
 const ModelIcon = ({ className, ...props }) => (
@@ -62,6 +63,7 @@ const EmptyIcon = ({ className, ...props }) => (
 
 export default function ProjectModels() {
     const { id: projectId } = useParams()
+    const { theme } = useTheme()
     const [models, setModels] = useState([])
 
     const getListModels = async () => {
@@ -75,20 +77,20 @@ export default function ProjectModels() {
     }, [])
 
     return (
-        <div className="relative min-h-screen bg-[#01000A]">
-            <BackgroundShapes />
+        <div className="relative min-h-screen" style={{ background: 'var(--surface)' }}>
+            {theme === 'dark' && <BackgroundShapes />}
             <div className="relative z-10 p-6">
                 {/* Header Section */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl">
-                            <ModelIcon className="h-6 w-6 text-white" />
+                        <div className="p-2 rounded-xl" style={{ background: 'var(--accent-gradient)' }}>
+                            <ModelIcon className="h-6 w-6" style={{ color: '#ffffff' }} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-white">
+                            <h1 className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
                                 Models
                             </h1>
-                            <p className="text-gray-400 mt-1">
+                            <p className="mt-1" style={{ color: 'var(--secondary-text)' }}>
                                 {models.length} Models
                             </p>
                         </div>
@@ -103,13 +105,13 @@ export default function ProjectModels() {
                         ))}
                     </div>
                 ) : (
-                    <Card className="bg-black/40 backdrop-blur-sm border border-white/10 rounded-2xl shadow-2xl">
+                    <Card className="rounded-2xl shadow-2xl" style={{ background: 'var(--card-gradient)', border: '1px solid var(--border)' }}>
                         <CardContent className="flex flex-col items-center justify-center py-16">
-                            <div className="p-4 bg-gray-800/50 rounded-full mb-4">
-                                <EmptyIcon className="h-12 w-12 text-gray-400" />
+                            <div className="p-4 rounded-full mb-4" style={{ background: 'var(--hover-bg)' }}>
+                                <EmptyIcon className="h-12 w-12" style={{ color: 'var(--secondary-text)' }} />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-2">No Models</h3>
-                            <p className="text-gray-400 text-center max-w-md">
+                            <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text)' }}>No Models</h3>
+                            <p className="text-center max-w-md" style={{ color: 'var(--secondary-text)' }}>
                                 You haven't created any models yet. Start by training a model to create your first model.
                             </p>
                         </CardContent>

@@ -140,210 +140,166 @@ export default function CreateLabelProjectForm({
     return (
         <>
             <style>{`
-                .dark-form .ant-form-item-label > label {
-                    color: white !important;
+                .theme-form .ant-form-item-label > label {
+                    color: var(--form-label-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                 }
                 
-                .dark-form .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-input::placeholder {
-                    color: rgba(255, 255, 255, 0.5) !important;
+                .theme-form .ant-input::placeholder {
+                    color: var(--placeholder-color) !important;
                 }
                 
-                .dark-form .ant-input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-form .ant-input:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                .dark-form .ant-input:focus {
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
+                .theme-form .ant-input:focus {
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
-                .dark-form .ant-input:disabled {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-form .ant-input:disabled {
+                    background: var(--input-disabled-bg) !important;
+                    color: var(--input-disabled-color) !important;
                 }
                 
-                .dark-form .ant-select-selector {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-select-selector {
+                    background: var(--select-selector-bg) !important;
+                    border: 1px solid var(--select-selector-border) !important;
+                    color: var(--select-selector-color) !important;
                 }
                 
-                .dark-form .ant-select-selection-item {
-                    color: white !important;
+                .theme-form .ant-select-selection-item {
+                    color: var(--select-item-color) !important;
                 }
                 
-                .dark-form .ant-select-selection-placeholder {
-                    color: rgba(255, 255, 255, 0.5) !important;
+                .theme-form .ant-select-selection-placeholder {
+                    color: var(--select-placeholder-color) !important;
                 }
                 
-                .dark-form .ant-select-arrow {
-                    color: white !important;
+                .theme-form .ant-select-arrow {
+                    color: var(--select-arrow-color) !important;
                 }
                 
-                .dark-form .ant-btn-primary {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-btn-primary {
+                    background: var(--button-primary-bg) !important;
+                    border: 1px solid var(--button-primary-border) !important;
+                    color: var(--button-primary-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                 }
                 
-                .dark-form .ant-btn-primary:hover {
-                    background: linear-gradient(135deg, #2a2a3e 0%, #26314e 50%, #1f4460 100%) !important;
-                    border-color: #65FFA0 !important;
+                .theme-form .ant-btn-primary:hover {
+                    background: var(--button-primary-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
                     transform: translateY(-1px) !important;
                 }
                 
-                .dark-form .ant-btn-default {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-btn-default {
+                    background: var(--button-default-bg) !important;
+                    border: 1px solid var(--button-default-border) !important;
+                    color: var(--button-default-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-btn-default:hover {
-                    background: rgba(255, 255, 255, 0.2) !important;
-                    border-color: rgba(255, 255, 255, 0.4) !important;
-                    color: white !important;
+                .theme-form .ant-btn-default:hover {
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border-hover) !important;
+                    color: var(--text) !important;
                 }
                 
-                .dark-form .ant-btn-dashed {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border: 1px dashed rgba(255, 255, 255, 0.3) !important;
-                    color: white !important;
+                .theme-form .ant-btn-dashed {
+                    background: var(--button-dashed-bg) !important;
+                    border: 1px dashed var(--button-dashed-border) !important;
+                    color: var(--button-dashed-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-btn-dashed:hover {
-                    background: rgba(101, 255, 160, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    color: #65FFA0 !important;
+                .theme-form .ant-btn-dashed:hover {
+                    background: var(--hover-bg) !important;
+                    border-color: var(--modal-close-hover) !important;
+                    color: var(--modal-close-hover) !important;
                 }
                 
-                .dark-form .ant-tag {
-                    background: rgba(101, 255, 160, 0.2) !important;
-                    border: 1px solid #65FFA0 !important;
-                    color: white !important;
+                .theme-form .ant-tag {
+                    background: var(--tag-bg) !important;
+                    border: 1px solid var(--tag-border) !important;
+                    color: var(--tag-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-form .ant-tag .ant-tag-close-icon {
-                    color: white !important;
+                .theme-form .ant-tag .ant-tag-close-icon {
+                    color: var(--tag-close-icon-color) !important;
                 }
                 
-                .dark-form .ant-alert {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-alert {
+                    background: var(--alert-bg) !important;
+                    border: 1px solid var(--alert-border) !important;
+                    color: var(--alert-color) !important;
                 }
                 
-                .dark-form .ant-alert-warning {
-                    background: rgba(255, 193, 7, 0.1) !important;
-                    border-color: rgba(255, 193, 7, 0.3) !important;
+                .theme-form .ant-alert-warning {
+                    background: var(--alert-warning-bg) !important;
+                    border-color: var(--alert-warning-border) !important;
                 }
                 
-                .dark-form .ant-alert-info {
-                    background: rgba(24, 144, 255, 0.1) !important;
-                    border-color: rgba(24, 144, 255, 0.3) !important;
+                .theme-form .ant-alert-info {
+                    background: var(--alert-info-bg) !important;
+                    border-color: var(--alert-info-border) !important;
                 }
                 
-                .dark-form .ant-divider {
-                    border-color: rgba(255, 255, 255, 0.1) !important;
+                .theme-form .ant-divider {
+                    border-color: var(--divider-color) !important;
                 }
                 
-                /* Specific TextArea styling for CreateLabelProjectForm */
-                .dark-form .ant-input-textarea .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                /* TextArea styling */
+                .theme-form .ant-input-textarea .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                     box-shadow: none !important;
                 }
                 
-                .dark-form .ant-input-textarea .ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input-textarea .ant-input:focus {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
+                    color: var(--input-color) !important;
                 }
                 
-                .dark-form .ant-input-textarea .ant-input:hover {
-                    border-color: rgba(255, 255, 255, 0.4) !important;
+                .theme-form .ant-input-textarea .ant-input:hover {
+                    border-color: var(--input-hover-border) !important;
                 }
                 
-                /* Override the wrapper div background */
-                .dark-form .ant-input-textarea {
+                .theme-form .ant-input-textarea {
                     background: transparent !important;
                 }
                 
-                /* Target the count wrapper */
-                .dark-form .ant-input-textarea-show-count .ant-input {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input-textarea-show-count .ant-input {
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                 }
                 
-                .dark-form .ant-input-textarea-show-count .ant-input:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
+                .theme-form .ant-input-textarea-show-count .ant-input:focus {
+                    background: var(--input-bg) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
+                    color: var(--input-color) !important;
                 }
                 
-                /* Most aggressive targeting - override all possible Ant Design classes */
-                .dark-form .ant-input-textarea-show-count,
-                .dark-form .ant-input-textarea-show-count .ant-input,
-                .dark-form .ant-input-textarea-show-count textarea {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    border-radius: 12px !important;
-                }
-                
-                .dark-form .ant-input-textarea-show-count:focus,
-                .dark-form .ant-input-textarea-show-count .ant-input:focus,
-                .dark-form .ant-input-textarea-show-count textarea:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
-                }
-                
-                /* Remove any default box-shadow that might create rectangular overlay */
-                .dark-form .ant-input-textarea-show-count .ant-input:focus,
-                .dark-form .ant-input-textarea .ant-input:focus,
-                .dark-form textarea:focus {
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                }
-                
-                /* Force override for all textarea elements */
-                .dark-form textarea {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
-                    border-radius: 12px !important;
-                }
-                
-                .dark-form textarea:focus {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: #65FFA0 !important;
-                    box-shadow: 0 0 0 2px rgba(101, 255, 160, 0.2) !important;
-                    color: white !important;
-                }
-                
-                /* Count display styling */
-                .dark-form .ant-input-textarea-show-count::after {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-form .ant-input-textarea-show-count::after {
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
             `}</style>
@@ -352,18 +308,18 @@ export default function CreateLabelProjectForm({
                 layout="vertical"
                 initialValues={{ ...initialValues }}
                 onFinish={handleSubmit}
-                className="dark-form"
+                className="theme-form"
             >
                 <Form.Item 
                     name="name" 
                     label="Project Name" 
                     rules={[{ required: true, message: 'Enter project name' }]}
                 >
-                    <Input 
-                        placeholder="Enter project name" 
-                        disabled 
-                        style={{ color: 'rgba(255, 255, 255, 0.7)' }}
-                    />
+                                    <Input 
+                                        placeholder="Enter project name" 
+                                        disabled 
+                                        style={{ color: 'var(--input-disabled-color)' }}
+                                    />
                 </Form.Item>
 
                 <Form.Item name="description" label="Description">
@@ -393,7 +349,7 @@ export default function CreateLabelProjectForm({
                         {datasetType && getAvailableTaskTypes().map(task => (
                             <Option key={task.key} value={task.key}>
                                 {task.displayName}
-                                <span style={{ fontSize: '0.8em', color: 'rgba(255, 255, 255, 0.6)', marginLeft: '8px' }}>
+                                <span style={{ fontSize: '0.8em', color: 'var(--secondary-text)', marginLeft: '8px' }}>
                                     ({task.description})
                                 </span>
                             </Option>
@@ -500,7 +456,7 @@ export default function CreateLabelProjectForm({
                                 <Option key={col.value} value={col.value} label={col.value}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <span>{col.value}</span>
-                                        <i style={{ fontSize: '0.8em', color: 'rgba(255, 255, 255, 0.6)' }}>
+                                        <i style={{ fontSize: '0.8em', color: 'var(--secondary-text)' }}>
                                             {`${col.uniqueClassCount} classes`}
                                         </i>
                                     </div>

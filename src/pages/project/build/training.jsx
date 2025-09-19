@@ -1,6 +1,6 @@
-import useTrainingStore from 'src/stores/trainingStore'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useOutletContext, useNavigate } from 'react-router-dom'
+import { useTheme } from 'src/theme/ThemeProvider'
 import {
     Card,
     Row,
@@ -16,13 +16,14 @@ import {
     Steps,
     Button,
     Tooltip,
-    Modal,
+    Modal
 } from 'antd'
 import {
     ExperimentOutlined,
     LineChartOutlined,
     CheckCircleOutlined,
     InfoCircleOutlined,
+    DatabaseOutlined,
     BarChartOutlined,
     DashboardOutlined,
     CalendarOutlined,
@@ -30,7 +31,7 @@ import {
     RadarChartOutlined,
     SettingOutlined,
     CloudDownloadOutlined,
-    LoadingOutlined,
+    LoadingOutlined
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import {
@@ -46,22 +47,20 @@ import {
 } from 'recharts'
 import { PATHS } from 'src/constants/paths'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
-const { Step } = Steps
+import { getExperimentById } from 'src/api/experiment'
+import { getExperimentConfig } from 'src/api/experiment_config'
+
 // import { calcGeneratorDuration } from 'framer-motion'
 
 const { Title, Text, Paragraph } = Typography
 
-const steps = [
-    {
-        title: 'Setting up virtual environment',
-        icon: <SettingOutlined />,
-    },
-    {
-        title: 'Downloading dataset on Cloud Storage',
-        icon: <CloudDownloadOutlined />,
-    },
-]
+const calculateElapsedTime = (startTimeValue) => {
+    if (!startTimeValue) return 0
 
+    const start = new Date(startTimeValue) // ✅ ensure it's a Date
+    const currentTime = new Date()
+    return ((currentTime - start) / (1000 * 60)).toFixed(2)
+}
 // Training Metric Card Component - replacement for AnimatedStatistic
 const TrainingMetricCard = ({
     title,
@@ -75,9 +74,9 @@ const TrainingMetricCard = ({
         <Card
             className="h-max border-0 bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
             style={{
-                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                background: 'var(--card-gradient)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: '1px solid var(--border)',
                 borderRadius: '12px',
                 fontFamily: 'Poppins, sans-serif'
             }}
@@ -158,15 +157,15 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
-                    dataKey="time"
+                    dataKey="step"
                     label={{
-                        value: 'Time (min)',
+                        value: 'Epoch (Step)',
                         position: 'insideBottomRight',
                         offset: -5,
                         style: { fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }
                     }}
                     tick={{ fontSize: 12, fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}
-                    domain={[0, maxTrainingTime ? maxTrainingTime : 'auto']}
+                    domain={[0, 'auto']}
                 />
                 <YAxis
                     label={{
@@ -175,7 +174,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         position: 'insideLeft',
                         style: { fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }
                     }}
-                    domain={['auto', 'auto']}   // auto-fit to your data
+                    domain={[0, 'auto']}   // auto-fit to your data
                     tick={{ fontSize: 12, fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}
                 />
                 <RechartsTooltip
@@ -183,12 +182,12 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         `${(value * 1).toFixed(2)}`,
                         valMetric,
                     ]}
-                    labelFormatter={(label) => `Time: ${label} min`}
+                    labelFormatter={(label) => `Epoch: ${label} step`}
                     contentStyle={{
                         backgroundColor: 'rgba(15, 23, 42, 0.95)',
                         borderRadius: '8px',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        border: '1px solid var(--border)',
                         color: '#e2e8f0',
                         fontFamily: 'Poppins, sans-serif'
                     }}
@@ -196,7 +195,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                 <Legend />
                 <Area
                     type="monotone"
-                    dataKey="accuracy"
+                    dataKey="score"
                     stroke="#60a5fa"
                     strokeWidth={3}
                     fillOpacity={1}
@@ -246,8 +245,8 @@ const TrainingInfoCard = ({
     return (
         <Card
             title={
-                <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                    <DashboardOutlined style={{ color: '#60a5fa' }} /> Training Information:{' '}
+                <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
+                    <DashboardOutlined style={{ color: '#60a5fa' }} /> Experiment Information:{' '}
                     <Tag
                         color="blue"
                         icon={<ExperimentOutlined />}
@@ -255,7 +254,8 @@ const TrainingInfoCard = ({
                             background: 'linear-gradient(135deg, #3b82f6, #22d3ee)',
                             border: 'none',
                             color: 'white',
-                            fontFamily: 'Poppins, sans-serif'
+                            fontFamily: 'Poppins, sans-serif',
+                            marginLeft: '10px'
                         }}
                     >
                         {experimentName}
@@ -264,9 +264,9 @@ const TrainingInfoCard = ({
             }
             className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
             style={{
-                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                background: 'var(--card-gradient)',
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                border: '1px solid var(--border)',
                 borderRadius: '12px',
                 fontFamily: 'Poppins, sans-serif'
             }}
@@ -329,7 +329,7 @@ const TrainingInfoCard = ({
                         fontFamily: 'Poppins, sans-serif'
                     }}
                 >
-                    Training Progress
+                    Experiment Progress
                 </Divider>
 
                 <Row gutter={[16, 16]}>
@@ -346,7 +346,7 @@ const TrainingInfoCard = ({
                                 format={(percent) =>
                                     status === 'DONE'
                                         ? 'Completed'
-                                        : `${percent.toFixed(1)}%`
+                                        : <span style={{ color: 'var(--text)' }}>{percent.toFixed(1)}%</span>
                                 }
                                 style={{
                                     fontFamily: 'Poppins, sans-serif'
@@ -363,7 +363,7 @@ const TrainingInfoCard = ({
                                     {status === 'DONE'
                                         ? `Training completed in ${elapsedTime} minutes`
                                         : timeProgress < 100
-                                            ? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(2)} minutes`
+                                            ? `Experimenting time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(2)} minutes`
                                             : 'Maximum training time reached'}
                                 </Text>
                                 {status === 'TRAINING' &&
@@ -393,6 +393,7 @@ const TrainingInfoCard = ({
 
 // Main Component
 const Training = () => {
+    const { theme } = useTheme()
     const { projectInfo, updateFields } = useOutletContext()
     const navigate = useNavigate()
     const location = useLocation()
@@ -405,23 +406,15 @@ const Training = () => {
     })
     const [valMetric, setValMetric] = useState("Accuracy")
     const [chartData, setChartData] = useState([])
-    const [startTime, setStartTime] = useState(null)
     const [elapsedTime, setElapsedTime] = useState(0)
     const [status, setStatus] = useState('PENDING')
     const [loading, setLoading] = useState(true)
     const [maxTrainingTime, setMaxTrainingTime] = useState(null)
     const metricExplain = projectInfo.metrics_explain
     const [trainProgress, setTrainProgress] = useState(0)
-    const [currentStep, setCurrentStep] = useState(null)
-    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [currentStep, setCurrentStep] = useState(0)
+    const [currentSettingUpStep, setCurrentSettingUpStep] = useState(0)
 
-    const handleModalCancel = () => {
-        setIsModalVisible(false)
-    }
-
-    const { trainingTasks, startTrainingTask } = useTrainingStore()
-    const trainingTask = trainingTasks[experimentId]
-    console.log("Training Task:", trainingTask)
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
@@ -429,42 +422,128 @@ const Training = () => {
         )
     }
 
-    useEffect(() => {
-        if (!trainingTask) {
-            startTrainingTask(experimentId)
-            console.log(`starting training for ${experimentId}`)
-        } else {
-            console.log(`Already trained or done for ${experimentId}`)
+    const getCurrentStep = (status) => {
+        switch (status) {
+            case "SELECTING_INSTANCE":
+                return 0;
+            case "SETTING_UP":
+                return 1;
+            case "DOWNLOADING_DATA":
+                return 2;
+            case "TRAINING":
+                return 3;
+            case "DONE":
+                return 4;
+            default:
+                return 0;
         }
-    }, [experimentId])
+    }
+
+    const settingUpProgress = [
+        {
+            title: <span style={{ color: "var(--text)" }}>Initialize Virtual Environment</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Set up a clean Python virtual environment to isolate project dependencies and prevent conflicts.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Updating Operating System</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Update system packages and apply the latest patches to ensure compatibility and security.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Installing Tools</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Install essential development tools such as compilers, package managers, and utilities.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Installing Dependencies</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Download and configure required libraries and frameworks from the requirements list.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Cleaning up conflicting packages</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Uninstall or adjust conflicting packages to ensure smooth execution of the environment.
+                </span>
+            ),
+        },
+    ];
 
     useEffect(() => {
-        if (trainingTask) {
-            if (trainingTask.status === 'SETTING_UP') {
-                setCurrentStep(0)
-                setIsModalVisible(true)
-            }
-            else if (trainingTask.status === 'DOWNLOADING_DATA') {
-                setCurrentStep(1)
-                setIsModalVisible(true)
-            }
-            else {
-                setCurrentStep(null)
-                setIsModalVisible(false)
-                console.log("Current Training stats:", trainingTask)
-                setTrainProgress(trainingTask.progress)
-                setStatus(trainingTask.status)
+        if (currentStep !== 1) return;
+        const stepCount = settingUpProgress.length;
+
+        const interval = setInterval(() => {
+            setCurrentSettingUpStep((prev) => {
+                if (prev < stepCount - 1) {
+                    return prev + 1;
+                }
+                clearInterval(interval);
+                return prev;
+            });
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [currentStep]);
+
+    useEffect(() => {
+        let timeoutId;
+
+        const fetchExperiment = async () => {
+            if (!experimentId) return;
+
+            try {
+                const response = await getExperimentById(experimentId);
+                const configResponse = await getExperimentConfig(experimentId);
+                const config = configResponse.data[0]
+                setStatus(response.data.status)
+                setCurrentStep(getCurrentStep(response.data.status))
+                setMaxTrainingTime(prev => response.data.expected_training_time / 60)
+                setChartData(config.metrics?.training_history ? config.metrics?.training_history : [])
+                const latestTrainingInfo = config.metrics?.training_history?.[config.metrics.training_history.length - 1]
                 setTrainingInfo((prev) => ({
-                    latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
-                    accuracy: trainingTask.trainingInfo.accuracy || 0
+                    latestEpoch: latestTrainingInfo?.step || 0,
+                    accuracy: latestTrainingInfo?.score || 0
                 }))
-                setValMetric((prev) => trainingTask.valMetric)
-                setElapsedTime(prev => trainingTask.elapsed)
-                setMaxTrainingTime(prev => trainingTask.expectedTrainingTime / 60)
-                setChartData(prev => trainingTask.accuracyTrend)
+                setValMetric(config.metrics?.val_metric ? config.metrics?.val_metric : 'Accuracy')
+                const elapsed = calculateElapsedTime(response.data.start_time)
+                const progress = response.data.expected_training_time
+                    ? Math.min((elapsed / (response.data.expected_training_time / 60)) * 100, 100)
+                    : 0;
+                setElapsedTime(calculateElapsedTime(response.data.start_time))
+                setTrainProgress(status === 'DONE' ? 100 : progress)
+                console.log("Status: ", response.data.status)
+
+                // Schedule next poll in 10 seconds
+                if (response.data.status !== "DONE") {
+                    timeoutId = setTimeout(fetchExperiment, 30000);
+                }
+            } catch (err) {
+                console.error("Failed to fetch experiment:", err);
+                // Retry after 10 seconds even if it failed
+                timeoutId = setTimeout(fetchExperiment, 30000);
             }
-        }
-    }, [trainingTask]);
+        };
+
+        fetchExperiment();
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [experimentId]);
 
     // Create chart data with time limit reference line
     const enhancedChartData = React.useMemo(() => {
@@ -481,47 +560,49 @@ const Training = () => {
         <>
             <style>{`
                 body, html {
-                    background-color: #01000A !important;
+                    background-color: var(--surface) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
             `}</style>
-            <div className="min-h-screen bg-[#01000A] relative">
-                <BackgroundShapes
-                    width="1280px"
-                    height="1200px"
-                    shapes={[
-                        {
-                            id: 'trainingBlue',
-                            shape: 'circle',
-                            size: '600px',
-                            gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
-                            opacity: 0.35,
-                            blur: '240px',
-                            position: { top: '120px', right: '-200px' },
-                            transform: 'none'
-                        },
-                        {
-                            id: 'trainingCyan',
-                            shape: 'rounded',
-                            size: '500px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 45%', 'transparent 80%'] },
-                            opacity: 0.25,
-                            blur: '200px',
-                            position: { top: '300px', left: '-180px' },
-                            transform: 'none'
-                        },
-                        {
-                            id: 'trainingWarm',
-                            shape: 'rounded',
-                            size: '450px',
-                            gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 55%', 'transparent 90%'] },
-                            opacity: 0.20,
-                            blur: '180px',
-                            position: { bottom: '100px', right: '20%' },
-                            transform: 'none'
-                        }
-                    ]}
-                />
+            <div className="min-h-screen relative" style={{ background: 'var(--surface)' }}>
+                {theme === 'dark' && (
+                    <BackgroundShapes
+                        width="1280px"
+                        height="1200px"
+                        shapes={[
+                            {
+                                id: 'trainingBlue',
+                                shape: 'circle',
+                                size: '600px',
+                                gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] },
+                                opacity: 0.35,
+                                blur: '240px',
+                                position: { top: '120px', right: '-200px' },
+                                transform: 'none'
+                            },
+                            {
+                                id: 'trainingCyan',
+                                shape: 'rounded',
+                                size: '500px',
+                                gradient: { type: 'radial', shape: 'circle', colors: ['#40FFFF 0%', '#40FFFF 45%', 'transparent 80%'] },
+                                opacity: 0.25,
+                                blur: '200px',
+                                position: { top: '300px', left: '-180px' },
+                                transform: 'none'
+                            },
+                            {
+                                id: 'trainingWarm',
+                                shape: 'rounded',
+                                size: '450px',
+                                gradient: { type: 'radial', shape: 'circle', colors: ['#FFAF40 0%', '#FFAF40 55%', 'transparent 90%'] },
+                                opacity: 0.20,
+                                blur: '180px',
+                                position: { bottom: '100px', right: '20%' },
+                                transform: 'none'
+                            }
+                        ]}
+                    />
+                )}
                 <div className="relative z-10 p-6">
                     <animated.div
                         style={useSpring({
@@ -535,6 +616,77 @@ const Training = () => {
                             size="large"
                             style={{ width: '100%' }}
                         >
+                            <Steps
+                                current={currentStep}
+                                items={[
+                                    {
+                                        title: <span style={{ color: "var(--text)" }}>Selecting Instance</span>,
+                                        icon: currentStep !== 0 ? <DatabaseOutlined /> : <LoadingOutlined />,
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Selecting suitable machine for you
+                                            </span>
+                                        )
+                                    },
+                                    {
+                                        title: <span style={{ color: "var(--text)" }}>Downloading Dependencies</span>,
+                                        icon: currentStep !== 1 ? <SettingOutlined /> : <LoadingOutlined />,
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Setting up your machine
+                                            </span>
+                                        )
+                                    },
+                                    {
+                                        title: <span style={{ color: "var(--text)" }}>Downloading Data</span>,
+                                        icon: currentStep !== 2 ? <CloudDownloadOutlined /> : <LoadingOutlined />,
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Fetching data from cloud storage
+                                            </span>
+                                        )
+                                    },
+                                    {
+                                        title: <span style={{ color: "var(--text)" }}>Training</span>,
+                                        icon: currentStep !== 3 ? <LineChartOutlined /> : <LoadingOutlined />,
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Preparing your model
+                                            </span>
+                                        )
+                                    },
+                                    {
+                                        title: <span style={{ color: "var(--text)" }}>Done</span>,
+                                        icon: <CheckCircleOutlined />,
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Finished training your model
+                                            </span>
+                                        )
+                                    }
+                                ]}
+                            />
+
+                            <Alert
+                                showIcon
+                                description={
+                                    <div>
+                                        <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
+                                            <Text strong style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                                This experiment may take a while. You can safely leave the page at any time, and we will automatically create your model once it is finished.
+                                            </Text>
+                                        </Paragraph>
+                                    </div>
+                                }
+                                type="info"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                }}
+                            />
+
                             <TrainingInfoCard
                                 valMetric={valMetric}
                                 experimentName={experimentName}
@@ -546,18 +698,44 @@ const Training = () => {
                                 onViewResults={handleViewResults}
                                 trainProgress={trainProgress}
                             />
-
-                            <Card
+                            {currentStep === 1 && <Card
                                 title={
-                                    <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                                        <LineChartOutlined style={{ color: '#60a5fa' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
+                                    <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
+                                        <SettingOutlined style={{ color: 'var(--accent-text)' }} /> {'Setting Up Progress'}
                                     </Title>
                                 }
                                 className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                                 style={{
-                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                    background: 'var(--card-gradient)',
                                     backdropFilter: 'blur(10px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
+                            >
+                                <Steps
+                                    progressDot={(dot, { status, index }) => {
+                                        if (index === currentSettingUpStep) {
+                                            return <Spin size="small" />;
+                                        }
+                                        return dot;
+                                    }}
+                                    current={currentSettingUpStep}
+                                    direction="vertical"
+                                    items={settingUpProgress}
+                                />
+                            </Card>}
+                            {currentStep >= 3 && <Card
+                                title={
+                                    <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
+                                        <LineChartOutlined style={{ color: 'var(--accent-text)' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
+                                    </Title>
+                                }
+                                className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                                style={{
+                                    background: 'var(--card-gradient)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid var(--border)',
                                     borderRadius: '12px',
                                     fontFamily: 'Poppins, sans-serif'
                                 }}
@@ -584,42 +762,19 @@ const Training = () => {
                                     loading={loading && chartData?.length === 0}
                                     maxTrainingTime={maxTrainingTime}
                                 />
-                                <div className="mt-4">
-                                    <Alert
-                                        type={'info'}
-                                        message={
-                                            <span style={{ color: 'white' }}>
-                                                Status
-                                            </span>
-                                        }
-                                        description={
-                                            <span style={{ color: 'white' }}>
-                                                {trainingTask.status}
-                                            </span>
-                                        }
-                                        showIcon
-                                        style={{
-                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
-                                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                                            borderRadius: '8px',
-                                            border: '1px solid rgba(59, 130, 246, 0.6)',
-                                            fontFamily: 'Poppins, sans-serif',
-                                        }}
-                                    />
-                                </div>
                                 {maxTrainingTime && status === 'TRAINING' && (
                                     <div className="mt-4">
                                         <Alert
                                             type={elapsedTime >= maxTrainingTime ? 'warning' : 'info'}
                                             message={
-                                                <span style={{ color: 'white' }}>
+                                                <span style={{ color: 'var(--text)' }}>
                                                     {elapsedTime >= maxTrainingTime
                                                         ? 'Training Time Limit Reached'
                                                         : 'Training Time Limit'}
                                                 </span>
                                             }
                                             description={
-                                                <span style={{ color: 'white' }}>
+                                                <span style={{ color: 'var(--text)' }}>
                                                     {elapsedTime >= maxTrainingTime
                                                         ? 'The training has reached its maximum allocated time. It may automatically stop soon.'
                                                         : `This experiment is configured to run for maximum ${maxTrainingTime.toFixed(2)} minutes.`}
@@ -642,15 +797,15 @@ const Training = () => {
                                         />
                                     </div>
                                 )}
-                            </Card>
+                            </Card>}
 
                             <Alert
                                 description={
                                     <div>
                                         <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
                                             <RadarChartOutlined className="mr-2" style={{ color: '#60a5fa' }} />
-                                            <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
-                                            <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                            <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
+                                            <Text style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                                 {metricExplain}
                                             </Text>
                                         </Paragraph>
@@ -659,10 +814,10 @@ const Training = () => {
                                             <Paragraph style={{ margin: '12px 0 0 0', fontFamily: 'Poppins, sans-serif' }}>
                                                 <Tooltip title="Time constraints can affect model performance">
                                                     <HourglassOutlined className="mr-2" style={{ color: '#f59e0b' }} />
-                                                    <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                                    <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                                         Training Time Limit:
                                                     </Text>{' '}
-                                                    <Text style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                                    <Text style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                                         This experiment has a maximum
                                                         training time of {maxTrainingTime.toFixed(2)}{' '}
                                                         minutes. If the training doesn't

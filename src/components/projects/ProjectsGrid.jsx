@@ -16,14 +16,19 @@ const ProjectsGrid = ({ projects, getProjects, onCreateProject }) => {
                 }}
                 description={
                     <Space direction="vertical" align="center">
-                        <Text strong className="text-white font-poppins text-h2" style={{ color: 'white' }}>No Projects Yet</Text>
-                        <Text className="text-white font-poppins text-body" style={{ color: 'white' }}>
+                        <Text strong className="font-poppins text-h2" style={{ color: 'var(--text)' }}>No Projects Yet</Text>
+                        <Text className="font-poppins text-body" style={{ color: 'var(--secondary-text)' }}>
                             Start by creating your first AI project
                         </Text>
                         <Button
                             type="primary"
                             onClick={onCreateProject}
-                            className="font-poppins bg-blue-600 hover:bg-blue-700 border-blue-600 hover:border-blue-700"
+                            className="font-poppins"
+                            style={{
+                                background: 'var(--button-gradient)',
+                                border: '1px solid var(--border)',
+                                color: '#ffffff'
+                            }}
                         >
                             Create Project
                         </Button>

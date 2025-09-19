@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from 'zustand/middleware';
 import { getTrainingProgress, getTrainingMetrics, createModel, getUnfinishedExperiment } from "src/api/mlService";
 
 let hasRestored = false;

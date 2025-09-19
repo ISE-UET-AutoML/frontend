@@ -68,35 +68,35 @@ const CustomSelect = React.forwardRef(({
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative custom-select" ref={dropdownRef}>
       <div
         ref={selectRef}
         className={cn(
-          "flex h-12 w-full items-center justify-between rounded-xl border border-gray-700 bg-black/20 px-4 py-3 text-sm text-white cursor-pointer transition-all duration-200 hover:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+          "custom-select-trigger flex h-12 w-full items-center justify-between rounded-xl border px-4 py-3 text-sm cursor-pointer transition-all duration-200 focus:outline-none",
           className
         )}
         onClick={() => setIsOpen(!isOpen)}
         {...props}
       >
-        <span className={selectedValue !== null && selectedValue !== undefined ? "text-white" : "text-gray-400"}>
+        <span className={cn("custom-select-text", (selectedValue === null || selectedValue === undefined) && "custom-select-placeholder") }>
           {getDisplayText()}
         </span>
         <ChevronDownIcon 
           className={cn(
-            "h-4 w-4 text-gray-400 transition-transform duration-200",
+            "custom-select-icon h-4 w-4 transition-transform duration-200",
             isOpen && "rotate-180"
           )} 
         />
       </div>
       
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-black/90 border border-gray-700 rounded-xl shadow-2xl backdrop-blur-sm max-h-60 overflow-y-auto">
+        <div className="custom-select-dropdown absolute z-50 w-full mt-1 border rounded-xl shadow-2xl max-h-60 overflow-y-auto">
           {React.Children.map(children, (child) => (
             <div
               key={child.props.value}
               className={cn(
-                "px-4 py-3 text-sm text-white cursor-pointer hover:bg-white/10 transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl",
-                selectedValue === child.props.value && "bg-blue-500/20 text-blue-300"
+                "custom-select-item px-4 py-3 text-sm cursor-pointer transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl",
+                selectedValue === child.props.value && "custom-select-item--selected"
               )}
               onClick={() => handleSelect(child.props.value)}
             >

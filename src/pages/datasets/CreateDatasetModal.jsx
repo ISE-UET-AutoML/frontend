@@ -171,80 +171,80 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
     return (
         <>
             <style>{`
-                .dark-modal .ant-modal-content {
-                    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                .theme-modal .ant-modal-content {
+                    background: var(--modal-bg) !important;
+                    border: 1px solid var(--modal-border) !important;
                     border-radius: 16px !important;
                 }
                 
-                .dark-modal .ant-modal-header {
-                    background: transparent !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                .theme-modal .ant-modal-header {
+                    background: var(--modal-header-bg) !important;
+                    border-bottom: 1px solid var(--modal-header-border) !important;
                 }
                 
-                .dark-modal .ant-modal-title {
-                    color: white !important;
+                .theme-modal .ant-modal-title {
+                    color: var(--modal-title-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
-                .dark-modal .ant-modal-close {
-                    color: white !important;
+                .theme-modal .ant-modal-close {
+                    color: var(--modal-close-color) !important;
                 }
                 
-                .dark-modal .ant-modal-close:hover {
-                    color: #65FFA0 !important;
+                .theme-modal .ant-modal-close:hover {
+                    color: var(--modal-close-hover) !important;
                 }
                 
-                .dark-modal .ant-steps-item-title {
-                    color: white !important;
+                .theme-modal .ant-steps-item-title {
+                    color: var(--steps-title-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
-                .dark-modal .ant-steps-item-description {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                .theme-modal .ant-steps-item-description {
+                    color: var(--steps-description-color) !important;
                 }
                 
-                .dark-modal .ant-steps-item-icon {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border-color: rgba(255, 255, 255, 0.3) !important;
+                .theme-modal .ant-steps-item-icon {
+                    background: var(--steps-icon-bg) !important;
+                    border-color: var(--steps-icon-border) !important;
                 }
                 
-                .dark-modal .ant-steps-item-icon .ant-steps-icon {
-                    color: white !important;
+                .theme-modal .ant-steps-item-icon .ant-steps-icon {
+                    color: var(--steps-icon-color) !important;
                 }
                 
-                .dark-modal .ant-steps-item-process .ant-steps-item-icon {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-                    border-color: #65FFA0 !important;
+                .theme-modal .ant-steps-item-process .ant-steps-item-icon {
+                    background: var(--steps-process-icon-bg) !important;
+                    border-color: var(--steps-process-icon-border) !important;
                 }
                 
-                .dark-modal .ant-steps-item-finish .ant-steps-item-icon {
-                    background: #65FFA0 !important;
-                    border-color: #65FFA0 !important;
+                .theme-modal .ant-steps-item-finish .ant-steps-item-icon {
+                    background: var(--steps-finish-icon-bg) !important;
+                    border-color: var(--steps-finish-icon-border) !important;
                 }
                 
-                .dark-modal .ant-steps-item-finish .ant-steps-icon {
-                    color: #0F2027 !important;
+                .theme-modal .ant-steps-item-finish .ant-steps-icon {
+                    color: var(--steps-finish-icon-color) !important;
                 }
                 
                 /* Hide scrollbar but keep scrolling functionality */
-                .dark-modal .ant-modal-body {
+                .theme-modal .ant-modal-body {
                     scrollbar-width: none !important; /* Firefox */
                     -ms-overflow-style: none !important; /* IE and Edge */
                 }
                 
-                .dark-modal .ant-modal-body::-webkit-scrollbar {
+                .theme-modal .ant-modal-body::-webkit-scrollbar {
                     display: none !important; /* Chrome, Safari, Opera */
                 }
                 
                 /* Hide scrollbar for the entire modal content */
-                .dark-modal {
+                .theme-modal {
                     scrollbar-width: none !important; /* Firefox */
                     -ms-overflow-style: none !important; /* IE and Edge */
                 }
                 
-                .dark-modal::-webkit-scrollbar {
+                .theme-modal::-webkit-scrollbar {
                     display: none !important; /* Chrome, Safari, Opera */
                 }
             `}</style>
@@ -256,31 +256,31 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                 width={800}
                 destroyOnClose
                 centered
-                className="dark-modal"
+                className="theme-modal"
                 styles={{
                     content: {
-                        background: 'linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'var(--modal-bg)',
+                        border: '1px solid var(--modal-border)',
                         borderRadius: '16px',
                     },
                     header: {
-                        background: 'transparent',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: 'var(--modal-header-bg)',
+                        borderBottom: '1px solid var(--modal-header-border)',
                     },
                     title: {
-                        color: 'white',
+                        color: 'var(--modal-title-color)',
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 600,
                     },
                     close: {
-                        color: 'white',
+                        color: 'var(--modal-close-color)',
                     }
                 }}
             >
                 {visible && (isLoading ? (
                     <div style={{ textAlign: 'center', padding: '50px 0' }}>
                         <Spin size="large" />
-                        <p style={{ color: 'white', fontFamily: 'Poppins, sans-serif', marginTop: '16px' }}>
+                        <p style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif', marginTop: '16px' }}>
                             Processing dataset, please wait...
                         </p>
                     </div>
