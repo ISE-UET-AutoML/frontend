@@ -80,7 +80,11 @@ export default function DeployedModelView() {
         const formData = new FormData()
 
         Array.from(validFiles).forEach((file) => {
-            formData.append('images', file)
+            if (projectInfo.task_type === 'MULTILABEL_TABULAR_CLASSIFICATION') {
+                formData.append('file', file)
+            } else {
+                formData.append('images', file)
+            }
         })
         console.log('Fetch prediction start')
 
@@ -309,6 +313,8 @@ export default function DeployedModelView() {
                             if (object) {
                                 const PredictComponent =
                                     object.predictView
+
+                                console.log('PredictComponent', PredictComponent)
                                 return (
                                     <PredictComponent
                                         predictResult={predictResult}
