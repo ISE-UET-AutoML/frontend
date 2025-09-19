@@ -3,6 +3,7 @@ import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import MultilabelTabularClassificationPredict from '../../../components/Predict/MultilabelTabularClassificationPredict'
+import TabularClassificationPredict from 'src/components/Predict/TabularClassificationPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
@@ -38,7 +39,7 @@ const config = {
 		folder: UploadTypes.CSV_SINGLE,
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
-		predictView: TabularPredict,
+		predictView: TabularClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	TABULAR_REGRESSION: {
