@@ -1,49 +1,55 @@
 import {
-    BuildIcon,
-    SettingIcon,
-    ModelIcon,
-    DeployIcon,
-    TasksIcon,
-    InfoIcon
+	BuildIcon,
+	SettingIcon,
+	ModelIcon,
+	DeployIcon,
+	TasksIcon,
+	InfoIcon,
 } from 'src/components/icons'
 import clsx from 'clsx'
 import { PATHS } from 'src/constants/paths'
-import { NavLink } from 'react-router-dom' // ✅ use NavLink
+import { NavLink, useLocation } from 'react-router-dom' // ✅ use NavLink
+import { useEffect } from 'react'
 import { useTheme } from 'src/theme/ThemeProvider'
 
 const ProjectSidebar = ({ projectID, className }) => {
-    const { theme } = useTheme()
-    const navigation = [
-        {
-            name: 'Info',
-            href: PATHS.PROJECT_INFO(projectID),
-            icon: InfoIcon,
-        },
-        {
-            name: 'Build',
-            href: PATHS.PROJECT_BUILD(projectID),
-            icon: BuildIcon,
-        },
-        {
-            name: 'Experiment',
-            href: PATHS.PROJECT_EXPERIMENT(projectID),
-            icon: TasksIcon,
-        },
-        {
-            name: 'Model',
-            href: PATHS.PROJECT_MODEL(projectID),
-            icon: ModelIcon,
-        },
-        {
-            name: 'Deploy',
-            href: PATHS.PROJECT_DEPLOY(projectID),
-            icon: DeployIcon,
-        },
-    ]
+	const { theme } = useTheme()
+	const location = useLocation()
 
-    return (
-        <>
-            <style>{`
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'auto' })
+	}, [location.pathname])
+	const navigation = [
+		{
+			name: 'Info',
+			href: PATHS.PROJECT_INFO(projectID),
+			icon: InfoIcon,
+		},
+		{
+			name: 'Build',
+			href: PATHS.PROJECT_BUILD(projectID),
+			icon: BuildIcon,
+		},
+		{
+			name: 'Experiment',
+			href: PATHS.PROJECT_EXPERIMENT(projectID),
+			icon: TasksIcon,
+		},
+		{
+			name: 'Model',
+			href: PATHS.PROJECT_MODEL(projectID),
+			icon: ModelIcon,
+		},
+		{
+			name: 'Deploy',
+			href: PATHS.PROJECT_DEPLOY(projectID),
+			icon: DeployIcon,
+		},
+	]
+
+	return (
+		<>
+			<style>{`
                 .project-sidebar {
                     background: var(--card-gradient);
                     border-right: 1px solid var(--border);
@@ -145,59 +151,61 @@ const ProjectSidebar = ({ projectID, className }) => {
                 /* Custom scrollbar */
                 /* Remove custom scrollbar: sidebar is fixed and not scrollable */
              `}</style>
-            <div className={clsx('duration-300 project-sidebar', className)}>
-                <div className="h-full flex flex-grow flex-col">
-                    <div className="py-6 flex flex-grow flex-col justify-between">
-                        <nav className="flex flex-col gap-2 px-2 pb-4">
-                            {navigation.map((item) => (
-                                <NavLink
-                                    key={item.name}
-                                    to={item.href}
-                                    className={({ isActive }) =>
-                                        clsx(
-                                            'sidebar-nav-item',
-                                            isActive && 'active', // ✅ NavLink auto-applies
-                                            'group flex flex-col items-center justify-center text-sm font-medium'
-                                        )
-                                    }
-                                >
-                                    <item.icon
-                                        className={clsx(
-                                            'sidebar-icon',
-                                            'mx-auto flex-shrink-0 rounded-xl w-10 h-10',
-                                            'p-2'
-                                        )}
-                                    />
-                                    <span className="sidebar-text text-xs mt-1">
-                                        {item.name}
-                                    </span>
-                                </NavLink>
-                            ))}
-                        </nav>
-                        <NavLink
-                            to={PATHS.PROJECT_SETTINGS(projectID)}
-                            className={({ isActive }) =>
-                                clsx(
-                                    'sidebar-settings',
-                                    isActive && 'active', // ✅ gets same active class
-                                    'group flex flex-col items-center text-sm font-medium px-2 py-3 rounded-lg transition-all duration-300'
-                                )
-                            }
-                        >
-                            <SettingIcon
-                                className={clsx(
-                                    'sidebar-icon',
-                                    'flex-shrink-0 rounded-xl w-10 h-10',
-                                    'px-2 py-2 text-gray-400'
-                                )}
-                            />
-                            <span className="sidebar-text text-xs text-gray-400 mt-1">Settings</span>
-                        </NavLink>
-                    </div>
-                </div>
-            </div>
-        </>
-    )
+			<div className={clsx('duration-300 project-sidebar', className)}>
+				<div className="h-full flex flex-grow flex-col">
+					<div className="py-6 flex flex-grow flex-col justify-between">
+						<nav className="flex flex-col gap-2 px-2 pb-4">
+							{navigation.map((item) => (
+								<NavLink
+									key={item.name}
+									to={item.href}
+									className={({ isActive }) =>
+										clsx(
+											'sidebar-nav-item',
+											isActive && 'active', // ✅ NavLink auto-applies
+											'group flex flex-col items-center justify-center text-sm font-medium'
+										)
+									}
+								>
+									<item.icon
+										className={clsx(
+											'sidebar-icon',
+											'mx-auto flex-shrink-0 rounded-xl w-10 h-10',
+											'p-2'
+										)}
+									/>
+									<span className="sidebar-text text-xs mt-1">
+										{item.name}
+									</span>
+								</NavLink>
+							))}
+						</nav>
+						<NavLink
+							to={PATHS.PROJECT_SETTINGS(projectID)}
+							className={({ isActive }) =>
+								clsx(
+									'sidebar-settings',
+									isActive && 'active', // ✅ gets same active class
+									'group flex flex-col items-center text-sm font-medium px-2 py-3 rounded-lg transition-all duration-300'
+								)
+							}
+						>
+							<SettingIcon
+								className={clsx(
+									'sidebar-icon',
+									'flex-shrink-0 rounded-xl w-10 h-10',
+									'px-2 py-2 text-gray-400'
+								)}
+							/>
+							<span className="sidebar-text text-xs text-gray-400 mt-1">
+								Settings
+							</span>
+						</NavLink>
+					</div>
+				</div>
+			</div>
+		</>
+	)
 }
 
 export default ProjectSidebar
