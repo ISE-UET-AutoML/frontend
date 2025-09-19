@@ -54,16 +54,6 @@ import { getExperimentConfig } from 'src/api/experiment_config'
 
 const { Title, Text, Paragraph } = Typography
 
-const steps = [
-    {
-        title: 'Setting up virtual environment',
-        icon: <SettingOutlined />,
-    },
-    {
-        title: 'Downloading dataset on Cloud Storage',
-        icon: <CloudDownloadOutlined />,
-    },
-]
 const calculateElapsedTime = (startTimeValue) => {
     if (!startTimeValue) return 0
 
@@ -423,6 +413,7 @@ const Training = () => {
     const metricExplain = projectInfo.metrics_explain
     const [trainProgress, setTrainProgress] = useState(0)
     const [currentStep, setCurrentStep] = useState(0)
+    const [currentSettingUpStep, setCurrentSettingUpStep] = useState(0)
 
     // Handle view results button click
     const handleViewResults = () => {
@@ -447,6 +438,66 @@ const Training = () => {
                 return 0;
         }
     }
+
+    const settingUpProgress = [
+        {
+            title: <span style={{ color: "var(--text)" }}>Initialize Virtual Environment</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Set up a clean Python virtual environment to isolate project dependencies and prevent conflicts.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Updating Operating System</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Update system packages and apply the latest patches to ensure compatibility and security.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Installing Tools</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Install essential development tools such as compilers, package managers, and utilities.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Installing Dependencies</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Download and configure required libraries and frameworks from the requirements list.
+                </span>
+            ),
+        },
+        {
+            title: <span style={{ color: "var(--text)" }}>Cleaning up conflicting packages</span>,
+            description: (
+                <span style={{ color: "#94a3b8" }}>
+                    Uninstall or adjust conflicting packages to ensure smooth execution of the environment.
+                </span>
+            ),
+        },
+    ];
+
+    useEffect(() => {
+        if (currentStep !== 1) return;
+        const stepCount = settingUpProgress.length;
+
+        const interval = setInterval(() => {
+            setCurrentSettingUpStep((prev) => {
+                if (prev < stepCount - 1) {
+                    return prev + 1;
+                }
+                clearInterval(interval);
+                return prev;
+            });
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [currentStep]);
 
     useEffect(() => {
         let timeoutId;
@@ -647,7 +698,34 @@ const Training = () => {
                                 onViewResults={handleViewResults}
                                 trainProgress={trainProgress}
                             />
-                            <Card
+                            {currentStep === 1 && <Card
+                                title={
+                                    <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
+                                        <SettingOutlined style={{ color: 'var(--accent-text)' }} /> {'Setting Up Progress'}
+                                    </Title>
+                                }
+                                className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                                style={{
+                                    background: 'var(--card-gradient)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif'
+                                }}
+                            >
+                                <Steps
+                                    progressDot={(dot, { status, index }) => {
+                                        if (index === currentSettingUpStep) {
+                                            return <Spin size="small" />;
+                                        }
+                                        return dot;
+                                    }}
+                                    current={currentSettingUpStep}
+                                    direction="vertical"
+                                    items={settingUpProgress}
+                                />
+                            </Card>}
+                            {currentStep >= 3 && <Card
                                 title={
                                     <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                         <LineChartOutlined style={{ color: 'var(--accent-text)' }} /> {`${valMetric ? valMetric : "Accuracy"} Trend`}
@@ -719,7 +797,7 @@ const Training = () => {
                                         />
                                     </div>
                                 )}
-                            </Card>
+                            </Card>}
 
                             <Alert
                                 description={
