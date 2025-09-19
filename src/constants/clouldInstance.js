@@ -94,7 +94,7 @@ export const INSTANCE_SIZE_DETAILS = {
 		gpuRange: '1-2 GPUs',
 		memory: 'Basic memory allocation',
 		recommended: 'Testing and development',
-		color: '#91d5ff',
+		color: 'var(--accent-text)',
 		instanceDetails: GPU_LEVELS[0],
 	},
 	Medium: {
@@ -103,7 +103,7 @@ export const INSTANCE_SIZE_DETAILS = {
 		gpuRange: '2-4 GPUs',
 		memory: 'Increased memory capacity',
 		recommended: 'Regular training tasks',
-		color: '#b7eb8f',
+		color: 'var(--accent-text)',
 		instanceDetails: GPU_LEVELS[1],
 	},
 	Strong: {
@@ -112,7 +112,7 @@ export const INSTANCE_SIZE_DETAILS = {
 		gpuRange: '4-6 GPUs',
 		memory: 'High memory allocation',
 		recommended: 'Complex model training',
-		color: '#ffd666',
+		color: 'var(--accent-text)',
 		instanceDetails: GPU_LEVELS[2],
 	},
 	'Super Strong': {
@@ -121,7 +121,7 @@ export const INSTANCE_SIZE_DETAILS = {
 		gpuRange: '6-8 GPUs',
 		memory: 'Extended memory capacity',
 		recommended: 'Large-scale training',
-		color: '#ff9c6e',
+		color: 'var(--accent-text)',
 		instanceDetails: GPU_LEVELS[3],
 	},
 	Rocket: {
@@ -130,7 +130,7 @@ export const INSTANCE_SIZE_DETAILS = {
 		gpuRange: '8+ GPUs',
 		memory: 'Maximum memory allocation',
 		recommended: 'Production deployment',
-		color: '#ff7875',
+		color: 'var(--accent-text)',
 		instanceDetails: GPU_LEVELS[4],
 	},
 }
@@ -153,11 +153,11 @@ export const InstanceSizeCard = ({ size, details, selected, onClick }) => (
 		hoverable
 		className={`instance-size-card ${selected ? 'selected' : ''}`}
 		style={{
-			borderColor: selected ? '#5C8DFF' : 'rgba(255, 255, 255, 0.1)',
+			borderColor: selected ? 'var(--accent-text)' : 'var(--border)',
 			backgroundColor: selected
-				? 'rgba(92, 141, 255, 0.2)'
-				: 'rgba(0, 0, 0, 0.4)',
-			color: 'white',
+				? 'var(--active-bg)'
+				: 'var(--card-gradient)',
+			color: 'var(--text)',
 		}}
 		onClick={onClick}
 	>
@@ -167,26 +167,34 @@ export const InstanceSizeCard = ({ size, details, selected, onClick }) => (
 				alignItems: 'center',
 			}}
 		>
-			<Title level={5} className="mr-10" style={{ color: 'white' }}>
+			<Title level={5} className="mr-10" style={{ color: 'var(--text)' }}>
 				{details.title}
 			</Title>
 			{selected && (
 				<Collapse ghost>
-					<Panel header="Detail" key="1" style={{ color: 'white' }}>
+					<Panel
+						header="Detail"
+						key="1"
+						style={{ color: 'var(--text)' }}
+					>
 						<Space direction="vertical" size="small">
-							<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+							<Text style={{ color: 'var(--secondary-text)' }}>
 								Suitable for: {details.suitable}
 							</Text>
-							<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+							<Text style={{ color: 'var(--secondary-text)' }}>
 								GPU Range: {details.gpuRange}
 							</Text>
-							<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+							<Text style={{ color: 'var(--secondary-text)' }}>
 								Memory: {details.memory}
 							</Text>
 							<Badge
-								color="#5C8DFF"
+								color="var(--accent-text)"
 								text={
-									<span style={{ color: 'gray' }}>
+									<span
+										style={{
+											color: 'var(--secondary-text)',
+										}}
+									>
 										Recommended for: {details.recommended}
 									</span>
 								}
@@ -208,7 +216,7 @@ export const CostEstimator = ({ hours, gpuLevel }) => {
 			title={
 				<span
 					style={{
-						color: 'white',
+						color: 'var(--text)',
 						fontFamily: 'Poppins',
 						fontWeight: 600,
 					}}
@@ -218,32 +226,32 @@ export const CostEstimator = ({ hours, gpuLevel }) => {
 			}
 			className="dark-build-cost-estimator"
 			style={{
-				background: 'rgba(92, 141, 255, 0.1)',
-				border: '1px solid rgba(92, 141, 255, 0.3)',
+				background: 'var(--hover-bg)',
+				border: '1px solid var(--border)',
 				borderRadius: '16px',
 			}}
 		>
 			<Space direction="vertical" size="large" style={{ width: '100%' }}>
 				<Row justify="space-between">
 					<Col>
-						<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+						<Text style={{ color: 'var(--secondary-text)' }}>
 							Hourly Rate:
 						</Text>
 					</Col>
 					<Col>
-						<Text strong style={{ color: 'white' }}>
+						<Text strong style={{ color: 'var(--text)' }}>
 							${hourlyRate}/hour
 						</Text>
 					</Col>
 				</Row>
 				<Row justify="space-between">
 					<Col>
-						<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+						<Text style={{ color: 'var(--secondary-text)' }}>
 							Training Hours:
 						</Text>
 					</Col>
 					<Col>
-						<Text strong style={{ color: 'white' }}>
+						<Text strong style={{ color: 'var(--text)' }}>
 							{hours} hours
 						</Text>
 					</Col>
@@ -251,19 +259,19 @@ export const CostEstimator = ({ hours, gpuLevel }) => {
 				<Divider
 					style={{
 						margin: '12px 0',
-						borderColor: 'rgba(255, 255, 255, 0.2)',
+						borderColor: 'var(--divider-color)',
 					}}
 				/>
 				<Row justify="space-between">
 					<Col>
-						<Text style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+						<Text style={{ color: 'var(--secondary-text)' }}>
 							Estimated Total:
 						</Text>
 					</Col>
 					<Col>
 						<Text
 							style={{
-								color: '#5C8DFF',
+								color: 'var(--accent-text)',
 								fontWeight: 600,
 								fontSize: '18px',
 							}}
@@ -286,7 +294,7 @@ export const InstanceInfo = ({ formData }) => {
 				<Title
 					level={4}
 					style={{
-						color: 'white',
+						color: 'var(--text)',
 						fontFamily: 'Poppins',
 						fontWeight: 600,
 					}}
@@ -296,14 +304,14 @@ export const InstanceInfo = ({ formData }) => {
 			}
 			extra={
 				<SafetyCertificateOutlined
-					style={{ fontSize: '24px', color: '#5C8DFF' }}
+					style={{ fontSize: '24px', color: 'var(--accent-text)' }}
 				/>
 			}
 			className="dark-build-card"
 			style={{
-				background: 'rgba(0, 0, 0, 0.4)',
+				background: 'var(--card-gradient)',
 				backdropFilter: 'blur(20px)',
-				border: '1px solid rgba(255, 255, 255, 0.1)',
+				border: '1px solid var(--border)',
 				borderRadius: '20px',
 			}}
 		>
@@ -315,7 +323,7 @@ export const InstanceInfo = ({ formData }) => {
 							title={
 								<span
 									style={{
-										color: 'white',
+										color: 'var(--text)',
 										fontFamily: 'Poppins',
 										fontWeight: 600,
 									}}
@@ -324,38 +332,40 @@ export const InstanceInfo = ({ formData }) => {
 								</span>
 							}
 							style={{
-								background: 'rgba(92, 141, 255, 0.1)',
-								border: '1px solid rgba(92, 141, 255, 0.3)',
+								background: 'var(--hover-bg)',
+								border: '1px solid var(--border)',
 								borderRadius: '12px',
 							}}
 						>
 							<Space direction="vertical">
 								<Text
 									style={{
-										color: 'rgba(255, 255, 255, 0.8)',
+										color: 'var(--secondary-text)',
 									}}
 								>
 									<ThunderboltOutlined
-										style={{ color: '#5C8DFF' }}
+										style={{ color: 'var(--accent-text)' }}
 									/>{' '}
 									GPUs: {formData.gpuNumber}x{' '}
 									{formData.gpuName}
 								</Text>
 								<Text
 									style={{
-										color: 'rgba(255, 255, 255, 0.8)',
+										color: 'var(--secondary-text)',
 									}}
 								>
-									<HddOutlined style={{ color: '#5C8DFF' }} />{' '}
+									<HddOutlined
+										style={{ color: 'var(--accent-text)' }}
+									/>{' '}
 									Storage: {formData.disk} GB
 								</Text>
 								<Text
 									style={{
-										color: 'rgba(255, 255, 255, 0.8)',
+										color: 'var(--secondary-text)',
 									}}
 								>
 									<CloudServerOutlined
-										style={{ color: '#5C8DFF' }}
+										style={{ color: 'var(--accent-text)' }}
 									/>{' '}
 									Provider: {formData.service}
 								</Text>
@@ -368,7 +378,7 @@ export const InstanceInfo = ({ formData }) => {
 							title={
 								<span
 									style={{
-										color: 'white',
+										color: 'var(--text)',
 										fontFamily: 'Poppins',
 										fontWeight: 600,
 									}}
@@ -377,29 +387,29 @@ export const InstanceInfo = ({ formData }) => {
 								</span>
 							}
 							style={{
-								background: 'rgba(92, 141, 255, 0.1)',
-								border: '1px solid rgba(92, 141, 255, 0.3)',
+								background: 'var(--hover-bg)',
+								border: '1px solid var(--border)',
 								borderRadius: '12px',
 							}}
 						>
 							<Space direction="vertical">
 								<Text
 									style={{
-										color: 'rgba(255, 255, 255, 0.8)',
+										color: 'var(--secondary-text)',
 									}}
 								>
 									<ClockCircleOutlined
-										style={{ color: '#5C8DFF' }}
+										style={{ color: 'var(--accent-text)' }}
 									/>{' '}
 									Duration: {formData.trainingTime} hours
 								</Text>
 								<Text
 									style={{
-										color: 'rgba(255, 255, 255, 0.8)',
+										color: 'var(--secondary-text)',
 									}}
 								>
 									<DollarOutlined
-										style={{ color: '#5C8DFF' }}
+										style={{ color: 'var(--accent-text)' }}
 									/>{' '}
 									Cost: ${formData.cost}
 									/hour

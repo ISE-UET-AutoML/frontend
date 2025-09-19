@@ -304,8 +304,8 @@ const SelectInstance = () => {
 											<div
 												style={{
 													background:
-														'rgba(92, 141, 255, 0.2)',
-													border: '1px solid rgba(92, 141, 255, 0.3)',
+														'var(--hover-bg)',
+													border: '1px solid var(--border)',
 													borderRadius: '12px',
 													padding: '12px 16px',
 													minWidth: '125px',
@@ -314,7 +314,7 @@ const SelectInstance = () => {
 											>
 												<Text
 													style={{
-														color: 'white',
+														color: 'var(--text)',
 														fontSize: '16px',
 														fontWeight: '600',
 														display: 'flex',
@@ -494,8 +494,8 @@ const SelectInstance = () => {
 											<div
 												style={{
 													background:
-														'rgba(92, 141, 255, 0.2)',
-													border: '1px solid rgba(92, 141, 255, 0.3)',
+														'var(--hover-bg)',
+													border: '1px solid var(--border)',
 													borderRadius: '12px',
 													padding: '12px 16px',
 													minWidth: '125px',
@@ -504,7 +504,7 @@ const SelectInstance = () => {
 											>
 												<Text
 													style={{
-														color: 'white',
+														color: 'var(--text)',
 														fontSize: '16px',
 														fontWeight: '600',
 														display: 'flex',
@@ -627,8 +627,8 @@ const SelectInstance = () => {
 													<div
 														style={{
 															background:
-																'rgba(92, 141, 255, 0.2)',
-															border: '1px solid rgba(92, 141, 255, 0.3)',
+																'var(--hover-bg)',
+															border: '1px solid var(--border)',
 															borderRadius:
 																'12px',
 															padding:
@@ -639,7 +639,7 @@ const SelectInstance = () => {
 													>
 														<Text
 															style={{
-																color: 'white',
+																color: 'var(--text)',
 																fontSize:
 																	'16px',
 																fontWeight:
@@ -692,8 +692,8 @@ const SelectInstance = () => {
 													<div
 														style={{
 															background:
-																'rgba(92, 141, 255, 0.2)',
-															border: '1px solid rgba(92, 141, 255, 0.3)',
+																'var(--hover-bg)',
+															border: '1px solid var(--border)',
 															borderRadius:
 																'12px',
 															padding:
@@ -704,7 +704,7 @@ const SelectInstance = () => {
 													>
 														<Text
 															style={{
-																color: 'white',
+																color: 'var(--text)',
 																fontSize:
 																	'16px',
 																fontWeight:
@@ -813,8 +813,8 @@ const SelectInstance = () => {
 											<div
 												style={{
 													background:
-														'rgba(92, 141, 255, 0.2)',
-													border: '1px solid rgba(92, 141, 255, 0.3)',
+														'var(--hover-bg)',
+													border: '1px solid var(--border)',
 													borderRadius: '12px',
 													padding: '12px 16px',
 													minWidth: '125px',
@@ -823,7 +823,7 @@ const SelectInstance = () => {
 											>
 												<Text
 													style={{
-														color: 'white',
+														color: 'var(--text)',
 														fontSize: '16px',
 														fontWeight: '600',
 														display: 'flex',
@@ -1076,27 +1076,27 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-tabs .ant-tabs-tab {
-                    color: rgba(255, 255, 255, 0.7) !important;
+                    color: var(--tabs-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 500 !important;
                     font-size: 16px !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-tab:hover {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-tab-active {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-                    color: #5C8DFF !important;
+                    color: var(--accent-text) !important;
                     font-weight: 600 !important;
                 }
                 
                 .dark-build-tabs .ant-tabs-ink-bar {
-                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    background: var(--tabs-ink-bar) !important;
                     height: 3px !important;
                 }
                 
@@ -1105,27 +1105,27 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-card {
-                    background: rgba(0, 0, 0, 0.4) !important;
+                    background: var(--card-gradient) !important;
                     backdrop-filter: blur(20px) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid var(--border) !important;
                     border-radius: 20px !important;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+                    box-shadow: 0 8px 32px var(--input-shadow) !important;
                 }
                 
                 .dark-build-text {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 400 !important;
                 }
                 
                 .dark-build-text-strong {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
                 .dark-build-text-gradient {
-                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    background: var(--title-gradient) !important;
                     -webkit-background-clip: text !important;
                     -webkit-text-fill-color: transparent !important;
                     background-clip: text !important;
@@ -1135,126 +1135,126 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-slider .ant-slider-track {
-                    background: linear-gradient(90deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    background: var(--tabs-ink-bar) !important;
                     height: 6px !important;
                 }
                 
                 .dark-build-slider .ant-slider-rail {
-                    background: rgba(255, 255, 255, 0.2) !important;
+                    background: var(--border) !important;
                     height: 6px !important;
                 }
                 
                 .dark-build-slider .ant-slider-handle {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--accent-text) !important;
                     width: 20px !important;
                     height: 20px !important;
                     margin-top: 0px !important;
                 }
                 
                 .dark-build-slider .ant-slider-handle:hover {
-                    border-color: #8B5CF6 !important;
+                    border-color: var(--tabs-ink-bar) !important;
                 }
                 
                 .dark-build-input .ant-input-number {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                 }
                 
                 .dark-build-input .ant-input-number:hover {
-                    border-color: #8B5CF6 !important;
-                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
                 .dark-build-input .ant-input-number-focused {
-                    border-color: #8B5CF6 !important;
-                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
                 .dark-build-input .ant-input-number-input {
-                    color: white !important;
+                    color: var(--input-color) !important;
                     background: transparent !important;
                     font-size: 16px !important;
                     font-weight: 500 !important;
                 }
                 
                 .dark-build-input .ant-input-number-addon {
-                    color: white !important;
-                    background: rgba(92, 141, 255, 0.2) !important;
-                    border-color: rgba(92, 141, 255, 0.3) !important;
+                    color: var(--text) !important;
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border) !important;
                     font-weight: 500 !important;
                 }
                 
                 .dark-build-input .ant-input-number-addon .ant-input-number-addon-text {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-input .ant-input-number-addon-after {
-                    color: white !important;
-                    background: rgba(92, 141, 255, 0.2) !important;
-                    border-color: rgba(92, 141, 255, 0.3) !important;
+                    color: var(--text) !important;
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border) !important;
                 }
                 
                 .dark-build-input .ant-input-number-addon-after span {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-input .ant-input-number-addon-after {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-input .ant-input-number-addon-after * {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-input .ant-input-number .ant-input-number-addon-after {
-                    color: white !important;
-                    background: rgba(92, 141, 255, 0.2) !important;
-                    border-color: rgba(92, 141, 255, 0.3) !important;
+                    color: var(--text) !important;
+                    background: var(--hover-bg) !important;
+                    border-color: var(--border) !important;
                 }
                 
                 .dark-build-input .ant-input-number .ant-input-number-addon-after span {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-input .ant-input-number .ant-input-number-addon-after .ant-input-number-addon-text {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-select .ant-select-selector {
-                    background: rgba(255, 255, 255, 0.1) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                    color: white !important;
+                    background: var(--select-selector-bg) !important;
+                    border: 1px solid var(--select-selector-border) !important;
+                    color: var(--select-selector-color) !important;
                     border-radius: 12px !important;
                 }
                 
                 .dark-build-select .ant-select-selector:hover {
-                    border-color: #8B5CF6 !important;
-                    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
+                    border-color: var(--input-focus-border) !important;
+                    box-shadow: var(--input-shadow) !important;
                 }
                 
                 .dark-build-select .ant-select-selection-item {
-                    color: white !important;
+                    color: var(--select-item-color) !important;
                 }
                 
                 .dark-build-select .ant-select-arrow {
-                    color: #8B5CF6 !important;
+                    color: var(--select-arrow-color) !important;
                 }
                 
                 .dark-build-button {
-                    background: linear-gradient(135deg, #5C8DFF 0%, #8B5CF6 100%) !important;
+                    background: var(--button-primary-bg) !important;
                     border: none !important;
                     border-radius: 12px !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
-                    box-shadow: 0 4px 16px rgba(92, 141, 255, 0.3) !important;
+                    box-shadow: 0 4px 16px var(--input-shadow) !important;
                     height: 48px !important;
                 }
                 
                 .dark-build-button:hover {
-                    background: linear-gradient(135deg, #4A7CFF 0%, #7C4AFF 100%) !important;
-                    box-shadow: 0 6px 20px rgba(92, 141, 255, 0.4) !important;
+                    background: var(--button-primary-bg) !important;
+                    box-shadow: 0 6px 20px var(--input-shadow) !important;
                     transform: translateY(-2px) !important;
                 }
                 
@@ -1265,94 +1265,94 @@ const SelectInstance = () => {
                 }
                 
                 .dark-build-modal .ant-modal-content {
-                    background: rgba(0, 0, 0, 0.95) !important;
+                    background: var(--modal-bg) !important;
                     backdrop-filter: blur(20px) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border: 1px solid var(--modal-border) !important;
                     border-radius: 20px !important;
                 }
                 
                 .dark-build-modal .ant-modal-header {
-                    background: transparent !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    background: var(--modal-header-bg) !important;
+                    border-bottom: 1px solid var(--modal-header-border) !important;
                 }
                 
                 .dark-build-modal .ant-modal-title {
-                    color: white !important;
+                    color: var(--modal-title-color) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
                 .dark-build-modal .ant-modal-body {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                    color: var(--text) !important;
                 }
                 
                 .dark-build-statistic .ant-statistic-title {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
                 .dark-build-statistic .ant-statistic-content {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
                 .dark-build-statistic .ant-statistic-content-value {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
                 .dark-build-cost-estimator {
-                    background: rgba(92, 141, 255, 0.1) !important;
-                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
+                    background: var(--hover-bg) !important;
+                    border: 1px solid var(--border) !important;
                     border-radius: 16px !important;
                     padding: 20px !important;
                 }
                 
                 .dark-build-cost-estimator h4 {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
                 .dark-build-cost-estimator p {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
                 .instance-size-card {
-                    background: rgba(255, 255, 255, 0.05) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--border) !important;
                     border-radius: 16px !important;
                     transition: all 0.3s ease !important;
                     backdrop-filter: blur(10px) !important;
                 }
                 
                 .instance-size-card:hover {
-                    background: rgba(92, 141, 255, 0.15) !important;
-                    border-color: #5C8DFF !important;
-                    box-shadow: 0 8px 24px rgba(92, 141, 255, 0.2) !important;
+                    background: var(--hover-bg) !important;
+                    border-color: var(--accent-text) !important;
+                    box-shadow: 0 8px 24px var(--input-shadow) !important;
                     transform: translateY(-2px) !important;
                 }
                 
                 .instance-size-card.selected {
-                    background: rgba(92, 141, 255, 0.25) !important;
-                    border-color: #5C8DFF !important;
-                    box-shadow: 0 8px 24px rgba(92, 141, 255, 0.3) !important;
+                    background: var(--active-bg) !important;
+                    border-color: var(--accent-text) !important;
+                    box-shadow: 0 8px 24px var(--input-shadow) !important;
                 }
                 
                 .instance-size-card .ant-card-body {
-                    color: white !important;
+                    color: var(--text) !important;
                 }
                 
                 .instance-size-card .ant-card-body h5 {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     font-weight: 600 !important;
                 }
                 
                 .instance-size-card .ant-card-body .ant-typography {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
@@ -1366,7 +1366,7 @@ const SelectInstance = () => {
                 }
                 
                 .instance-size-card .ant-collapse .ant-collapse-header {
-                    color: white !important;
+                    color: var(--text) !important;
                     font-family: 'Poppins', sans-serif !important;
                     background: transparent !important;
                     border: none !important;
@@ -1378,7 +1378,7 @@ const SelectInstance = () => {
                 }
                 
                 .instance-size-card .ant-collapse .ant-collapse-content-box {
-                    color: rgba(255, 255, 255, 0.8) !important;
+                    color: var(--secondary-text) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
                 
@@ -1387,9 +1387,9 @@ const SelectInstance = () => {
                 .dark-build-input .ant-input-textarea,
                 .dark-build-input .ant-input-affix-wrapper,
                 .dark-build-input .ant-input-affix-wrapper .ant-input {
-                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%) !important;
-                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
-                    color: white !important;
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                 }
                 
@@ -1397,70 +1397,70 @@ const SelectInstance = () => {
                 .dark-build-input .ant-input-textarea:hover,
                 .dark-build-input .ant-input-affix-wrapper:hover,
                 .dark-build-input .ant-input-affix-wrapper:hover .ant-input {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--input-hover-border) !important;
                 }
                 
                 .dark-build-input .ant-input:focus,
                 .dark-build-input .ant-input-textarea:focus,
                 .dark-build-input .ant-input-affix-wrapper:focus,
                 .dark-build-input .ant-input-affix-wrapper:focus .ant-input {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--input-focus-border) !important;
                 }
                 
                 .dark-build-input .ant-input::placeholder,
                 .dark-build-input .ant-input-textarea::placeholder,
                 .dark-build-input .ant-input-affix-wrapper .ant-input::placeholder {
-                    color: rgba(255, 255, 255, 0.6) !important;
+                    color: var(--placeholder-color) !important;
                 }
                 
                 /* Force styling on all input elements */
                 .dark-build-page input[type="text"],
                 .dark-build-page textarea {
-                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%) !important;
-                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
-                    color: white !important;
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                 }
                 
                 .dark-build-page input[type="text"]:hover,
                 .dark-build-page textarea:hover {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--input-hover-border) !important;
                 }
                 
                 .dark-build-page input[type="text"]:focus,
                 .dark-build-page textarea:focus {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--input-focus-border) !important;
                 }
                 
                 .dark-build-page input[type="text"]::placeholder,
                 .dark-build-page textarea::placeholder {
-                    color: rgba(255, 255, 255, 0.6) !important;
+                    color: var(--placeholder-color) !important;
                 }
                 
                 /* InputNumber specific styling */
                 .dark-build-input .ant-input-number {
-                    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(26, 26, 46, 0.6) 100%) !important;
-                    border: 1px solid rgba(92, 141, 255, 0.3) !important;
-                    color: white !important;
+                    background: var(--input-bg) !important;
+                    border: 1px solid var(--input-border) !important;
+                    color: var(--input-color) !important;
                     border-radius: 12px !important;
                 }
                 
                 .dark-build-input .ant-input-number:hover {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--input-hover-border) !important;
                 }
                 
                 .dark-build-input .ant-input-number:focus,
                 .dark-build-input .ant-input-number-focused {
-                    border-color: #5C8DFF !important;
+                    border-color: var(--input-focus-border) !important;
                 }
                 
                 .dark-build-input .ant-input-number-input {
                     background: transparent !important;
-                    color: white !important;
+                    color: var(--input-color) !important;
                 }
                 
                 .dark-build-input .ant-input-number-input::placeholder {
-                    color: rgba(255, 255, 255, 0.6) !important;
+                    color: var(--placeholder-color) !important;
                 }
             `}</style>
 			<div className="dark-build-page font-poppins">
