@@ -7,23 +7,27 @@ import {
     Radio,
     Button,
     message,
-    Tabs
+    Tabs,
+    Row,
+    Col,
+    Alert,
+    Collapse,
 } from 'antd';
-import { FolderOutlined, FileOutlined, DeleteOutlined } from '@ant-design/icons';
-import { DATASET_TYPES, TASK_TYPES } from 'src/constants/types';
+import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-export default function CreateDatasetForm({ 
-    onNext, 
-    onCancel, 
-    initialValues, 
+export default function CreateDatasetForm({
+    onNext,
+    onCancel,
+    initialValues,
     initialFiles = [],
     initialDetectedLabels = [],
     initialCsvMetadata = null
- }) {
+}) {
     const [form] = Form.useForm();
     const [files, setFiles] = useState(initialFiles);
     const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
@@ -56,17 +60,17 @@ export default function CreateDatasetForm({
     }, [initialFiles, initialDetectedLabels, initialCsvMetadata]);
 
     const validateFiles = (files, datasetType) => {
-		const allowedImageTypes = ['image/jpeg', 'image/png'];
-		const allowedTextTypes = ['text/plain', 'text/csv','application/xml', 'text/xml'];
-		const allowedTypes = {
-			IMAGE: [...allowedImageTypes, ...allowedTextTypes],
-			TEXT: allowedTextTypes,
-			TABULAR: allowedTextTypes,
-			MULTIMODAL: [...allowedImageTypes, ...allowedTextTypes],
+        const allowedImageTypes = ['image/jpeg', 'image/png'];
+        const allowedTextTypes = ['text/plain', 'text/csv', 'application/xml', 'text/xml'];
+        const allowedTypes = {
+            IMAGE: [...allowedImageTypes, ...allowedTextTypes],
+            TEXT: allowedTextTypes,
+            TABULAR: allowedTextTypes,
+            MULTIMODAL: [...allowedImageTypes, ...allowedTextTypes],
             TIME_SERIES: [...allowedTextTypes],
-		};
-		return files.filter((file) => file?.type && allowedTypes[datasetType]?.includes(file.type));
-	};
+        };
+        return files.filter((file) => file?.type && allowedTypes[datasetType]?.includes(file.type));
+    };
 
     const handleFileChange = async (event) => {
         const uploadedFiles = Array.from(event.target.files || []);
@@ -75,7 +79,7 @@ export default function CreateDatasetForm({
             type: file.type,
             path: file.webkitRelativePath,
         })));
-        
+
         const validatedFiles = validateFiles(uploadedFiles, datasetType);
         console.log('Validated files:', validatedFiles);
         if (['IMAGE'].includes(datasetType)) {
@@ -115,10 +119,10 @@ export default function CreateDatasetForm({
         setDetectedLabels(labels);
 
         // Extract metadata từ CSV nếu có
-        const csvFile = validatedFiles.find(file => 
+        const csvFile = validatedFiles.find(file =>
             (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv')
         );
-        
+
         if (csvFile) {
             try {
                 const metadata = await extractCSVMetaData(csvFile);
@@ -151,47 +155,100 @@ export default function CreateDatasetForm({
         setTotalKbytes(totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00');
     };
 
+    const renderPreparingInstructions = () => {
+        const currentType = DATASET_TYPES[datasetType];
+        if (!currentType || !currentType.preparingInstructions) {
+            return null;
+        }
+
+        const items = [
+            {
+                key: '1',
+                label: (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        color: 'green',
+                        fontWeight: '500'
+                    }}>
+                        <QuestionCircleOutlined style={{ marginRight: '8px' }} />
+                        Dataset Preparation Instructions
+                    </div>
+                ),
+                children: (
+                    <div style={{
+                        whiteSpace: 'pre-line',
+                        fontFamily: 'Poppins, sans-serif',
+                        fontSize: '13px',
+                        lineHeight: '1.6',
+                        padding: '12px',
+                        backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                        borderRadius: '6px',
+                        border: `1px solid ${currentType.card.border}20`
+                    }}>
+                        {currentType.preparingInstructions}
+                    </div>
+                ),
+            },
+        ];
+
+        return (
+            <Collapse
+                items={items}
+                size="small"
+                ghost
+                style={{
+                    marginBottom: '16px',
+                    // backgroundColor: currentType.card.bg,
+                    backgroundColor: 'rgba(255, 255, 255, 0.97)',
+                    border: `1px solid ${currentType.card.border}40`,
+                    borderRadius: '6px',
+                }}
+                className="preparing-instructions-collapse"
+            />
+        );
+    };
     const tabItems = [
         {
             key: 'file',
             label: 'File Upload',
             children: (
                 <>
-                    <label htmlFor="file" style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center', 
-                        height: '120px', 
-                        border: '2px dashed rgba(255, 255, 255, 0.3)', 
-                        borderRadius: '12px', 
-                        cursor: 'pointer', 
+                    <label htmlFor="file" style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '120px',
+                        border: '2px dashed rgba(255, 255, 255, 0.3)',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
                         marginBottom: '16px',
                         background: 'rgba(255, 255, 255, 0.05)',
                         transition: 'all 0.3s ease'
                     }}
-                    onMouseEnter={(e) => {
-                        e.target.style.borderColor = '#65FFA0'
-                        e.target.style.background = 'rgba(101, 255, 160, 0.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
-                        e.target.style.background = 'rgba(255, 255, 255, 0.05)'
-                    }}
+                        onMouseEnter={(e) => {
+                            e.target.style.borderColor = '#65FFA0'
+                            e.target.style.background = 'rgba(101, 255, 160, 0.1)'
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+                            e.target.style.background = 'rgba(255, 255, 255, 0.05)'
+                        }}
                     >
-                        <div style={{ textAlign: 'center' }}>
+                        <div style={{ textAlign: 'center', background: 'transparent' }}>
                             <FolderOutlined style={{ fontSize: '48px', color: '#65FFA0' }} />
                             <p style={{ marginTop: '8px', color: 'white', fontFamily: 'Poppins, sans-serif' }}>
                                 Drag and drop a folder or click to upload
                             </p>
                         </div>
-                        <input 
-                            type="file" 
-                            name="file" 
-                            id="file" 
-                            webkitdirectory="" 
+                        <input
+                            type="file"
+                            name="file"
+                            id="file"
+                            webkitdirectory=""
                             directory=""
                             multiple
-                            style={{ display: 'none' }} 
+                            style={{ display: 'none' }}
                             onChange={handleFileChange}
                         />
                     </label>
@@ -200,8 +257,8 @@ export default function CreateDatasetForm({
                         <span style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.7)' }}>({totalKbytes} kB)</span>
                     </div>
                     {files.length > 0 && (
-                        <div style={{ 
-                            maxHeight: '200px', 
+                        <div style={{
+                            maxHeight: '200px',
                             overflowY: 'auto',
                             background: 'rgba(255, 255, 255, 0.05)',
                             borderRadius: '8px',
@@ -209,10 +266,10 @@ export default function CreateDatasetForm({
                             marginTop: '12px'
                         }}>
                             {files.map((file) => (
-                                <div key={file.path} style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
+                                <div key={file.path} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                                     padding: '8px 0',
                                     color: 'white'
                                 }}>
@@ -221,9 +278,9 @@ export default function CreateDatasetForm({
                                     <span style={{ marginLeft: '8px', color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}>
                                         ({(file.fileObject?.size / 1024 || 0).toFixed(2)} kB)
                                     </span>
-                                    <Button 
-                                        type="text" 
-                                        icon={<DeleteOutlined />} 
+                                    <Button
+                                        type="text"
+                                        icon={<DeleteOutlined />}
                                         onClick={() => handleDeleteFile(file.fileId)}
                                         style={{ color: 'rgba(255, 255, 255, 0.7)' }}
                                     />
@@ -561,61 +618,78 @@ export default function CreateDatasetForm({
                 onFinish={handleSubmit}
                 className="dark-form"
             >
-                <Form.Item 
-                    label="Title" 
-                    name="title" 
-                    rules={[
-                        { required: true, message: 'Please enter a title' },
-                        {
-                            pattern: /^[a-zA-Z0-9]+$/,
-                            message: 'Title can only contain letters (a-z, A-Z) and numbers (0-9)'
-                        }
-                    ]}
-                >
-                    <Input placeholder="Enter dataset title (letters and numbers only)" />
-                </Form.Item>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            label="Title"
+                            name="title"
+                            rules={[
+                                { required: true, message: 'Please enter a title' },
+                                {
+                                    pattern: /^[a-zA-Z0-9]+$/,
+                                    message: 'Title can only contain letters (a-z, A-Z) and numbers (0-9)'
+                                }
+                            ]}
+                        >
+                            <Input placeholder="Enter dataset title (letters and numbers only)"
+                                style={{ borderRadius: '1px' }}
+                            />
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select a type' }]}>
+                            <Select
+                                placeholder="Select dataset type"
+                                onChange={(value) => {
+                                    setDatasetType(value);
+                                    // if (value === 'MULTIMODAL') {
+                                    //     message.info('Upload folder with images and CSV for MULTIMODAL.');
+                                    // }
+                                }}
+                            >
+                                {Object.entries(DATASET_TYPES).map(([key, value]) => (
+                                    <Option key={key} value={key}>{value.type}</Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {renderPreparingInstructions()}
 
                 <Form.Item name="description" label="Description">
-                    <TextArea rows={3} maxLength={500} showCount />
+                    <TextArea rows={2} maxLength={500} showCount />
                 </Form.Item>
 
-
-                <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select a type' }]}>
-                    <Select
-                        placeholder="Select dataset type"
-                        onChange={(value) => {
-                            setDatasetType(value);
-                            if (value === 'MULTIMODAL') {
-                                message.info('Upload folder with images and CSV for MULTIMODAL.');
-                            }
-                        }}
-                    >
-                        {Object.entries(DATASET_TYPES).map(([key, value]) => (
-                            <Option key={key} value={key}>{value.type}</Option>
-                        ))}
-                    </Select>
-                </Form.Item>
-
-                <Form.Item label="Service">
-                    <Radio.Group value={service} onChange={(e) => setService(e.target.value)}>
-                        <Radio value="AWS_S3">AWS S3</Radio>
-                        <Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
-                    </Radio.Group>
-                </Form.Item>
-
-                <Form.Item label="Bucket Name">
-                    <Select value={bucketName} onChange={(value) => setBucketName(value)}>
-                        <Option value="user-private-dataset">user-private-dataset</Option>
-                        <Option value="bucket-2">bucket-2</Option>
-                    </Select>
-                </Form.Item>
+                <Row gutter={16}>
+                    <Col span={7}>
+                        <Form.Item label="Storage Provider">
+                            <Radio.Group value={service} onChange={(e) => setService(e.target.value)}>
+                                <Radio value="AWS_S3">AWS S3</Radio>
+                                <Radio value="GCP_STORAGE">Google Cloud Storage</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                    <Col span={17}>
+                        <Form.Item label="Bucket Name">
+                            <Select value={bucketName} onChange={(value) => setBucketName(value)}>
+                                <Option value="user-private-dataset">user-private-dataset</Option>
+                                <Option value="bucket-2">bucket-2</Option>
+                            </Select>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
                 <Tabs defaultActiveKey="file" items={tabItems} />
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">Next</Button>
-                    <Button style={{ marginLeft: 8 }} onClick={onCancel}>Cancel</Button>
-                </Form.Item>    
+                <Form.Item style={{ marginTop: 8, textAlign: 'right' }}>
+                    <Button type="primary" htmlType="submit">
+                        Next
+                    </Button>
+                    <Button style={{ marginLeft: 8 }} onClick={onCancel}>
+                        Cancel
+                    </Button>
+                </Form.Item>
             </Form>
         </>
     );

@@ -28,13 +28,19 @@ CMD ["npm", "run", "start"]
 # ----------------------------------------------------------------
 FROM base AS builder
 
-# Chỉ cài đặt production dependencies để tối ưu quá trình build
+# Cài production deps
 RUN npm ci --only=production
 
-# Copy toàn bộ mã nguồn
+# Copy source
 COPY . .
 
-# Build ứng dụng React
+# Truyền biến build-time từ docker-compose vào React
+ARG REACT_APP_API_URL
+ARG REACT_APP_LABEL_STUDIO_URL
+
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+ENV REACT_APP_LABEL_STUDIO_URL=$REACT_APP_LABEL_STUDIO_URL
+
 RUN npm run build
 
 
