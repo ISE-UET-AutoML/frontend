@@ -47,6 +47,7 @@ import {
 import { PATHS } from 'src/constants/paths'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { getExperimentById } from 'src/api/experiment'
+import { getExperimentConfig } from 'src/api/experiment_config'
 const { Step } = Steps
 // import { calcGeneratorDuration } from 'framer-motion'
 
@@ -62,7 +63,13 @@ const steps = [
         icon: <CloudDownloadOutlined />,
     },
 ]
+const calculateElapsedTime = (startTimeValue) => {
+    if (!startTimeValue) return 0
 
+    const start = new Date(startTimeValue) // ✅ ensure it's a Date
+    const currentTime = new Date()
+    return ((currentTime - start) / (1000 * 60)).toFixed(2)
+}
 // Training Metric Card Component - replacement for AnimatedStatistic
 const TrainingMetricCard = ({
     title,
@@ -159,15 +166,15 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
-                    dataKey="time"
+                    dataKey="step"
                     label={{
-                        value: 'Time (min)',
+                        value: 'Epoch (Step)',
                         position: 'insideBottomRight',
                         offset: -5,
                         style: { fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }
                     }}
                     tick={{ fontSize: 12, fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}
-                    domain={[0, maxTrainingTime ? maxTrainingTime : 'auto']}
+                    domain={[0, 'auto']}
                 />
                 <YAxis
                     label={{
@@ -176,7 +183,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         position: 'insideLeft',
                         style: { fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }
                     }}
-                    domain={['auto', 'auto']}   // auto-fit to your data
+                    domain={[0, 'auto']}   // auto-fit to your data
                     tick={{ fontSize: 12, fill: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}
                 />
                 <RechartsTooltip
@@ -184,7 +191,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                         `${(value * 1).toFixed(2)}`,
                         valMetric,
                     ]}
-                    labelFormatter={(label) => `Time: ${label} min`}
+                    labelFormatter={(label) => `Epoch: ${label} step`}
                     contentStyle={{
                         backgroundColor: 'rgba(15, 23, 42, 0.95)',
                         borderRadius: '8px',
@@ -197,7 +204,7 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
                 <Legend />
                 <Area
                     type="monotone"
-                    dataKey="accuracy"
+                    dataKey="score"
                     stroke="#60a5fa"
                     strokeWidth={3}
                     fillOpacity={1}
@@ -429,34 +436,6 @@ const Training = () => {
         )
     }
 
-    // useEffect(() => {
-    //     if (trainingTask) {
-    //         if (trainingTask.status === 'SETTING_UP') {
-    //             setCurrentStep(0)
-    //             setIsModalVisible(true)
-    //         }
-    //         else if (trainingTask.status === 'DOWNLOADING_DATA') {
-    //             setCurrentStep(1)
-    //             setIsModalVisible(true)
-    //         }
-    //         else {
-    //             setCurrentStep(null)
-    //             setIsModalVisible(false)
-    //             console.log("Current Training stats:", trainingTask)
-    //             setTrainProgress(trainingTask.progress)
-    //             setStatus(trainingTask.status)
-    //             setTrainingInfo((prev) => ({
-    //                 latestEpoch: trainingTask.trainingInfo.latestEpoch || 0,
-    //                 accuracy: trainingTask.trainingInfo.accuracy || 0
-    //             }))
-    //             setValMetric((prev) => trainingTask.valMetric)
-    //             setElapsedTime(prev => trainingTask.elapsed)
-    //             setMaxTrainingTime(prev => trainingTask.expectedTrainingTime / 60)
-    //             setChartData(prev => trainingTask.accuracyTrend)
-    //         }
-    //     }
-    // }, [trainingTask]);
-
     useEffect(() => {
         let timeoutId;
 
@@ -465,11 +444,28 @@ const Training = () => {
 
             try {
                 const response = await getExperimentById(experimentId);
+                const configResponse = await getExperimentConfig(experimentId);
+                const config = configResponse.data[0]
                 setStatus(response.data.status)
-                console.log(response.data.status)
-
+                setMaxTrainingTime(prev => response.data.expected_training_time / 60)
+                setChartData(config.metrics?.training_history ? config.metrics?.training_history : [])
+                const latestTrainingInfo = config.metrics?.training_history?.[config.metrics.training_history.length - 1]
+                setTrainingInfo((prev) => ({
+                    latestEpoch: latestTrainingInfo?.step || 0,
+                    accuracy: latestTrainingInfo?.score || 0
+                }))
+                setValMetric(config.metrics?.val_metric ? config.metrics?.val_metric : 'Accuracy')
+                const elapsed = calculateElapsedTime(response.data.start_time)
+                const progress = response.data.expected_training_time
+                    ? Math.min((elapsed / (response.data.expected_training_time / 60)) * 100, 100)
+                    : 0;
+                setElapsedTime(calculateElapsedTime(response.data.start_time))
+                setTrainProgress(status === 'DONE' ? 100 : progress)
+                console.log("Status: ", response.data.status)
                 // Schedule next poll in 5 seconds
-                timeoutId = setTimeout(fetchExperiment, 10000);
+                if (response.data.status !== "DONE") {
+                    timeoutId = setTimeout(fetchExperiment, 10000);
+                }
             } catch (err) {
                 console.error("Failed to fetch experiment:", err);
                 // Retry after 5 seconds even if it failed
@@ -604,29 +600,6 @@ const Training = () => {
                                     loading={loading && chartData?.length === 0}
                                     maxTrainingTime={maxTrainingTime}
                                 />
-                                <div className="mt-4">
-                                    <Alert
-                                        type={'info'}
-                                        message={
-                                            <span style={{ color: 'white' }}>
-                                                Status
-                                            </span>
-                                        }
-                                        description={
-                                            <span style={{ color: 'white' }}>
-                                                {trainingTask?.status}
-                                            </span>
-                                        }
-                                        showIcon
-                                        style={{
-                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
-                                            border: '1px solid rgba(59, 130, 246, 0.3)',
-                                            borderRadius: '8px',
-                                            border: '1px solid rgba(59, 130, 246, 0.6)',
-                                            fontFamily: 'Poppins, sans-serif',
-                                        }}
-                                    />
-                                </div>
                                 {maxTrainingTime && status === 'TRAINING' && (
                                     <div className="mt-4">
                                         <Alert
