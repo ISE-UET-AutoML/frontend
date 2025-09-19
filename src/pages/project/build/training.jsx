@@ -31,11 +31,7 @@ import {
     RadarChartOutlined,
     SettingOutlined,
     CloudDownloadOutlined,
-    LoadingOutlined,
-    SmileOutlined,
-    SolutionOutlined,
-    AreaChartOutlined,
-    UserOutlined
+    LoadingOutlined
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import {
@@ -259,7 +255,7 @@ const TrainingInfoCard = ({
     return (
         <Card
             title={
-                <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                     <DashboardOutlined style={{ color: '#60a5fa' }} /> Experiment Information:{' '}
                     <Tag
                         color="blue"
@@ -268,7 +264,8 @@ const TrainingInfoCard = ({
                             background: 'linear-gradient(135deg, #3b82f6, #22d3ee)',
                             border: 'none',
                             color: 'white',
-                            fontFamily: 'Poppins, sans-serif'
+                            fontFamily: 'Poppins, sans-serif',
+                            marginLeft: '10px'
                         }}
                     >
                         {experimentName}
@@ -359,7 +356,7 @@ const TrainingInfoCard = ({
                                 format={(percent) =>
                                     status === 'DONE'
                                         ? 'Completed'
-                                        : `${percent.toFixed(1)}%`
+                                        : <span style={{ color: 'var(--text)' }}>{percent.toFixed(1)}%</span>
                                 }
                                 style={{
                                     fontFamily: 'Poppins, sans-serif'
@@ -572,39 +569,60 @@ const Training = () => {
                                 current={currentStep}
                                 items={[
                                     {
-                                        title: 'Selecting Instance',
+                                        title: <span style={{ color: "var(--text)" }}>Selecting Instance</span>,
                                         icon: currentStep !== 0 ? <DatabaseOutlined /> : <LoadingOutlined />,
-                                        description: "Selecting suitable machine for you"
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Selecting suitable machine for you
+                                            </span>
+                                        )
                                     },
                                     {
-                                        title: 'Downloading Dependencies',
+                                        title: <span style={{ color: "var(--text)" }}>Downloading Dependencies</span>,
                                         icon: currentStep !== 1 ? <SettingOutlined /> : <LoadingOutlined />,
-                                        description: "Setting up your machine"
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Setting up your machine
+                                            </span>
+                                        )
                                     },
                                     {
-                                        title: 'Downloading Data',
+                                        title: <span style={{ color: "var(--text)" }}>Downloading Data</span>,
                                         icon: currentStep !== 2 ? <CloudDownloadOutlined /> : <LoadingOutlined />,
-                                        description: "Fetching data from cloud storage"
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Fetching data from cloud storage
+                                            </span>
+                                        )
                                     },
                                     {
-                                        title: 'Training',
+                                        title: <span style={{ color: "var(--text)" }}>Training</span>,
                                         icon: currentStep !== 3 ? <LineChartOutlined /> : <LoadingOutlined />,
-                                        description: "Preparing your model"
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Preparing your model
+                                            </span>
+                                        )
                                     },
                                     {
-                                        title: 'Done',
+                                        title: <span style={{ color: "var(--text)" }}>Done</span>,
                                         icon: <CheckCircleOutlined />,
-                                        description: "Finished training your model"
+                                        description: (
+                                            <span style={{ color: "#94a3b8" }}>
+                                                Finished training your model
+                                            </span>
+                                        )
                                     }
                                 ]}
                             />
+
                             <Alert
+                                showIcon
                                 description={
                                     <div>
                                         <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
-                                            <InfoCircleOutlined className="mr-2" style={{ color: '#2465b4ff' }} />
                                             <Text strong style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
-                                                This experiment may take a while. You can leave the page at any time, and we will automatically create your model once it is finished.
+                                                This experiment may take a while. You can safely leave the page at any time, and we will automatically create your model once it is finished.
                                             </Text>
                                         </Paragraph>
                                     </div>
@@ -671,14 +689,14 @@ const Training = () => {
                                         <Alert
                                             type={elapsedTime >= maxTrainingTime ? 'warning' : 'info'}
                                             message={
-                                                <span style={{ color: 'white' }}>
+                                                <span style={{ color: 'var(--text)' }}>
                                                     {elapsedTime >= maxTrainingTime
                                                         ? 'Training Time Limit Reached'
                                                         : 'Training Time Limit'}
                                                 </span>
                                             }
                                             description={
-                                                <span style={{ color: 'white' }}>
+                                                <span style={{ color: 'var(--text)' }}>
                                                     {elapsedTime >= maxTrainingTime
                                                         ? 'The training has reached its maximum allocated time. It may automatically stop soon.'
                                                         : `This experiment is configured to run for maximum ${maxTrainingTime.toFixed(2)} minutes.`}
@@ -708,8 +726,8 @@ const Training = () => {
                                     <div>
                                         <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
                                             <RadarChartOutlined className="mr-2" style={{ color: '#60a5fa' }} />
-                                            <Text strong style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
-                                            <Text style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                            <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>Understand Metrics:</Text>{' '}
+                                            <Text style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                                 {metricExplain}
                                             </Text>
                                         </Paragraph>
@@ -718,10 +736,10 @@ const Training = () => {
                                             <Paragraph style={{ margin: '12px 0 0 0', fontFamily: 'Poppins, sans-serif' }}>
                                                 <Tooltip title="Time constraints can affect model performance">
                                                     <HourglassOutlined className="mr-2" style={{ color: '#f59e0b' }} />
-                                                    <Text strong style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                                    <Text strong style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                                         Training Time Limit:
                                                     </Text>{' '}
-                                                    <Text style={{ color: 'white', fontFamily: 'Poppins, sans-serif' }}>
+                                                    <Text style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                                                         This experiment has a maximum
                                                         training time of {maxTrainingTime.toFixed(2)}{' '}
                                                         minutes. If the training doesn't
