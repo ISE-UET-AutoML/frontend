@@ -16,13 +16,14 @@ import {
     Steps,
     Button,
     Tooltip,
-    Modal,
+    Modal
 } from 'antd'
 import {
     ExperimentOutlined,
     LineChartOutlined,
     CheckCircleOutlined,
     InfoCircleOutlined,
+    DatabaseOutlined,
     BarChartOutlined,
     DashboardOutlined,
     CalendarOutlined,
@@ -31,6 +32,10 @@ import {
     SettingOutlined,
     CloudDownloadOutlined,
     LoadingOutlined,
+    SmileOutlined,
+    SolutionOutlined,
+    AreaChartOutlined,
+    UserOutlined
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import {
@@ -48,7 +53,7 @@ import { PATHS } from 'src/constants/paths'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { getExperimentById } from 'src/api/experiment'
 import { getExperimentConfig } from 'src/api/experiment_config'
-const { Step } = Steps
+
 // import { calcGeneratorDuration } from 'framer-motion'
 
 const { Title, Text, Paragraph } = Typography
@@ -255,7 +260,7 @@ const TrainingInfoCard = ({
         <Card
             title={
                 <Title level={5} style={{ margin: 0, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                    <DashboardOutlined style={{ color: '#60a5fa' }} /> Training Information:{' '}
+                    <DashboardOutlined style={{ color: '#60a5fa' }} /> Experiment Information:{' '}
                     <Tag
                         color="blue"
                         icon={<ExperimentOutlined />}
@@ -337,7 +342,7 @@ const TrainingInfoCard = ({
                         fontFamily: 'Poppins, sans-serif'
                     }}
                 >
-                    Training Progress
+                    Experiment Progress
                 </Divider>
 
                 <Row gutter={[16, 16]}>
@@ -371,7 +376,7 @@ const TrainingInfoCard = ({
                                     {status === 'DONE'
                                         ? `Training completed in ${elapsedTime} minutes`
                                         : timeProgress < 100
-                                            ? `Training time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(2)} minutes`
+                                            ? `Experimenting time remaining approximately ${(maxTrainingTime - elapsedTime).toFixed(2)} minutes`
                                             : 'Maximum training time reached'}
                                 </Text>
                                 {status === 'TRAINING' &&
@@ -408,32 +413,42 @@ const Training = () => {
     const searchParams = new URLSearchParams(location.search)
     const experimentName = searchParams.get('experimentName')
     const experimentId = searchParams.get('experimentId')
-    const [trainingTask, setTrainingTask] = useState({})
     const [trainingInfo, setTrainingInfo] = useState({
         latestEpoch: 0,
         accuracy: 0,
     })
     const [valMetric, setValMetric] = useState("Accuracy")
     const [chartData, setChartData] = useState([])
-    const [startTime, setStartTime] = useState(null)
     const [elapsedTime, setElapsedTime] = useState(0)
     const [status, setStatus] = useState('PENDING')
     const [loading, setLoading] = useState(true)
     const [maxTrainingTime, setMaxTrainingTime] = useState(null)
     const metricExplain = projectInfo.metrics_explain
     const [trainProgress, setTrainProgress] = useState(0)
-    const [currentStep, setCurrentStep] = useState(null)
-    const [isModalVisible, setIsModalVisible] = useState(false)
-
-    const handleModalCancel = () => {
-        setIsModalVisible(false)
-    }
+    const [currentStep, setCurrentStep] = useState(0)
 
     // Handle view results button click
     const handleViewResults = () => {
         navigate(
             PATHS.PROJECT_TRAININGRESULT(projectInfo.id, experimentId, experimentName)
         )
+    }
+
+    const getCurrentStep = (status) => {
+        switch (status) {
+            case "SELECTING_INSTANCE":
+                return 0;
+            case "SETTING_UP":
+                return 1;
+            case "DOWNLOADING_DATA":
+                return 2;
+            case "TRAINING":
+                return 3;
+            case "DONE":
+                return 4;
+            default:
+                return 0;
+        }
     }
 
     useEffect(() => {
@@ -447,6 +462,7 @@ const Training = () => {
                 const configResponse = await getExperimentConfig(experimentId);
                 const config = configResponse.data[0]
                 setStatus(response.data.status)
+                setCurrentStep(getCurrentStep(response.data.status))
                 setMaxTrainingTime(prev => response.data.expected_training_time / 60)
                 setChartData(config.metrics?.training_history ? config.metrics?.training_history : [])
                 const latestTrainingInfo = config.metrics?.training_history?.[config.metrics.training_history.length - 1]
@@ -462,14 +478,15 @@ const Training = () => {
                 setElapsedTime(calculateElapsedTime(response.data.start_time))
                 setTrainProgress(status === 'DONE' ? 100 : progress)
                 console.log("Status: ", response.data.status)
-                // Schedule next poll in 5 seconds
+
+                // Schedule next poll in 10 seconds
                 if (response.data.status !== "DONE") {
-                    timeoutId = setTimeout(fetchExperiment, 10000);
+                    timeoutId = setTimeout(fetchExperiment, 30000);
                 }
             } catch (err) {
                 console.error("Failed to fetch experiment:", err);
-                // Retry after 5 seconds even if it failed
-                timeoutId = setTimeout(fetchExperiment, 10000);
+                // Retry after 10 seconds even if it failed
+                timeoutId = setTimeout(fetchExperiment, 30000);
             }
         };
 
@@ -551,6 +568,56 @@ const Training = () => {
                             size="large"
                             style={{ width: '100%' }}
                         >
+                            <Steps
+                                current={currentStep}
+                                items={[
+                                    {
+                                        title: 'Selecting Instance',
+                                        icon: currentStep !== 0 ? <DatabaseOutlined /> : <LoadingOutlined />,
+                                        description: "Selecting suitable machine for you"
+                                    },
+                                    {
+                                        title: 'Downloading Dependencies',
+                                        icon: currentStep !== 1 ? <SettingOutlined /> : <LoadingOutlined />,
+                                        description: "Setting up your machine"
+                                    },
+                                    {
+                                        title: 'Downloading Data',
+                                        icon: currentStep !== 2 ? <CloudDownloadOutlined /> : <LoadingOutlined />,
+                                        description: "Fetching data from cloud storage"
+                                    },
+                                    {
+                                        title: 'Training',
+                                        icon: currentStep !== 3 ? <LineChartOutlined /> : <LoadingOutlined />,
+                                        description: "Preparing your model"
+                                    },
+                                    {
+                                        title: 'Done',
+                                        icon: <CheckCircleOutlined />,
+                                        description: "Finished training your model"
+                                    }
+                                ]}
+                            />
+                            <Alert
+                                description={
+                                    <div>
+                                        <Paragraph style={{ margin: 0, fontFamily: 'Poppins, sans-serif' }}>
+                                            <InfoCircleOutlined className="mr-2" style={{ color: '#2465b4ff' }} />
+                                            <Text strong style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>
+                                                This experiment may take a while. You can leave the page at any time, and we will automatically create your model once it is finished.
+                                            </Text>
+                                        </Paragraph>
+                                    </div>
+                                }
+                                type="info"
+                                style={{
+                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(34, 211, 238, 0.1))',
+                                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                                    borderRadius: '12px',
+                                    fontFamily: 'Poppins, sans-serif',
+                                }}
+                            />
+
                             <TrainingInfoCard
                                 valMetric={valMetric}
                                 experimentName={experimentName}
@@ -562,7 +629,6 @@ const Training = () => {
                                 onViewResults={handleViewResults}
                                 trainProgress={trainProgress}
                             />
-
                             <Card
                                 title={
                                     <Title level={5} style={{ margin: 0, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
