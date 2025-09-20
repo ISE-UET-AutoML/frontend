@@ -37,6 +37,7 @@ export default function DeployedModelView() {
 	const { deployId, id } = useParams()
 	const [uploading, setUploading] = useState(false)
 	const [deployData, setDeployData] = useState()
+	const [model, setModel] = useState(null)
 	const [predictResult, setPredictResult] = useState(null)
 	const [uploadedFiles, setUploadedFiles] = useState(null)
 	const [experimentName, setExperimentName] = useState(null)
@@ -48,6 +49,7 @@ export default function DeployedModelView() {
 		const { data } = await getDeployData(deployId)
 		setDeployData(data)
 		const res = await getModelById(data.model_id)
+		setModel(res.data)
 		const experimentId = res.data?.experiment_id
 		const res2 = await getExperimentById(experimentId)
 		setExperimentName(res2.data?.name)
@@ -331,6 +333,7 @@ export default function DeployedModelView() {
 											handleUploadFiles={
 												handleUploadFiles
 											}
+											model={model}
 										/>
 									)
 								}

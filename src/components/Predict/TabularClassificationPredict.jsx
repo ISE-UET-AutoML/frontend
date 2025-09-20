@@ -14,6 +14,7 @@ import {
 	Spin,
 	Menu,
 	Dropdown,
+	Input,
 } from 'antd'
 import {
 	QuestionCircleOutlined,
@@ -25,6 +26,8 @@ import {
 	DownOutlined,
 	CheckOutlined,
 	DownloadOutlined,
+	EditOutlined,
+	SaveOutlined,
 } from '@ant-design/icons'
 import Papa from 'papaparse'
 const { Title, Text } = Typography
@@ -34,6 +37,7 @@ const TabularClassificationPredict = ({
 	uploadedFiles,
 	projectInfo,
 	handleUploadFiles,
+	model,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [predictionHistory, setPredictionHistory] = useState([])
@@ -51,9 +55,20 @@ const TabularClassificationPredict = ({
 	const [selectedRowData, setSelectedRowData] = useState(null)
 	const [visibleColumns, setVisibleColumns] = useState([])
 	const [uploading, setUploading] = useState(false)
+	const [editingCell, setEditingCell] = useState(null)
+	const [editValue, setEditValue] = useState('')
+	const [editMode, setEditMode] = useState(false)
+	const [editedPredictions, setEditedPredictions] = useState({}) // Store edited prediction values
 
 	const fileInputRef = useRef(null)
 	const pageSize = 9
+
+	// Get the predicted class column name from model metadata
+	const getPredictedClassColumnName = () => {
+		return model?.metadata?.label_column || 'Predicted Class'
+	}
+
+	console.log('model', model)
 
 	// Utility function to truncate text with ellipsis (always 50 chars)
 	const truncateText = (text) => {
@@ -66,18 +81,86 @@ const TabularClassificationPredict = ({
 		return text && typeof text === 'string' && text.length > 50
 	}
 
+	// Edit cell functions
+	const handleEditCell = (rowIndex, columnKey, originalValue) => {
+		setEditingCell({ rowIndex, columnKey, originalValue })
+		setEditValue(originalValue)
+	}
+
+	const handleSaveEdit = () => {
+		if (!editingCell) return
+
+		const { rowIndex, columnKey } = editingCell
+		const globalIndex = rowIndex + (currentPage - 1) * pageSize
+
+		// Handle prediction columns differently
+		if (columnKey === 'predictedClass' || columnKey === 'confidence') {
+			// Store edited prediction values
+			setEditedPredictions((prev) => ({
+				...prev,
+				[globalIndex]: {
+					...prev[globalIndex],
+					[columnKey === 'predictedClass' ? 'class' : 'confidence']:
+						editValue,
+				},
+			}))
+		} else {
+			// Update CSV data for regular columns
+			setCsvData((prevData) => {
+				const newData = [...prevData]
+				newData[rowIndex] = {
+					...newData[rowIndex],
+					[columnKey]: editValue,
+				}
+				return newData
+			})
+
+			// Update prediction history
+			setPredictionHistory((prevHistory) => {
+				const newHistory = [...prevHistory]
+				if (newHistory[currentFileIndex]) {
+					const newData = [...newHistory[currentFileIndex].data]
+					newData[rowIndex] = {
+						...newData[rowIndex],
+						[columnKey]: editValue,
+					}
+					newHistory[currentFileIndex].data = newData
+				}
+				return newHistory
+			})
+		}
+
+		// Clear editing state
+		setEditingCell(null)
+		setEditValue('')
+	}
+
+	const handleCancelEdit = () => {
+		setEditingCell(null)
+		setEditValue('')
+	}
+
 	// Convert prediction object to display format
-	const getPredictedInfo = (prediction) => {
+	const getPredictedInfo = (prediction, index) => {
 		if (!prediction || typeof prediction !== 'object') {
 			return { key: null, class: null, confidence: null }
 		}
 
+		// Check if this prediction has been edited
+		const editedPrediction = editedPredictions[index]
+
 		return {
 			key: prediction.key ?? null,
-			class: prediction.class ?? null,
-			confidence: prediction.confidence
-				? parseFloat(prediction.confidence).toFixed(2)
-				: null,
+			class:
+				editedPrediction?.class !== undefined
+					? editedPrediction.class
+					: (prediction.class ?? null),
+			confidence:
+				editedPrediction?.confidence !== undefined
+					? editedPrediction.confidence
+					: prediction.confidence
+						? parseFloat(prediction.confidence).toFixed(2)
+						: null,
 		}
 	}
 
@@ -102,17 +185,21 @@ const TabularClassificationPredict = ({
 			})
 
 			// Add prediction columns
-			if (visibleColumnsForDownload.includes('Predicted Class')) {
+			const predictedClassColumnName = getPredictedClassColumnName()
+			if (visibleColumnsForDownload.includes(predictedClassColumnName)) {
 				const prediction = predictResult[index]
-				downloadRow['Predicted Class'] =
-					prediction?.class !== undefined ? prediction.class : '-'
+				const predictedInfo = getPredictedInfo(prediction, index)
+				downloadRow[predictedClassColumnName] =
+					predictedInfo.class !== null ? predictedInfo.class : '-'
 			}
 
 			if (visibleColumnsForDownload.includes('Confidence')) {
 				const prediction = predictResult[index]
-				downloadRow['Confidence'] = prediction?.confidence
-					? parseFloat(prediction.confidence).toFixed(2)
-					: '-'
+				const predictedInfo = getPredictedInfo(prediction, index)
+				downloadRow['Confidence'] =
+					predictedInfo.confidence !== null
+						? predictedInfo.confidence
+						: '-'
 			}
 
 			return downloadRow
@@ -150,7 +237,7 @@ const TabularClassificationPredict = ({
 						// Add prediction columns if available
 						if (predictResult.length > 0) {
 							initialVisibleColumns.push(
-								'Predicted Class',
+								getPredictedClassColumnName(),
 								'Confidence'
 							)
 						}
@@ -307,36 +394,103 @@ const TabularClassificationPredict = ({
 				title: col,
 				dataIndex: col,
 				key: col,
-				render: (text) => {
+				render: (text, record, index) => {
 					const truncatedText = truncateText(text)
 					const isTruncated = isTextTruncated(text)
+					const isEditing =
+						editingCell?.rowIndex === index &&
+						editingCell?.columnKey === col
+
+					if (isEditing) {
+						return (
+							<div className="flex items-center gap-2">
+								<Input
+									value={editValue}
+									onChange={(e) =>
+										setEditValue(e.target.value)
+									}
+									size="small"
+									className="flex-1"
+									autoFocus
+									onPressEnter={handleSaveEdit}
+									onBlur={handleSaveEdit}
+								/>
+								<Space size="small">
+									<Button
+										type="text"
+										size="small"
+										icon={<SaveOutlined />}
+										onClick={handleSaveEdit}
+										className="text-green-600 hover:text-green-700"
+									/>
+									<Button
+										type="text"
+										size="small"
+										icon={<CloseCircleOutlined />}
+										onClick={handleCancelEdit}
+										className="text-red-600 hover:text-red-700"
+									/>
+								</Space>
+							</div>
+						)
+					}
 
 					if (col === targetColumn) {
 						return (
-							<Tooltip
-								title={isTruncated ? text : null}
-								placement="topLeft"
-							>
-								<Tag
-									color="blue"
-									className={isTruncated ? 'cursor-help' : ''}
+							<div className="flex items-center justify-between">
+								<Tooltip
+									title={isTruncated ? text : null}
+									placement="topLeft"
 								>
-									{truncatedText}
-								</Tag>
-							</Tooltip>
+									<Tag
+										color="blue"
+										className={
+											isTruncated ? 'cursor-help' : ''
+										}
+									>
+										{truncatedText}
+									</Tag>
+								</Tooltip>
+								{editMode && (
+									<Button
+										type="text"
+										size="small"
+										icon={<EditOutlined />}
+										onClick={() =>
+											handleEditCell(index, col, text)
+										}
+										className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
+									/>
+								)}
+							</div>
 						)
 					}
 
 					return (
-						<Tooltip
-							title={isTruncated ? text : null}
-							placement="topLeft"
-							overlayStyle={{ maxWidth: 450 }}
-						>
-							<Text className={isTruncated ? 'cursor-help' : ''}>
-								{truncatedText}
-							</Text>
-						</Tooltip>
+						<div className="flex items-center justify-between group">
+							<Tooltip
+								title={isTruncated ? text : null}
+								placement="topLeft"
+								overlayStyle={{ maxWidth: 450 }}
+							>
+								<Text
+									className={isTruncated ? 'cursor-help' : ''}
+								>
+									{truncatedText}
+								</Text>
+							</Tooltip>
+							{editMode && (
+								<Button
+									type="text"
+									size="small"
+									icon={<EditOutlined />}
+									onClick={() =>
+										handleEditCell(index, col, text)
+									}
+									className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
+								/>
+							)}
+						</div>
 					)
 				},
 				ellipsis: false, // We handle truncation manually
@@ -349,27 +503,85 @@ const TabularClassificationPredict = ({
 		const conditionalColumns = []
 
 		// Add Predicted Class column if visible
-		if (visibleColumns.includes('Predicted Class')) {
+		const predictedClassColumnName = getPredictedClassColumnName()
+		if (visibleColumns.includes(predictedClassColumnName)) {
 			conditionalColumns.push({
-				title: 'Predicted Class',
+				title: predictedClassColumnName,
 				key: 'predictedClass',
+				fixed: 'right',
 				width: 120,
 				align: 'center',
 				render: (_, __, index) => {
 					const globalIndex = index + (currentPage - 1) * pageSize
 					const prediction = predictResult[globalIndex]
-					const predictedInfo = getPredictedInfo(prediction)
+					const predictedInfo = getPredictedInfo(
+						prediction,
+						globalIndex
+					)
 					const isCorrect =
 						!incorrectPredictions.includes(globalIndex)
+					const isEditing =
+						editingCell?.rowIndex === index &&
+						editingCell?.columnKey === 'predictedClass'
 
-					if (predictedInfo.class === null) {
-						return <Tag color={isCorrect ? 'green' : 'red'}>-</Tag>
+					if (isEditing) {
+						return (
+							<div className="flex items-center gap-2">
+								<Input
+									value={editValue}
+									onChange={(e) =>
+										setEditValue(e.target.value)
+									}
+									size="small"
+									className="flex-1"
+									autoFocus
+									onPressEnter={handleSaveEdit}
+									onBlur={handleSaveEdit}
+								/>
+								<Space size="small">
+									<Button
+										type="text"
+										size="small"
+										icon={<SaveOutlined />}
+										onClick={handleSaveEdit}
+										className="text-green-600 hover:text-green-700"
+									/>
+									<Button
+										type="text"
+										size="small"
+										icon={<CloseCircleOutlined />}
+										onClick={handleCancelEdit}
+										className="text-red-600 hover:text-red-700"
+									/>
+								</Space>
+							</div>
+						)
 					}
 
+					const displayValue =
+						predictedInfo.class === null ? '-' : predictedInfo.class
+
 					return (
-						<Tag color={isCorrect ? 'green' : 'red'}>
-							{predictedInfo.class}
-						</Tag>
+						<div className="flex items-center justify-between group">
+							<Tag color={isCorrect ? 'green' : 'red'}>
+								{displayValue}
+							</Tag>
+							{editMode && (
+								<Button
+									type="text"
+									size="small"
+									icon={<EditOutlined />}
+									onClick={() =>
+										handleEditCell(
+											index,
+											'predictedClass',
+											displayValue
+										)
+									}
+									className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
+								/>
+							)}
+						</div>
 					)
 				},
 			})
@@ -380,23 +592,82 @@ const TabularClassificationPredict = ({
 			conditionalColumns.push({
 				title: 'Confidence',
 				key: 'confidence',
+				fixed: 'right',
 				width: 100,
 				align: 'center',
 				render: (_, __, index) => {
 					const globalIndex = index + (currentPage - 1) * pageSize
 					const prediction = predictResult[globalIndex]
-					const predictedInfo = getPredictedInfo(prediction)
+					const predictedInfo = getPredictedInfo(
+						prediction,
+						globalIndex
+					)
 					const isCorrect =
 						!incorrectPredictions.includes(globalIndex)
+					const isEditing =
+						editingCell?.rowIndex === index &&
+						editingCell?.columnKey === 'confidence'
 
-					if (predictedInfo.confidence === null) {
-						return <Tag color={isCorrect ? 'green' : 'red'}>-</Tag>
+					if (isEditing) {
+						return (
+							<div className="flex items-center gap-2">
+								<Input
+									value={editValue}
+									onChange={(e) =>
+										setEditValue(e.target.value)
+									}
+									size="small"
+									className="flex-1"
+									autoFocus
+									onPressEnter={handleSaveEdit}
+									onBlur={handleSaveEdit}
+								/>
+								<Space size="small">
+									<Button
+										type="text"
+										size="small"
+										icon={<SaveOutlined />}
+										onClick={handleSaveEdit}
+										className="text-green-600 hover:text-green-700"
+									/>
+									<Button
+										type="text"
+										size="small"
+										icon={<CloseCircleOutlined />}
+										onClick={handleCancelEdit}
+										className="text-red-600 hover:text-red-700"
+									/>
+								</Space>
+							</div>
+						)
 					}
 
+					const displayValue =
+						predictedInfo.confidence === null
+							? '-'
+							: predictedInfo.confidence
+
 					return (
-						<Tag color={isCorrect ? 'green' : 'red'}>
-							{predictedInfo.confidence}
-						</Tag>
+						<div className="flex items-center justify-between group">
+							<Tag color={isCorrect ? 'blue' : 'red'}>
+								{displayValue}
+							</Tag>
+							{editMode && (
+								<Button
+									type="text"
+									size="small"
+									icon={<EditOutlined />}
+									onClick={() =>
+										handleEditCell(
+											index,
+											'confidence',
+											displayValue
+										)
+									}
+									className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
+								/>
+							)}
+						</div>
 					)
 				},
 			})
@@ -572,83 +843,6 @@ const TabularClassificationPredict = ({
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-				<Card className="border-0 shadow-md rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
-					<Statistic
-						title={
-							<span className="text-slate-600 font-medium">
-								Total Predictions
-							</span>
-						}
-						value={csvData.length}
-						prefix={
-							<QuestionCircleOutlined className="text-blue-500" />
-						}
-						valueStyle={{
-							color: '#1e40af',
-							fontSize: '24px',
-							fontWeight: '600',
-						}}
-					/>
-				</Card>
-
-				<Card className="border-0 shadow-md rounded-xl bg-gradient-to-r from-green-50 to-green-100">
-					<Statistic
-						title={
-							<span className="text-slate-600 font-medium">
-								Correct Predictions
-							</span>
-						}
-						value={statistics.correct}
-						prefix={
-							<CheckCircleOutlined className="text-green-500" />
-						}
-						valueStyle={{
-							color: '#059669',
-							fontSize: '24px',
-							fontWeight: '600',
-						}}
-					/>
-				</Card>
-
-				<Card className="border-0 shadow-md rounded-xl bg-gradient-to-r from-red-50 to-red-100">
-					<Statistic
-						title={
-							<span className="text-slate-600 font-medium">
-								Incorrect Predictions
-							</span>
-						}
-						value={statistics.incorrect}
-						prefix={
-							<CloseCircleOutlined className="text-red-500" />
-						}
-						valueStyle={{
-							color: '#dc2626',
-							fontSize: '24px',
-							fontWeight: '600',
-						}}
-					/>
-				</Card>
-
-				<Card className="border-0 shadow-md rounded-xl bg-gradient-to-r from-purple-50 to-purple-100">
-					<Statistic
-						title={
-							<span className="text-slate-600 font-medium">
-								Accuracy
-							</span>
-						}
-						value={statistics.accuracy}
-						suffix="%"
-						precision={1}
-						valueStyle={{
-							color: '#7c3aed',
-							fontSize: '24px',
-							fontWeight: '600',
-						}}
-					/>
-				</Card>
-			</div>
-
 			{loading ? (
 				<Card className="border-0 shadow-lg rounded-xl">
 					<div className="flex flex-col items-center justify-center py-16">
@@ -666,6 +860,35 @@ const TabularClassificationPredict = ({
 								<Text className="text-slate-700 font-medium">
 									Prediction Results
 								</Text>
+							</div>
+							<div className="flex items-center gap-3">
+								<Tooltip
+									title={
+										editMode
+											? 'Exit edit mode'
+											: 'Enable edit mode'
+									}
+								>
+									<Button
+										type={editMode ? 'primary' : 'default'}
+										size="small"
+										icon={<EditOutlined />}
+										onClick={() => {
+											setEditMode(!editMode)
+											if (editMode) {
+												// Cancel any ongoing edit when disabling edit mode
+												handleCancelEdit()
+											}
+										}}
+										className={
+											editMode
+												? 'bg-blue-600 hover:bg-blue-700'
+												: 'border-slate-200 hover:border-blue-300'
+										}
+									>
+										{editMode ? 'Exit Edit' : 'Edit Mode'}
+									</Button>
+								</Tooltip>
 							</div>
 						</div>
 					</div>
@@ -797,14 +1020,16 @@ const TabularClassificationPredict = ({
 								{(() => {
 									const prediction =
 										predictResult[selectedRowData.index]
-									const predictedInfo =
-										getPredictedInfo(prediction)
+									const predictedInfo = getPredictedInfo(
+										prediction,
+										selectedRowData.index
+									)
 
 									return (
 										<>
 											<div className="p-3 bg-purple-50 rounded-lg">
 												<Text className="text-sm font-medium text-slate-600 block mb-1">
-													Predicted Class
+													{getPredictedClassColumnName()}
 												</Text>
 												<Tag
 													color="purple"
@@ -940,18 +1165,18 @@ const TabularClassificationPredict = ({
 											<div className="flex items-center gap-3">
 												<Switch
 													checked={visibleColumns.includes(
-														'Predicted Class'
+														getPredictedClassColumnName()
 													)}
 													onChange={() =>
 														handleColumnVisibilityToggle(
-															'Predicted Class'
+															getPredictedClassColumnName()
 														)
 													}
 													size="small"
 												/>
 												<div>
 													<Text className="font-semibold text-blue-600">
-														Predicted Class
+														{getPredictedClassColumnName()}
 													</Text>
 													<Tag
 														color="blue"

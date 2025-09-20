@@ -114,12 +114,14 @@ const ModelView = () => {
                 }
                 for (const key in metricsRes.data) {
                     const metricData = {
-                        key: key,
-                        metric: metricsRes.data[key].name,
-                        value: metricsRes.data[key].score,
-                        description: metricsRes.data[key].description,
-                        status: getAccuracyStatus(metricsRes.data[key].score)
-                    }
+						key: key,
+						metric: metricsRes.data[key].name,
+						value: parseFloat(metricsRes.data[key].score).toFixed(
+							2
+						),
+						description: metricsRes.data[key].description,
+						status: getAccuracyStatus(metricsRes.data[key].score),
+					}
                     setMetrics((prev) => [...prev, metricData])
                 }
             }
