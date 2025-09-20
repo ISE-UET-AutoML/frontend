@@ -63,8 +63,6 @@ const SelectInstance = () => {
 		instanceSize: 'Weak',
 	})
 	const [instanceInfo, setInstanceInfo] = useState(null)
-	const [showFindingInstanceCard, setShowFindingInstanceCard] =
-		useState(false)
 	const [sshKey, setSshKey] = useState('')
 	const [infrastructureData, setInfrastructureData] = useState({
 		id: '',
@@ -230,28 +228,38 @@ const SelectInstance = () => {
 			return
 		}
 		setIsProcessing(true)
-		setShowFindingInstanceCard(true)
+
+		navigate(
+			`/app/project/${projectInfo.id}/build/training?experimentName=loading&experimentId=loading`,
+			{ replace: true }
+		)
+
 		try {
 			const instanceInfoData = await findInstance()
 			const trainResult = await trainModel(instanceInfoData)
-			setShowFindingInstanceCard(false)
+
 			if (
 				trainResult &&
 				trainResult.experimentName &&
 				trainResult.experimentId
 			) {
-				// Navigate immediately when training request sent
 				navigate(
 					`/app/project/${projectInfo.id}/build/training?experimentName=${trainResult.experimentName}&experimentId=${trainResult.experimentId}`,
 					{ replace: true }
 				)
 			} else {
 				message.error('Training result is invalid!')
+				navigate(
+					`/app/project/${projectInfo.id}/build/selectInstance`,
+					{ replace: true }
+				)
 			}
 		} catch (error) {
 			console.error('Error', error)
 			message.error('Failed to find instance or train model.')
-			setShowFindingInstanceCard(false)
+			navigate(`/app/project/${projectInfo.id}/build/selectInstance`, {
+				replace: true,
+			})
 		} finally {
 			setIsProcessing(false)
 		}
@@ -1465,38 +1473,6 @@ const SelectInstance = () => {
             `}</style>
 			<div className="dark-build-page font-poppins">
 				<div className="select-instance-container p-6">
-					{/* Modal tiến trình tìm instance, không thể tắt thủ công */}
-					<Modal
-						open={showFindingInstanceCard}
-						closable={false}
-						footer={null}
-						centered
-						maskClosable={false}
-						title={
-							<span>
-								<RocketOutlined /> Finding the suitable
-								instance...
-							</span>
-						}
-						width={500}
-						zIndex={2000}
-						className="dark-build-modal"
-					>
-						<Space
-							direction="vertical"
-							align="center"
-							style={{ width: '100%' }}
-						>
-							<Spin
-								size="large"
-								tip="Searching for the best instance for your project..."
-							/>
-							<Text className="dark-build-text">
-								Please wait a moment while the system finds the
-								most suitable resources.
-							</Text>
-						</Space>
-					</Modal>
 					<Tabs
 						items={items}
 						onChange={(key) => setActiveTab(key)}
