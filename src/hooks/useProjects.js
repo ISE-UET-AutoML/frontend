@@ -16,6 +16,8 @@ const initialState = {
 }
 
 const projType = Object.keys(TASK_TYPES)
+console.log('Available project types:', projType)
+
 
 export const useProjects = () => {
     const [projectState, updateProjState] = useReducer(
@@ -27,6 +29,9 @@ export const useProjects = () => {
     const [isSelected, setIsSelected] = useState(projType.map(() => false))
     const [projectName, setProjectName] = useState('')
     const [description, setDescription] = useState('')
+    const [visibility, setVisibility] = useState('private')
+    const [license, setLicense] = useState('MIT')
+    const [expectedAccuracy, setExpectedAccuracy] = useState(75)
     const [jsonSumm, setJsonSumm] = useState('')
     const [selectedSort, setSelectedSort] = useState('created_at')
     const [searchValue, setSearchValue] = useState('')
@@ -88,7 +93,9 @@ export const useProjects = () => {
     }
 
     const selectType = (e, idx) => {
+        console.log('Selected project type index:', idx)
         const tmpArr = isSelected.map((el, index) => (index === idx ? true : false))
+        console.log('Updated isSelected array:', tmpArr)
         setIsSelected(tmpArr)
     }
 
@@ -98,35 +105,35 @@ export const useProjects = () => {
 
         setAllProjects(
             proj.map((project) => ({
-            ...project,
-            done_experiments: null,
-            training_experiments: null,
-            setting_experiments: null,
+                ...project,
+                done_experiments: null,
+                training_experiments: null,
+                setting_experiments: null,
             }))
         )
 
         proj.forEach(async (project) => {
             try {
-            const experiments_res = await getAllExperiments(project.id)
-            const experiments = experiments_res.data
+                const experiments_res = await getAllExperiments(project.id)
+                const experiments = experiments_res.data
 
-            const done_experiments = experiments.filter(
-                (exp) => exp.status === 'DONE'
-            ).length
-            const training_experiments = experiments.filter(
-                (exp) => exp.status === 'TRAINING'
-            ).length
-            const setting_experiments = experiments.filter(
-                (exp) => exp.status === 'SETTING_UP'
-            ).length
+                const done_experiments = experiments.filter(
+                    (exp) => exp.status === 'DONE'
+                ).length
+                const training_experiments = experiments.filter(
+                    (exp) => exp.status === 'TRAINING'
+                ).length
+                const setting_experiments = experiments.filter(
+                    (exp) => exp.status === 'SETTING_UP'
+                ).length
 
-            setAllProjects((prev) =>
-                prev.map((p) =>
-                p.id === project.id
-                    ? { ...p, done_experiments, training_experiments, setting_experiments }
-                    : p
+                setAllProjects((prev) =>
+                    prev.map((p) =>
+                        p.id === project.id
+                            ? { ...p, done_experiments, training_experiments, setting_experiments }
+                            : p
+                    )
                 )
-            )
             } catch (err) {
                 return {
                     ...project,
@@ -140,26 +147,56 @@ export const useProjects = () => {
         return allProjects
     }
 
-    const handleCreateProject = async (event) => {
-        event.preventDefault()
+    // const handleCreateProject = async (event) => {
+    //     event.preventDefault()
 
-        const formData = new FormData(event.target)
-        const data = Object.fromEntries(formData)
+    //     const formData = new FormData(event.target)
+    //     const data = Object.fromEntries(formData)
+    //     isSelected.forEach((el, idx) => {
+    //         if (el) data.task_type = projType[idx]
+    //     })
+
+    //     if (jsonSumm) {
+    //         const givenJson = JSON.parse(jsonSumm)
+    //         const metricsExplain = givenJson.metrics_explain
+    //         if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
+    //     }
+
+    //     try {
+    //         const response = await instance.post(API_URL.all_projects, data, {
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         })
+
+    //         if (response.status === 200) {
+    //             navigate(PATHS.PROJECT_BUILD(response.data.id))
+    //         }
+    //     } catch (error) {
+    //         message.error('Project already existed')
+    //     }
+    // }
+
+    // KHÔNG cần event.preventDefault nữa
+    const handleCreateProject = async (values) => {
+        const data = { ...values }
+
+        // Gán project type được chọn
         isSelected.forEach((el, idx) => {
             if (el) data.task_type = projType[idx]
         })
 
+        // Nếu có jsonSumm thì thêm metrics_explain
         if (jsonSumm) {
             const givenJson = JSON.parse(jsonSumm)
-            const metricsExplain = givenJson.metrics_explain
-            if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
+            if (givenJson.metrics_explain) {
+                data.metrics_explain = JSON.stringify(givenJson.metrics_explain)
+            }
         }
 
         try {
             const response = await instance.post(API_URL.all_projects, data, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             })
 
             if (response.status === 200) {
@@ -169,6 +206,7 @@ export const useProjects = () => {
             message.error('Project already existed')
         }
     }
+
 
     const setTask = (_jsonSumm) => {
         if (_jsonSumm) {
@@ -214,7 +252,13 @@ export const useProjects = () => {
         setTask,
         handleSearch,
         handleSortChange,
-        resetFilters
+        resetFilters,
+        visibility,
+        setVisibility,
+        license,
+        setLicense,
+        expectedAccuracy,
+        setExpectedAccuracy,
     }
 }
 
