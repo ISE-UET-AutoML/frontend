@@ -137,7 +137,7 @@ const ManualCreationModal = ({
 	onSubmit,
 	initialProjectName = '',
 	initialDescription = '',
-	initialTaskType = null,
+	initialTaskType = projType[0],
 	initialVisibility = 'private',
 	initialLicense = 'MIT',
 	initialExpectedAccuracy = 75,
@@ -147,8 +147,9 @@ const ManualCreationModal = ({
 	const [form] = Form.useForm()
 
 	// Fix: Lấy index đã chọn và project type tương ứng
-	const selectedIndex = isSelected.findIndex(item => item === true)
-	const selectedProjectType = selectedIndex !== -1 ? projType[selectedIndex] : null
+	const selectedIndex = isSelected.findIndex((item) => item === true)
+	const selectedProjectType =
+		selectedIndex !== -1 ? projType[selectedIndex] : null
 
 	React.useEffect(() => {
 		if (open) {
@@ -158,20 +159,28 @@ const ManualCreationModal = ({
 				task_type: initialTaskType,
 				visibility: initialVisibility,
 				license: initialLicense,
-				expected_accuracy: initialExpectedAccuracy
-			});
+				expected_accuracy: initialExpectedAccuracy,
+			})
 		}
-	}, [open, form, initialProjectName, initialDescription, initialTaskType,
-		initialVisibility, initialLicense, initialExpectedAccuracy]);
+	}, [
+		open,
+		form,
+		initialProjectName,
+		initialDescription,
+		initialTaskType,
+		initialVisibility,
+		initialLicense,
+		initialExpectedAccuracy,
+	])
 
 	const handleSubmit = (values) => {
-		onSubmit(values);
-	};
+		onSubmit(values)
+	}
 
 	const handleSelectType = (e, idx) => {
-		onSelectType(e, idx);
-		form.setFieldValue('task_type', projType[idx]);
-	};
+		onSelectType(e, idx)
+		form.setFieldValue('task_type', projType[idx])
+	}
 	return (
 		<>
 			<style>{`
@@ -444,18 +453,35 @@ const ManualCreationModal = ({
 						task_type: initialTaskType,
 						visibility: initialVisibility,
 						license: initialLicense,
-						expected_accuracy: initialExpectedAccuracy
+						expected_accuracy: initialExpectedAccuracy,
 					}}
 				>
 					<Row gutter={[24, 24]}>
 						<Col span={6}>
 							<Form.Item
-								label={<span style={{ color: '#fff', fontSize: 20, fontWeight: 500 }}>Project Name</span>}
+								label={
+									<span
+										style={{
+											color: '#fff',
+											fontSize: 20,
+											fontWeight: 500,
+										}}
+									>
+										Project Name
+									</span>
+								}
 								name="name"
 								style={{ marginBottom: 16 }}
 								rules={[
-									{ required: true, message: 'Please enter project name!' },
-									{ min: 3, message: 'Name must be at least 3 characters' },
+									{
+										required: true,
+										message: 'Please enter project name!',
+									},
+									{
+										min: 3,
+										message:
+											'Name must be at least 3 characters',
+									},
 								]}
 							>
 								<Input
@@ -467,10 +493,25 @@ const ManualCreationModal = ({
 
 						<Col span={6}>
 							<Form.Item
-								label={<span style={{ color: '#fff', fontSize: 20, fontWeight: 500 }}>License</span>}
+								label={
+									<span
+										style={{
+											color: '#fff',
+											fontSize: 20,
+											fontWeight: 500,
+										}}
+									>
+										License
+									</span>
+								}
 								name="license"
 								style={{ marginBottom: 16 }}
-								rules={[{ required: true, message: 'Please select license!' }]}
+								rules={[
+									{
+										required: true,
+										message: 'Please select license!',
+									},
+								]}
 							>
 								<Select
 									placeholder="Select license"
@@ -479,33 +520,63 @@ const ManualCreationModal = ({
 									<Option value="mit">MIT License</Option>
 									<Option value="apache">Apache 2.0</Option>
 									<Option value="gpl">GPL v3</Option>
-									<Option value="proprietary">Proprietary</Option>
+									<Option value="proprietary">
+										Proprietary
+									</Option>
 								</Select>
 							</Form.Item>
 						</Col>
 
 						<Col span={6}>
 							<Form.Item
-								label={<span style={{ color: '#fff', fontSize: 20, fontWeight: 500 }}>Expected Accuracy (%)</span>}
+								label={
+									<span
+										style={{
+											color: '#fff',
+											fontSize: 20,
+											fontWeight: 500,
+										}}
+									>
+										Expected Accuracy (%)
+									</span>
+								}
 								name="expected_accuracy"
+								initialValue={75}
 								style={{ marginBottom: 16 }}
 								rules={[
-									{ required: true, message: 'Please input expected accuracy!' },
+									{
+										required: true,
+										message:
+											'Please input expected accuracy!',
+									},
 									{
 										type: 'number',
 										min: 0,
 										max: 100,
-										message: 'Accuracy must be between 0 and 100!'
-									}
+										message:
+											'Accuracy must be between 0 and 100!',
+									},
 								]}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '16px',
+									}}
+								>
 									<Slider
 										min={0}
 										max={100}
 										step={1}
 										style={{ flex: 1 }}
-										onChange={(value) => form.setFieldValue('expected_accuracy', value)}
+										defaultValue={75}
+										onChange={(value) =>
+											form.setFieldValue(
+												'expected_accuracy',
+												value
+											)
+										}
 										className="dark-build-slider"
 									/>
 								</div>
@@ -514,14 +585,49 @@ const ManualCreationModal = ({
 
 						<Col span={6}>
 							<Form.Item
-								label={<span style={{ color: '#fff', fontSize: 20, fontWeight: 500 }}>Visibility</span>}
+								label={
+									<span
+										style={{
+											color: '#fff',
+											fontSize: 20,
+											fontWeight: 500,
+										}}
+									>
+										Visibility
+									</span>
+								}
 								name="visibility"
 								style={{ marginBottom: 16 }}
-								rules={[{ required: true, message: 'Please choose visibility!' }]}
+								rules={[
+									{
+										required: true,
+										message: 'Please choose visibility!',
+									},
+								]}
 							>
 								<Radio.Group>
-									<Radio value="private"><span style={{ color: '#fff', fontSize: 13, fontWeight: 500 }}>Private</span></Radio>
-									<Radio value="public"><span style={{ color: '#fff', fontSize: 13, fontWeight: 500 }}>Public</span></Radio>
+									<Radio value="private">
+										<span
+											style={{
+												color: '#fff',
+												fontSize: 13,
+												fontWeight: 500,
+											}}
+										>
+											Private
+										</span>
+									</Radio>
+									<Radio value="public">
+										<span
+											style={{
+												color: '#fff',
+												fontSize: 13,
+												fontWeight: 500,
+											}}
+										>
+											Public
+										</span>
+									</Radio>
 								</Radio.Group>
 							</Form.Item>
 						</Col>
@@ -531,9 +637,18 @@ const ManualCreationModal = ({
 					<Row gutter={[24, 24]}>
 						<Col span={24}>
 							<Form.Item
-								label={<span style={{ color: '#fff', fontSize: 20, fontWeight: 500 }}>Description</span>}
+								label={
+									<span
+										style={{
+											color: '#fff',
+											fontSize: 20,
+											fontWeight: 500,
+										}}
+									>
+										Description
+									</span>
+								}
 								name="description"
-
 							>
 								<Tooltip title="Explain what your project aims to achieve">
 									<TextArea
@@ -559,47 +674,92 @@ const ManualCreationModal = ({
 									paddingRight: 8,
 								}}
 							>
-								{projType.map((type, idx) => (
-									console.log('isSelected array:', isSelected),
-									<Card
-										key={type}
-										hoverable
-										onClick={(e) => handleSelectType(e, idx)}
-										className={isSelected[idx] ? 'selected' : ''}
-										style={{
-											borderRadius: 12,
-											border: isSelected[idx] ? '2px solid var(--primary-color)' : '1px solid var(--border-color)',
-											backgroundColor: isSelected[idx] ? 'var(--selected-bg)' : 'var(--card-bg)'
-										}}
-									>
-										<Row justify="space-between" align="middle" style={{ marginBottom: 8 }}>
-											<Title level={4} style={{ margin: 0 }}>
-												{TASK_TYPES[type].type}
-											</Title>
-											<Space size={[4, 4]} wrap>
-												{typeTags[idx].map((tag) => (
-													<Tag
-														key={tag}
-														color="blue"
-														style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+								{projType.map(
+									(type, idx) => (
+										console.log(
+											'isSelected array:',
+											isSelected
+										),
+										(
+											<Card
+												key={type}
+												hoverable
+												onClick={(e) =>
+													handleSelectType(e, idx)
+												}
+												className={
+													isSelected[idx]
+														? 'selected'
+														: ''
+												}
+												style={{
+													borderRadius: 12,
+													border: isSelected[idx]
+														? '2px solid var(--primary-color)'
+														: '1px solid var(--border-color)',
+													backgroundColor: isSelected[
+														idx
+													]
+														? 'var(--selected-bg)'
+														: 'var(--card-bg)',
+												}}
+											>
+												<Row
+													justify="space-between"
+													align="middle"
+													style={{ marginBottom: 8 }}
+												>
+													<Title
+														level={4}
+														style={{ margin: 0 }}
 													>
-														{tagIcons[tag]} {tag}
-													</Tag>
-												))}
-											</Space>
-										</Row>
-										<Text style={{ color: 'var(--secondary-text)' }}>
-											{typeDescription[idx]}
-										</Text>
-									</Card>
-								))}
+														{TASK_TYPES[type].type}
+													</Title>
+													<Space size={[4, 4]} wrap>
+														{typeTags[idx].map(
+															(tag) => (
+																<Tag
+																	key={tag}
+																	color="blue"
+																	style={{
+																		display:
+																			'flex',
+																		alignItems:
+																			'center',
+																		gap: 4,
+																	}}
+																>
+																	{
+																		tagIcons[
+																			tag
+																		]
+																	}{' '}
+																	{tag}
+																</Tag>
+															)
+														)}
+													</Space>
+												</Row>
+												<Text
+													style={{
+														color: 'var(--secondary-text)',
+													}}
+												>
+													{typeDescription[idx]}
+												</Text>
+											</Card>
+										)
+									)
+								)}
 							</div>
 						</Col>
 
 						<Col span={12}>
 							{selectedProjectType && (
 								<img
-									src={getImageByProjectType(selectedProjectType)}
+									src={getImageByProjectType(
+										selectedProjectType
+									)}
 									alt={selectedProjectType || 'Project Type'}
 									style={{
 										width: '100%',
