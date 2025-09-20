@@ -68,7 +68,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	const createdAtDisplay = dataset?.createdAt
 		? dayjs(dataset.createdAt).format('MMM D, YYYY')
 		: 'N/A'
-
+	const thumbnail = dataset?.thumbnail
 	const isClickable = processingStatus === 'COMPLETED'
 	const statusConfig =
 		PROCESSING_STATUS[processingStatus] || PROCESSING_STATUS.PROCESSING
