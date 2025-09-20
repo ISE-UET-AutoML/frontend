@@ -62,7 +62,7 @@ export default function Datasets() {
 
     const allDatasets = async () => {
         try {
-            const response = await datasetAPI.getDatasets({ page: 1, limit: 10000 })
+            const response = await datasetAPI.getDatasets({ page: 1, limit: 6 })
             setAllDatasetList(response.data.data)
             console.log('All datasets fetched for search:', response.data.data)
         } catch (error) {
