@@ -264,7 +264,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 	return (
 		<div
 			key={dataset.id}
-			className={`group rounded-2xl shadow-lg w-[380px] h-[400px] overflow-hidden font-poppins transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative ${
+			className={`group rounded-2xl shadow-lg w-[360px] h-[360px] overflow-hidden font-poppins transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative ${
 				isCompleted ? 'cursor-pointer' : 'cursor-default'
 			} ${isProcessing ? 'opacity-75' : ''}`}
 			style={{
