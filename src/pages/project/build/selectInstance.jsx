@@ -144,7 +144,9 @@ const SelectInstance = () => {
 		}
 	}
 
-	const findInstance = async () => {
+	// Train model 
+	const trainModel = async () => {
+		// For instance
 		let instanceSize = formData.instanceSize
 		let selectedGPU
 		switch (instanceSize) {
@@ -180,32 +182,12 @@ const SelectInstance = () => {
 		const time = formData.trainingTime
 		const cost = formData.cost * formData.trainingTime
 		console.log('Cost: ', cost)
-		const createInstancePayload = {
-			training_time: time,
-			presets: 'medium_quality',
-			cost: cost,
-			select_best_machine: true,
-			projectID: projectInfo.id,
-		}
-		const instance = await createInstance(createInstancePayload)
-		const instanceInfoData = instance.data
-		setInstanceInfo(instanceInfoData)
-		updateFields({ instanceInfo: instanceInfoData })
-		return instanceInfoData // avoid asynchronous state issue
-	}
 
-	// Train model with the found instance, avoid asynchronous state issue
-	const trainModel = async (instanceInfoData) => {
-		const time = formData.trainingTime
-		if (!instanceInfoData) {
-			message.error('No instance info found!')
-			return
-		}
 		const presignUrl = await createDownZipPU(selectedProject.dataset_title)
-		const creating_instance_time = instanceInfoData.creating_time || 60
+		// const creating_instance_time = instanceInfoData.creating_time || 60
 		const payload = {
+			cost: cost,
 			trainingTime: time * 3600,
-			instanceInfo: instanceInfoData,
 			presets: 'medium_quality',
 			datasetUrl: presignUrl.data,
 			datasetLabelUrl: 'hello',
@@ -235,8 +217,7 @@ const SelectInstance = () => {
 		)
 
 		try {
-			const instanceInfoData = await findInstance()
-			const trainResult = await trainModel(instanceInfoData)
+			const trainResult = await trainModel()
 
 			if (
 				trainResult &&

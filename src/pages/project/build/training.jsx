@@ -419,7 +419,6 @@ const Training = () => {
 	const navigate = useNavigate()
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
-	const experimentName = searchParams.get('experimentName')
 	const experimentId = searchParams.get('experimentId')
 	const [trainingInfo, setTrainingInfo] = useState({
 		latestEpoch: 0,
@@ -435,6 +434,7 @@ const Training = () => {
 	const [trainProgress, setTrainProgress] = useState(0)
 	const [currentStep, setCurrentStep] = useState(0)
 	const [currentSettingUpStep, setCurrentSettingUpStep] = useState(0)
+	const [experimentName, setExperimentName] = useState(searchParams.get('experimentName') || 'loading')
 
 	// Handle view results button click
 	const handleViewResults = () => {
@@ -560,6 +560,12 @@ const Training = () => {
 
 			try {
 				const response = await getExperimentById(experimentId)
+				if (
+					response.data.name &&
+					response.data.name !== experimentName
+				) {
+					setExperimentName(response.data.name)
+				}
 				const configResponse = await getExperimentConfig(experimentId)
 				const config = configResponse.data[0]
 				setStatus(response.data.status)

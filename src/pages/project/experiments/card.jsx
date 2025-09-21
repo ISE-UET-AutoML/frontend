@@ -130,6 +130,14 @@ const getStatusConfig = (status) => {
                 icon: <SettingIcon className="h-6 w-6" />,
                 badge: 'Setting Up'
             }
+        case 'CREATING_INSTANCE':
+            return {
+                color: 'text-blue-400',
+                bgColor: 'bg-blue-500/10',
+                borderColor: 'border-blue-500/20',
+                icon: <SettingIcon className="h-6 w-6" />,
+                badge: 'Setting Up'
+            }
         default:
             return {
                 color: 'text-gray-400',
@@ -144,6 +152,7 @@ const getStatusConfig = (status) => {
 export default function ExperimentCard({ experiment }) {
     const { theme } = useTheme()
     const { id, project_id, name, start_time, end_time, status, framework } = experiment
+    console.log('ExperimentCard render:', experiment)
     const navigate = useNavigate()
     const statusConfig = getStatusConfig(status)
 
