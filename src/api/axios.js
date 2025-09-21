@@ -7,7 +7,7 @@ const cookies = new Cookies();
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
-    withCredentials: true,
+    // withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -30,15 +30,15 @@ instance.interceptors.request.use(
         const cookies = new Cookies();
         const accessToken = cookies.get('accessToken');
         const userId = cookies.get('x-user-id');
-        
+
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
-        
+
         if (userId) {
             config.headers['x-user-id'] = userId;
         }
-        
+
         return config;
     },
     (error) => {
@@ -56,10 +56,10 @@ instance.interceptors.response.use(
 
         // Chỉ xử lý khi lỗi là 401 Unauthorized và yêu cầu gốc chưa được thử lại
         if (error.response?.status === 401 && !originalRequest._retry) {
-            
+
             if (isRefreshing) {
                 // Nếu đang trong quá trình làm mới token, thêm yêu cầu vào hàng đợi
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     failedQueue.push({ resolve, reject });
                 }).then(token => {
                     originalRequest.headers['Authorization'] = 'Bearer ' + token;
@@ -74,7 +74,7 @@ instance.interceptors.response.use(
                 // 1. GỌI API REFRESH
                 console.log("Access Token hết hạn, đang gọi API refresh...");
                 // Sử dụng API_URL bạn đã định nghĩa
-                const { data } = await instance.post(API_URL.refresh_token); 
+                const { data } = await instance.post(API_URL.refresh_token);
                 const newAccessToken = data.access_token;
 
                 // 2. CẬP NHẬT TOKEN MỚI
@@ -85,7 +85,7 @@ instance.interceptors.response.use(
 
                 // Xử lý hàng đợi (thực thi lại các API đã bị lỗi trước đó)
                 processQueue(null, newAccessToken);
-                
+
                 // 3. THỬ LẠI YÊU CẦU CŨ
                 console.log("Thử lại yêu cầu gốc:", originalRequest.url);
                 return instance(originalRequest);
@@ -93,7 +93,7 @@ instance.interceptors.response.use(
             } catch (refreshError) {
                 console.error("Không thể làm mới token:", refreshError);
                 processQueue(refreshError, null);
-                
+
                 // Xóa thông tin đăng nhập và chuyển hướng về trang login
                 cookies.remove('accessToken', { path: '/' });
                 cookies.remove('refreshToken', { path: '/' });

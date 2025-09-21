@@ -132,8 +132,8 @@ const Login = () => {
                     }
                 `}</style>
                 <div className="relative w-full h-full">
-                    <BackgroundShapes 
-                        width="100%" 
+                    <BackgroundShapes
+                        width="100%"
                         height="100%"
                         shapes={[
                             { id: 'loginBlue', shape: 'circle', size: '520px', gradient: { type: 'radial', shape: 'ellipse', colors: ['#5C8DFF 0%', '#5C8DFF 35%', 'transparent 75%'] }, opacity: 0.45, blur: '220px', position: { top: '10%', right: '-140px' }, transform: 'none' },
@@ -143,7 +143,7 @@ const Login = () => {
                     />
                     {/* Full-screen background cube layer */}
                     <div className="absolute inset-0 z-0 pointer-events-none">
-                        <TextCubeCanvas 
+                        <TextCubeCanvas
                             shapeType='icosahedron'
                             offsetX={offsetX}
                             rollSpeed={0.005}
