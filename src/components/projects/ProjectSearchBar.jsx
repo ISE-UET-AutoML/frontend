@@ -50,7 +50,7 @@ export default function ProjectSearchBar({ onSearch, isReset }) {
         <>
             <style>{themeInputStyles}</style>
             <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Input
+                {/* <Input
                     placeholder="Search projects..."
                     value={searchValue}
                     onChange={handleChange}
@@ -59,6 +59,20 @@ export default function ProjectSearchBar({ onSearch, isReset }) {
                     className="theme-input"
                     spellCheck={false}
                     style={{ flex: 1 }}
+                /> */}
+                <input
+                    type="text"
+                    placeholder="Search projects..."
+                    value={searchValue || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
+                    style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        borderRadius: '6px',
+                        background: 'var(--filter-bg)',
+                        border: '1px solid var(--filter-border)',
+                        color: 'var(--text)',
+                    }}
                 />
             </div>
         </>

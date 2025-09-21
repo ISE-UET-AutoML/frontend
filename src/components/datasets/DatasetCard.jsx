@@ -68,7 +68,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
     const createdAtDisplay = dataset?.createdAt
         ? dayjs(dataset.createdAt).format('MMM D, YYYY')
         : 'N/A'
-
+    const thumbnail = dataset?.thumbnail
     const isClickable = processingStatus === 'COMPLETED'
     const statusConfig =
         PROCESSING_STATUS[processingStatus] || PROCESSING_STATUS.PROCESSING
@@ -264,7 +264,7 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
     return (
         <div
             key={dataset.id}
-            className={`group rounded-2xl shadow-lg w-[380px] h-[400px] overflow-hidden font-poppins transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative ${isCompleted ? 'cursor-pointer' : 'cursor-default'
+            className={`group rounded-2xl shadow-lg w-[360px] h-[360px] overflow-hidden font-poppins transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative ${isCompleted ? 'cursor-pointer' : 'cursor-default'
                 } ${isProcessing ? 'opacity-75' : ''}`}
             style={{
                 background: 'var(--card-gradient)',
@@ -283,84 +283,87 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             onClick={handleCardClick}
         >
             {/* Header Section */}
-            <div className="px-4 pt-4 pb-2">
-                {/* Top Row: Status on left, Star/Delete on right */}
-                <div className="flex justify-between items-center mb-4">
-                    {/* Status Badge - Left */}
-                    <div
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${isCompleted
-                                ? 'bg-green-100 text-green-800 border border-green-200'
-                                : isFailed
-                                    ? 'bg-red-100 text-red-800 border border-red-200'
-                                    : 'bg-blue-100 text-blue-800 border border-blue-200'
-                            }`}
-                    >
-                        {isProcessing && (
-                            <span className="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse mr-1.5" />
-                        )}
-                        {statusConfig.text}
-                    </div>
-
-                    {/* Action Buttons - Right */}
-                    <div className="flex gap-1.5">
-                        <button
-                            className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-50"
-                            style={{
-                                background: 'var(--surface)',
-                                border: '1px solid var(--border)',
-                            }}
-                        >
-                            <StarIcon
-                                className="h-3.5 w-3.5"
-                                style={{ color: 'var(--secondary-text)' }}
-                            />
-                        </button>
-                        <button
-                            className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-red-50 transition-all duration-200"
-                            style={{
-                                background: 'var(--surface)',
-                                border: '1px solid var(--border)',
-                            }}
-                            onClick={(e) => handleDelete(e, dataset.id)}
-                        >
-                            <TrashIcon className="h-3.5 w-3.5 text-red-500" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Dataset Type Icon - Below top row */}
-                <div className="flex justify-left mb-3">
-                    <div
-                        className="w-14 h-14 rounded-xl shadow-md flex items-center justify-center"
-                        style={{
-                            background: 'var(--surface)',
-                            border: '1px solid var(--border)',
-                        }}
-                    >
-                        <TypeIcon
-                            className="h-7 w-7 transition-transform duration-500 ease-out"
-                            style={{
-                                color:
-                                    gradientTheme.accent ||
-                                    'var(--accent-text)',
-                            }}
-                            aria-hidden="true"
+            <div className="relative px-4 pt-4 pb-2">
+                {/* Thumbnail background chỉ trong header */}
+                {thumbnail && (
+                    <div className="absolute inset-0">
+                        <img
+                            src={thumbnail}
+                            alt="dataset thumbnail"
+                            className="w-full h-full object-cover"
                         />
+                        {/* overlay gradient cho dễ nhìn hơn */}
+                        <div className="absolute inset-0 bg-black/10" />
                     </div>
-                </div>
+                )}
 
-                {/* Data Type Tag - Below icon */}
-                <div className="flex justify-left">
-                    <span
-                        className="px-2.5 py-1 text-xs font-medium rounded-full shadow-sm"
-                        style={{
-                            background: 'var(--tag-gradient)',
-                            border: '1px solid var(--border)',
-                            color: 'var(--text)',
-                        }}
-                    >
-                        {dataType.replace(/_/g, ' ')}
-                    </span>
+                {/* Nội dung header */}
+                <div className="relative z-10">
+                    {/* Top Row: Status + Actions */}
+                    <div className="flex justify-between items-center mb-4">
+                        {/* Status Badge */}
+                        <div
+                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${isCompleted
+                                    ? 'bg-green-100 text-green-800 border border-green-200'
+                                    : isFailed
+                                        ? 'bg-red-100 text-red-800 border border-red-200'
+                                        : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                }`}
+                        >
+                            {isProcessing && (
+                                <span className="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse mr-1.5" />
+                            )}
+                            {statusConfig.text}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-1.5">
+                            <button
+                                className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-50"
+                                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                            >
+                                <StarIcon className="h-3.5 w-3.5" style={{ color: 'var(--secondary-text)' }} />
+                            </button>
+                            <button
+                                className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-red-50 transition-all duration-200"
+                                style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+                                onClick={(e) => handleDelete(e, dataset.id)}
+                            >
+                                <TrashIcon className="h-3.5 w-3.5 text-red-500" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Icon */}
+                    <div className="flex justify-left mb-3">
+                        <div
+                            className="w-14 h-14 rounded-xl shadow-md flex items-center justify-center"
+                            style={{
+                                background: 'var(--surface)',
+                                border: '1px solid var(--border)',
+                            }}
+                        >
+                            <TypeIcon
+                                className="h-7 w-7 transition-transform duration-500 ease-out"
+                                style={{ color: gradientTheme.accent || 'var(--accent-text)' }}
+                                aria-hidden="true"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Data Type Tag */}
+                    <div className="flex justify-left">
+                        <span
+                            className="px-2.5 py-1 text-xs font-medium rounded-full shadow-sm"
+                            style={{
+                                background: 'var(--tag-gradient)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text)',
+                            }}
+                        >
+                            {dataType.replace(/_/g, ' ')}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -373,19 +376,6 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
                     >
                         {dataset.title || 'Untitled Dataset'}
                     </h2>
-                    <p
-                        className="text-sm leading-relaxed font-normal"
-                        style={{
-                            color: 'var(--secondary-text)',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            lineHeight: '1.4',
-                        }}
-                    >
-                        {dataset.description || 'No description available'}
-                    </p>
                 </div>
 
                 <div

@@ -43,7 +43,7 @@ export default function LabelProjectCard({ project, onDelete, isDeleting }) {
         e.stopPropagation();
         try {
             setIsUploading(true);
-            await uploadToS3(labelStudioId);
+            // await uploadToS3(labelStudioId);
             message.success('Upload to S3 successfully');
         } catch (error) {
             console.error('Error uploading to S3:', error);

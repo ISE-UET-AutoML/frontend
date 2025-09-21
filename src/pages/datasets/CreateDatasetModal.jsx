@@ -15,7 +15,6 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
     const [labelProjectData, setLabelProjectData] = useState(null);
 
     const handleNext = async (values) => {
-        // ✅ Không tạo dataset ở bước 1, chỉ lưu thông tin và chuyển bước
         setDatasetFormValues(values);
         setCurrentStep(1);
     };
@@ -38,7 +37,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
             const chunks = [];
             const zips = [];
             for (const [label, folderFiles] of fileMap.entries()) {
-                if(isImageFolder(folderFiles)) {
+                if (isImageFolder(folderFiles)) {
                     const folderChunk = createChunks(new Map([[label, folderFiles]]), IMG_NUM_IN_ZIP);
                     chunks.push(...folderChunk);
                 } else {
@@ -51,7 +50,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 
             let extraMeta = {};
             const csvFile = files.find(f => f.path.endsWith('.csv'));
-            if ((dataset_type === 'TEXT' || dataset_type === 'TABULAR' || dataset_type === 'MULTIMODAL' || dataset_type ==='TIME_SERIES') && csvFile) {
+            if ((dataset_type === 'TEXT' || dataset_type === 'TABULAR' || dataset_type === 'MULTIMODAL' || dataset_type === 'TIME_SERIES') && csvFile) {
                 try {
                     extraMeta = await extractCSVMetaData(csvFile.fileObject);
                 } catch (err) {
@@ -95,10 +94,10 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     files: chunk.files,
                 })),
                 ...zips.map(zip => ({
-                key: `${title}/zip/${zip.name}`,
-                type: 'application/zip',
-                files: zip.files,
-            })),
+                    key: `${title}/zip/${zip.name}`,
+                    type: 'application/zip',
+                    files: zip.files,
+                })),
             ];
 
             const presignPayload = {
@@ -290,16 +289,16 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                         <Steps
                             current={currentStep}
                             items={[
-                                { 
+                                {
                                     title: 'Create Dataset',
                                     description: 'Upload and configure your data'
-                                }, 
-                                { 
+                                },
+                                {
                                     title: 'Create Label Project',
                                     description: 'Set up labeling configuration'
                                 }
                             ]}
-                            style={{ marginBottom: 24 }}
+                            style={{ marginBottom: 12 }}
                         />
                         {currentStep === 0 ? (
                             <CreateDatasetForm
