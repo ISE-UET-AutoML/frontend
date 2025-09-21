@@ -136,7 +136,7 @@ export default function Datasets() {
             updateDataState({ showCreator: false })
             usePollingStore.getState().addPending({ dataset: createdDataset, labelProjectValues })
             await getDatasets()
-            await allDatasets()
+            //await allDatasets()
             setSortBy('latest')
             setFilterBy('none')
         } catch (error) {
@@ -150,7 +150,7 @@ export default function Datasets() {
             await datasetAPI.deleteDataset(datasetId)
             message.success('Dataset deleted successfully!')
             await getDatasets()
-            await allDatasets()
+            //await allDatasets() vibe coding it thoi...
         } catch (err) {
             console.error('Failed to delete dataset:', err)
             message.error('Failed to delete dataset')

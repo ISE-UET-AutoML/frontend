@@ -365,7 +365,15 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 					</span>
 				</div>
 			</div>
-
+			{thumbnail && (
+				<div className="w-full h-40 mb-3 rounded-lg overflow-hidden flex items-center justify-center bg-gray-900">
+				<img
+					src={thumbnail}
+					alt="dataset thumbnail"
+					className="w-full h-full object-cover"
+				/>
+				</div>
+			)}
 			<div className="flex-1 px-5 py-4 flex flex-col">
 				{/* Title & Description */}
 				<div className="flex-1">
@@ -375,19 +383,6 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
 					>
 						{dataset.title || 'Untitled Dataset'}
 					</h2>
-					<p
-						className="text-sm leading-relaxed font-normal"
-						style={{
-							color: 'var(--secondary-text)',
-							display: '-webkit-box',
-							WebkitLineClamp: 2,
-							WebkitBoxOrient: 'vertical',
-							overflow: 'hidden',
-							lineHeight: '1.4',
-						}}
-					>
-						{dataset.description || 'No description available'}
-					</p>
 				</div>
 
 				<div
