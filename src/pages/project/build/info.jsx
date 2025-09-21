@@ -326,9 +326,11 @@ const ProjectInfo = () => {
 											value={
 												experiments.filter(
 													(e) =>
-														e.status ===
-															'TRAINING' ||
-														e.status == 'SETTING_UP'
+														e.status === 'TRAINING' || 
+													    e.status === 'SETTING_UP' ||
+														e.status === 'CREATING_INSTANCE' ||
+														e.status === 'DOWNLOADING_DATA' ||
+														e.status === 'DOWNLOADING_DEPENDENCIES'
 												).length
 											}
 											color={{

@@ -128,18 +128,18 @@ export const useProjects = () => {
 				const experiments_res = await getAllExperiments(project.id)
 				const experiments = experiments_res.data
 
-            const done_experiments = experiments.filter(
-                (exp) => exp.status === 'DONE'
-            ).length
-            const training_experiments = experiments.filter(
-                (exp) => exp.status === 'TRAINING'
-            ).length
-            const setting_experiments = experiments.filter(
-                (exp) => exp.status === 'SETTING_UP' 
-                || exp.status === 'CREATING_INSTANCE' 
-                || exp.status === 'DOWNLOADING_DEPENDENCIES' 
-                || exp.status === 'DOWNLOADING_DATA' 
-            ).length
+                const done_experiments = experiments.filter(
+                    (exp) => exp.status === 'DONE'
+                ).length
+                const training_experiments = experiments.filter(
+                    (exp) => exp.status === 'TRAINING'
+                ).length
+                const setting_experiments = experiments.filter(
+                    (exp) => exp.status === 'SETTING_UP' 
+                    || exp.status === 'CREATING_INSTANCE' 
+                    || exp.status === 'DOWNLOADING_DEPENDENCIES' 
+                    || exp.status === 'DOWNLOADING_DATA' 
+                ).length
 
 				setAllProjects((prev) =>
 					prev.map((p) =>
