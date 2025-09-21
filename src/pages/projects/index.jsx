@@ -46,6 +46,14 @@ export default function Projects() {
 		setSearchValue,
 		isReset,
 		resetFilters,
+		visibility,
+		setVisibility,
+		projType,
+		license,
+		setLicense,
+		expectedAccuracy,
+		setExpectedAccuracy,
+
 	} = useProjects()
 
 	const {
@@ -215,10 +223,11 @@ export default function Projects() {
 								updateProjState({ showUploaderManual: false })
 							}
 							onSubmit={handleCreateProject}
-							projectName={projectName}
-							setProjectName={setProjectName}
-							description={description}
-							setDescription={setDescription}
+							initialProjectName={projectName}
+							initialDescription={description}
+							initialVisibility={visibility}
+							initialLicense="MIT"
+							initialExpectedAccuracy={75}
 							isSelected={isSelected}
 							onSelectType={selectType}
 						/>
