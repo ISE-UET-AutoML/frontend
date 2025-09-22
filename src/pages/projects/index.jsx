@@ -14,6 +14,7 @@ import {
 import AIAssistantModal from './AIAssistantModal'
 import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import Pager from 'src/components/Pager'
 
 // Hooks
 import { useProjects, useChatbot, useDatasets } from 'src/hooks'
@@ -22,6 +23,8 @@ import { useTheme } from 'src/theme/ThemeProvider'
 const { Content } = Layout
 
 export default function Projects() {
+	const pageSize = 9
+	const [currentPage, setCurrentPage] = React.useState(1)
 	// Custom hooks
 	const {
 		projectState,
@@ -92,6 +95,16 @@ export default function Projects() {
 	}
 
 	const { theme } = useTheme()
+
+	// Reset page if projects list changes and current page overflows
+	React.useEffect(() => {
+		const total = projectState.projects?.length || 0
+		const totalPages = Math.max(1, Math.ceil(total / pageSize))
+		if (currentPage > totalPages) setCurrentPage(1)
+	}, [projectState.projects])
+
+	const startIndex = (currentPage - 1) * pageSize
+	const paginatedProjects = (projectState.projects || []).slice(startIndex, startIndex + pageSize)
 
 	return (
 		<>
@@ -192,14 +205,24 @@ export default function Projects() {
 								searchValue={searchValue}
 							/>
 
-							{/* Projects Grid */}
-							<ProjectsGrid
-								projects={projectState.projects}
+						{/* Projects Grid */}
+						<ProjectsGrid
+							projects={paginatedProjects}
 								getProjects={getProjects}
 								onCreateProject={() =>
 									updateProjState({ showUploader: true })
 								}
 							/>
+
+						{/* Pager */}
+						<div className="mt-8">
+							<Pager
+								currentPage={currentPage}
+								totalItems={(projectState.projects || []).length}
+								pageSize={pageSize}
+								onPageChange={setCurrentPage}
+							/>
+						</div>
 						</ContentContainer>
 
 						{/* Creation Method Modal */}

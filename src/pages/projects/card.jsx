@@ -125,7 +125,7 @@ export default function ProjectCard({ project, getProjects }) {
 	return (
 		<div
 			key={project.id}
-			className="group rounded-2xl shadow-lg w-[380px] h-[320px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative"
+			className="group rounded-2xl shadow-lg w-full h-[320px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative"
 			style={{
 				background: 'var(--card-gradient)',
 				border: '1px solid var(--border)',

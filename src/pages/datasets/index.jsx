@@ -10,6 +10,7 @@ import {
 import CreateDatasetModal from './CreateDatasetModal'
 import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import Pager from 'src/components/Pager'
 
 // Hooks
 import { useDatasets } from 'src/hooks'
@@ -303,13 +304,19 @@ export default function Datasets() {
                                 isLoading={datasetState.isLoading}
                                 deletingIds={deletingIds}
                                 onDelete={handleDelete}
-                                currentPage={currentPage}
-                                totalItems={processedData.length}
-                                pageSize={pageSize}
-                                onPageChange={handlePageChange}
                                 onCreateDataset={() => updateDataState({ showCreator: true })}
                                 getDatasets={getDatasets}
                             />
+
+                            {/* Themed Pager */}
+                            <div className="mt-8">
+                                <Pager
+                                    currentPage={currentPage}
+                                    totalItems={processedData.length}
+                                    pageSize={pageSize}
+                                    onPageChange={handlePageChange}
+                                />
+                            </div>
                         </ContentContainer>
                     </Content>
                 </Layout>
