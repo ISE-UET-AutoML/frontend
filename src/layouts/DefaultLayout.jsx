@@ -10,11 +10,22 @@ const DefaultLayout = () => {
         restoreDeployingTasks();
     }, []);
     return (
-        <>
+        <div className="relative min-h-screen">
+            <style>{`
+                body, html {
+                    background-color: var(--surface) !important;
+                    min-height: 100dvh !important;
+                }
+            `}</style>
+            {/* Full-viewport background fill (aligns with LandingPage approach) */}
+            <div className="fixed inset-0 bg-[var(--surface)] -z-50" />
+
             <NavBar />
-            <Outlet className="outlet" />
+            <div className="min-h-[calc(100dvh-60px)]">
+                <Outlet className="outlet" />
+            </div>
             <LabelProjectPollingManager />
-        </>
+        </div>
     )
 }
 

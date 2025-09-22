@@ -16,6 +16,7 @@ const NavBar = () => {
 	const location = useLocation()
     const { authed, logout: authLogout, user } = useAuth()
     const { theme, toggle } = useTheme()
+    const logoSrc = theme === 'light' ? '/BlackLogo.svg' : '/PrimaryLogo.svg'
 
 	useEffect(() => {
 		const getScrollTop = () => {
@@ -96,8 +97,8 @@ const NavBar = () => {
 				<div className="flex justify-between items-center h-16">
 					{/* Left: ASTRAL Logo */}
 					<div className="flex-shrink-0">
-						<img
-							src="/PrimaryLogo.svg"
+                        <img
+                            src={logoSrc}
 							alt="ASTRAL"
 							className="h-10 w-auto cursor-pointer transition-transform duration-300 hover:scale-105"
 							onClick={() => navigate('/')}

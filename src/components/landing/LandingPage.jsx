@@ -31,9 +31,10 @@ const LandingPage = () => {
 
     return (
         <div 
-            className="min-h-screen text-white relative dark" 
-            style={{ backgroundColor: '#01000A' }}
+            className="min-h-screen relative"
         >
+            {/* Full-viewport background fill following app theme */}
+            <div className="fixed inset-0 bg-[var(--surface)] -z-50" />
 			{/* Background Effects Layer */}
 			<BackgroundShapes />
 			

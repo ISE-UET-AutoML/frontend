@@ -24,7 +24,7 @@ export default function ProjectLayout() {
 				
 				.project-content-wrapper {
 					background: transparent;
-					min-height: calc(100vh - 80px);
+					min-height: calc(100dvh - 60px);
 				}
 				
 				/* Glowing background shapes - only in dark mode */
@@ -60,11 +60,13 @@ export default function ProjectLayout() {
 				}
 			`}</style>
 			<div className={`project-bg-shapes ${theme === 'dark' ? 'dark-mode' : ''}`}>
+				{/* Full-viewport background fill */}
+				<div className="fixed inset-0 bg-[var(--surface)] -z-50" />
 				<ProjectSidebar
 					projectID={params.id}
 					className="fixed h-[calc(100vh-60px)] w-[80px] top-[60px] z-50"
 				/>
-				<div className="mx-auto w-[calc(100%-80px)] pl-[60px] pt-12 ml-[80px] mr-4 flex-grow lg:flex mt-4 h-[calc(100vh-80px)]">
+				<div className="mx-auto w-[calc(100%-80px)] pl-[60px] pt-12 ml-[80px] mr-4 flex-grow lg:flex mt-4 min-h-[calc(100dvh-60px)] overflow-hidden">
 					{/* Left sidebar & main wrapper */}
 					<div className="min-w-0 flex-1 w-max xl:flex rounded-md">
 						<div className="project-main-content lg:min-w-0 lg:flex-1 project-content-wrapper">
