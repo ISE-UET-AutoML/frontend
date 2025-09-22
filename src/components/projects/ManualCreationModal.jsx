@@ -460,13 +460,13 @@ const ManualCreationModal = ({
 						<Col span={6}>
 							<Form.Item
 								label={
-									<span
-										style={{
-											color: '#fff',
-											fontSize: 20,
-											fontWeight: 500,
-										}}
-									>
+                                    <span
+                                        style={{
+                                            color: 'var(--text)',
+                                            fontSize: 20,
+                                            fontWeight: 500,
+                                        }}
+                                    >
 										Project Name
 									</span>
 								}
@@ -494,13 +494,13 @@ const ManualCreationModal = ({
 						<Col span={6}>
 							<Form.Item
 								label={
-									<span
-										style={{
-											color: '#fff',
-											fontSize: 20,
-											fontWeight: 500,
-										}}
-									>
+                                    <span
+                                        style={{
+                                            color: 'var(--text)',
+                                            fontSize: 20,
+                                            fontWeight: 500,
+                                        }}
+                                    >
 										License
 									</span>
 								}
@@ -530,13 +530,13 @@ const ManualCreationModal = ({
 						<Col span={6}>
 							<Form.Item
 								label={
-									<span
-										style={{
-											color: '#fff',
-											fontSize: 20,
-											fontWeight: 500,
-										}}
-									>
+                                    <span
+                                        style={{
+                                            color: 'var(--text)',
+                                            fontSize: 20,
+                                            fontWeight: 500,
+                                        }}
+                                    >
 										Expected Accuracy (%)
 									</span>
 								}
@@ -607,24 +607,24 @@ const ManualCreationModal = ({
 							>
 								<Radio.Group>
 									<Radio value="private">
-										<span
-											style={{
-												color: '#fff',
-												fontSize: 13,
-												fontWeight: 500,
-											}}
-										>
+                                        <span
+                                            style={{
+                                                color: 'var(--text)',
+                                                fontSize: 13,
+                                                fontWeight: 500,
+                                            }}
+                                        >
 											Private
 										</span>
 									</Radio>
 									<Radio value="public">
-										<span
-											style={{
-												color: '#fff',
-												fontSize: 13,
-												fontWeight: 500,
-											}}
-										>
+                                        <span
+                                            style={{
+                                                color: 'var(--text)',
+                                                fontSize: 13,
+                                                fontWeight: 500,
+                                            }}
+                                        >
 											Public
 										</span>
 									</Radio>
@@ -638,13 +638,13 @@ const ManualCreationModal = ({
 						<Col span={24}>
 							<Form.Item
 								label={
-									<span
-										style={{
-											color: '#fff',
-											fontSize: 20,
-											fontWeight: 500,
-										}}
-									>
+                                    <span
+                                        style={{
+                                            color: 'var(--text)',
+                                            fontSize: 20,
+                                            fontWeight: 500,
+                                        }}
+                                    >
 										Description
 									</span>
 								}
