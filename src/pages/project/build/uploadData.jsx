@@ -32,6 +32,7 @@ import { Tooltip } from 'src/components/ui/tooltip'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { message } from 'antd'
 import { useTheme } from 'src/theme/ThemeProvider'
+import BuildPager from './BuildPager'
 // Simple SVG icons
 const CloudUploadIcon = ({ className, ...props }) => (
 	<svg
@@ -219,6 +220,8 @@ const UploadData = () => {
 	const [tableLoading, setTableLoading] = useState(false)
 	const [isModalVisible, setIsModalVisible] = useState(false)
 	const [isExporting, setIsExporting] = useState(false)
+	const [currentPage, setCurrentPage] = useState(1)
+	const pageSize = 8
 
 	const pollExportStatus = (taskId) => {
 		return new Promise((resolve, reject) => {
@@ -288,35 +291,34 @@ const UploadData = () => {
 		fetchProjects()
 	}, [projectInfo?.task_type])
 
-	const filteredProjects = labelProjects
+	const filteredProjects = (labelProjects || [])
 		.filter(
 			(item) =>
 				(!serviceFilter || item.service === serviceFilter) &&
 				(!bucketFilter || item.bucketName === bucketFilter) &&
-				(!labeledFilter ||
-					(labeledFilter === 'yes'
-						? item.isLabeled
-						: !item.isLabeled)) &&
-				(!searchQuery ||
-					item.title
-						.toLowerCase()
-						.includes(searchQuery.toLowerCase())) &&
+				(!labeledFilter || (labeledFilter === 'yes' ? item.isLabeled : !item.isLabeled)) &&
+				(!searchQuery || (item.title || '').toLowerCase().includes(searchQuery.toLowerCase())) &&
 				item.task_type === projectInfo?.task_type
 		)
 		.sort((a, b) => {
 			let comparison = 0
-
 			if (sortBy === 'name') {
-				comparison = a.title.localeCompare(b.title)
+				comparison = (a.title || '').localeCompare(b.title || '')
 			} else if (sortBy === 'date') {
-				// Assuming there's a created_at or similar date field
 				const dateA = new Date(a.created_at || a.updated_at || 0)
 				const dateB = new Date(b.created_at || b.updated_at || 0)
 				comparison = dateA - dateB
 			}
-
 			return sortDirection === 'asc' ? comparison : -comparison
 		})
+
+	useEffect(() => {
+		setCurrentPage(1)
+	}, [serviceFilter, bucketFilter, labeledFilter, searchQuery, sortBy, sortDirection, labelProjects])
+
+	const totalItems = filteredProjects.length
+	const startIndex = (currentPage - 1) * pageSize
+	const paginatedProjects = filteredProjects.slice(startIndex, startIndex + pageSize)
 
 	const handleContinue = async () => {
 		const selectedProject = filteredProjects.find(
@@ -960,7 +962,7 @@ const UploadData = () => {
 																</TableCell>
 															</TableRow>
 														) : (
-															filteredProjects.map(
+															paginatedProjects.map(
 																(project) => (
 																	<TableRow
 																		key={
@@ -1032,6 +1034,9 @@ const UploadData = () => {
 										)}
 									</CardContent>
 								</Card>
+								<div className="mt-6">
+									<BuildPager currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} onPageChange={setCurrentPage} />
+								</div>
 
 								{/* Create New Project Card */}
 								<Card
