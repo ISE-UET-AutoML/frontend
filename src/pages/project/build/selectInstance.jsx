@@ -183,7 +183,7 @@ const SelectInstance = () => {
 		const cost = formData.cost * formData.trainingTime
 		console.log('Cost: ', cost)
 
-		const presignUrl = await createDownZipPU(selectedProject.dataset_title)
+		const presignUrl = await createDownZipPU(selectedProject.dataset_id)
 		// const creating_instance_time = instanceInfoData.creating_time || 60
 		const payload = {
 			cost: cost,
