@@ -16,7 +16,7 @@ export const createLbProject = (payload) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        withCredentials: true,
+        // withCredentials: true,
         params: {
             userId: userId,
         }
@@ -30,7 +30,7 @@ export const getLbProjects = (ownerId) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        withCredentials: true,
+        // withCredentials: true,
         params: ownerId ? {
             owner_id: ownerId,
         } : {},
@@ -50,7 +50,7 @@ export const getLbProjByTask = (taskType) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        withCredentials: true,
+        // withCredentials: true,
         params: {
             task_type: taskType,
             owner_id: userId,
@@ -82,14 +82,14 @@ export const logoutLabelStudio = async () => {
             },
             signal: signal
         })
-        clearTimeout(timeoutId)
+        //clearTimeout(timeoutId)
 
         if (!response.status === 200) {
             throw new Error(`Logout khỏi LS thất bại, status: ${response.status}`);
         }
         return response;
     } catch (error) {
-        clearTimeout(timeoutId);
+        //clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
             console.error('Yêu cầu logout khỏi Label Studio đã hết giờ.');
         } else {
@@ -105,7 +105,7 @@ export const startExport = async (projectID) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        withCredentials: true,
+        // withCredentials: true,
     }
     return instance.post(`${URL_SERVICE}/ls-projects/${projectID}/start-export`, {}, options)
 }
@@ -115,7 +115,7 @@ export const getExportStatus = async (taskID) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        withCredentials: true,
+        // withCredentials: true,
     }
     return instance.get(`${URL_SERVICE}/ls-projects/export-status/${taskID}`, options)
 }

@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom'
 import { useTheme } from 'src/theme/ThemeProvider'
 import {
-	Steps,
 	Card,
 	Row,
 	Col,
@@ -17,13 +16,7 @@ import {
 	Button,
 	Badge,
 	Tag,
-	Modal,
-	Tooltip,
 	message,
-	Progress,
-	Timeline,
-	Divider,
-	Input,
 } from 'antd'
 import {
 	RocketOutlined,
@@ -31,16 +24,6 @@ import {
 	DatabaseOutlined,
 	ThunderboltOutlined,
 	CloudDownloadOutlined,
-	SettingOutlined,
-	LineChartOutlined,
-	LoadingOutlined,
-	CheckCircleOutlined,
-	InfoCircleOutlined,
-	CloudServerOutlined,
-	CodeOutlined,
-	NodeIndexOutlined,
-	CloudUploadOutlined,
-	LinkOutlined,
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import { validateFiles } from 'src/utils/file'
@@ -51,15 +34,7 @@ import * as resourceAPI from 'src/api/resource'
 import config from './config'
 import { PATHS } from 'src/constants/paths'
 
-const { Step } = Steps
 const { Title, Text, Paragraph } = Typography
-
-const steps = [
-	{
-		title: 'Creating instance for deployment',
-		icon: <SettingOutlined />,
-	},
-]
 
 const AnimatedCard = ({ children, onClick, isSelected }) => {
 	const [isHovered, setIsHovered] = useState(false)
@@ -98,8 +73,6 @@ const DeployView = () => {
 	const modelId = searchParams.get('modelId')
 	const [isDeploying, setIsDeploying] = useState(false)
 	const [selectedOption, setSelectedOption] = useState('')
-	const [currentStep, setCurrentStep] = useState(0)
-	const [isModalVisible, setIsModalVisible] = useState(false)
 
 	// Tính toán Progress tổng
 	const deployOptions = [
@@ -174,7 +147,10 @@ const DeployView = () => {
 
 	const startDeployment = async () => {
 		try {
-			setIsModalVisible(true)
+			navigate(
+				PATHS.SETTING_UP_DEPLOY(projectId, 'temp-deploy-id', modelId)
+			)
+
 			const createInstanceRequest =
 				await resourceAPI.createInstanceForDeploy()
 			console.log('Create instance payload:', createInstanceRequest)
@@ -195,18 +171,17 @@ const DeployView = () => {
 					projectId,
 					deployRequest.data?.model_deploy.id,
 					deployRequest.data?.model_deploy.model_id
-				)
+				),
+				{ replace: true }
 			)
 		} catch (e) {
 			console.log(e)
-			handleCancel()
 		}
 	}
 
 	const handleCancel = () => {
 		setIsDeploying(false)
 		setSelectedOption('')
-		setCurrentStep(0)
 	}
 
 	return (
@@ -342,80 +317,6 @@ const DeployView = () => {
             `}</style>
 			<div className="theme-build-page">
 				<div style={{ margin: '0 auto' }}>
-					<Modal
-						title={
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '10px',
-								}}
-							>
-								Resource Preparation
-								<Tooltip
-									title={
-										<div>
-											<p>
-												This process ensures a smooth
-												and secure setup:
-											</p>
-											<ul>
-												<li>
-													1. Create an isolated
-													virtual machine
-												</li>
-												<li>
-													2. Download required
-													resources safely
-												</li>
-												<li>
-													3. Configure the environment
-													for optimal performance
-												</li>
-											</ul>
-											<p>
-												Each step is carefully monitored
-												to prevent potential issues.
-											</p>
-										</div>
-									}
-								>
-									<InfoCircleOutlined
-										style={{
-											color: 'var(--accent-text)',
-											cursor: 'pointer',
-										}}
-									/>
-								</Tooltip>
-							</div>
-						}
-						open={isModalVisible}
-						footer={null}
-						width={1000}
-						className="theme-build-modal"
-					>
-						<Card className="theme-build-card preparation-card">
-							<Steps
-								current={currentStep}
-								className="theme-build-steps"
-							>
-								{steps.map((step, index) => (
-									<Step
-										key={index}
-										title={step.title}
-										description={step.description}
-										icon={
-											currentStep === index ? (
-												<LoadingOutlined />
-											) : (
-												step.icon
-											)
-										}
-									/>
-								))}
-							</Steps>
-						</Card>
-					</Modal>
 					<>
 						<Card
 							className="theme-build-card"
