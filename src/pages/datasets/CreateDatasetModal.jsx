@@ -31,6 +31,21 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
             setIsLoading(true);
             console.log('handleSubmit called with labelProjectValues:', labelProjectValues);
             const { files, totalKbytes, dataset_type, service, bucket_name, title, description } = datasetFormValues;
+        
+            console.log('Initial dataset:', title);
+            const initialDatasetPayload = {
+                title,
+                dataset_type
+            };
+            const initialResponse = await datasetAPI.initializeDataset(initialDatasetPayload);
+            console.log('Initial dataset created:', initialResponse.data);
+            const createdDataset = initialResponse.data;
+            const datasetID = createdDataset.id;
+            if (!datasetID) {
+                throw new Error("Không thể khởi tạo dataset trên server.");
+            }
+            console.log('Dataset ID:', datasetID);
+
             setLabelProjectData(labelProjectValues);
             console.log('labelProjectData set to:', labelProjectValues);
             const fileMap = organizeFiles(files);
@@ -72,7 +87,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     const parts = file.path.split('/');
                     const simplePath = parts.length > 1 ? parts.slice(1).join('/') : file.path;
                     return {
-                        path: `${title}/${simplePath}`,
+                        path: `${datasetID}/${simplePath}`,
                         chunk: fileToChunkMap.get(file.path) || null,
                     };
                 }),
@@ -84,24 +99,24 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
 
             const s3Files = [
                 {
-                    key: `${title}/index.json`,
+                    key: `${datasetID}/index.json`,
                     type: 'application/json',
                     content: JSON.stringify(indexData, null, 2),
                 },
                 ...chunks.map(chunk => ({
-                    key: `${title}/zip/${chunk.name}`,
+                    key: `${datasetID}/zip/${chunk.name}`,
                     type: 'application/zip',
                     files: chunk.files,
                 })),
                 ...zips.map(zip => ({
-                    key: `${title}/zip/${zip.name}`,
+                    key: `${datasetID}/zip/${zip.name}`,
                     type: 'application/zip',
                     files: zip.files,
                 })),
             ];
 
             const presignPayload = {
-                dataset_title: title,
+                dataset_title: datasetID,
                 files: s3Files.map(file => ({ key: file.key, type: file.type })),
             };
 
@@ -130,25 +145,24 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                 }
             }
 
-            const datasetPayload = {
-                title,
-                description: description || '',
-                dataset_type,
+            const finalizePayload = {
                 service,
                 bucket_name,
                 total_files: files.length,
                 total_size_kb: parseFloat(totalKbytes) || 0,
-                index_path: `${title}/index.json`,
+                index_path: `${datasetID}/index.json`,
                 chunks: chunks.map(chunk => ({
                     name: chunk.name,
                     file_count: chunk.files.length,
-                    s3_path: `${title}/zip/${chunk.name}`,
+                    s3_path: `${datasetID}/zip/${chunk.name}`,
                 })),
                 status: 'active',
                 meta_data: extraMeta,
+                //ls_project_creation_data: labelProjectValues 
             };
-
-            const { data: createdDataset } = await datasetAPI.createDataset(datasetPayload);
+            console.log("ID đang được dùng để finalize:", datasetID);
+            await datasetAPI.finalizeDataset(datasetID, finalizePayload);
+            console.log('Dataset finalized on server');
             // Đóng modal ngay lập tức và chuyển polling sang Zustand store
             onCreate(createdDataset, labelProjectValues);
             handleCancel();

@@ -21,6 +21,30 @@ const createDataset = (payload) => {
 	return instance.post(`${URL}/createDataset`, payload, options)
 }
 
+const initializeDataset = (payload) => {
+	const cookies = new Cookies();
+	const userId = cookies.get('x-user-id');
+	const options = {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		withCredentials: true,
+		params: {
+			userId: userId,
+		}
+	}
+	return instance.post(`${URL}/initialize`, payload, options)
+}
+
+const finalizeDataset = (datasetID, payload) => {
+	const options = {
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		withCredentials: true,
+	}
+	return instance.post(`${URL}/${datasetID}/finalize`, payload, options)
+}
 
 const createPresignedUrls = async (payload) => {
 	const options = {
@@ -98,4 +122,6 @@ export {
 	createPresignedUrls,
 	createDownPresignedUrls,
 	createDownZipPU,
+	initializeDataset,
+	finalizeDataset,
 }
