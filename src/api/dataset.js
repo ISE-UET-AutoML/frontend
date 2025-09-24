@@ -71,6 +71,7 @@ const getDatasets = (params) => {
     const cookies = new Cookies();
     const userId = cookies.get('x-user-id');
     params = { ...params, userId: userId }
+    console.log(`API Call`, params);
     return instance.get(URL, { params })
 }
 
