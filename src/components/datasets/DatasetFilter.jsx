@@ -86,7 +86,7 @@ const sortOptions = [
 ]
 
 const typeFilterOptions = [
-  { value: 'none', label: 'None' },
+  { value: 'None', label: 'None' },
   { value: 'TEXT', label: 'Text' },
   { value: 'IMAGE', label: 'Image' },
   { value: 'TABULAR', label: 'Tabular' },

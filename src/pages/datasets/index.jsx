@@ -108,7 +108,7 @@ export default function Datasets() {
 				page,
 				limit: pageSize,
 				search: searchTerm || undefined,
-				data_type: selectedType || undefined,
+				data_type: selectedType === "None" ? undefined : selectedType,
 				sort_by: sortBy,
 			})
 
