@@ -151,17 +151,7 @@ const DeployView = () => {
 				PATHS.SETTING_UP_DEPLOY(projectId, 'temp-deploy-id', modelId)
 			)
 
-			const createInstanceRequest =
-				await resourceAPI.createInstanceForDeploy()
-			console.log('Create instance payload:', createInstanceRequest)
-			if (createInstanceRequest.status !== 200) {
-				throw new Error('Failed to create instance.')
-			}
-			const instanceData = createInstanceRequest.data
-			const deployRequest = await modelAPI.deployModel(
-				modelId,
-				instanceData
-			)
+			const deployRequest = await modelAPI.deployModel(modelId)
 			console.log(deployRequest)
 			if (deployRequest.status !== 200) {
 				throw new Error('Failed to deploy model')
