@@ -114,14 +114,14 @@ const ModelView = () => {
                 }
                 for (const key in metricsRes.data) {
                     const metricData = {
-						key: key,
-						metric: metricsRes.data[key].name,
-						value: parseFloat(metricsRes.data[key].score).toFixed(
-							2
-						),
-						description: metricsRes.data[key].description,
-						status: getAccuracyStatus(metricsRes.data[key].score),
-					}
+                        key: key,
+                        metric: metricsRes.data[key].name,
+                        value: parseFloat(metricsRes.data[key].score).toFixed(
+                            2
+                        ),
+                        description: metricsRes.data[key].description,
+                        status: getAccuracyStatus(metricsRes.data[key].score),
+                    }
                     setMetrics((prev) => [...prev, metricData])
                 }
             }
@@ -184,8 +184,8 @@ const ModelView = () => {
                 }
             `}</style>
             <div className="min-h-screen bg-[#01000A] relative">
-                <BackgroundShapes 
-                    width="1280px" 
+                <BackgroundShapes
+                    width="1280px"
                     height="1200px"
                     shapes={[
                         {
@@ -222,10 +222,91 @@ const ModelView = () => {
                 />
                 <div className="relative z-10 p-6">
                     <Space direction="vertical" size="large" className="w-full">
-                {/* Key Metrics Cards */}
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} md={8}>
-                        <Card 
+                        {/* Key Metrics Cards */}
+                        <Row gutter={[16, 16]}>
+                            <Col xs={24} sm={12} md={8}>
+                                <Card
+                                    className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '12px',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
+                                >
+                                    <Statistic
+                                        title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>{`Model ${metrics[0] ? toNormalCase(metrics[0]?.metric) : "Null"} Score`}</span>}
+                                        value={metrics[0]?.value * 100 || 0}
+                                        precision={2}
+                                        prefix={<TrophyOutlined style={{ color: '#10b981' }} />}
+                                        suffix="%"
+                                        valueStyle={{
+                                            background: 'linear-gradient(135deg, #10b981, #34d399)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontWeight: 'bold'
+                                        }}
+                                    />
+                                </Card>
+                            </Col>
+                            <Col xs={24} sm={12} md={8}>
+                                <Card
+                                    className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '12px',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
+                                >
+                                    <Statistic
+                                        title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>Model Size</span>}
+                                        value={model.metadata?.model_size || 0}
+                                        valueStyle={{
+                                            background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontWeight: 'bold'
+                                        }}
+                                        prefix={<CloudDownloadOutlined style={{ color: '#f59e0b' }} />}
+                                        suffix="MB"
+                                        precision={2}
+                                    />
+                                </Card>
+                            </Col>
+                            <Col xs={24} sm={12} md={8}>
+                                <Card
+                                    className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '12px',
+                                        fontFamily: 'Poppins, sans-serif'
+                                    }}
+                                >
+                                    <Statistic
+                                        title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>Model Name</span>}
+                                        value={model.name}
+                                        prefix={<ExperimentOutlined style={{ color: '#3b82f6' }} />}
+                                        valueStyle={{
+                                            background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                                            WebkitBackgroundClip: 'text',
+                                            WebkitTextFillColor: 'transparent',
+                                            fontFamily: 'Poppins, sans-serif',
+                                            fontWeight: 'bold'
+                                        }}
+                                    />
+                                </Card>
+                            </Col>
+                        </Row>
+
+                        <Card
+                            title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Next Steps</span>}
                             className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
                             style={{
                                 background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
@@ -235,25 +316,122 @@ const ModelView = () => {
                                 fontFamily: 'Poppins, sans-serif'
                             }}
                         >
-                            <Statistic
-                                title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>{`Model ${metrics[0] ? toNormalCase(metrics[0]?.metric) : "Null"} Score`}</span>}
-                                value={metrics[0]?.value * 100 || 0}
-                                precision={2}
-                                prefix={<TrophyOutlined style={{ color: '#10b981' }} />}
-                                suffix="%"
-                                valueStyle={{
-                                    background: 'linear-gradient(135deg, #10b981, #34d399)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    fontWeight: 'bold'
-                                }}
-                            />
+                            <Row gutter={[16, 16]}>
+                                <Col xs={24} sm={8}>
+                                    <Alert
+                                        message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Deploy Model</span>}
+                                        description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Instantly transform your trained model into a production-ready solution for real-world predictions.</span>}
+                                        type="success"
+                                        showIcon
+                                        style={{
+                                            height: 130,
+                                            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1))',
+                                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                                            borderRadius: '8px',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                    />
+                                    <Button
+                                        type="primary"
+                                        icon={<RocketOutlined />}
+                                        onClick={() => {
+                                            navigate(
+                                                `/app/project/${id}/build/deployView?modelId=${modelId}`
+                                            )
+                                        }}
+                                        size="large"
+                                        style={{
+                                            width: '100%',
+                                            fontWeight: 'bold',
+                                            marginTop: 15,
+                                            background: 'linear-gradient(135deg, #10b981, #34d399)',
+                                            border: 'none',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                        className="hover:shadow-lg transition-all duration-300"
+                                    >
+                                        Deploy Now
+                                    </Button>
+                                </Col>
+                                <Col xs={24} sm={8}>
+                                    <Alert
+                                        message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Download Weights</span>}
+                                        description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Securely export and preserve your model's learned parameters for future iterations or transfer learning.</span>}
+                                        type="warning"
+                                        showIcon
+                                        style={{
+                                            height: 130,
+                                            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1))',
+                                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                                            borderRadius: '8px',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                    />
+                                    <Button
+                                        type="default"
+                                        icon={<CloudDownloadOutlined />}
+                                        size="large"
+                                        style={{
+                                            width: '100%',
+                                            fontWeight: 'bold',
+                                            marginTop: 15,
+                                            background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+                                            color: 'white',
+                                            border: 'none',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                        className="hover:shadow-lg transition-all duration-300"
+                                        onClick={async (e) => {
+                                            e.preventDefault()
+                                            const urlResponse = await mlServiceAPI.getModelUrl(modelId)
+                                            if (urlResponse.status !== 200) {
+                                                message.error("Failed to download model.")
+                                            }
+                                            const url = urlResponse.data
+                                            window.location.href = url
+                                        }}
+                                    >
+                                        Download
+                                    </Button>
+                                </Col>
+                                <Col xs={24} sm={8}>
+                                    <Alert
+                                        message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Refine Model</span>}
+                                        description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Continuously improve your model's performance by initiating a new training cycle with enhanced data or parameters.</span>}
+                                        type="info"
+                                        showIcon
+                                        style={{
+                                            height: 130,
+                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.1))',
+                                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                                            borderRadius: '8px',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                    />
+                                    <Button
+                                        type="default"
+                                        icon={<HistoryOutlined />}
+                                        size="large"
+                                        style={{
+                                            width: '100%',
+                                            fontWeight: 'bold',
+                                            marginTop: 15,
+                                            background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                                            color: 'white',
+                                            border: 'none',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                        className="hover:shadow-lg transition-all duration-300"
+                                    >
+                                        Retrain Model
+                                    </Button>
+                                </Col>
+                            </Row>
                         </Card>
-                    </Col>
-                    <Col xs={24} sm={12} md={8}>
-                        <Card 
-                            className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
+
+                        {/* Expandable Details Section */}
+                        <Card
+                            className="border-0 backdrop-blur-sm shadow-lg"
                             style={{
                                 background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
                                 backdropFilter: 'blur(10px)',
@@ -262,424 +440,312 @@ const ModelView = () => {
                                 fontFamily: 'Poppins, sans-serif'
                             }}
                         >
-                            <Statistic
-                                title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>Model Size</span>}
-                                value={model.metadata?.model_size || 0}
-                                valueStyle={{
-                                    background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    fontWeight: 'bold'
-                                }}
-                                prefix={<CloudDownloadOutlined style={{ color: '#f59e0b' }} />}
-                                suffix="MB"
-                                precision={2}
-                            />
-                        </Card>
-                    </Col>
-                    <Col xs={24} sm={12} md={8}>
-                        <Card 
-                            className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-                            style={{
-                                background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '12px',
-                                fontFamily: 'Poppins, sans-serif'
-                            }}
-                        >
-                            <Statistic
-                                title={<span style={{ color: '#94a3b8', fontFamily: 'Poppins, sans-serif' }}>Model Name</span>}
-                                value={model.name}
-                                prefix={<ExperimentOutlined style={{ color: '#3b82f6' }} />}
-                                valueStyle={{
-                                    background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-                                    WebkitBackgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    fontWeight: 'bold'
-                                }}
-                            />
-                        </Card>
-                    </Col>
-                </Row>
-
-                <Card 
-                    title={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Next Steps</span>}
-                    className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '12px',
-                        fontFamily: 'Poppins, sans-serif'
-                    }}
-                >
-                    <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={8}>
-                            <Alert
-                                message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Deploy Model</span>}
-                                description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Instantly transform your trained model into a production-ready solution for real-world predictions.</span>}
-                                type="success"
-                                showIcon
-                                style={{ 
-                                    height: 130,
-                                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1))',
-                                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                                    borderRadius: '8px',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                            />
                             <Button
-                                type="primary"
-                                icon={<RocketOutlined />}
-                                onClick={() => {
-                                    navigate(
-                                        `/app/project/${id}/build/deployView?modelId=${modelId}`
-                                    )
-                                }}
-                                size="large"
+                                type="link"
+                                icon={<BarChartOutlined style={{ color: '#60a5fa' }} />}
+                                onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
+                                className="text-xl"
                                 style={{
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    marginTop: 15,
-                                    background: 'linear-gradient(135deg, #10b981, #34d399)',
-                                    border: 'none',
+                                    color: '#e2e8f0',
                                     fontFamily: 'Poppins, sans-serif'
                                 }}
-                                className="hover:shadow-lg transition-all duration-300"
                             >
-                                Deploy Now
+                                {isDetailsExpanded
+                                    ? 'Hide Details'
+                                    : 'Show Detailed Model'}
                             </Button>
-                        </Col>
-                        <Col xs={24} sm={8}>
-                            <Alert
-                                message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Download Weights</span>}
-                                description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Securely export and preserve your model's learned parameters for future iterations or transfer learning.</span>}
-                                type="warning"
-                                showIcon
-                                style={{ 
-                                    height: 130,
-                                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1))',
-                                    border: '1px solid rgba(245, 158, 11, 0.3)',
-                                    borderRadius: '8px',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                            />
-                            <Button
-                                type="default"
-                                icon={<CloudDownloadOutlined />}
-                                size="large"
-                                style={{
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    marginTop: 15,
-                                    background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
-                                    color: 'white',
-                                    border: 'none',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                                className="hover:shadow-lg transition-all duration-300"
-                                onClick={async (e) => {
-                                    e.preventDefault()
-                                    const urlResponse = await mlServiceAPI.getModelUrl(modelId)
-                                    if (urlResponse.status !== 200) {
-                                        message.error("Failed to download model.")
-                                    }
-                                    const url = urlResponse.data
-                                    window.location.href = url
-                                }}
-                            >
-                                Download
-                            </Button>
-                        </Col>
-                        <Col xs={24} sm={8}>
-                            <Alert
-                                message={<span style={{ color: '#ffffff', fontFamily: 'Poppins, sans-serif', fontWeight: '600' }}>Refine Model</span>}
-                                description={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Continuously improve your model's performance by initiating a new training cycle with enhanced data or parameters.</span>}
-                                type="info"
-                                showIcon
-                                style={{ 
-                                    height: 130,
-                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.1))',
-                                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                                    borderRadius: '8px',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                            />
-                            <Button
-                                type="default"
-                                icon={<HistoryOutlined />}
-                                size="large"
-                                style={{
-                                    width: '100%',
-                                    fontWeight: 'bold',
-                                    marginTop: 15,
-                                    background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-                                    color: 'white',
-                                    border: 'none',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                                className="hover:shadow-lg transition-all duration-300"
-                            >
-                                Retrain Model
-                            </Button>
-                        </Col>
-                    </Row>
-                </Card>
 
-                {/* Expandable Details Section */}
-                <Card
-                    className="border-0 backdrop-blur-sm shadow-lg"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '12px',
-                        fontFamily: 'Poppins, sans-serif'
-                    }}
-                >
-                    <Button
-                        type="link"
-                        icon={<BarChartOutlined style={{ color: '#60a5fa' }} />}
-                        onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}
-                        className="text-xl"
-                        style={{
-                            color: '#e2e8f0',
-                            fontFamily: 'Poppins, sans-serif'
-                        }}
-                    >
-                        {isDetailsExpanded
-                            ? 'Hide Details'
-                            : 'Show Detailed Model'}
-                    </Button>
-
-                    {isDetailsExpanded && (
-                        <Space
-                            direction="vertical"
-                            size="large"
-                            className="w-full mt-4"
-                        >
-                            {/* Input Data Display */}
-                            <Card
-                                title={
-                                    <>
-                                        <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Metadata</span>{" "}
-                                        <span
-                                            style={{
-                                                fontSize: "12px",
-                                                color: "#94a3b8",
-                                                fontStyle: "italic",
-                                                fontFamily: 'Poppins, sans-serif'
-                                            }}
-                                        >
-                                            (Details about the model and its expected input, output)
-                                        </span>
-                                    </>
-                                }
-                                className="border-0 backdrop-blur-sm"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
-                                    backdropFilter: 'blur(10px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    borderRadius: '12px',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                            >
-                                <Space direction="vertical" size="middle" className="w-full">
-                                    {Object.entries(model.metadata || {}).map(([key, value]) => (
-                                        <div key={key}>
-                                            {/* Primary Tag */}
-                                            <Tag
-                                                style={{
-                                                    fontSize: "14px",
-                                                    padding: "4px 8px",
-                                                    minWidth: 120,
-                                                    textAlign: "center",
-                                                    display: "inline-block",
-                                                    background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
-                                                    border: 'none',
-                                                    color: 'white',
-                                                    fontFamily: 'Poppins, sans-serif'
-                                                }}
-                                            >
-                                                {key}
-                                            </Tag>
-
-                                            {/* Render based on type */}
-                                            {Array.isArray(value) ? (
-                                                <Space wrap style={{ marginLeft: 16 }}>
-                                                    {value.map((item, idx) =>
-                                                        typeof item === "object" && item !== null ? (
-                                                            // 🆕 Handle array of objects
-                                                            <Tag
-                                                                key={idx}
-                                                                style={{
-                                                                    minWidth: 100,
-                                                                    textAlign: "center",
-                                                                    borderColor: item.color,          // border full color
-                                                                    color: item.color,                // text full color
-                                                                    backgroundColor: `${item.color}20` // hex + 20 = ~12% opacity
-                                                                }}
-                                                            >
-                                                                {item.name} {item.label ? `(${item.label})` : ""}
-                                                            </Tag>
-                                                        ) : (
-                                                            // Handle array of primitives
-                                                            <Tag 
-                                                                key={idx}
-                                                                style={{
-                                                                    background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
-                                                                    border: 'none',
-                                                                    color: 'white',
-                                                                    fontFamily: 'Poppins, sans-serif'
-                                                                }}
-                                                            >
-                                                                {item}
-                                                            </Tag>
-                                                        )
-                                                    )}
-                                                </Space>
-                                            ) : typeof value === "object" && value !== null ? (
-                                                <Collapse
-                                                    ghost
-                                                    size="small"
+                            {isDetailsExpanded && (
+                                <Space
+                                    direction="vertical"
+                                    size="large"
+                                    className="w-full mt-4"
+                                >
+                                    {/* Input Data Display */}
+                                    <Card
+                                        title={
+                                            <>
+                                                <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Metadata</span>{" "}
+                                                <span
                                                     style={{
-                                                        display: "inline-block",
-                                                        verticalAlign: "top",
+                                                        fontSize: "12px",
+                                                        color: "#94a3b8",
+                                                        fontStyle: "italic",
                                                         fontFamily: 'Poppins, sans-serif'
                                                     }}
                                                 >
-                                                    <Panel 
-                                                        header={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>View Details</span>} 
-                                                        key="1"
+                                                    (Details about the model and its expected input, output)
+                                                </span>
+                                            </>
+                                        }
+                                        className="border-0 backdrop-blur-sm"
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
+                                            backdropFilter: 'blur(10px)',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            borderRadius: '12px',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                    >
+                                        <Space direction="vertical" size="middle" className="w-full">
+                                            {Object.entries(model.metadata || {}).map(([key, value]) => (
+                                                <div key={key}>
+                                                    {/* Primary Tag */}
+                                                    <Tag
                                                         style={{
-                                                            background: 'transparent',
-                                                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                            borderRadius: '8px'
+                                                            fontSize: "14px",
+                                                            padding: "4px 8px",
+                                                            minWidth: 120,
+                                                            textAlign: "center",
+                                                            display: "inline-block",
+                                                            background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+                                                            border: 'none',
+                                                            color: 'white',
+                                                            fontFamily: 'Poppins, sans-serif'
                                                         }}
                                                     >
-                                                        <Space
-                                                            direction="vertical"
+                                                        {key}
+                                                    </Tag>
+
+                                                    {/* Render based on type */}
+                                                    {Array.isArray(value) ? (
+                                                        key === "sample_data" && typeof value[0] === "object" && value[0] !== null ? (
+                                                            // Styled table for sample_data
+                                                            <Space wrap style={{ marginLeft: 16 }}>
+                                                                <Table
+                                                                    dataSource={value}
+                                                                    pagination={false}
+                                                                    rowKey={(record, idx) => idx}
+                                                                    bordered={false}
+                                                                    style={{ marginLeft: 16, borderRadius: 8 }}
+                                                                    rowClassName={() => ''} // removes Ant Design hover class
+                                                                    columns={Object.keys(value[0]).map((colKey) => ({
+                                                                        title: (
+                                                                            <span style={{ color: '#fff', fontFamily: 'Poppins, sans-serif' }}>
+                                                                                {colKey.charAt(0).toUpperCase() + colKey.slice(1)}
+                                                                            </span>
+                                                                        ),
+                                                                        dataIndex: colKey,
+                                                                        key: colKey,
+                                                                        render: (text) => (
+                                                                            <span style={{ color: '#fff', fontFamily: 'Poppins, sans-serif' }}>
+                                                                                {text?.toString() || <em style={{ color: '#ccc' }}>(empty)</em>}
+                                                                            </span>
+                                                                        ),
+                                                                    }))}
+                                                                    components={{
+                                                                        header: {
+                                                                            cell: (props) => (
+                                                                                <th
+                                                                                    {...props}
+                                                                                    style={{
+                                                                                        backgroundColor: '#111827', // dark background
+                                                                                        color: '#fff',               // white text
+                                                                                        fontFamily: 'Poppins, sans-serif',
+                                                                                    }}
+                                                                                >
+                                                                                    {props.children}
+                                                                                </th>
+                                                                            ),
+                                                                        },
+                                                                        body: {
+                                                                            row: ({ children, ...restProps }) => (
+                                                                                <tr
+                                                                                    {...restProps}
+                                                                                    style={{ backgroundColor: '#1f2937' }}
+                                                                                    onMouseEnter={(e) => {
+                                                                                        const tds = e.currentTarget.children;
+                                                                                        for (let i = 0; i < tds.length; i++) tds[i].style.backgroundColor = '#374151';
+                                                                                    }}
+                                                                                    onMouseLeave={(e) => {
+                                                                                        const tds = e.currentTarget.children;
+                                                                                        for (let i = 0; i < tds.length; i++) tds[i].style.backgroundColor = '#1f2937';
+                                                                                    }}
+                                                                                >
+                                                                                    {React.Children.map(children, (child) =>
+                                                                                        React.cloneElement(child, {
+                                                                                            style: { backgroundColor: '#1f2937', color: '#fff' },
+                                                                                        })
+                                                                                    )}
+                                                                                </tr>
+                                                                            ),
+                                                                        },
+                                                                    }}
+
+                                                                />
+                                                            </Space>
+                                                        ) : (
+                                                            // Your original Space + Tag handling for arrays
+                                                            <Space wrap style={{ marginLeft: 16 }}>
+                                                                {value.map((item, idx) =>
+                                                                    typeof item === "object" && item !== null ? (
+                                                                        <Tag
+                                                                            key={idx}
+                                                                            style={{
+                                                                                minWidth: 100,
+                                                                                textAlign: "center",
+                                                                                borderColor: item.color,
+                                                                                color: item.color,
+                                                                                backgroundColor: `${item.color}20`,
+                                                                            }}
+                                                                        >
+                                                                            {item.name} {item.label ? `(${item.label})` : ""}
+                                                                        </Tag>
+                                                                    ) : (
+                                                                        <Tag
+                                                                            key={idx}
+                                                                            style={{
+                                                                                background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
+                                                                                border: 'none',
+                                                                                color: 'white',
+                                                                                fontFamily: 'Poppins, sans-serif',
+                                                                            }}
+                                                                        >
+                                                                            {item}
+                                                                        </Tag>
+                                                                    )
+                                                                )}
+                                                            </Space>
+                                                        )
+                                                    ) : typeof value === "object" && value !== null ? (
+                                                        <Collapse
+                                                            ghost
                                                             size="small"
                                                             style={{
-                                                                display: "inline-flex",
+                                                                display: "inline-block",
                                                                 verticalAlign: "top",
+                                                                fontFamily: 'Poppins, sans-serif'
                                                             }}
                                                         >
-                                                            {Object.entries(value).map(([subKey, subValue]) => (
-                                                                <div
-                                                                    key={subKey}
+                                                            <Panel
+                                                                header={<span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>View Details</span>}
+                                                                key="1"
+                                                                style={{
+                                                                    background: 'transparent',
+                                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                                    borderRadius: '8px'
+                                                                }}
+                                                            >
+                                                                <Space
+                                                                    direction="vertical"
+                                                                    size="small"
                                                                     style={{
-                                                                        display: "flex",
-                                                                        alignItems: "center",
-                                                                        gap: 8,
+                                                                        display: "inline-flex",
+                                                                        verticalAlign: "top",
                                                                     }}
                                                                 >
-                                                                    <Tag
-                                                                        style={{
-                                                                            minWidth: 100,
-                                                                            textAlign: "center",
-                                                                            marginRight: 8,
-                                                                            background: 'linear-gradient(135deg, #10b981, #34d399)',
-                                                                            border: 'none',
-                                                                            color: 'white',
-                                                                            fontFamily: 'Poppins, sans-serif'
-                                                                        }}
-                                                                    >
-                                                                        {subKey}
-                                                                    </Tag>
+                                                                    {Object.entries(value).map(([subKey, subValue]) => (
+                                                                        <div
+                                                                            key={subKey}
+                                                                            style={{
+                                                                                display: "flex",
+                                                                                alignItems: "center",
+                                                                                gap: 8,
+                                                                            }}
+                                                                        >
+                                                                            <Tag
+                                                                                style={{
+                                                                                    minWidth: 100,
+                                                                                    textAlign: "center",
+                                                                                    marginRight: 8,
+                                                                                    background: 'linear-gradient(135deg, #10b981, #34d399)',
+                                                                                    border: 'none',
+                                                                                    color: 'white',
+                                                                                    fontFamily: 'Poppins, sans-serif'
+                                                                                }}
+                                                                            >
+                                                                                {subKey}
+                                                                            </Tag>
 
-                                                                    {Array.isArray(subValue) ? (
-                                                                        // Handle array values
-                                                                        <Space wrap style={{ marginLeft: 16 }}>
-                                                                            {subValue.map((item, idx) =>
-                                                                                typeof item === "object" && item !== null ? (
-                                                                                    // Array of objects
-                                                                                    <Tag
-                                                                                        key={idx}
-                                                                                        style={{
-                                                                                            minWidth: 100,
-                                                                                            textAlign: "center",
-                                                                                            borderColor: item.color,
-                                                                                            color: item.color,
-                                                                                            backgroundColor: `${item.color}20`,
-                                                                                        }}
-                                                                                    >
-                                                                                        {item.name} {item.label ? `(${item.label})` : ""}
-                                                                                    </Tag>
-                                                                                ) : (
-                                                                                    // Array of primitives
-                                                                                    <Tag 
-                                                                                        key={idx}
-                                                                                        style={{
-                                                                                            background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
-                                                                                            border: 'none',
-                                                                                            color: 'white',
-                                                                                            fontFamily: 'Poppins, sans-serif'
-                                                                                        }}
-                                                                                    >
-                                                                                        {item}
-                                                                                    </Tag>
-                                                                                )
+                                                                            {Array.isArray(subValue) ? (
+                                                                                // Handle array values
+                                                                                <Space wrap style={{ marginLeft: 16 }}>
+                                                                                    {subValue.map((item, idx) =>
+                                                                                        typeof item === "object" && item !== null ? (
+                                                                                            // Array of objects
+                                                                                            <Tag
+                                                                                                key={idx}
+                                                                                                style={{
+                                                                                                    minWidth: 100,
+                                                                                                    textAlign: "center",
+                                                                                                    borderColor: item.color,
+                                                                                                    color: item.color,
+                                                                                                    backgroundColor: `${item.color}20`,
+                                                                                                }}
+                                                                                            >
+                                                                                                {item.name} {item.label ? `(${item.label})` : ""}
+                                                                                            </Tag>
+                                                                                        ) : (
+                                                                                            // Array of primitives
+                                                                                            <Tag
+                                                                                                key={idx}
+                                                                                                style={{
+                                                                                                    background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
+                                                                                                    border: 'none',
+                                                                                                    color: 'white',
+                                                                                                    fontFamily: 'Poppins, sans-serif'
+                                                                                                }}
+                                                                                            >
+                                                                                                {item}
+                                                                                            </Tag>
+                                                                                        )
+                                                                                    )}
+                                                                                </Space>
+                                                                            ) : (
+                                                                                // Primitive values
+                                                                                <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                                                                                    {subValue?.toString() || <em style={{ color: '#94a3b8' }}>(empty)</em>}
+                                                                                </span>
                                                                             )}
-                                                                        </Space>
-                                                                    ) : (
-                                                                        // Primitive values
-                                                                        <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                                                                            {subValue?.toString() || <em style={{ color: '#94a3b8' }}>(empty)</em>}
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            ))}
-                                                        </Space>
-                                                    </Panel>
-                                                </Collapse>
-                                            ) : (
-                                                // Handle primitives
-                                                <span style={{ marginLeft: 10, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
-                                                    {value?.toString() || <em style={{ color: '#94a3b8' }}>(empty)</em>}
-                                                </span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </Space>
-                            </Card>
+                                                                        </div>
+                                                                    ))}
+                                                                </Space>
+                                                            </Panel>
+                                                        </Collapse>
+                                                    ) : (
+                                                        // Handle primitives
+                                                        <span style={{ marginLeft: 10, color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>
+                                                            {value?.toString() || <em style={{ color: '#94a3b8' }}>(empty)</em>}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </Space>
+                                    </Card>
 
-                            {/* Detailed Metrics Table */}
-                            <Card
-                                title={
-                                    <>
-                                        <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Model Metrics</span>{" "}
-                                        <span style={{ fontSize: "12px", color: "#94a3b8", fontStyle: "italic", fontFamily: 'Poppins, sans-serif' }}>
-                                            (Detail about how well the model make predictions)
-                                        </span>
-                                    </>
-                                }
-                                className="border-0 backdrop-blur-sm"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
-                                    backdropFilter: 'blur(10px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    borderRadius: '12px',
-                                    fontFamily: 'Poppins, sans-serif'
-                                }}
-                            >
-                                <Table
-                                    columns={columns}
-                                    dataSource={metrics}
-                                    pagination={false}
-                                    style={{
-                                        background: 'transparent',
-                                        fontFamily: 'Poppins, sans-serif'
-                                    }}
-                                    className="dark-table"
-                                />
-                            </Card>
-                        </Space>
-                    )}
-                </Card>
+                                    {/* Detailed Metrics Table */}
+                                    <Card
+                                        title={
+                                            <>
+                                                <span style={{ color: '#e2e8f0', fontFamily: 'Poppins, sans-serif' }}>Model Metrics</span>{" "}
+                                                <span style={{ fontSize: "12px", color: "#94a3b8", fontStyle: "italic", fontFamily: 'Poppins, sans-serif' }}>
+                                                    (Detail about how well the model make predictions)
+                                                </span>
+                                            </>
+                                        }
+                                        className="border-0 backdrop-blur-sm"
+                                        style={{
+                                            background: 'linear-gradient(135deg, rgba(51, 65, 85, 0.3) 0%, rgba(15, 23, 42, 0.3) 100%)',
+                                            backdropFilter: 'blur(10px)',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            borderRadius: '12px',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }}
+                                    >
+                                        <Table
+                                            columns={columns}
+                                            dataSource={metrics}
+                                            pagination={false}
+                                            style={{
+                                                background: 'transparent',
+                                                fontFamily: 'Poppins, sans-serif'
+                                            }}
+                                            className="dark-table"
+                                        />
+                                    </Card>
+                                </Space>
+                            )}
+                        </Card>
                     </Space>
                 </div>
             </div>
