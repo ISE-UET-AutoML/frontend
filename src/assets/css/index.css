@@ -17,6 +17,7 @@
     --button-gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     --accent-gradient: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
     
+    
     /* Borders & dividers */
     --border: rgba(31, 41, 55, 0.1);
     --border-hover: rgba(31, 41, 55, 0.2);
@@ -174,6 +175,7 @@
     --button-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     --button-gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     --accent-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    
     
     /* Borders & dividers */
     --border: rgba(148, 163, 184, 0.25);

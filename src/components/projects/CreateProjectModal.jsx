@@ -190,12 +190,76 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
             open={open}
             onCancel={handleCancel}
             footer={null}
-            width={isManualStep ? 1800 : 800}
+            width={800} // Same width for both steps - compact and consistent
             title="Create New Project"
             destroyOnClose
             className="theme-create-project-modal"
         >
-             <style>{/*... CSS styles from previous turn ...*/}</style>
+             <style>{`
+                .theme-create-project-modal .ant-modal-content {
+                    background: var(--modal-bg) !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+                    border: 1px solid var(--modal-border) !important;
+                }
+                
+                .theme-create-project-modal .ant-modal-header {
+                    background: var(--modal-header-bg) !important;
+                    border-bottom: 1px solid var(--modal-header-border) !important;
+                    padding: 24px 24px 16px 24px !important;
+                }
+                
+                .theme-create-project-modal .ant-modal-body {
+                    padding: 24px !important;
+                    background: transparent !important;
+                }
+                
+                .theme-create-project-modal .ant-modal-title {
+                    color: var(--modal-title-color) !important;
+                    font-family: 'Poppins', sans-serif !important;
+                    font-weight: 600 !important;
+                }
+                
+                .theme-create-project-modal .ant-modal-close {
+                    color: var(--modal-close-color) !important;
+                }
+                
+                .theme-create-project-modal .ant-modal-close:hover {
+                    color: var(--modal-close-hover) !important;
+                }
+                
+                .theme-create-project-modal .ant-steps {
+                    background: transparent !important;
+                }
+                
+                .theme-create-project-modal .ant-steps-item-title {
+                    color: var(--steps-title-color) !important;
+                }
+                
+                .theme-create-project-modal .ant-steps-item-description {
+                    color: var(--steps-description-color) !important;
+                }
+                
+                /* Beautiful step indicators with gradients */
+                .theme-create-project-modal .ant-steps-item-icon {
+                    background: var(--steps-icon-bg) !important;
+                    border: 1px solid var(--steps-icon-border) !important;
+                }
+                
+                .theme-create-project-modal .ant-steps-item-process .ant-steps-item-icon {
+                    background: var(--steps-process-icon-bg) !important;
+                    border: 1px solid var(--steps-process-icon-border) !important;
+                }
+                
+                .theme-create-project-modal .ant-steps-item-finish .ant-steps-item-icon {
+                    background: var(--steps-finish-icon-bg) !important;
+                    border: 1px solid var(--steps-finish-icon-border) !important;
+                }
+                
+                .theme-create-project-modal .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon {
+                    color: var(--steps-finish-icon-color) !important;
+                }
+            `}</style>
             <Steps current={current} style={{ marginBottom: 24 }}>
                 <Step key="Project Details" title="Project Details" />
                 <Step key="Upload Data" title="Upload Data" />
