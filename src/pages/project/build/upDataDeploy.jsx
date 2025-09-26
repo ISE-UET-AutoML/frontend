@@ -12,7 +12,14 @@ import { createDownPresignedUrlsForFolder } from 'src/api/dataset'
 
 const { Dragger } = Upload
 
-const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
+const UpDataDeploy = ({
+	isOpen,
+	onClose,
+	projectId,
+	deployModel,
+	onUploaded,
+	onUploadStart,
+}) => {
 	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
@@ -28,6 +35,11 @@ const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 				return
 			}
 
+			if (typeof onUploadStart === 'function') {
+				onUploadStart()
+			}
+			// Hide modal immediately
+			onClose && onClose()
 			setIsUploading(true)
 
 			// Optional: prepare deploy if provided
@@ -106,8 +118,9 @@ const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 				})
 			)
 
-			message.success('Upload successful')
-			onClose()
+			if (typeof onUploaded === 'function') {
+				onUploaded()
+			}
 			setFileList([])
 			setFolderStructure([])
 		} catch (e) {

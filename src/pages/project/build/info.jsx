@@ -76,6 +76,7 @@ const ProjectInfo = () => {
 	const [experimentId, setExperimentId] = useState(null)
 	const [metrics, setMetrics] = useState([])
 	const [isShowUpload, setIsShowUpload] = useState(false)
+	const [isPreparingData, setIsPreparingData] = useState(false)
 	const [usingModel, setUsingModel] = useState(false)
 	const [datasetInfo, setDatasetInfo] = useState(null)
 
@@ -602,11 +603,110 @@ const ProjectInfo = () => {
 					</div>
 				</div>
 			</div>
+			{isPreparingData && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+					<div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+					<div className="relative z-10 w-full max-w-md">
+						<div
+							className="rounded-2xl shadow-2xl overflow-hidden"
+							style={{
+								background: 'var(--modal-bg)',
+								border: '1px solid var(--modal-border)',
+							}}
+						>
+							<div
+								className="px-8 py-6"
+								style={{
+									borderBottom:
+										'1px solid var(--modal-header-border)',
+									background: 'var(--modal-header-bg)',
+								}}
+							>
+								<div className="flex items-center justify-center">
+									<div className="relative">
+										<div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin">
+											<div
+												className="w-14 h-14 rounded-full m-1 flex items-center justify-center"
+												style={{
+													background:
+														'var(--modal-bg)',
+												}}
+											>
+												<svg
+													className="w-6 h-6 animate-pulse"
+													style={{
+														color: 'var(--accent-text)',
+													}}
+													fill="none"
+													stroke="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path
+														strokeLinecap="round"
+														strokeLinejoin="round"
+														strokeWidth={2}
+														d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+													/>
+												</svg>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className="px-8 py-6 text-center">
+								<h3
+									className="text-xl font-semibold mb-3"
+									style={{
+										color: 'var(--modal-title-color)',
+									}}
+								>
+									Preparing Your Data
+								</h3>
+								<p
+									className="leading-relaxed"
+									style={{ color: 'var(--text)' }}
+								>
+									The system is preparing your data for
+									prediction.
+									<br />
+									<span
+										className="text-sm mt-2 block"
+										style={{
+											color: 'var(--secondary-text)',
+										}}
+									>
+										This process may take a few minutes.
+										Please do not close this window.
+									</span>
+								</p>
+								<div className="mt-6">
+									<div className="flex justify-center space-x-1">
+										<div
+											className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+											style={{ animationDelay: '0ms' }}
+										></div>
+										<div
+											className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
+											style={{ animationDelay: '150ms' }}
+										></div>
+										<div
+											className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
+											style={{ animationDelay: '300ms' }}
+										></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 			<UpDataDeploy
 				isOpen={isShowUpload}
 				onClose={hideUpload}
 				projectId={projectInfo?.id}
 				deployModel={handleUseYourModel}
+				onUploadStart={() => setIsPreparingData(true)}
+				onUploaded={() => setIsPreparingData(false)}
 			/>
 		</>
 	)
