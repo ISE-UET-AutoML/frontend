@@ -16,7 +16,6 @@ const initialState = {
 }
 
 const projType = Object.keys(TASK_TYPES)
-console.log('Available project types:', projType)
 
 export const useProjects = () => {
 	const [projectState, updateProjState] = useReducer(
@@ -25,14 +24,6 @@ export const useProjects = () => {
 	)
 	const [allProjects, setAllProjects] = useState([])
 	const [selectedTrainingTask, setSelectedTrainingTask] = useState(null)
-	const [isSelected, setIsSelected] = useState(
-		projType.map((_, index) => index === 0)
-	)
-	const [projectName, setProjectName] = useState('')
-	const [description, setDescription] = useState('')
-	const [visibility, setVisibility] = useState('private')
-	const [license, setLicense] = useState('MIT')
-	const [expectedAccuracy, setExpectedAccuracy] = useState(75)
 	const [jsonSumm, setJsonSumm] = useState('')
 	const [selectedSort, setSelectedSort] = useState('created_at')
 	const [searchValue, setSearchValue] = useState('')
@@ -47,7 +38,6 @@ export const useProjects = () => {
 		setIsReset(true)
 	}
 
-	// Sort projects
 	const sortProjects = (projects, sortKey = selectedSort) => {
 		if (sortKey === 'name') {
 			return [...projects].sort((a, b) =>
@@ -61,11 +51,9 @@ export const useProjects = () => {
 		return projects
 	}
 
-	// Apply filters + sort
 	const applyFilters = () => {
 		let filtered = allProjects
 
-		// 1. filter theo search
 		if (searchValue) {
 			filtered = filtered.filter(
 				(p) =>
@@ -74,16 +62,13 @@ export const useProjects = () => {
 			)
 		}
 
-		// 2. filter theo task
 		if (selectedTrainingTask) {
 			filtered = filtered.filter(
 				(p) => p.task_type === selectedTrainingTask
 			)
 		}
 
-		// 3. sort
 		filtered = sortProjects(filtered, selectedSort)
-
 		updateProjState({ projects: filtered })
 	}
 
@@ -91,23 +76,12 @@ export const useProjects = () => {
 		applyFilters()
 	}, [searchValue, selectedTrainingTask, selectedSort, allProjects])
 
-	// Handle sort change
 	const handleSortChange = (sortKey) => {
 		setSelectedSort(sortKey)
 	}
 
-	// Handle search
 	const handleSearch = (value) => {
 		setSearchValue(value)
-	}
-
-	const selectType = (e, idx) => {
-		console.log('Selected project type index:', idx)
-		const tmpArr = isSelected.map((el, index) =>
-			index === idx ? true : false
-		)
-		console.log('Updated isSelected array:', tmpArr)
-		setIsSelected(tmpArr)
 	}
 
 	const getProjects = async () => {
@@ -166,46 +140,9 @@ export const useProjects = () => {
 		return allProjects
 	}
 
-	// const handleCreateProject = async (event) => {
-	//     event.preventDefault()
-
-	//     const formData = new FormData(event.target)
-	//     const data = Object.fromEntries(formData)
-	//     isSelected.forEach((el, idx) => {
-	//         if (el) data.task_type = projType[idx]
-	//     })
-
-	//     if (jsonSumm) {
-	//         const givenJson = JSON.parse(jsonSumm)
-	//         const metricsExplain = givenJson.metrics_explain
-	//         if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
-	//     }
-
-	//     try {
-	//         const response = await instance.post(API_URL.all_projects, data, {
-	//             headers: {
-	//                 'Content-Type': 'application/json',
-	//             },
-	//         })
-
-	//         if (response.status === 200) {
-	//             navigate(PATHS.PROJECT_BUILD(response.data.id))
-	//         }
-	//     } catch (error) {
-	//         message.error('Project already existed')
-	//     }
-	// }
-
-	// KHÔNG cần event.preventDefault nữa
 	const handleCreateProject = async (values) => {
 		const data = { ...values }
-
-		// Gán project type được chọn
-		isSelected.forEach((el, idx) => {
-			if (el) data.task_type = projType[idx]
-		})
-
-		// Nếu có jsonSumm thì thêm metrics_explain
+		
 		if (jsonSumm) {
 			const givenJson = JSON.parse(jsonSumm)
 			if (givenJson.metrics_explain) {
@@ -219,64 +156,52 @@ export const useProjects = () => {
 			})
 
 			if (response.status === 200) {
-				// navigate(PATHS.PROJECT_BUILD(response.data.id))
-				updateProjState({ showUploaderManual: false, showCreateDataset: true })
+				navigate(PATHS.PROJECT_BUILD(response.data.id))
 			}
 		} catch (error) {
 			message.error('Project already existed')
 		}
 	}
 
-	const setTask = (_jsonSumm) => {
+	const setTask = ( _jsonSumm, selectTypeFn ) => {
 		if (_jsonSumm) {
 			const givenSumm = JSON.parse(_jsonSumm)
 			const givenTask = givenSumm.task
 			const givenDescription = givenSumm.project_summary
 			const givenName = givenSumm.project_name
-			setDescription(givenDescription)
-			setProjectName(givenName)
-			let task = Object.values(TASK_TYPES).findIndex(
-				(value) => value.task_type === givenTask
-			)
-			if (task !== -1) selectType(undefined, task)
+			
+			const taskIndex = projType.findIndex(
+				(value) => value === givenTask
+			);
+	
+			if (taskIndex !== -1 && typeof selectTypeFn === 'function') {
+				selectTypeFn(undefined, taskIndex);
+			}
+
+			return { projectName: givenName, description: givenDescription };
 		}
+		return {};
 	}
 
-	// Load projects on mount
 	useEffect(() => {
 		getProjects()
 	}, [])
 
 	return {
-		// State
 		projectState,
 		updateProjState,
-		allProjects,
 		selectedTrainingTask,
 		setSelectedTrainingTask,
-		isSelected,
-		projectName,
-		setProjectName,
-		description,
-		setDescription,
 		jsonSumm,
 		setJsonSumm,
-		selectedSort,
-		searchValue,
-		setSearchValue,
-		isReset,
-		selectType,
 		getProjects,
 		handleCreateProject,
 		setTask,
 		handleSearch,
+		selectedSort,
 		handleSortChange,
+		searchValue,
+		isReset,
 		resetFilters,
-		visibility,
-		setVisibility,
-		license,
-		setLicense,
-		expectedAccuracy,
-		setExpectedAccuracy,
 	}
 }

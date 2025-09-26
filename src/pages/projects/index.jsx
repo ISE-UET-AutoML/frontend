@@ -1,124 +1,41 @@
-import React, {useState, useReducer } from 'react'
-import { Layout, message } from 'antd'
+import React from 'react'
+import { Layout } from 'antd'
 
 // Components
 import {
 	ProjectHeader,
 	TaskFilter,
 	ProjectsGrid,
-	CreationMethodModal,
-	ManualCreationModal,
-	DatasetSelectionModal,
-	ProjectSearchBar,
 } from 'src/components/projects'
-import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
-import AIAssistantModal from './AIAssistantModal'
 import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import Pager from 'src/components/Pager'
+import CreateProjectModal from 'src/components/projects/CreateProjectModal'
 
 // Hooks
-import { useProjects, useChatbot, useDatasets } from 'src/hooks'
+import { useProjects } from 'src/hooks'
 import { useTheme } from 'src/theme/ThemeProvider'
-import { usePollingStore } from 'src/store/pollingStore'
 
 const { Content } = Layout
 
 export default function Projects() {
 	const pageSize = 9
 	const [currentPage, setCurrentPage] = React.useState(1)
+	
 	// Custom hooks
 	const {
 		projectState,
 		updateProjState,
 		selectedTrainingTask,
 		setSelectedTrainingTask,
-		isSelected,
-		projectName,
-		setProjectName,
-		description,
-		setDescription,
-		jsonSumm,
-		setJsonSumm,
-		selectType,
 		getProjects,
-		handleCreateProject,
-		setTask,
 		handleSearch,
 		selectedSort,
 		handleSortChange,
 		searchValue,
-		setSearchValue,
 		isReset,
 		resetFilters,
-		visibility,
-		setVisibility,
-		projType,
-		license,
-		setLicense,
-		expectedAccuracy,
-		setExpectedAccuracy,
-
 	} = useProjects()
-
-	const {
-		input,
-		setInput,
-		messages,
-		setMessages,
-		showTitle,
-		setShowTitle,
-		showChatbotButtons,
-		setShowChatbotButtons,
-		chatContainerRef,
-		handleKeyPress,
-		newChat,
-		proceedFromChat,
-	} = useChatbot()
-
-	const { selectedDataset, setSelectedDataset, datasets, getDatasets } =
-		useDatasets()
-
-	const initialState = {
-		datasets: [],
-		isLoading: false,
-		showCreator: false,
-	}
-
-	const [datasetState, updateDataState] = useReducer(
-		(state, newState) => ({ ...state, ...newState }),
-		initialState
-	)
-
-	// Enhanced chatbot proceed function
-	const handleProceedFromChat = async () => {
-		const projectList = projectState.projects.map((project) => project.name)
-		const jsonSummary = await proceedFromChat(projectList)
-
-		if (jsonSummary) {
-			setJsonSumm(jsonSummary)
-			updateProjState({ showUploaderChatbot: false })
-			updateProjState({ showUploaderManual: true })
-			setTask(jsonSummary)
-		} else {
-			// User wants to proceed with current data
-			updateProjState({ showUploaderChatbot: false })
-			updateProjState({ showUploaderManual: true })
-		}
-	}
-
-	const handleCreateDataset = async (createdDataset, labelProjectValues) => {
-		try {
-			message.success('Dataset created successfully!')
-			updateDataState({ showCreator: false })
-			usePollingStore
-				.getState()
-				.addPending({ dataset: createdDataset, labelProjectValues })
-			await getDatasets(1)
-		} catch (error) {
-			console.error('Error handling created dataset:', error)
-		}
-	}
 
 	const { theme } = useTheme()
 
@@ -251,66 +168,13 @@ export default function Projects() {
 						</div>
 						</ContentContainer>
 
-						{/* Creation Method Modal */}
-						<CreationMethodModal
-							open={projectState.showUploader}
-							onCancel={() =>
-								updateProjState({ showUploader: false })
-							}
-							onSelectChatbot={() =>
-								updateProjState({ showUploaderChatbot: true })
-							}
-							onSelectManual={() =>
-								updateProjState({ showUploaderManual: true })
-							}
-						/>
-
-						{/* Manual Creation Modal */}
-						<ManualCreationModal
+						{/* New Create Project Modal */}
+						<CreateProjectModal
 							open={projectState.showUploaderManual}
 							onCancel={() =>
-								updateProjState({ showUploaderManual: false})
+								updateProjState({ showUploaderManual: false })
 							}
-							onSubmit={handleCreateProject}
-							initialProjectName={projectName}
-							initialDescription={description}
-							initialVisibility={visibility}
-							initialLicense="MIT"
-							initialExpectedAccuracy={75}
-							isSelected={isSelected}
-							onSelectType={selectType}
-						/>
-
-						{/* Create Dataset Modal */}
-						<CreateDatasetModal
-							visible={projectState.showCreateDataset}
-							onCancel={() =>
-								updateProjState({ showCreateDataset: false })
-							}
-							onCreate={handleCreateDataset}
-						/>
-
-						{/* AI Assistant Modal */}
-						<AIAssistantModal
-							open={projectState.showUploaderChatbot}
-							onCancel={() =>
-								updateProjState({ showUploaderChatbot: false })
-							}
-							messages={messages}
-							showTitle={showTitle}
-							showChatbotButtons={showChatbotButtons}
-							input={input}
-							setInput={setInput}
-							handleKeyPress={handleKeyPress}
-							selectedDataset={selectedDataset}
-							datasets={datasets}
-							getDatasets={() => getDatasets(updateProjState)}
-							newChat={newChat}
-							proceedFromChat={handleProceedFromChat}
-							chatContainerRef={chatContainerRef}
-							setShowTitle={setShowTitle}
-							setMessages={setMessages}
-							setShowChatbotButtons={setShowChatbotButtons}
+                            onCreate={getProjects}
 						/>
 					</Content>
 				</Layout>

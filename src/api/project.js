@@ -2,6 +2,11 @@ import { API_URL, API_BASE_URL } from 'src/constants/api'
 import instance from './axios'
 
 /* ----------------------------------------------------- OLD API ------------------------------------ */
+const createProject = (data) => {
+    return instance.post(API_URL.all_projects, data, {
+        headers: { 'Content-Type': 'application/json' },
+    });
+};
 
 const uploadFiles = (projectID, files) => {
     const options = {
@@ -106,5 +111,6 @@ export {
     autoLabel,
     getPreviewDataByPage,
     getModels,
+    createProject,
     sendTargetColumn,
 }
