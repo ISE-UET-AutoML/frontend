@@ -12,7 +12,7 @@ import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
 import instance from 'src/api/axios'
 import * as modelServiceAPI from 'src/api/model'
-
+import * as datasetAPI from 'src/api/dataset'
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
 		return (
@@ -77,6 +77,8 @@ const ProjectInfo = () => {
 	const [metrics, setMetrics] = useState([])
 	const [isShowUpload, setIsShowUpload] = useState(false)
 	const [usingModel, setUsingModel] = useState(false)
+	const [datasetInfo, setDatasetInfo] = useState(null)
+
 	const showUpload = () => {
 		setIsShowUpload(true)
 	}
@@ -122,7 +124,7 @@ const ProjectInfo = () => {
 			console.log('Project ID:', projectInfo?.id)
 			const { data } = await getAllExperiments(projectInfo?.id)
 			if (data && data.length > 0) {
-				setExperimentId(data[0]?.id)
+				setExperimentId(data[1]?.id)
 			} else {
 				console.error('No experiments found')
 			}
@@ -132,6 +134,17 @@ const ProjectInfo = () => {
 
 	useEffect(() => {
 		if (!experimentId) return
+
+		const fetchDataset = async () => {
+			const datasetRes = await datasetAPI.getDataset(
+				'973ca65c-9005-4dca-8de4-ccb89c9b97e3'
+			)
+			if (datasetRes.status !== 200) {
+				throw new Error('Cannot get dataset')
+			}
+			setDatasetInfo(datasetRes)
+			console.log(datasetInfo)
+		}
 
 		const fetchExperiment = async () => {
 			try {
@@ -172,6 +185,7 @@ const ProjectInfo = () => {
 
 		fetchExperiment()
 		fetchExperimentMetrics()
+		fetchDataset()
 	}, [experimentId])
 
 	// Format created_at
@@ -196,7 +210,7 @@ const ProjectInfo = () => {
 			: 'linear-gradient(150deg, #fff8e1 0%, #bbdefb 40%, #ffcdd2 100%)'
 
 	const MetadataItem = ({ label, value }) => (
-		<div className="flex flex-col space-y-1 p-4 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-white/10 transition-all duration-200 hover:bg-white/10">
+		<div className="flex flex-col space-y-1 p-4 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-gray-400 transition-all duration-200 hover:bg-white/10">
 			<span
 				className="text-xs font-medium uppercase tracking-wider opacity-60"
 				style={{ color: 'var(--secondary-text)' }}
@@ -290,7 +304,7 @@ const ProjectInfo = () => {
 					<div className="relative z-10 max-w-7xl mx-auto">
 						<div className="text-center mb-16">
 							<h1
-								className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent leading-tight"
+								className="text-4xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent leading-tight"
 								style={{ color: 'var(--title-project)' }}
 							>
 								DASHBOARD
@@ -307,11 +321,10 @@ const ProjectInfo = () => {
 						{/* Statistic Cards - 2 cards side by side */}
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 							<Card
-								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-500 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
+								className="border border-1 border-gray-300 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-500 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
 								style={{
 									background: cardGradient,
 									backdropFilter: 'blur(10px)',
-									border: '1px solid var(--border)',
 									borderRadius: '12px',
 									fontFamily: 'Poppins, sans-serif',
 								}}
@@ -349,17 +362,7 @@ const ProjectInfo = () => {
 											if (totalMinutes === 0) {
 												return (
 													<span
-														style={{
-															background:
-																'linear-gradient(135deg, #f59e0b, #fbbf24)',
-															WebkitBackgroundClip:
-																'text',
-															WebkitTextFillColor:
-																'transparent',
-															fontFamily:
-																'Poppins, sans-serif',
-															fontWeight: 'bold',
-														}}
+														className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-700'} font-bold`}
 													>
 														No training time
 													</span>
@@ -372,17 +375,7 @@ const ProjectInfo = () => {
 											)
 											return (
 												<span
-													style={{
-														background:
-															'linear-gradient(135deg, #f59e0b, #fbbf24)',
-														WebkitBackgroundClip:
-															'text',
-														WebkitTextFillColor:
-															'transparent',
-														fontFamily:
-															'Poppins, sans-serif',
-														fontWeight: 'bold',
-													}}
+													className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-700'} font-bold`}
 												>
 													{mins}m {secs}s
 												</span>
@@ -398,11 +391,10 @@ const ProjectInfo = () => {
 							</Card>
 
 							<Card
-								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
+								className="border border-1 border-gray-300 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
 								style={{
 									background: cardGradient,
 									backdropFilter: 'blur(10px)',
-									border: '1px solid var(--border)',
 									borderRadius: '12px',
 									fontFamily: 'Poppins, sans-serif',
 								}}
@@ -438,20 +430,27 @@ const ProjectInfo = () => {
 												return (
 													<span
 														style={{
-															color: 'var(--accent-text)',
 															fontFamily:
 																'Poppins, sans-serif',
 															fontWeight: 'bold',
 														}}
+														className={`${theme === 'dark' ? 'text-sky-400' : 'text-gray-700'}`}
 													>
 														No accuracy available
 													</span>
 												)
 											}
-											return parseFloat(
-												(
-													metrics[0]?.value * 100 || 0
-												).toFixed(2)
+											return (
+												<span
+													className={`${theme === 'dark' ? 'text-sky-500' : 'text-gray-700'} font-bold`}
+												>
+													{parseFloat(
+														(
+															metrics[0]?.value *
+																100 || 0
+														).toFixed(2)
+													)}
+												</span>
 											)
 										}}
 										precision={2}
@@ -462,18 +461,19 @@ const ProjectInfo = () => {
 												}}
 											/>
 										}
-										suffix="%"
-										valueStyle={{
-											color: 'var(--accent-text)',
-											fontFamily: 'Poppins, sans-serif',
-											fontWeight: 'bold',
-										}}
+										suffix={
+											<span
+												className={`${theme === 'dark' ? 'text-sky-500' : 'text-gray-700'} font-bold`}
+											>
+												%
+											</span>
+										}
 									/>
 								</div>
 							</Card>
 							<Button
 								size="large"
-								className="h-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
+								className="border border-gray-400 border-1 h-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
 								style={{
 									background: cardGradient,
 									backdropFilter: 'blur(10px)',
@@ -492,11 +492,15 @@ const ProjectInfo = () => {
 									}}
 								>
 									{hasTraining ? (
-										<span className="text-green-500">
+										<span
+											className={`${theme === 'dark' ? 'text-green-500' : 'text-gray-700'}`}
+										>
 											Use your model
 										</span>
 									) : (
-										<span className="text-red-500">
+										<span
+											className={`${theme === 'dark' ? 'text-red-400' : 'text-gray-700'}`}
+										>
 											Your model not available
 										</span>
 									)}
@@ -555,21 +559,42 @@ const ProjectInfo = () => {
 										className="text-xl font-bold"
 										style={{ color: 'var(--text)' }}
 									>
-										Project Details (Duplicate)
+										Dataset Details
 									</h2>
 								</div>
 								<div className="space-y-4">
 									<MetadataItem
-										label="Project Name"
-										value={projectInfo?.name}
+										label="Data Type"
+										value={
+											datasetInfo?.data?.data_type ||
+											'N/A'
+										}
 									/>
 									<MetadataItem
-										label="Task Type"
-										value={projectInfo?.task_type}
+										label="Total Files"
+										value={(
+											datasetInfo?.data?.meta_data
+												?.total_files ?? 'N/A'
+										).toString()}
 									/>
 									<MetadataItem
-										label="Created"
-										value={formattedDate}
+										label="Total Size (MB)"
+										value={(() => {
+											const kb =
+												datasetInfo?.data?.meta_data
+													?.total_size_kb
+											if (kb == null) return 'N/A'
+											const mb = Number(kb) / 1024
+											return `${mb.toFixed(2)}`
+										})()}
+									/>
+									<MetadataItem
+										label="Title"
+										value={
+											datasetInfo?.data?.title ||
+											datasetInfo?.data?.dataset_title ||
+											'N/A'
+										}
 									/>
 								</div>
 							</div>
