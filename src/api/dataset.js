@@ -22,28 +22,28 @@ const createDataset = (payload) => {
 }
 
 const initializeDataset = (payload) => {
-	const cookies = new Cookies();
-	const userId = cookies.get('x-user-id');
-	const options = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		//withCredentials: true,
-		params: {
-			userId: userId,
-		}
-	}
-	return instance.post(`${URL}/initialize`, payload, options)
+    const cookies = new Cookies();
+    const userId = cookies.get('x-user-id');
+    const options = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        //withCredentials: true,
+        params: {
+            userId: userId,
+        }
+    }
+    return instance.post(`${URL}/initialize`, payload, options)
 }
 
 const finalizeDataset = (datasetID, payload) => {
-	const options = {
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		//withCredentials: true,
-	}
-	return instance.post(`${URL}/${datasetID}/finalize`, payload, options)
+    const options = {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        //withCredentials: true,
+    }
+    return instance.post(`${URL}/${datasetID}/finalize`, payload, options)
 }
 
 const createPresignedUrls = async (payload) => {
@@ -53,11 +53,26 @@ const createPresignedUrls = async (payload) => {
     return instance.post(`${URL}/createPresignedUrls`, payload, options)
 }
 
+const createPresignedUrlsPredict = async (payload) => {
+    const options = {
+        headers: { 'Content-Type': 'application/json' },
+    }
+    return instance.post(`${URL}/createPresignedUrlsPredict`, payload, options)
+}
+
 const createDownPresignedUrls = async (key) => {
     const options = {
         headers: { 'Content-Type': 'application/json' },
     }
     return instance.get(`${URL_SERVICE}/presigned-urls/download?key=${key}`, options)
+}
+
+const createDownPresignedUrlsForFolder = async (projectId, version = 1) => {
+    const options = {
+        headers: { 'Content-Type': 'application/json' },
+    }
+    const params = new URLSearchParams({ project_id: projectId, version })
+    return instance.get(`${URL_SERVICE}/presigned-urls/download-folder?${params.toString()}`, options)
 }
 
 const createDownZipPU = async (datasetTitle) => {
@@ -111,18 +126,20 @@ const addNewFiles = (datasetID, formData) => {
 }
 
 export {
-	createDataset,
-	getDatasets,
-	getDatasetsByQuery,
-	getDataset,
-	getProcessingStatus,
-	deleteObjects,
-	deleteDataset,
-	addNewFiles,
-	getDatasetPreview,
-	createPresignedUrls,
-	createDownPresignedUrls,
-	createDownZipPU,
-	initializeDataset,
-	finalizeDataset,
+    createDataset,
+    getDatasets,
+    getDatasetsByQuery,
+    getDataset,
+    getProcessingStatus,
+    deleteObjects,
+    deleteDataset,
+    addNewFiles,
+    getDatasetPreview,
+    createPresignedUrls,
+    createPresignedUrlsPredict,
+    createDownPresignedUrls,
+    createDownPresignedUrlsForFolder,
+    createDownZipPU,
+    initializeDataset,
+    finalizeDataset,
 }

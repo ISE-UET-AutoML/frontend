@@ -7,8 +7,9 @@ import {
 	DeleteOutlined,
 } from '@ant-design/icons'
 import { useState } from 'react'
-import { createPresignedUrls } from 'src/api/dataset'
-import JSZip from 'jszip'
+import { createPresignedUrlsPredict } from 'src/api/dataset'
+import { createDownPresignedUrlsForFolder } from 'src/api/dataset'
+
 const { Dragger } = Upload
 
 const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
@@ -17,69 +18,107 @@ const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 	const [folderStructure, setFolderStructure] = useState([])
 
 	const handleStart = async () => {
-		if (!deployModel) return
 		try {
+			if (!projectId) {
+				message.error('Missing projectId')
+				return
+			}
+			if (!fileList || fileList.length === 0) {
+				message.warning('Please select files')
+				return
+			}
+
 			setIsUploading(true)
-			const url = await deployModel()
-			console.log('API Ready:', url)
-			// ANH TA CODE TỪ ĐÂY CODE TIẾP
-		} catch (e) {
-			// errors already notified by caller
-		} finally {
-			setIsUploading(false)
-		}
-	}
-	const handleUpload = async () => {
-		setIsUploading(true)
-		try {
-			const zip = new JSZip()
 
-			fileList.forEach((file) => {
-				const relPath =
-					file.originFileObj?.webkitRelativePath ||
-					file.webkitRelativePath ||
-					file.name
-				zip.file(relPath, file.originFileObj || file)
-			})
-
-			const zipBlob = await zip.generateAsync({ type: 'blob' })
-
-			const zipFileName = `data_${projectId}_${Date.now()}.zip`
-
-			const filesToUpload = [
-				{
-					key: `${projectId}/${zipFileName}`,
-					type: 'application/zip',
-				},
-			]
-			const { data: presignedUrlResponse } = await createPresignedUrls({
-				projectId,
-				files: filesToUpload,
-			})
-			const presignedUrl = presignedUrlResponse[0]?.url
-			if (!presignedUrl) {
-				throw new Error('Failed to get presigned URL')
+			// Optional: prepare deploy if provided
+			if (deployModel) {
+				try {
+					const url = await deployModel()
+					console.log('API Ready:', url)
+				} catch (e) {
+					// ignore deploy error here; upload flow proceeds independently
+				}
 			}
-			const response = await fetch(presignedUrl, {
-				method: 'PUT',
-				body: zipBlob,
-				headers: {
-					'Content-Type': 'application/zip',
-				},
+
+			// Only allow image files and flatten to base filename
+			const allowed = ['.jpg', '.jpeg', '.png']
+			const imageFiles = fileList.filter((f) => {
+				const name = (f.name || '').toLowerCase()
+				return allowed.some((ext) => name.endsWith(ext))
 			})
 
-			if (!response.ok) {
-				throw new Error('Failed to upload file')
+			if (imageFiles.length === 0) {
+				message.warning('No valid image files (.jpg, .jpeg, .png)')
+				return
 			}
+
+			// Build presign request for predict endpoint: flatten keys and set version=1
+			const filesToUpload = imageFiles.map((f) => {
+				const baseName = f.name
+				const type =
+					f.type ||
+					(baseName.toLowerCase().endsWith('.png')
+						? 'image/png'
+						: 'image/jpeg')
+				return {
+					key: baseName,
+					type,
+				}
+			})
+
+			const { data: presignedUrlResponse } =
+				await createPresignedUrlsPredict({
+					projectId,
+					version: 1,
+					files: filesToUpload,
+				})
+
+			if (
+				!Array.isArray(presignedUrlResponse) ||
+				presignedUrlResponse.length === 0
+			) {
+				throw new Error('Failed to get presigned URLs')
+			}
+
+			// Map basename(key) -> url for upload (backend returns full S3 key with prefix)
+			const keyToUrl = new Map(
+				presignedUrlResponse.map((item) => [
+					(item.key || '').split('/').pop() || item.key,
+					item.url,
+				])
+			)
+
+			// Upload all files
+			await Promise.all(
+				filesToUpload.map(async (item, idx) => {
+					// item.key is baseName; look up by basename mapping
+					const url = keyToUrl.get(item.key)
+					if (!url) throw new Error(`Missing URL for ${item.key}`)
+					const fileObj =
+						imageFiles[idx].originFileObj || imageFiles[idx]
+					const resp = await fetch(url, {
+						method: 'PUT',
+						body: fileObj,
+						headers: { 'Content-Type': item.type },
+					})
+					if (!resp.ok)
+						throw new Error(`Upload failed for ${item.key}`)
+				})
+			)
 
 			message.success('Upload successful')
 			onClose()
 			setFileList([])
 			setFolderStructure([])
-		} catch (error) {
-			console.error('Upload error:', error)
-			message.error('Upload failed: ' + error.message)
+		} catch (e) {
+			console.error('Upload error:', e)
+			message.error(e.message || 'Upload failed')
 		} finally {
+			const { data: urls } = await createDownPresignedUrlsForFolder(
+				projectId,
+				1
+			)
+			console.log('urls', urls)
 			setIsUploading(false)
 		}
 	}
@@ -87,7 +126,7 @@ const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 		name: 'file',
 		multiple: true,
 		directory: true,
-		accept: '.xlsx,.xls, .jpg, .png',
+		accept: '.jpg,.jpeg,.png',
 		fileList, // kiểm soát danh sách file
 		showUploadList: false,
 		beforeUpload: (file) => {
@@ -100,13 +139,13 @@ const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 		},
 		onChange(info) {
 			const { fileList: newFileList } = info
-			// Lọc file theo định dạng được phép
+			// Chỉ nhận ảnh: .jpg, .jpeg, .png
 			const validFiles = newFileList.filter((f) => {
 				const fileName = f.name.toLowerCase()
 				return (
 					fileName.endsWith('.jpg') ||
-					fileName.endsWith('.png') ||
-					fileName.endsWith('.xlsx')
+					fileName.endsWith('.jpeg') ||
+					fileName.endsWith('.png')
 				)
 			})
 

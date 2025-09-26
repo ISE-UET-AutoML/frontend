@@ -143,7 +143,7 @@ const ProjectInfo = () => {
 				throw new Error('Cannot get dataset')
 			}
 			setDatasetInfo(datasetRes)
-			console.log(datasetInfo)
+			console.log(datasetRes)
 		}
 
 		const fetchExperiment = async () => {
