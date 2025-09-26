@@ -65,7 +65,7 @@ const NavBar = () => {
 	// Navigation items for authenticated users
 	const authNavigationItems = [
 		{ name: 'PROJECTS', href: PATHS.PROJECTS },
-		{ name: 'DATASETS', href: PATHS.DATASETS },
+		// { name: 'DATASETS', href: PATHS.DATASETS },
 	]
 
 	const isActive = (href) => {

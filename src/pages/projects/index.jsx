@@ -1,5 +1,5 @@
-import React from 'react'
-import { Layout } from 'antd'
+import React, {useState, useReducer } from 'react'
+import { Layout, message } from 'antd'
 
 // Components
 import {
@@ -11,6 +11,7 @@ import {
 	DatasetSelectionModal,
 	ProjectSearchBar,
 } from 'src/components/projects'
+import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
 import AIAssistantModal from './AIAssistantModal'
 import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
@@ -19,6 +20,7 @@ import Pager from 'src/components/Pager'
 // Hooks
 import { useProjects, useChatbot, useDatasets } from 'src/hooks'
 import { useTheme } from 'src/theme/ThemeProvider'
+import { usePollingStore } from 'src/store/pollingStore'
 
 const { Content } = Layout
 
@@ -77,6 +79,17 @@ export default function Projects() {
 	const { selectedDataset, setSelectedDataset, datasets, getDatasets } =
 		useDatasets()
 
+	const initialState = {
+		datasets: [],
+		isLoading: false,
+		showCreator: false,
+	}
+
+	const [datasetState, updateDataState] = useReducer(
+		(state, newState) => ({ ...state, ...newState }),
+		initialState
+	)
+
 	// Enhanced chatbot proceed function
 	const handleProceedFromChat = async () => {
 		const projectList = projectState.projects.map((project) => project.name)
@@ -91,6 +104,19 @@ export default function Projects() {
 			// User wants to proceed with current data
 			updateProjState({ showUploaderChatbot: false })
 			updateProjState({ showUploaderManual: true })
+		}
+	}
+
+	const handleCreateDataset = async (createdDataset, labelProjectValues) => {
+		try {
+			message.success('Dataset created successfully!')
+			updateDataState({ showCreator: false })
+			usePollingStore
+				.getState()
+				.addPending({ dataset: createdDataset, labelProjectValues })
+			await getDatasets(1)
+		} catch (error) {
+			console.error('Error handling created dataset:', error)
 		}
 	}
 
@@ -189,7 +215,7 @@ export default function Projects() {
 							{/* Header Section */}
 							<ProjectHeader
 								onNewProject={() =>
-									updateProjState({ showUploader: true })
+									updateProjState({ showUploaderManual: true })
 								}
 							/>
 
@@ -210,7 +236,7 @@ export default function Projects() {
 							projects={paginatedProjects}
 								getProjects={getProjects}
 								onCreateProject={() =>
-									updateProjState({ showUploader: true })
+									updateProjState({ showUploaderManual: true })
 								}
 							/>
 
@@ -243,7 +269,7 @@ export default function Projects() {
 						<ManualCreationModal
 							open={projectState.showUploaderManual}
 							onCancel={() =>
-								updateProjState({ showUploaderManual: false })
+								updateProjState({ showUploaderManual: false})
 							}
 							onSubmit={handleCreateProject}
 							initialProjectName={projectName}
@@ -255,18 +281,13 @@ export default function Projects() {
 							onSelectType={selectType}
 						/>
 
-						{/* Dataset Selection Modal */}
-						<DatasetSelectionModal
-							open={projectState.showSelectData}
+						{/* Create Dataset Modal */}
+						<CreateDatasetModal
+							visible={projectState.showCreateDataset}
 							onCancel={() =>
-								updateProjState({ showSelectData: false })
+								updateProjState({ showCreateDataset: false })
 							}
-							onConfirm={() =>
-								updateProjState({ showSelectData: false })
-							}
-							datasets={datasets}
-							selectedDataset={selectedDataset}
-							onSelectDataset={setSelectedDataset}
+							onCreate={handleCreateDataset}
 						/>
 
 						{/* AI Assistant Modal */}

@@ -219,7 +219,8 @@ export const useProjects = () => {
 			})
 
 			if (response.status === 200) {
-				navigate(PATHS.PROJECT_BUILD(response.data.id))
+				// navigate(PATHS.PROJECT_BUILD(response.data.id))
+				updateProjState({ showUploaderManual: false, showCreateDataset: true })
 			}
 		} catch (error) {
 			message.error('Project already existed')
