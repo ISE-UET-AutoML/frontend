@@ -564,10 +564,7 @@ const ProjectInfo = () => {
 			<UpDataDeploy
 				isOpen={isShowUpload}
 				onClose={hideUpload}
-				onUpload={(file) => {
-					console.log('File được upload:', file)
-					// Thêm logic upload file ở đây
-				}}
+				projectId={projectInfo?.id}
 			/>
 		</>
 	)

@@ -6,20 +6,82 @@ import {
 	FileOutlined,
 	DeleteOutlined,
 } from '@ant-design/icons'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import instance from 'src/api/axios'
+import JSZip from 'jszip'
 
 const { Dragger } = Upload
 
-const UpDataDeploy = ({ isOpen, onClose, onUpload }) => {
+const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
+	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
+
+	const handleUpload = async () => {
+		if (fileList.length === 0) {
+			message.warning('Please select files or folder first!')
+			return
+		}
+
+		setIsUploading(true)
+		try {
+			const zip = new JSZip()
+			const usedNames = new Set()
+			for (const item of fileList) {
+				const fileObj = item.originFileObj || item
+				const origRel =
+					item.originFileObj?.webkitRelativePath ||
+					item.webkitRelativePath ||
+					item.name
+				const baseName = origRel.split('/')?.pop() || item.name
+				let flatName = baseName
+				let counter = 1
+				while (usedNames.has(flatName)) {
+					const dot = baseName.lastIndexOf('.')
+					const stem = dot !== -1 ? baseName.slice(0, dot) : baseName
+					const ext = dot !== -1 ? baseName.slice(dot) : ''
+					flatName = `${stem}_${counter}${ext}`
+					counter += 1
+				}
+				usedNames.add(flatName)
+				zip.file(flatName, fileObj)
+			}
+
+			const zipBlob = await zip.generateAsync({ type: 'blob' })
+
+			const zipFileName = `data_${projectId}_${Date.now()}.zip`
+
+			const formData = new FormData()
+			formData.append('dataset_title', projectId)
+			formData.append('key', `${projectId}/zip/${zipFileName}`)
+			formData.append('file', zipBlob, zipFileName)
+
+			const response = await instance.post(
+				`/api/service/data/uploads/zip`,
+				formData
+			)
+			if (response.status !== 201 && response.status !== 200) {
+				throw new Error('Failed to upload file')
+			}
+
+			message.success('Upload successful')
+			onClose()
+			setFileList([])
+			setFolderStructure([])
+		} catch (error) {
+			console.error('Upload error:', error)
+			message.error('Upload failed: ' + error.message)
+		} finally {
+			setIsUploading(false)
+		}
+	}
 
 	const uploadProps = {
 		name: 'file',
 		multiple: true,
 		directory: true,
-		accept: '.xlsx,.xls, .jpg, .png',
-		fileList, // kiểm soát danh sách file
+		accept: '.xlsx,.xls,.jpg,.png,.csv,.json', // Mở rộng định dạng
+		fileList,
 		showUploadList: false,
 		beforeUpload: (file) => {
 			const isLt10M = file.size / 1024 / 1024 < 10
@@ -37,7 +99,10 @@ const UpDataDeploy = ({ isOpen, onClose, onUpload }) => {
 				return (
 					fileName.endsWith('.jpg') ||
 					fileName.endsWith('.png') ||
-					fileName.endsWith('.xlsx')
+					fileName.endsWith('.xlsx') ||
+					fileName.endsWith('.xls') ||
+					fileName.endsWith('.csv') ||
+					fileName.endsWith('.json')
 				)
 			})
 
@@ -168,23 +233,6 @@ const UpDataDeploy = ({ isOpen, onClose, onUpload }) => {
 		})
 	}
 
-	const handleUpload = () => {
-		if (fileList.length === 0) {
-			message.warning('Please select files or folder first!')
-			return
-		}
-
-		// Gọi callback với danh sách file được chọn
-		if (onUpload) {
-			onUpload(fileList)
-		}
-
-		// Đóng modal sau khi upload
-		onClose()
-		setFileList([])
-		setFolderStructure([])
-	}
-
 	const handleCancel = () => {
 		setFileList([])
 		setFolderStructure([])
@@ -235,8 +283,8 @@ const UpDataDeploy = ({ isOpen, onClose, onUpload }) => {
 						style={{ color: 'var(--secondary-text)' }}
 					>
 						Support for single file, multiple files, or entire
-						folder upload. Only CSV, JSON, Excel files are allowed.
-						(MAX. 10MB per file)
+						folder upload. Only CSV, JSON, Excel, JPG, PNG files are
+						allowed. (MAX. 10MB per file)
 					</p>
 				</Dragger>
 
@@ -270,11 +318,14 @@ const UpDataDeploy = ({ isOpen, onClose, onUpload }) => {
 				)}
 
 				<div className="flex justify-end space-x-3 mt-6">
-					<Button onClick={handleCancel}>Cancel</Button>
+					<Button onClick={handleCancel} disabled={isUploading}>
+						Cancel
+					</Button>
 					<Button
 						type="primary"
 						onClick={handleUpload}
-						disabled={fileList.length === 0}
+						disabled={fileList.length === 0 || isUploading}
+						loading={isUploading}
 					>
 						Upload
 					</Button>
