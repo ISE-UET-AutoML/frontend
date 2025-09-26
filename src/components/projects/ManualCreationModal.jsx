@@ -143,6 +143,7 @@ const ManualCreationModal = ({
 	initialExpectedAccuracy = 75,
 	isSelected,
 	onSelectType,
+	onSetCreatingProjectInfo,
 }) => {
 	const [form] = Form.useForm()
 
@@ -175,6 +176,11 @@ const ManualCreationModal = ({
 
 	const handleSubmit = (values) => {
 		onSubmit(values)
+		onSetCreatingProjectInfo(prev => ({
+			...prev,
+			project_type: form.getFieldValue('task_type')
+		}));
+		console.log('Selected project type on submit:', form.getFieldValue('task_type'));
 	}
 
 	const handleSelectType = (e, idx) => {
@@ -782,7 +788,7 @@ const ManualCreationModal = ({
 							size="large"
 							disabled={selectedIndex === -1}
 						>
-							Create Project
+							Next
 						</Button>
 					</Row>
 				</Form>

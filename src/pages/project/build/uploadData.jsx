@@ -33,6 +33,8 @@ import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { message } from 'antd'
 import { useTheme } from 'src/theme/ThemeProvider'
 import BuildPager from './BuildPager'
+import { createDownZipPU } from 'src/api/dataset'
+import { trainCloudModel } from 'src/api/mlService'
 // Simple SVG icons
 const CloudUploadIcon = ({ className, ...props }) => (
 	<svg
@@ -352,9 +354,41 @@ const UploadData = () => {
 				)
 				return
 			}
-			navigate(
-				`/app/project/${projectInfo.id}/build/${object.afterUploadURL}`
-			)
+
+			const presignUrl = await createDownZipPU(selectedProject.dataset_id)
+			const payload = {
+				cost: 0.5,
+				trainingTime: 3600,
+				presets: 'medium_quality',
+				datasetUrl: presignUrl.data,
+				datasetLabelUrl: 'hello',
+				problemType: selectedProject.meta_data?.is_binary_class
+					? 'BINARY'
+					: 'MULTICLASS',
+				framework: 'autogluon',
+				datasetMetadata: selectedProject.meta_data,
+			}
+			console.log('Train payload: ', payload)
+			const trainingRequest = await trainCloudModel(projectInfo.id, payload)
+			const trainingResult = trainingRequest.data
+			console.log('Training response:', trainingResult)
+			
+			if (
+				trainingResult &&
+				trainingResult.experimentName &&
+				trainingResult.experimentId
+			) {
+				navigate(
+					`/app/project/${projectInfo.id}/build/training?experimentName=${trainingResult.experimentName}&experimentId=${trainingResult.experimentId}`,
+					{ replace: true }
+				)
+			} else {
+				message.error('Training result is invalid!')
+				navigate(
+					`/app/project/${projectInfo.id}/build/uploadData`,
+					{ replace: true }
+				)
+			}
 		} catch (error) {
 			console.error('Error exporting labels to S3:', error)
 			message.error('Không thể chuẩn bị dữ liệu. Vui lòng thử lại.')
