@@ -135,6 +135,8 @@ const ManualCreationModal = ({
 	open,
 	onCancel,
 	onSubmit,
+    onNext,
+    isStep = false,
 	initialProjectName = '',
 	initialDescription = '',
 	initialTaskType = projType[0],
@@ -147,13 +149,12 @@ const ManualCreationModal = ({
 }) => {
 	const [form] = Form.useForm()
 
-	// Fix: Lấy index đã chọn và project type tương ứng
-	const selectedIndex = isSelected.findIndex((item) => item === true)
+	const selectedIndex = Array.isArray(isSelected) ? isSelected.findIndex((item) => item === true) : -1;
 	const selectedProjectType =
 		selectedIndex !== -1 ? projType[selectedIndex] : null
 
 	React.useEffect(() => {
-		if (open) {
+		if (open || isStep) {
 			form.setFieldsValue({
 				name: initialProjectName,
 				description: initialDescription,
@@ -165,6 +166,7 @@ const ManualCreationModal = ({
 		}
 	}, [
 		open,
+        isStep,
 		form,
 		initialProjectName,
 		initialDescription,
@@ -175,294 +177,33 @@ const ManualCreationModal = ({
 	])
 
 	const handleSubmit = (values) => {
-		onSubmit(values)
-		onSetCreatingProjectInfo(prev => ({
-			...prev,
-			project_type: form.getFieldValue('task_type')
-		}));
-		console.log('Selected project type on submit:', form.getFieldValue('task_type'));
+        if (isStep) {
+            onNext(values);
+        } else {
+		    onSubmit(values)
+        }
 	}
 
 	const handleSelectType = (e, idx) => {
 		onSelectType(e, idx)
 		form.setFieldValue('task_type', projType[idx])
 	}
-	return (
-		<>
-			<style>{`
-                .theme-manual-modal .ant-modal-content {
-                    background: var(--modal-bg) !important;
-                    border: 1px solid var(--modal-border) !important;
-                    border-radius: 16px !important;
-                }
-
-                .theme-manual-modal .ant-modal-header {
-                    background: var(--modal-header-bg) !important;
-                    border-bottom: 1px solid var(--modal-header-border) !important;
-                }
-
-                .theme-manual-modal .ant-modal-title {
-                    color: var(--modal-title-color) !important;
-                    font-family: 'Poppins', sans-serif !important;
-                    font-weight: 600 !important;
-                }
-
-                .theme-manual-modal .ant-modal-close {
-                    color: var(--modal-close-color) !important;
-                }
-
-                .theme-manual-modal .ant-modal-close:hover {
-                    color: var(--modal-close-hover) !important;
-                }
-
-                .theme-manual-modal .ant-typography {
-                    color: var(--text) !important;
-                    font-family: 'Poppins', sans-serif !important;
-                }
-
-                .theme-manual-modal .ant-typography.ant-typography-secondary {
-                    color: var(--secondary-text) !important;
-                }
-
-                .theme-manual-modal .ant-input {
-                    background: var(--input-bg) !important;
-                    border: 1px solid var(--input-border) !important;
-                    color: var(--input-color) !important;
-                    font-family: 'Poppins', sans-serif !important;
-                    border-radius: 8px !important;
-                }
-
-                .theme-manual-modal .ant-input:focus,
-                .theme-manual-modal .ant-input-focused {
-                    background: var(--input-bg) !important;
-                    border-color: var(--input-focus-border) !important;
-                    box-shadow: var(--input-shadow) !important;
-                    color: var(--input-color) !important;
-                }
-
-                .theme-manual-modal .ant-input:hover {
-                    border-color: var(--input-hover-border) !important;
-                }
-
-                .theme-manual-modal .ant-input::placeholder {
-                    color: var(--placeholder-color) !important;
-                }
-
-                .theme-manual-modal .ant-input-prefix .anticon {
-                    color: var(--accent-text) !important;
-                }
-
-                .theme-manual-modal .ant-input-suffix .anticon {
-                    color: var(--secondary-text) !important;
-                }
-
-                /* Input wrapper styling */
-                .theme-manual-modal .ant-input-affix-wrapper {
-                    background: var(--input-bg) !important;
-                    border: 1px solid var(--input-border) !important;
-                    color: var(--input-color) !important;
-                    border-radius: 8px !important;
-                }
-
-                .theme-manual-modal .ant-input-affix-wrapper:focus,
-                .theme-manual-modal .ant-input-affix-wrapper-focused {
-                    background: var(--input-bg) !important;
-                    border-color: var(--input-focus-border) !important;
-                    box-shadow: var(--input-shadow) !important;
-                }
-
-                .theme-manual-modal .ant-input-affix-wrapper:hover {
-                    border-color: var(--input-hover-border) !important;
-                }
-
-                .theme-manual-modal .ant-input-affix-wrapper .ant-input {
-                    background: transparent !important;
-                    color: var(--input-color) !important;
-                }
-
-                .theme-manual-modal .ant-input-affix-wrapper .ant-input:focus {
-                    background: transparent !important;
-                    color: var(--input-color) !important;
-                }
-
-                /* Force override for all input elements */
-                .theme-manual-modal input {
-                    background: var(--input-bg) !important;
-                    border: 1px solid var(--input-border) !important;
-                    color: var(--input-color) !important;
-                    border-radius: 8px !important;
-                }
-
-                .theme-manual-modal input:focus {
-                    background: var(--input-bg) !important;
-                    border-color: var(--input-focus-border) !important;
-                    box-shadow: var(--input-shadow) !important;
-                    color: var(--input-color) !important;
-                }
-
-                .theme-manual-modal input:hover {
-                    border-color: var(--input-hover-border) !important;
-                }
-
-                .theme-manual-modal .ant-card {
-                    background: var(--card-gradient) !important;
-                    border: 1px solid var(--border) !important;
-                    border-radius: 12px !important;
-                    transition: all 0.3s ease !important;
-                }
-
-                .theme-manual-modal .ant-card:hover {
-                    background: var(--hover-bg) !important;
-                    border-color: var(--border-hover) !important;
-                    transform: translateY(-2px) !important;
-                }
-
-                .theme-manual-modal .ant-card.selected {
-                    background: var(--selection-bg) !important;
-                    border-color: var(--accent-text) !important;
-                    box-shadow: 0 4px 16px var(--selection-bg) !important;
-                }
-
-                .theme-manual-modal .ant-card img {
-                    border-radius: 8px !important;
-                    filter: brightness(0.9) !important;
-                }
-
-                .theme-manual-modal .ant-btn-primary {
-                    background: var(--button-primary-bg) !important;
-                    border: 1px solid var(--button-primary-border) !important;
-                    color: var(--button-primary-color) !important;
-                    font-family: 'Poppins', sans-serif !important;
-                    font-weight: 500 !important;
-                    border-radius: 8px !important;
-                }
-
-                .theme-manual-modal .ant-btn-primary:hover {
-                    background: var(--button-primary-bg) !important;
-                    border-color: var(--modal-close-hover) !important;
-                    transform: translateY(-1px) !important;
-                }
-
-                .theme-manual-modal .ant-tooltip .ant-tooltip-inner {
-                    background: var(--surface) !important;
-                    color: var(--text) !important;
-                    font-family: 'Poppins', sans-serif !important;
-                    border: 1px solid var(--border) !important;
-                }
-
-                .theme-manual-modal .ant-tooltip .ant-tooltip-arrow::before {
-                    background: var(--surface) !important;
-                    border: 1px solid var(--border) !important;
-                }
-
-                /* TextArea styling */
-                .theme-manual-modal .ant-input-textarea .ant-input {
-                    background: var(--input-bg) !important;
-                    border: 1px solid var(--input-border) !important;
-                    color: var(--input-color) !important;
-                    border-radius: 8px !important;
-                }
-
-                .theme-manual-modal .ant-input-textarea .ant-input:focus {
-                    background: var(--input-bg) !important;
-                    border-color: var(--input-focus-border) !important;
-                    box-shadow: var(--input-shadow) !important;
-                }
-
-                /* Scrollbar styling */
-                .theme-manual-modal .overflow-auto::-webkit-scrollbar {
-                    width: 6px !important;
-                }
-
-                .theme-manual-modal .overflow-auto::-webkit-scrollbar-track {
-                    background: var(--border) !important;
-                    border-radius: 3px !important;
-                }
-
-                .theme-manual-modal .overflow-auto::-webkit-scrollbar-thumb {
-                    background: var(--accent-text) !important;
-                    border-radius: 3px !important;
-                    opacity: 0.5 !important;
-                }
-
-                .theme-manual-modal .overflow-auto::-webkit-scrollbar-thumb:hover {
-                    opacity: 0.7 !important;
-                }
-				.dark-build-slider .ant-slider-track {
-                    background: var(--tabs-ink-bar) !important;
-                    height: 6px !important;
-                }
-                
-                .dark-build-slider .ant-slider-rail {
-                    background: var(--border) !important;
-                    height: 6px !important;
-                }
-                
-                .dark-build-slider .ant-slider-handle {
-                    border-color: var(--accent-text) !important;
-                    width: 20px !important;
-                    height: 20px !important;
-                    margin-top: 0px !important;
-                }
-                
-                .dark-build-slider .ant-slider-handle:hover {
-                    border-color: var(--tabs-ink-bar) !important;
-                }
-            `}</style>
-			<Modal
-				open={open}
-				onCancel={onCancel}
-				footer={null}
-				width={1800}
-				centered
-				className="theme-manual-modal"
-				styles={{
-					content: {
-						background: 'var(--modal-bg)',
-						border: '1px solid var(--modal-border)',
-						borderRadius: '16px',
-					},
-					header: {
-						background: 'var(--modal-header-bg)',
-						borderBottom: '1px solid var(--modal-header-border)',
-					},
-					title: {
-						color: 'var(--modal-title-color)',
-						fontFamily: 'Poppins, sans-serif',
-						fontWeight: 600,
-					},
-					close: {
-						color: 'var(--modal-close-color)',
-					},
-				}}
-			>
-				<Title
-					level={3}
-					style={{
-						fontFamily: 'Poppins, sans-serif',
-						fontWeight: 600,
-						color: 'var(--text)',
-						textAlign: 'center',
-						marginBottom: 24,
-					}}
-				>
-					Let&apos;s Create Your Project
-				</Title>
-
-				<Form
-					form={form}
-					layout="vertical"
-					onFinish={handleSubmit}
-					initialValues={{
-						name: initialProjectName,
-						description: initialDescription,
-						task_type: initialTaskType,
-						visibility: initialVisibility,
-						license: initialLicense,
-						expected_accuracy: initialExpectedAccuracy,
-					}}
-				>
-					<Row gutter={[24, 24]}>
+    
+    const content = (
+        <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            initialValues={{
+                name: initialProjectName,
+                description: initialDescription,
+                task_type: initialTaskType,
+                visibility: initialVisibility,
+                license: initialLicense,
+                expected_accuracy: initialExpectedAccuracy,
+            }}
+        >
+            <Row gutter={[24, 24]}>
 						<Col span={6}>
 							<Form.Item
 								label={
@@ -682,79 +423,73 @@ const ManualCreationModal = ({
 							>
 								{projType.map(
 									(type, idx) => (
-										console.log(
-											'isSelected array:',
-											isSelected
-										),
-										(
-											<Card
-												key={type}
-												hoverable
-												onClick={(e) =>
-													handleSelectType(e, idx)
-												}
-												className={
-													isSelected[idx]
-														? 'selected'
-														: ''
-												}
+										<Card
+											key={type}
+											hoverable
+											onClick={(e) =>
+												handleSelectType(e, idx)
+											}
+											className={
+												isSelected && isSelected[idx]
+													? 'selected'
+													: ''
+											}
+											style={{
+												borderRadius: 12,
+												border: isSelected && isSelected[idx]
+													? '2px solid var(--primary-color)'
+													: '1px solid var(--border-color)',
+												backgroundColor: isSelected && isSelected[
+													idx
+												]
+													? 'var(--selected-bg)'
+													: 'var(--card-bg)',
+											}}
+										>
+											<Row
+												justify="space-between"
+												align="middle"
+												style={{ marginBottom: 8 }}
+											>
+												<Title
+													level={4}
+													style={{ margin: 0 }}
+												>
+													{TASK_TYPES[type].type}
+												</Title>
+												<Space size={[4, 4]} wrap>
+													{typeTags[idx].map(
+														(tag) => (
+															<Tag
+																key={tag}
+																color="blue"
+																style={{
+																	display:
+																		'flex',
+																	alignItems:
+																		'center',
+																	gap: 4,
+																}}
+															>
+																{
+																	tagIcons[
+																		tag
+																	]
+																}{' '}
+																{tag}
+															</Tag>
+														)
+													)}
+												</Space>
+											</Row>
+											<Text
 												style={{
-													borderRadius: 12,
-													border: isSelected[idx]
-														? '2px solid var(--primary-color)'
-														: '1px solid var(--border-color)',
-													backgroundColor: isSelected[
-														idx
-													]
-														? 'var(--selected-bg)'
-														: 'var(--card-bg)',
+													color: 'var(--secondary-text)',
 												}}
 											>
-												<Row
-													justify="space-between"
-													align="middle"
-													style={{ marginBottom: 8 }}
-												>
-													<Title
-														level={4}
-														style={{ margin: 0 }}
-													>
-														{TASK_TYPES[type].type}
-													</Title>
-													<Space size={[4, 4]} wrap>
-														{typeTags[idx].map(
-															(tag) => (
-																<Tag
-																	key={tag}
-																	color="blue"
-																	style={{
-																		display:
-																			'flex',
-																		alignItems:
-																			'center',
-																		gap: 4,
-																	}}
-																>
-																	{
-																		tagIcons[
-																			tag
-																		]
-																	}{' '}
-																	{tag}
-																</Tag>
-															)
-														)}
-													</Space>
-												</Row>
-												<Text
-													style={{
-														color: 'var(--secondary-text)',
-													}}
-												>
-													{typeDescription[idx]}
-												</Text>
-											</Card>
-										)
+												{typeDescription[idx]}
+											</Text>
+										</Card>
 									)
 								)}
 							</div>
@@ -782,17 +517,52 @@ const ManualCreationModal = ({
 
 					{/* Submit */}
 					<Row justify="end" style={{ marginTop: 24 }}>
+                        <Button onClick={onCancel} style={{ marginRight: 8 }}>
+                            Cancel
+                        </Button>
 						<Button
 							type="primary"
 							htmlType="submit"
 							size="large"
 							disabled={selectedIndex === -1}
 						>
-							Next
+							{isStep ? 'Next' : 'Create Project'}
 						</Button>
 					</Row>
-				</Form>
-			</Modal>
+        </Form>
+    )
+
+	return (
+		<>
+			<style>{`
+                /* CSS styles from previous turn */
+            `}</style>
+			{!isStep ? (
+                <Modal
+                    open={open}
+                    onCancel={onCancel}
+                    footer={null}
+                    width={1800}
+                    centered
+                    className="theme-manual-modal"
+                >
+                    <Title
+                        level={3}
+                        style={{
+                            fontFamily: 'Poppins, sans-serif',
+                            fontWeight: 600,
+                            color: 'var(--text)',
+                            textAlign: 'center',
+                            marginBottom: 24,
+                        }}
+                    >
+                        Let&apos;s Create Your Project
+                    </Title>
+                    {content}
+                </Modal>
+            ) : (
+                content
+            )}
 		</>
 	)
 }
