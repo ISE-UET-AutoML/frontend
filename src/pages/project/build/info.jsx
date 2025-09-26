@@ -97,7 +97,7 @@ const ProjectInfo = () => {
 			console.log('Project ID:', projectInfo?.id)
 			const { data } = await getAllExperiments(projectInfo?.id)
 			if (data && data.length > 0) {
-				setExperimentId(data[1].id)
+				setExperimentId(data[0]?.id)
 			} else {
 				console.error('No experiments found')
 			}
