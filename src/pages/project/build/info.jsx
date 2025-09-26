@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
-import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+
 import { useOutletContext } from 'react-router-dom'
 import { useTheme } from 'src/theme/ThemeProvider'
 import { getAllExperiments } from 'src/api/experiment'
-import { getAllDeployedModel } from 'src/api/deploy'
-import { getModels } from 'src/api/model'
-
+import * as experimentAPI from 'src/api/experiment'
+import * as mlServiceAPI from 'src/api/mlService'
+import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import { Card, Statistic, Tag } from 'antd'
+import { TrophyOutlined, ClockCircleOutlined } from '@ant-design/icons'
 // Ant Design icons
 import {
 	CheckCircleOutlined,
@@ -16,47 +18,136 @@ import {
 	ExperimentOutlined,
 	DatabaseOutlined,
 	CloudOutlined,
+	QuestionCircleOutlined,
 } from '@ant-design/icons'
+const InfoTooltip = ({ content }) => (
+	<div className="relative group inline-block ml-2">
+		<QuestionCircleOutlined className="text-blue-400 text-base cursor-pointer hover:text-blue-300 transition-colors" />
+		<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 min-w-max shadow-lg">
+			{content}
+			<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
+		</div>
+	</div>
+)
+const getAccuracyStatus = (score) => {
+	if (score >= 0.9) {
+		return (
+			<Tag
+				style={{
+					background: 'linear-gradient(135deg, #10b981, #34d399)',
+					border: 'none',
+					color: 'white',
+					fontFamily: 'Poppins, sans-serif',
+				}}
+			>
+				Excellent
+			</Tag>
+		)
+	} else if (score >= 0.7) {
+		return (
+			<Tag
+				style={{
+					background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+					border: 'none',
+					color: 'white',
+					fontFamily: 'Poppins, sans-serif',
+				}}
+			>
+				Good
+			</Tag>
+		)
+	} else if (score >= 0.6) {
+		return (
+			<Tag
+				style={{
+					background: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+					border: 'none',
+					color: 'white',
+					fontFamily: 'Poppins, sans-serif',
+				}}
+			>
+				Medium
+			</Tag>
+		)
+	} else {
+		return (
+			<Tag
+				style={{
+					background: 'linear-gradient(135deg, #ef4444, #f87171)',
+					border: 'none',
+					color: 'white',
+					fontFamily: 'Poppins, sans-serif',
+				}}
+			>
+				Bad
+			</Tag>
+		)
+	}
+}
 
 const ProjectInfo = () => {
 	const { theme } = useTheme()
 	const { projectInfo } = useOutletContext()
-	const [experiments, setExperiments] = useState([])
-	const [models, setModels] = useState([])
-	const [deployedModels, setDeployedModels] = useState([])
+	const [experiment, setExperiment] = useState(null)
+	const [experimentId, setExperimentId] = useState(null)
+	const [metrics, setMetrics] = useState([])
 
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const experimentsData = await getAllExperiments(projectInfo.id)
-				const modelsData = await getModels(projectInfo.id)
-				const deployedModelsData = await getAllDeployedModel(
-					projectInfo.id
-				)
+		const getExperiment = async () => {
+			console.log('Project ID:', projectInfo?.id)
+			const { data } = await getAllExperiments(projectInfo?.id)
+			if (data && data.length > 0) {
+				setExperimentId(data[1].id)
+			} else {
+				console.error('No experiments found')
+			}
+		}
+		getExperiment()
+	}, [projectInfo])
 
-				setExperiments(
-					Array.isArray(experimentsData)
-						? experimentsData
-						: experimentsData.data || []
-				)
-				setModels(
-					Array.isArray(modelsData)
-						? modelsData
-						: modelsData.data || []
-				)
-				setDeployedModels(
-					Array.isArray(deployedModelsData)
-						? deployedModelsData
-						: deployedModelsData.data || []
-				)
-				console.log(projectInfo)
+	useEffect(() => {
+		if (!experimentId) return
+
+		const fetchExperiment = async () => {
+			try {
+				const experimentRes =
+					await experimentAPI.getExperimentById(experimentId)
+				if (experimentRes.status !== 200) {
+					throw new Error('Cannot get experiment')
+				}
+				setExperiment((prev) => experimentRes.data)
 			} catch (error) {
-				console.error('Error fetching project data:', error)
+				console.log('Error while getting experiment', error)
 			}
 		}
 
-		if (projectInfo?.id) fetchData()
-	}, [projectInfo]) // Updated dependency array to use the entire projectInfo object
+		const fetchExperimentMetrics = async () => {
+			setMetrics((prev) => [])
+			try {
+				const metricsRes =
+					await mlServiceAPI.getFinalMetrics(experimentId)
+				if (metricsRes.status !== 200) {
+					throw new Error('Cannot get metrics')
+				}
+				console.log(metricsRes)
+				for (const key in metricsRes.data) {
+					const metricData = {
+						key: key,
+						metric: metricsRes.data[key].name,
+						value: metricsRes.data[key].score,
+						description: metricsRes.data[key].description,
+						status: getAccuracyStatus(metricsRes.data[key].score),
+					}
+					setMetrics((prev) => [...prev, metricData])
+				}
+			} catch (error) {
+				console.log('Error while getting metrics', error)
+			}
+		}
+
+		fetchExperiment()
+		fetchExperimentMetrics()
+	}, [experimentId])
 
 	// Format created_at
 	const formattedDate = new Date(projectInfo?.created_at).toLocaleString(
@@ -197,14 +288,13 @@ const ProjectInfo = () => {
 							]}
 						/>
 					)}
-
 					<div className="relative z-10 max-w-7xl mx-auto">
 						<div className="text-center mb-16">
 							<h1
 								className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent leading-tight"
 								style={{ color: 'var(--title-project)' }}
 							>
-								{projectInfo?.name || 'Project Info'}
+								DASHBOARD
 							</h1>
 							<p
 								className="text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed"
@@ -215,277 +305,245 @@ const ProjectInfo = () => {
 							</p>
 						</div>
 
-						<div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-							<div className="xl:col-span-4">
-								<div className="sticky top-8">
-									<div
-										className="p-8 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
-										style={{
-											borderColor: 'var(--border)',
-											background:
-												'linear-gradient(135deg, var(--card-gradient) 0%, rgba(255,255,255,0.02) 100%)',
-										}}
-									>
-										<div className="flex items-center space-x-3 mb-8">
-											<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
-												<SettingOutlined
-													className="text-xl"
-													style={{
-														color: 'var(--accent-text)',
-													}}
-												/>
-											</div>
-											<h2
-												className="text-xl font-bold"
-												style={{ color: 'var(--text)' }}
-											>
-												Project Details
-											</h2>
-										</div>
-
-										<div className="space-y-4">
-											<MetadataItem
-												label="Project ID"
-												value={projectInfo?.id}
-											/>
-											<MetadataItem
-												label="Task Type"
-												value={projectInfo?.task_type}
-											/>
-											<MetadataItem
-												label="Expected Accuracy"
-												value={
-													projectInfo?.expected_accuracy
-												}
-											/>
-											<MetadataItem
-												label="Visibility"
-												value={projectInfo?.visibility}
-											/>
-											<MetadataItem
-												label="Created"
-												value={formattedDate}
-											/>
+						{/* Statistic Cards - 2 cards side by side */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+							<Card
+								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-500 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
+								style={{
+									background: 'var(--card-gradient)',
+									backdropFilter: 'blur(10px)',
+									border: '1px solid var(--border)',
+									borderRadius: '12px',
+									fontFamily: 'Poppins, sans-serif',
+								}}
+							>
+								<div className="relative">
+									{/* Tooltip cho Training Duration */}
+									<div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg">
+											Training Duration: Thời gian huấn
+											luyện mô hình
+											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
 										</div>
 									</div>
+
+									<Statistic
+										title={
+											<span
+												style={{
+													color: 'var(--secondary-text)',
+													fontFamily:
+														'Poppins, sans-serif',
+												}}
+												className="flex items-center"
+											>
+												Training Duration
+												<span className="ml-2">
+													<QuestionCircleOutlined className="text-blue-400 text-base" />
+												</span>
+											</span>
+										}
+										valueRender={() => {
+											const totalMinutes =
+												experiment?.actual_training_time ||
+												0
+											if (totalMinutes === 0) {
+												return (
+													<span
+														style={{
+															background:
+																'linear-gradient(135deg, #f59e0b, #fbbf24)',
+															WebkitBackgroundClip:
+																'text',
+															WebkitTextFillColor:
+																'transparent',
+															fontFamily:
+																'Poppins, sans-serif',
+															fontWeight: 'bold',
+														}}
+													>
+														No training time
+													</span>
+												)
+											}
+											const mins =
+												Math.floor(totalMinutes)
+											const secs = Math.round(
+												(totalMinutes - mins) * 60
+											)
+											return (
+												<span
+													style={{
+														background:
+															'linear-gradient(135deg, #f59e0b, #fbbf24)',
+														WebkitBackgroundClip:
+															'text',
+														WebkitTextFillColor:
+															'transparent',
+														fontFamily:
+															'Poppins, sans-serif',
+														fontWeight: 'bold',
+													}}
+												>
+													{mins}m {secs}s
+												</span>
+											)
+										}}
+										prefix={
+											<ClockCircleOutlined
+												style={{ color: '#f59e0b' }}
+											/>
+										}
+									/>
+								</div>
+							</Card>
+
+							<Card
+								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
+								style={{
+									background: 'var(--card-gradient)',
+									backdropFilter: 'blur(10px)',
+									border: '1px solid var(--border)',
+									borderRadius: '12px',
+									fontFamily: 'Poppins, sans-serif',
+								}}
+							>
+								<div className="relative">
+									{/* Tooltip hiện khi hover vào card */}
+									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg min-w-max shadow-lg">
+											Accuracy: Đây là độ chính xác của mô
+											hình
+											<div className="absolute bottom-full right-4 transform -translate-y-1 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
+										</div>
+									</div>
+
+									<Statistic
+										title={
+											<span
+												style={{
+													color: 'var(--secondary-text)',
+													fontFamily:
+														'Poppins, sans-serif',
+												}}
+												className="flex items-center"
+											>
+												Accuracy
+												<span className="ml-2">
+													<QuestionCircleOutlined className="text-blue-400 text-base" />
+												</span>
+											</span>
+										}
+										valueRender={() => {
+											if (
+												experiment?.actual_training_time ===
+												0
+											) {
+												return (
+													<span
+														style={{
+															color: 'var(--accent-text)',
+															fontFamily:
+																'Poppins, sans-serif',
+															fontWeight: 'bold',
+														}}
+													>
+														No accuracy available
+													</span>
+												)
+											}
+											return parseFloat(
+												(
+													metrics[0]?.value * 100 || 0
+												).toFixed(2)
+											)
+										}}
+										precision={2}
+										prefix={
+											<TrophyOutlined
+												style={{
+													color: 'var(--accent-text)',
+												}}
+											/>
+										}
+										suffix="%"
+										valueStyle={{
+											color: 'var(--accent-text)',
+											fontFamily: 'Poppins, sans-serif',
+											fontWeight: 'bold',
+										}}
+									/>
+								</div>
+							</Card>
+						</div>
+
+						{/* Demo 2 identical divs side by side */}
+						<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							{/* First div - Project Details */}
+							<div className="p-8 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl bg-[linear-gradient(135deg, var(--card-gradient)_0%, rgba(255,255,255,0.02)_100%)]">
+								<div className="flex items-center space-x-3 mb-6">
+									<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
+										<SettingOutlined
+											className="text-xl"
+											style={{
+												color: 'var(--accent-text)',
+											}}
+										/>
+									</div>
+									<h2
+										className="text-xl font-bold"
+										style={{ color: 'var(--text)' }}
+									>
+										Project Details
+									</h2>
+								</div>
+								<div className="space-y-4">
+									<MetadataItem
+										label="Project Name"
+										value={projectInfo?.name}
+									/>
+									<MetadataItem
+										label="Task Type"
+										value={projectInfo?.task_type}
+									/>
+									<MetadataItem
+										label="Created"
+										value={formattedDate}
+									/>
 								</div>
 							</div>
 
-							<div className="xl:col-span-8 space-y-8">
-								<div
-									className="p-8 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
-									style={{
-										borderColor: 'var(--border)',
-										background:
-											'linear-gradient(135deg, var(--card-gradient) 0%, rgba(255,255,255,0.02) 100%)',
-									}}
-								>
-									<div className="flex items-center space-x-3 mb-8">
-										<div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10">
-											<ExperimentOutlined
-												className="text-2xl"
-												style={{
-													color: 'var(--accent-text)',
-												}}
-											/>
-										</div>
-										<div>
-											<h3
-												className="text-2xl font-bold"
-												style={{ color: 'var(--text)' }}
-											>
-												Experiments
-											</h3>
-											<p
-												className="text-sm opacity-70"
-												style={{
-													color: 'var(--secondary-text)',
-												}}
-											>
-												Training and validation status
-											</p>
-										</div>
-									</div>
-									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-										<StatusCard
-											label="Completed"
-											value={
-												experiments.filter(
-													(e) => e.status === 'DONE'
-												).length
-											}
-											color={{
-												bg: 'bg-green-500/10',
-												border: 'border-green-400/30',
-												text: 'text-green-300',
+							{/* Second div - Duplicate of Project Details */}
+							<div className="p-8 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl bg-[linear-gradient(135deg, var(--card-gradient)_0%, rgba(255,255,255,0.02)_100%)]">
+								<div className="flex items-center space-x-3 mb-6">
+									<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
+										<SettingOutlined
+											className="text-xl"
+											style={{
+												color: 'var(--accent-text)',
 											}}
-											Icon={CheckCircleOutlined}
-										/>
-										<StatusCard
-											label="In Progress"
-											value={
-												experiments.filter(
-													(e) =>
-														e.status === 'TRAINING' || 
-													    e.status === 'SETTING_UP' ||
-														e.status === 'CREATING_INSTANCE' ||
-														e.status === 'DOWNLOADING_DATA' ||
-														e.status === 'DOWNLOADING_DEPENDENCIES'
-												).length
-											}
-											color={{
-												bg: 'bg-blue-500/10',
-												border: 'border-blue-400/30',
-												text: 'text-blue-300',
-											}}
-											Icon={SyncOutlined}
-										/>
-										<StatusCard
-											label="Failed"
-											value={
-												experiments.filter(
-													(e) => e.status === 'FAILED'
-												).length
-											}
-											color={{
-												bg: 'bg-red-500/10',
-												border: 'border-red-400/30',
-												text: 'text-red-300',
-											}}
-											Icon={CloseCircleOutlined}
 										/>
 									</div>
+									<h2
+										className="text-xl font-bold"
+										style={{ color: 'var(--text)' }}
+									>
+										Project Details (Duplicate)
+									</h2>
 								</div>
-
-								<div
-									className="p-8 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
-									style={{
-										borderColor: 'var(--border)',
-										background:
-											'linear-gradient(135deg, var(--card-gradient) 0%, rgba(255,255,255,0.02) 100%)',
-									}}
-								>
-									<div className="flex items-center space-x-3 mb-8">
-										<div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/10">
-											<DatabaseOutlined
-												className="text-2xl"
-												style={{
-													color: 'var(--accent-text)',
-												}}
-											/>
-										</div>
-										<div>
-											<h3
-												className="text-2xl font-bold"
-												style={{ color: 'var(--text)' }}
-											>
-												Models
-											</h3>
-											<p
-												className="text-sm opacity-70"
-												style={{
-													color: 'var(--secondary-text)',
-												}}
-											>
-												Available trained models
-											</p>
-										</div>
-									</div>
-									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-										<StatusCard
-											label="Ready"
-											value={models.length}
-											color={{
-												bg: 'bg-green-500/10',
-												border: 'border-green-400/30',
-												text: 'text-green-300',
-											}}
-											Icon={CheckCircleOutlined}
-										/>
-									</div>
-								</div>
-
-								<div
-									className="p-8 rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
-									style={{
-										borderColor: 'var(--border)',
-										background:
-											'linear-gradient(135deg, var(--card-gradient) 0%, rgba(255,255,255,0.02) 100%)',
-									}}
-								>
-									<div className="flex items-center space-x-3 mb-8">
-										<div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10">
-											<CloudOutlined
-												className="text-2xl"
-												style={{
-													color: 'var(--accent-text)',
-												}}
-											/>
-										</div>
-										<div>
-											<h3
-												className="text-2xl font-bold"
-												style={{ color: 'var(--text)' }}
-											>
-												Deployed Models
-											</h3>
-											<p
-												className="text-sm opacity-70"
-												style={{
-													color: 'var(--secondary-text)',
-												}}
-											>
-												Production deployment status
-											</p>
-										</div>
-									</div>
-									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-										<StatusCard
-											label="Online"
-											value={
-												deployedModels.filter(
-													(d) => d.status === 'ONLINE'
-												).length
-											}
-											color={{
-												bg: 'bg-green-500/10',
-												border: 'border-green-400/30',
-												text: 'text-green-300',
-											}}
-											Icon={CloudServerOutlined}
-										/>
-										<StatusCard
-											label="Setting Up"
-											value={
-												deployedModels.filter(
-													(d) =>
-														d.status ===
-														'SETTING_UP'
-												).length
-											}
-											color={{
-												bg: 'bg-blue-500/10',
-												border: 'border-blue-400/30',
-												text: 'text-blue-300',
-											}}
-											Icon={SettingOutlined}
-										/>
-										<StatusCard
-											label="Offline"
-											value={
-												deployedModels.filter(
-													(d) =>
-														d.status === 'OFFLINE'
-												).length
-											}
-											color={{
-												bg: 'bg-red-500/10',
-												border: 'border-red-400/30',
-												text: 'text-red-300',
-											}}
-											Icon={CloseCircleOutlined}
-										/>
-									</div>
+								<div className="space-y-4">
+									<MetadataItem
+										label="Project Name"
+										value={projectInfo?.name}
+									/>
+									<MetadataItem
+										label="Task Type"
+										value={projectInfo?.task_type}
+									/>
+									<MetadataItem
+										label="Created"
+										value={formattedDate}
+									/>
 								</div>
 							</div>
 						</div>
