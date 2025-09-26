@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons'
 import { useState } from 'react'
 import { createPresignedUrls } from 'src/api/dataset'
-import { JSZip } from 'jszip'
+import JSZip from 'jszip'
 const { Dragger } = Upload
 
 const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
@@ -22,6 +22,7 @@ const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 			setIsUploading(true)
 			const url = await deployModel()
 			console.log('API Ready:', url)
+			// ANH TA CODE TỪ ĐÂY CODE TIẾP
 		} catch (e) {
 			// errors already notified by caller
 		} finally {

@@ -187,6 +187,14 @@ const ProjectInfo = () => {
 		}
 	)
 
+	const hasTraining = (experiment?.actual_training_time || 0) > 0
+
+	// Dynamic card background: blue gradient in light mode
+	const cardGradient =
+		theme === 'dark'
+			? 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)'
+			: 'linear-gradient(135deg, rgba(255, 240, 200, 0.8) 0%, rgba(180, 220, 255, 0.8) 50%, rgba(255, 200, 200, 0.8) 100%)'
+
 	const MetadataItem = ({ label, value }) => (
 		<div className="flex flex-col space-y-1 p-4 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-white/10 transition-all duration-200 hover:bg-white/10">
 			<span
@@ -301,7 +309,7 @@ const ProjectInfo = () => {
 							<Card
 								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-500 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
 								style={{
-									background: 'var(--card-gradient)',
+									background: cardGradient,
 									backdropFilter: 'blur(10px)',
 									border: '1px solid var(--border)',
 									borderRadius: '12px',
@@ -392,7 +400,7 @@ const ProjectInfo = () => {
 							<Card
 								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
 								style={{
-									background: 'var(--card-gradient)',
+									background: cardGradient,
 									backdropFilter: 'blur(10px)',
 									border: '1px solid var(--border)',
 									borderRadius: '12px',
@@ -426,10 +434,7 @@ const ProjectInfo = () => {
 											</span>
 										}
 										valueRender={() => {
-											if (
-												experiment?.actual_training_time ===
-												0
-											) {
+											if (!hasTraining) {
 												return (
 													<span
 														style={{
@@ -468,16 +473,16 @@ const ProjectInfo = () => {
 							</Card>
 							<Button
 								size="large"
-								className="h-full flex items-center justify-center border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
+								className="h-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
 								style={{
-									background: 'var(--card-gradient)',
+									background: cardGradient,
 									backdropFilter: 'blur(10px)',
-									border: '1px solid var(--border)',
 									borderRadius: '12px',
 									fontFamily: 'Poppins, sans-serif',
 								}}
 								loading={usingModel}
-								onClick={showUpload}
+								onClick={hasTraining ? showUpload : undefined}
+								disabled={!hasTraining}
 							>
 								<span
 									style={{
@@ -486,7 +491,15 @@ const ProjectInfo = () => {
 										fontSize: '1.5rem',
 									}}
 								>
-									Use your model
+									{hasTraining ? (
+										<span className="text-green-500">
+											Use your model
+										</span>
+									) : (
+										<span className="text-red-500">
+											Your model not available
+										</span>
+									)}
 								</span>
 							</Button>
 						</div>
