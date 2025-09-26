@@ -6,29 +6,11 @@ import { getAllExperiments } from 'src/api/experiment'
 import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
-import { Card, Statistic, Tag } from 'antd'
+import { Button, Card, Statistic, Tag } from 'antd'
 import { TrophyOutlined, ClockCircleOutlined } from '@ant-design/icons'
-// Ant Design icons
-import {
-	CheckCircleOutlined,
-	SyncOutlined,
-	CloseCircleOutlined,
-	CloudServerOutlined,
-	SettingOutlined,
-	ExperimentOutlined,
-	DatabaseOutlined,
-	CloudOutlined,
-	QuestionCircleOutlined,
-} from '@ant-design/icons'
-const InfoTooltip = ({ content }) => (
-	<div className="relative group inline-block ml-2">
-		<QuestionCircleOutlined className="text-blue-400 text-base cursor-pointer hover:text-blue-300 transition-colors" />
-		<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10 min-w-max shadow-lg">
-			{content}
-			<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
-		</div>
-	</div>
-)
+import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import UpDataDeploy from './upDataDeploy'
+
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
 		return (
@@ -91,7 +73,13 @@ const ProjectInfo = () => {
 	const [experiment, setExperiment] = useState(null)
 	const [experimentId, setExperimentId] = useState(null)
 	const [metrics, setMetrics] = useState([])
-
+	const [isShowUpload, setIsShowUpload] = useState(false)
+	const showUpload = () => {
+		setIsShowUpload(true)
+	}
+	const hideUpload = () => {
+		setIsShowUpload(false)
+	}
 	useEffect(() => {
 		const getExperiment = async () => {
 			console.log('Project ID:', projectInfo?.id)
@@ -217,9 +205,10 @@ const ProjectInfo = () => {
 	return (
 		<>
 			<style>{`
-        body, html {
-          background-color: var(--surface) !important;
-        }
+        	 	body, html {
+         	 	background-color: var(--surface) !important;
+				overflow-y: hidden;
+        	}
       `}</style>
 			<div
 				className="min-h-screen"
@@ -306,7 +295,7 @@ const ProjectInfo = () => {
 						</div>
 
 						{/* Statistic Cards - 2 cards side by side */}
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 							<Card
 								className="border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-500 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
 								style={{
@@ -475,6 +464,28 @@ const ProjectInfo = () => {
 									/>
 								</div>
 							</Card>
+							<Button
+								size="large"
+								className="h-full flex items-center justify-center border-0 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
+								style={{
+									background: 'var(--card-gradient)',
+									backdropFilter: 'blur(10px)',
+									border: '1px solid var(--border)',
+									borderRadius: '12px',
+									fontFamily: 'Poppins, sans-serif',
+								}}
+								onClick={showUpload}
+							>
+								<span
+									style={{
+										fontFamily: 'Poppins, sans-serif',
+										fontWeight: 'bold',
+										fontSize: '1.5rem',
+									}}
+								>
+									Use your model
+								</span>
+							</Button>
 						</div>
 
 						{/* Demo 2 identical divs side by side */}
@@ -550,6 +561,14 @@ const ProjectInfo = () => {
 					</div>
 				</div>
 			</div>
+			<UpDataDeploy
+				isOpen={isShowUpload}
+				onClose={hideUpload}
+				onUpload={(file) => {
+					console.log('File được upload:', file)
+					// Thêm logic upload file ở đây
+				}}
+			/>
 		</>
 	)
 }
