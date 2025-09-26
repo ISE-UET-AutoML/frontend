@@ -11,10 +11,23 @@ import { createPresignedUrls } from 'src/api/dataset'
 import { JSZip } from 'jszip'
 const { Dragger } = Upload
 
-const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
+const UpDataDeploy = ({ isOpen, onClose, projectId, deployModel }) => {
 	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
+
+	const handleStart = async () => {
+		if (!deployModel) return
+		try {
+			setIsUploading(true)
+			const url = await deployModel()
+			console.log('API Ready:', url)
+		} catch (e) {
+			// errors already notified by caller
+		} finally {
+			setIsUploading(false)
+		}
+	}
 	const handleUpload = async () => {
 		setIsUploading(true)
 		try {
@@ -323,11 +336,11 @@ const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 					</Button>
 					<Button
 						type="primary"
-						onClick={handleUpload}
+						onClick={handleStart}
 						disabled={fileList.length === 0 || isUploading}
 						loading={isUploading}
 					>
-						Upload
+						Start
 					</Button>
 				</div>
 			</div>

@@ -101,15 +101,18 @@ const ProjectInfo = () => {
 			const ensureResp = await instance.post(
 				`/api/ml/model/${modelId}/ensure-deployed`
 			)
+			console.log('Ensure deployed details:', ensureResp?.data)
 			const apiUrl = ensureResp?.data?.api_base_url
 			if (!apiUrl) {
 				throw new Error('Cannot get deployed API URL')
 			}
 			message.success('Model is ready!')
 			console.log('Deployed API:', apiUrl)
+			return apiUrl
 		} catch (err) {
 			console.error(err)
 			message.error(err?.response?.data?.error || err.message)
+			throw err
 		} finally {
 			setUsingModel(false)
 		}
@@ -182,41 +185,6 @@ const ProjectInfo = () => {
 			hour: '2-digit',
 			minute: '2-digit',
 		}
-	)
-
-	const StatusCard = ({ label, value, color, Icon }) => (
-		<div
-			className="group relative overflow-hidden rounded-2xl border border-opacity-20 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-opacity-40"
-			style={{
-				borderColor: 'var(--border)',
-				background:
-					'linear-gradient(135deg, var(--hover-bg) 0%, rgba(255,255,255,0.02) 100%)',
-			}}
-		>
-			<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-			<div className="relative p-6 flex items-center space-x-4">
-				<div className="flex-shrink-0 p-3 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm">
-					<Icon
-						className="text-2xl transition-transform duration-300 group-hover:scale-110"
-						style={{ color: 'var(--accent-text)' }}
-					/>
-				</div>
-				<div className="flex-1 min-w-0">
-					<p
-						className="text-sm font-medium opacity-70 mb-1"
-						style={{ color: 'var(--secondary-text)' }}
-					>
-						{label}
-					</p>
-					<p
-						className="text-2xl font-bold tracking-tight"
-						style={{ color: 'var(--text)' }}
-					>
-						{value}
-					</p>
-				</div>
-			</div>
-		</div>
 	)
 
 	const MetadataItem = ({ label, value }) => (
@@ -342,8 +310,9 @@ const ProjectInfo = () => {
 							>
 								<div className="relative">
 									{/* Tooltip cho Training Duration */}
-									<div className="absolute -top-8 left-1/3 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg">
+
+									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg min-w-max">
 											Training time for the model
 											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
 										</div>
@@ -435,7 +404,7 @@ const ProjectInfo = () => {
 									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
 										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg min-w-max shadow-lg">
 											The proportion of correct
-											predictions made by the model.
+											predictions.
 											<div className="absolute bottom-full right-4 transform -translate-y-1 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
 										</div>
 									</div>
@@ -599,6 +568,7 @@ const ProjectInfo = () => {
 				isOpen={isShowUpload}
 				onClose={hideUpload}
 				projectId={projectInfo?.id}
+				deployModel={handleUseYourModel}
 			/>
 		</>
 	)
