@@ -193,7 +193,7 @@ const ProjectInfo = () => {
 	const cardGradient =
 		theme === 'dark'
 			? 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)'
-			: 'linear-gradient(135deg, rgba(255, 240, 200, 0.8) 0%, rgba(180, 220, 255, 0.8) 50%, rgba(255, 200, 200, 0.8) 100%)'
+			: 'linear-gradient(150deg, #fff8e1 0%, #bbdefb 40%, #ffcdd2 100%)'
 
 	const MetadataItem = ({ label, value }) => (
 		<div className="flex flex-col space-y-1 p-4 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-white/10 transition-all duration-200 hover:bg-white/10">
