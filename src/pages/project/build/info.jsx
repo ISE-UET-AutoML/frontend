@@ -6,10 +6,12 @@ import { getAllExperiments } from 'src/api/experiment'
 import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
-import { Button, Card, Statistic, Tag } from 'antd'
+import { Button, Card, Statistic, Tag, message } from 'antd'
 import { TrophyOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
+import instance from 'src/api/axios'
+import * as modelServiceAPI from 'src/api/model'
 
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
@@ -74,11 +76,43 @@ const ProjectInfo = () => {
 	const [experimentId, setExperimentId] = useState(null)
 	const [metrics, setMetrics] = useState([])
 	const [isShowUpload, setIsShowUpload] = useState(false)
+	const [usingModel, setUsingModel] = useState(false)
 	const showUpload = () => {
 		setIsShowUpload(true)
 	}
 	const hideUpload = () => {
 		setIsShowUpload(false)
+	}
+
+	const handleUseYourModel = async () => {
+		try {
+			setUsingModel(true)
+			// Resolve modelId from experiment id
+			const expId = experiment?.id || 1
+			if (!expId) {
+				throw new Error('Missing experiment id')
+			}
+			const modelRes = await modelServiceAPI.getModelByExperimentId(expId)
+			if (modelRes.status !== 200 || !modelRes.data?.id) {
+				throw new Error('Cannot resolve model id from experiment')
+			}
+			const modelId = modelRes.data.id
+
+			const ensureResp = await instance.post(
+				`/api/ml/model/${modelId}/ensure-deployed`
+			)
+			const apiUrl = ensureResp?.data?.api_base_url
+			if (!apiUrl) {
+				throw new Error('Cannot get deployed API URL')
+			}
+			message.success('Model is ready!')
+			console.log('Deployed API:', apiUrl)
+		} catch (err) {
+			console.error(err)
+			message.error(err?.response?.data?.error || err.message)
+		} finally {
+			setUsingModel(false)
+		}
 	}
 	useEffect(() => {
 		const getExperiment = async () => {
@@ -308,10 +342,9 @@ const ProjectInfo = () => {
 							>
 								<div className="relative">
 									{/* Tooltip cho Training Duration */}
-									<div className="absolute -top-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+									<div className="absolute -top-8 left-1/3 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
 										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg">
-											Training Duration: Thời gian huấn
-											luyện mô hình
+											Training time for the model
 											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
 										</div>
 									</div>
@@ -401,8 +434,8 @@ const ProjectInfo = () => {
 									{/* Tooltip hiện khi hover vào card */}
 									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
 										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg min-w-max shadow-lg">
-											Accuracy: Đây là độ chính xác của mô
-											hình
+											The proportion of correct
+											predictions made by the model.
 											<div className="absolute bottom-full right-4 transform -translate-y-1 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
 										</div>
 									</div>
@@ -474,6 +507,7 @@ const ProjectInfo = () => {
 									borderRadius: '12px',
 									fontFamily: 'Poppins, sans-serif',
 								}}
+								loading={usingModel}
 								onClick={showUpload}
 							>
 								<span

@@ -7,60 +7,54 @@ import {
 	DeleteOutlined,
 } from '@ant-design/icons'
 import { useState } from 'react'
-import instance from 'src/api/axios'
-import JSZip from 'jszip'
-
+import { createPresignedUrls } from 'src/api/dataset'
+import { JSZip } from 'jszip'
 const { Dragger } = Upload
 
 const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
-
 	const handleUpload = async () => {
-		if (fileList.length === 0) {
-			message.warning('Please select files or folder first!')
-			return
-		}
-
 		setIsUploading(true)
 		try {
 			const zip = new JSZip()
-			const usedNames = new Set()
-			for (const item of fileList) {
-				const fileObj = item.originFileObj || item
-				const origRel =
-					item.originFileObj?.webkitRelativePath ||
-					item.webkitRelativePath ||
-					item.name
-				const baseName = origRel.split('/')?.pop() || item.name
-				let flatName = baseName
-				let counter = 1
-				while (usedNames.has(flatName)) {
-					const dot = baseName.lastIndexOf('.')
-					const stem = dot !== -1 ? baseName.slice(0, dot) : baseName
-					const ext = dot !== -1 ? baseName.slice(dot) : ''
-					flatName = `${stem}_${counter}${ext}`
-					counter += 1
-				}
-				usedNames.add(flatName)
-				zip.file(flatName, fileObj)
-			}
+
+			fileList.forEach((file) => {
+				const relPath =
+					file.originFileObj?.webkitRelativePath ||
+					file.webkitRelativePath ||
+					file.name
+				zip.file(relPath, file.originFileObj || file)
+			})
 
 			const zipBlob = await zip.generateAsync({ type: 'blob' })
 
 			const zipFileName = `data_${projectId}_${Date.now()}.zip`
 
-			const formData = new FormData()
-			formData.append('dataset_title', projectId)
-			formData.append('key', `${projectId}/zip/${zipFileName}`)
-			formData.append('file', zipBlob, zipFileName)
+			const filesToUpload = [
+				{
+					key: `${projectId}/${zipFileName}`,
+					type: 'application/zip',
+				},
+			]
+			const { data: presignedUrlResponse } = await createPresignedUrls({
+				projectId,
+				files: filesToUpload,
+			})
+			const presignedUrl = presignedUrlResponse[0]?.url
+			if (!presignedUrl) {
+				throw new Error('Failed to get presigned URL')
+			}
+			const response = await fetch(presignedUrl, {
+				method: 'PUT',
+				body: zipBlob,
+				headers: {
+					'Content-Type': 'application/zip',
+				},
+			})
 
-			const response = await instance.post(
-				`/api/service/data/uploads/zip`,
-				formData
-			)
-			if (response.status !== 201 && response.status !== 200) {
+			if (!response.ok) {
 				throw new Error('Failed to upload file')
 			}
 
@@ -75,13 +69,12 @@ const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 			setIsUploading(false)
 		}
 	}
-
 	const uploadProps = {
 		name: 'file',
 		multiple: true,
 		directory: true,
-		accept: '.xlsx,.xls,.jpg,.png,.csv,.json', // Mở rộng định dạng
-		fileList,
+		accept: '.xlsx,.xls, .jpg, .png',
+		fileList, // kiểm soát danh sách file
 		showUploadList: false,
 		beforeUpload: (file) => {
 			const isLt10M = file.size / 1024 / 1024 < 10
@@ -99,10 +92,7 @@ const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 				return (
 					fileName.endsWith('.jpg') ||
 					fileName.endsWith('.png') ||
-					fileName.endsWith('.xlsx') ||
-					fileName.endsWith('.xls') ||
-					fileName.endsWith('.csv') ||
-					fileName.endsWith('.json')
+					fileName.endsWith('.xlsx')
 				)
 			})
 
@@ -247,11 +237,13 @@ const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 			width={600}
 			centered
 			closeIcon={<CloseOutlined style={{ color: 'var(--text)' }} />}
-			style={{
-				background: 'var(--card-gradient)',
-				backdropFilter: 'blur(10px)',
-			}}
 			styles={{
+				content: {
+					background: 'var(--card-gradient)',
+					border: '1px solid var(--border)',
+					borderRadius: 12,
+					boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
+				},
 				body: {
 					background: 'var(--card-gradient)',
 					color: 'var(--text)',
@@ -266,7 +258,15 @@ const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 					Upload Data
 				</h3>
 
-				<Dragger {...uploadProps}>
+				<Dragger
+					{...uploadProps}
+					className="updeploy-dragger"
+					style={{
+						border: '1px dashed var(--border)',
+						borderRadius: 12,
+						background: 'transparent',
+					}}
+				>
 					<p className="ant-upload-drag-icon">
 						<InboxOutlined
 							style={{ color: 'var(--accent-text)' }}
@@ -283,7 +283,7 @@ const UpDataDeploy = ({ isOpen, onClose, projectId }) => {
 						style={{ color: 'var(--secondary-text)' }}
 					>
 						Support for single file, multiple files, or entire
-						folder upload. Only CSV, JSON, Excel, JPG, PNG files are
+						folder upload. JPG, PNG, CSV, JSON, Excel files are
 						allowed. (MAX. 10MB per file)
 					</p>
 				</Dragger>
