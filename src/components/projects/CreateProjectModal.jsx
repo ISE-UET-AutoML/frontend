@@ -191,7 +191,14 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                 } else {
                     const zip = new JSZip();
                     for (const f of file.files) {
-                        zip.file(f.path, f.fileObject);
+                        let zipPath = f.path.split('/').slice(-2).join('/');
+                        if (f.path.split('/').length === 2) {
+                            const name = f.path.split('/').pop();
+                            zipPath = `unlabel_${name}`;
+                        } else {
+                            zipPath = f.path.split('/').slice(-2).join('_');
+                        }
+                        zip.file(zipPath, f.fileObject);
                     }
                     const zipBlob = await zip.generateAsync({ type: 'blob' });
                     await uploadToS3(urlData.url, zipBlob);
