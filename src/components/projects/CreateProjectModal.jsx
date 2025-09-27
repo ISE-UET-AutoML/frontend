@@ -313,7 +313,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                 open={open}
                 onCancel={handleCancel}
                 footer={null}
-                width={800} // Same width for both steps - compact and consistent
+                width={1400} // Further increased width to match ManualCreationModal
                 title="Create New Project"
                 destroyOnClose
                 className="theme-create-project-modal"

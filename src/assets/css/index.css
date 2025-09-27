@@ -160,6 +160,16 @@
     --dropdown-selected-bg: #3b82f6;
     --dropdown-selected-text: #ffffff;
     --dropdown-placeholder: #9ca3af;
+    
+    /* Task Card Specific Variables */
+    --task-card-min-height: 280px;
+    --task-card-hover-scale: 1.05;
+    --task-card-hover-translate: -8px;
+    --task-card-border-radius: 20px;
+    --task-card-padding: 20px;
+    --task-card-gap: 24px;
+    --task-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --task-card-hover-shadow: 0 20px 40px rgba(59, 130, 246, 0.25);
 }
 
 .dark {
@@ -319,6 +329,16 @@
     --dropdown-selected-bg: #3b82f6;
     --dropdown-selected-text: #ffffff;
     --dropdown-placeholder: #94a3b8;
+    
+    /* Task Card Specific Variables - Dark Mode */
+    --task-card-min-height: 280px;
+    --task-card-hover-scale: 1.05;
+    --task-card-hover-translate: -8px;
+    --task-card-border-radius: 20px;
+    --task-card-padding: 20px;
+    --task-card-gap: 24px;
+    --task-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --task-card-hover-shadow: 0 20px 40px rgba(96, 165, 250, 0.3);
 }
 
 /* Theme dropdown styling (shared) */
