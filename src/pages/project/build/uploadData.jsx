@@ -298,8 +298,14 @@ const UploadData = () => {
 			(item) =>
 				(!serviceFilter || item.service === serviceFilter) &&
 				(!bucketFilter || item.bucketName === bucketFilter) &&
-				(!labeledFilter || (labeledFilter === 'yes' ? item.isLabeled : !item.isLabeled)) &&
-				(!searchQuery || (item.title || '').toLowerCase().includes(searchQuery.toLowerCase())) &&
+				(!labeledFilter ||
+					(labeledFilter === 'yes'
+						? item.isLabeled
+						: !item.isLabeled)) &&
+				(!searchQuery ||
+					(item.title || '')
+						.toLowerCase()
+						.includes(searchQuery.toLowerCase())) &&
 				item.task_type === projectInfo?.task_type
 		)
 		.sort((a, b) => {
@@ -316,11 +322,22 @@ const UploadData = () => {
 
 	useEffect(() => {
 		setCurrentPage(1)
-	}, [serviceFilter, bucketFilter, labeledFilter, searchQuery, sortBy, sortDirection, labelProjects])
+	}, [
+		serviceFilter,
+		bucketFilter,
+		labeledFilter,
+		searchQuery,
+		sortBy,
+		sortDirection,
+		labelProjects,
+	])
 
 	const totalItems = filteredProjects.length
 	const startIndex = (currentPage - 1) * pageSize
-	const paginatedProjects = filteredProjects.slice(startIndex, startIndex + pageSize)
+	const paginatedProjects = filteredProjects.slice(
+		startIndex,
+		startIndex + pageSize
+	)
 
 	const handleContinue = async () => {
 		const selectedProject = filteredProjects.find(
@@ -369,10 +386,13 @@ const UploadData = () => {
 				datasetMetadata: selectedProject.meta_data,
 			}
 			console.log('Train payload: ', payload)
-			const trainingRequest = await trainCloudModel(projectInfo.id, payload)
+			const trainingRequest = await trainCloudModel(
+				projectInfo.id,
+				payload
+			)
 			const trainingResult = trainingRequest.data
 			console.log('Training response:', trainingResult)
-			
+
 			if (
 				trainingResult &&
 				trainingResult.experimentName &&
@@ -384,10 +404,9 @@ const UploadData = () => {
 				)
 			} else {
 				message.error('Training result is invalid!')
-				navigate(
-					`/app/project/${projectInfo.id}/build/uploadData`,
-					{ replace: true }
-				)
+				navigate(`/app/project/${projectInfo.id}/build/uploadData`, {
+					replace: true,
+				})
 			}
 		} catch (error) {
 			console.error('Error exporting labels to S3:', error)
@@ -1069,7 +1088,12 @@ const UploadData = () => {
 									</CardContent>
 								</Card>
 								<div className="mt-6">
-									<BuildPager currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} onPageChange={setCurrentPage} />
+									<BuildPager
+										currentPage={currentPage}
+										totalItems={totalItems}
+										pageSize={pageSize}
+										onPageChange={setCurrentPage}
+									/>
 								</div>
 
 								{/* Create New Project Card */}
@@ -1194,10 +1218,7 @@ const UploadData = () => {
 											style={{
 												color: 'var(--secondary-text)',
 											}}
-										>
-											This process may take a few minutes.
-											Please do not close this window.
-										</span>
+										></span>
 									</p>
 
 									{/* Progress indicator */}

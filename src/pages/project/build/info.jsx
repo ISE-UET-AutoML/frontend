@@ -6,7 +6,8 @@ import { getAllExperiments } from 'src/api/experiment'
 import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
-import { Button, Card, Statistic, Tag, message } from 'antd'
+import { getExperimentConfig } from 'src/api/experiment_config'
+import { Button, Card, Statistic, Tag, message, Skeleton, Empty } from 'antd'
 import { TrophyOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
@@ -14,6 +15,16 @@ import useDeployStore from 'src/stores/deployStore'
 import instance from 'src/api/axios'
 import * as modelServiceAPI from 'src/api/model'
 import * as datasetAPI from 'src/api/dataset'
+import {
+	ResponsiveContainer,
+	AreaChart,
+	Area,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip as RechartsTooltip,
+	Legend,
+} from 'recharts'
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
 		return (
@@ -91,6 +102,9 @@ const ProjectInfo = () => {
 	const [modelId, setModelId] = useState(null)
 	const [isPredictDone, setIsPredictDone] = useState(false)
 	const [isPreparing, setIsPreparing] = useState(false)
+	const [chartData, setChartData] = useState([])
+	const [valMetric, setValMetric] = useState('Accuracy')
+	const [isChartLoading, setIsChartLoading] = useState(false)
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -189,78 +203,108 @@ const ProjectInfo = () => {
 			console.error('ensure-deployed (background) error:', err)
 		}
 	}
+
+	// 1) Lấy experimentId theo projectInfo.id
 	useEffect(() => {
+		if (!projectInfo?.id) return
 		const getExperiment = async () => {
-			console.log('Project ID:', projectInfo)
-			const { data } = await getAllExperiments(projectInfo?.id)
-			if (data && data.length > 0) {
-				setExperimentId(data[0]?.id)
-			} else {
-				console.error('No experiments found')
+			try {
+				const { data } = await getAllExperiments(projectInfo?.id)
+				if (data && data.length > 0) {
+					setExperimentId(data[0]?.id)
+					setIsPredictDone(false)
+					setIsPreparing(false)
+				} else {
+					console.error('No experiments found')
+				}
+			} catch (e) {
+				console.error('Error fetching experiments:', e)
 			}
 		}
 		getExperiment()
 	}, [projectInfo])
 
+	// 2) Lấy chi tiết experiment
 	useEffect(() => {
 		if (!experimentId) return
-		// Khi đổi experiment, reset trạng thái Predict/Preparing
-		setIsPredictDone(false)
-		setIsPreparing(false)
-
-		const fetchDataset = async () => {
-			const datasetRes = await datasetAPI.getDataset(
-				'973ca65c-9005-4dca-8de4-ccb89c9b97e3'
-			)
-			if (datasetRes.status !== 200) {
-				throw new Error('Cannot get dataset')
-			}
-			setDatasetInfo(datasetRes)
-			console.log(datasetRes)
-		}
-
 		const fetchExperiment = async () => {
 			try {
-				const experimentRes =
-					await experimentAPI.getExperimentById(experimentId)
-				if (experimentRes.status !== 200) {
-					throw new Error('Cannot get experiment')
-				}
-				setExperiment((prev) => experimentRes.data)
+				const res = await experimentAPI.getExperimentById(experimentId)
+				if (res.status === 200) setExperiment(res.data)
 			} catch (error) {
-				console.log('Error while getting experiment', error)
+				console.error('Error fetching experiment:', error)
 			}
 		}
-
-		const fetchExperimentMetrics = async () => {
-			setMetrics((prev) => [])
-			try {
-				const metricsRes =
-					await mlServiceAPI.getFinalMetrics(experimentId)
-				if (metricsRes.status !== 200) {
-					throw new Error('Cannot get metrics')
-				}
-				console.log(metricsRes)
-				for (const key in metricsRes.data) {
-					const metricData = {
-						key: key,
-						metric: metricsRes.data[key].name,
-						value: metricsRes.data[key].score,
-						description: metricsRes.data[key].description,
-						status: getAccuracyStatus(metricsRes.data[key].score),
-					}
-					setMetrics((prev) => [...prev, metricData])
-				}
-			} catch (error) {
-				console.log('Error while getting metrics', error)
-			}
-		}
-
 		fetchExperiment()
-		fetchExperimentMetrics()
-		fetchDataset()
+	}, [experimentId])
 
-		// Chỉ GET status để hiển thị trạng thái nút
+	// 3) Lấy metrics
+	useEffect(() => {
+		if (!experimentId) return
+		const fetchMetrics = async () => {
+			try {
+				const res = await mlServiceAPI.getFinalMetrics(experimentId)
+				if (res.status === 200) {
+					const newMetrics = []
+					for (const key in res.data) {
+						newMetrics.push({
+							key: key,
+							metric: res.data[key].name,
+							value: res.data[key].score,
+							description: res.data[key].description,
+							status: getAccuracyStatus(res.data[key].score),
+						})
+					}
+					setMetrics(newMetrics)
+				}
+			} catch (error) {
+				console.error('Error fetching metrics:', error)
+			}
+		}
+		fetchMetrics()
+	}, [experimentId])
+
+	// 4) Lấy dataset
+	useEffect(() => {
+		if (!projectInfo?.dataset_id) return
+		const fetchDataset = async () => {
+			try {
+				const res = await datasetAPI.getDataset(projectInfo?.dataset_id)
+				if (res.status === 200) setDatasetInfo(res)
+			} catch (error) {
+				console.error('Error fetching dataset:', error)
+			}
+		}
+		fetchDataset()
+	}, [projectInfo])
+
+	// 5) Lấy chart config/history
+	useEffect(() => {
+		if (!experimentId) return
+		const fetchConfig = async () => {
+			try {
+				setIsChartLoading(true)
+				const res = await getExperimentConfig(experimentId)
+				const config = Array.isArray(res?.data)
+					? res.data[0]
+					: res?.data
+				const history = config?.metrics?.training_history || []
+				const metricName = config?.metrics?.val_metric || 'Accuracy'
+				setValMetric(metricName)
+				setChartData(history)
+			} catch (error) {
+				console.error('Error fetching config:', error)
+				setChartData([])
+			} finally {
+				setIsChartLoading(false)
+			}
+		}
+		fetchConfig()
+	}, [experimentId])
+
+	// 6) Lấy model status
+	useEffect(() => {
+		if (!experimentId) return
 		const checkStatus = async () => {
 			try {
 				setIsCheckingModelStatus(true)
@@ -270,7 +314,6 @@ const ProjectInfo = () => {
 				setModelId(mId)
 				if (!mId) {
 					setIsModelOnline(false)
-					disablePolling()
 					return
 				}
 				const statusRes = await instance.get(
@@ -281,19 +324,15 @@ const ProjectInfo = () => {
 				const online =
 					statusStr === 'ONLINE' && !!statusRes?.data?.api_base_url
 				setIsModelOnline(!!online)
-				if (!online) {
-					disablePolling()
-				}
 			} catch (e) {
 				setIsModelOnline(false)
 				setModelStatus(null)
-				disablePolling()
 			} finally {
 				setIsCheckingModelStatus(false)
 			}
 		}
 		checkStatus()
-	}, [experimentId, disablePolling])
+	}, [experimentId])
 
 	// Re-check when window gains focus
 	useEffect(() => {
@@ -365,7 +404,7 @@ const ProjectInfo = () => {
 			<style>{`
         	 	body, html {
          	 	background-color: var(--surface) !important;
-				overflow-y: hidden;
+
         	}
       `}</style>
 			<div
@@ -436,23 +475,53 @@ const ProjectInfo = () => {
 						/>
 					)}
 					<div className="relative z-10 max-w-7xl mx-auto">
+						{/* Per-section loading indicators handled below; no global overlay */}
 						<div className="text-center mb-16">
 							<h1
-								className="text-4xl sm:text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent leading-tight"
+								className="text-4xl sm:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent leading-tight"
 								style={{ color: 'var(--title-project)' }}
 							>
-								DASHBOARD
+								{projectInfo?.name || 'PROJECT'}
 							</h1>
-							<p
-								className="text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed"
-								style={{ color: 'var(--secondary-text)' }}
+							<div
+								className="max-w-4xl mx-auto p-4 rounded-2xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+								style={{ background: 'var(--card-gradient)' }}
 							>
-								{projectInfo?.description ||
-									'Comprehensive overview of your project metrics and deployment status'}
-							</p>
+								<div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+									<div
+										className="text-sm font-semibold"
+										style={{ color: 'var(--text)' }}
+									>
+										Task:{' '}
+										<span className="opacity-80">
+											{projectInfo?.task_type || 'N/A'}
+										</span>
+									</div>
+									<div
+										className="text-sm font-semibold"
+										style={{ color: 'var(--text)' }}
+									>
+										Created:{' '}
+										<span className="opacity-80">
+											{formattedDate}
+										</span>
+									</div>
+									{projectInfo?.visibility && (
+										<div
+											className="text-sm font-semibold"
+											style={{ color: 'var(--text)' }}
+										>
+											Visibility:{' '}
+											<span className="opacity-80">
+												{projectInfo.visibility}
+											</span>
+										</div>
+									)}
+								</div>
+							</div>
 						</div>
 
-						{/* Statistic Cards - 2 cards side by side */}
+						{/* Statistic Cards - render progressively per section */}
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 							<Card
 								className="border border-1 border-gray-300 backdrop-blur-sm shadow-lg hover:shadow-xl transition duration-500 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group"
@@ -465,7 +534,6 @@ const ProjectInfo = () => {
 							>
 								<div className="relative">
 									{/* Tooltip cho Training Duration */}
-
 									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
 										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg min-w-max">
 											Training time for the model
@@ -473,54 +541,62 @@ const ProjectInfo = () => {
 										</div>
 									</div>
 
-									<Statistic
-										title={
-											<span
-												style={{
-													color: 'var(--secondary-text)',
-													fontFamily:
-														'Poppins, sans-serif',
-												}}
-												className="flex items-center"
-											>
-												Training Duration
-												<span className="ml-2">
-													<QuestionCircleOutlined className="text-blue-400 text-base" />
+									{!experiment ? (
+										<Skeleton
+											active
+											paragraph={{ rows: 2 }}
+											title={false}
+										/>
+									) : (
+										<Statistic
+											title={
+												<span
+													style={{
+														color: 'var(--secondary-text)',
+														fontFamily:
+															'Poppins, sans-serif',
+													}}
+													className="flex items-center"
+												>
+													Training Duration
+													<span className="ml-2">
+														<QuestionCircleOutlined className="text-blue-400 text-base" />
+													</span>
 												</span>
-											</span>
-										}
-										valueRender={() => {
-											const totalMinutes =
-												experiment?.actual_training_time ||
-												0
-											if (totalMinutes === 0) {
+											}
+											valueRender={() => {
+												const totalMinutes =
+													experiment?.actual_training_time ||
+													0
+												if (totalMinutes === 0) {
+													return (
+														<span
+															className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-700'} font-bold`}
+														>
+															No training time
+														</span>
+													)
+												}
+												const mins =
+													Math.floor(totalMinutes)
+												const secs = Math.round(
+													(totalMinutes - mins) * 60
+												)
 												return (
 													<span
 														className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-700'} font-bold`}
 													>
-														No training time
+														{mins}m {secs}s
 													</span>
 												)
+											}}
+											prefix={
+												<ClockCircleOutlined
+													style={{ color: '#f59e0b' }}
+												/>
 											}
-											const mins =
-												Math.floor(totalMinutes)
-											const secs = Math.round(
-												(totalMinutes - mins) * 60
-											)
-											return (
-												<span
-													className={`${theme === 'dark' ? 'text-yellow-500' : 'text-gray-700'} font-bold`}
-												>
-													{mins}m {secs}s
-												</span>
-											)
-										}}
-										prefix={
-											<ClockCircleOutlined
-												style={{ color: '#f59e0b' }}
-											/>
-										}
-									/>
+										/>
+									)}
 								</div>
 							</Card>
 
@@ -543,68 +619,80 @@ const ProjectInfo = () => {
 										</div>
 									</div>
 
-									<Statistic
-										title={
-											<span
-												style={{
-													color: 'var(--secondary-text)',
-													fontFamily:
-														'Poppins, sans-serif',
-												}}
-												className="flex items-center"
-											>
-												Accuracy
-												<span className="ml-2">
-													<QuestionCircleOutlined className="text-blue-400 text-base" />
+									{!metrics.length ? (
+										<Skeleton
+											active
+											paragraph={{ rows: 2 }}
+											title={false}
+										/>
+									) : (
+										<Statistic
+											title={
+												<span
+													style={{
+														color: 'var(--secondary-text)',
+														fontFamily:
+															'Poppins, sans-serif',
+													}}
+													className="flex items-center"
+												>
+													Accuracy
+													<span className="ml-2">
+														<QuestionCircleOutlined className="text-blue-400 text-base" />
+													</span>
 												</span>
-											</span>
-										}
-										valueRender={() => {
-											if (!hasTraining) {
+											}
+											valueRender={() => {
+												if (!hasTraining) {
+													return (
+														<span
+															style={{
+																fontFamily:
+																	'Poppins, sans-serif',
+																fontWeight:
+																	'bold',
+															}}
+															className={`${theme === 'dark' ? 'text-sky-400' : 'text-gray-700'}`}
+														>
+															No accuracy
+															available
+														</span>
+													)
+												}
 												return (
 													<span
-														style={{
-															fontFamily:
-																'Poppins, sans-serif',
-															fontWeight: 'bold',
-														}}
-														className={`${theme === 'dark' ? 'text-sky-400' : 'text-gray-700'}`}
+														className={`${theme === 'dark' ? 'text-sky-500' : 'text-gray-700'} font-bold`}
 													>
-														No accuracy available
+														{parseFloat(
+															(
+																metrics[0]
+																	?.value *
+																	100 || 0
+															).toFixed(2)
+														)}
 													</span>
 												)
+											}}
+											precision={2}
+											prefix={
+												<TrophyOutlined
+													style={{
+														color: 'var(--accent-text)',
+													}}
+												/>
 											}
-											return (
+											suffix={
 												<span
 													className={`${theme === 'dark' ? 'text-sky-500' : 'text-gray-700'} font-bold`}
 												>
-													{parseFloat(
-														(
-															metrics[0]?.value *
-																100 || 0
-														).toFixed(2)
-													)}
+													%
 												</span>
-											)
-										}}
-										precision={2}
-										prefix={
-											<TrophyOutlined
-												style={{
-													color: 'var(--accent-text)',
-												}}
-											/>
-										}
-										suffix={
-											<span
-												className={`${theme === 'dark' ? 'text-sky-500' : 'text-gray-700'} font-bold`}
-											>
-												%
-											</span>
-										}
-									/>
+											}
+										/>
+									)}
 								</div>
 							</Card>
+
 							<Button
 								size="large"
 								className="border border-gray-400 border-1 h-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
@@ -665,98 +753,204 @@ const ProjectInfo = () => {
 							</Button>
 						</div>
 
-						{/* Demo 2 identical divs side by side */}
-						<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-							{/* First div - Project Details */}
-							<div className="p-8 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl bg-[linear-gradient(135deg, var(--card-gradient)_0%, rgba(255,255,255,0.02)_100%)]">
-								<div className="flex items-center space-x-3 mb-6">
-									<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
-										<SettingOutlined
-											className="text-xl"
-											style={{
-												color: 'var(--accent-text)',
-											}}
-										/>
+						{/* Dataset details + Training history on the same row */}
+						<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+							{datasetInfo === null ? (
+								<div className="lg:col-span-1 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
+									<Skeleton
+										active
+										paragraph={{ rows: 4 }}
+										title={false}
+									/>
+								</div>
+							) : datasetInfo?.data ? (
+								<div className="lg:col-span-1 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl bg-[linear-gradient(135deg, var(--card-gradient)_0%, rgba(255,255,255,0.02)_100%)]">
+									<div className="flex items-center space-x-3 mb-6">
+										<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
+											<SettingOutlined
+												className="text-xl"
+												style={{
+													color: 'var(--accent-text)',
+												}}
+											/>
+										</div>
+										<h2
+											className="text-xl font-bold"
+											style={{ color: 'var(--text)' }}
+										>
+											Dataset Details
+										</h2>
 									</div>
-									<h2
-										className="text-xl font-bold"
-										style={{ color: 'var(--text)' }}
-									>
-										Project Details
-									</h2>
-								</div>
-								<div className="space-y-4">
-									<MetadataItem
-										label="Project Name"
-										value={projectInfo?.name}
-									/>
-									<MetadataItem
-										label="Task Type"
-										value={projectInfo?.task_type}
-									/>
-									<MetadataItem
-										label="Created"
-										value={formattedDate}
-									/>
-								</div>
-							</div>
-
-							{/* Second div - Duplicate of Project Details */}
-							<div className="p-8 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl bg-[linear-gradient(135deg, var(--card-gradient)_0%, rgba(255,255,255,0.02)_100%)]">
-								<div className="flex items-center space-x-3 mb-6">
-									<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
-										<SettingOutlined
-											className="text-xl"
-											style={{
-												color: 'var(--accent-text)',
-											}}
+									<div className="space-y-4">
+										<MetadataItem
+											label="Data Type"
+											value={
+												datasetInfo?.data?.data_type ||
+												'N/A'
+											}
 										/>
-									</div>
-									<h2
-										className="text-xl font-bold"
-										style={{ color: 'var(--text)' }}
-									>
-										Dataset Details
-									</h2>
-								</div>
-								<div className="space-y-4">
-									<MetadataItem
-										label="Data Type"
-										value={
-											datasetInfo?.data?.data_type ||
-											'N/A'
-										}
-									/>
-									<MetadataItem
-										label="Total Files"
-										value={(
-											datasetInfo?.data?.meta_data
-												?.total_files ?? 'N/A'
-										).toString()}
-									/>
-									<MetadataItem
-										label="Total Size (MB)"
-										value={(() => {
-											const kb =
+										<MetadataItem
+											label="Total Files"
+											value={(
 												datasetInfo?.data?.meta_data
-													?.total_size_kb
-											if (kb == null) return 'N/A'
-											const mb = Number(kb) / 1024
-											return `${mb.toFixed(2)}`
-										})()}
-									/>
-									<MetadataItem
-										label="Title"
-										value={
-											datasetInfo?.data?.title ||
-											datasetInfo?.data?.dataset_title ||
-											'N/A'
-										}
+													?.total_files ?? 'N/A'
+											).toString()}
+										/>
+										<MetadataItem
+											label="Total Size (MB)"
+											value={(() => {
+												const kb =
+													datasetInfo?.data?.meta_data
+														?.total_size_kb
+												if (kb == null) return 'N/A'
+												const mb = Number(kb) / 1024
+												return `${mb.toFixed(2)}`
+											})()}
+										/>
+										<MetadataItem
+											label="Title"
+											value={
+												datasetInfo?.data?.title ||
+												datasetInfo?.data
+													?.dataset_title ||
+												'N/A'
+											}
+										/>
+									</div>
+								</div>
+							) : (
+								<div className="lg:col-span-1 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
+									<Empty
+										description="No dataset info"
+										image={Empty.PRESENTED_IMAGE_SIMPLE}
 									/>
 								</div>
-							</div>
+							)}
+
+							{/* Training history chart on the same row, wider column */}
+							{isChartLoading ||
+							(Array.isArray(chartData) &&
+								chartData.length > 0) ? (
+								<div className="lg:col-span-2 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
+									<h2
+										className="text-xl font-bold mb-4"
+										style={{ color: 'var(--text)' }}
+									>
+										Training History ({valMetric})
+									</h2>
+									<div style={{ width: '100%', height: 300 }}>
+										{isChartLoading ? (
+											<div className="w-full h-full">
+												<Skeleton
+													active
+													paragraph={{ rows: 6 }}
+													title={false}
+												/>
+											</div>
+										) : (
+											<ResponsiveContainer
+												width="100%"
+												height="100%"
+											>
+												<AreaChart
+													data={chartData}
+													margin={{
+														top: 10,
+														right: 30,
+														left: 0,
+														bottom: 0,
+													}}
+												>
+													<defs>
+														<linearGradient
+															id="colorAccuracy"
+															x1="0"
+															y1="0"
+															x2="0"
+															y2="1"
+														>
+															<stop
+																offset="5%"
+																stopColor="#60a5fa"
+																stopOpacity={
+																	0.8
+																}
+															/>
+															<stop
+																offset="95%"
+																stopColor="#22d3ee"
+																stopOpacity={
+																	0.1
+																}
+															/>
+														</linearGradient>
+													</defs>
+													<CartesianGrid
+														strokeDasharray="3 3"
+														stroke="#334155"
+													/>
+													<XAxis
+														dataKey="step"
+														tick={{
+															fontSize: 12,
+															fill: '#94a3b8',
+														}}
+														domain={[0, 'auto']}
+													/>
+													<YAxis
+														tick={{
+															fontSize: 12,
+															fill: '#94a3b8',
+														}}
+														domain={[0, 'auto']}
+													/>
+													<RechartsTooltip
+														formatter={(value) => [
+															`${(value * 1).toFixed(2)}`,
+															valMetric,
+														]}
+														labelFormatter={(
+															label
+														) =>
+															`Epoch: ${label} step`
+														}
+														contentStyle={{
+															backgroundColor:
+																'rgba(15, 23, 42, 0.95)',
+															borderRadius: '8px',
+															boxShadow:
+																'0 4px 20px rgba(0,0,0,0.5)',
+															border: '1px solid var(--border)',
+															color: '#e2e8f0',
+														}}
+													/>
+													<Legend />
+													<Area
+														type="monotone"
+														dataKey="score"
+														stroke="#60a5fa"
+														strokeWidth={3}
+														fillOpacity={1}
+														fill="url(#colorAccuracy)"
+														name={`Validation ${valMetric}`}
+													/>
+												</AreaChart>
+											</ResponsiveContainer>
+										)}
+									</div>
+								</div>
+							) : (
+								<div className="lg:col-span-2 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
+									<Empty
+										description="No training history yet"
+										image={Empty.PRESENTED_IMAGE_SIMPLE}
+									/>
+								</div>
+							)}
 						</div>
 					</div>
+
+					{/* Training history chart moved into the row above */}
 				</div>
 			</div>
 			<UpDataDeploy
