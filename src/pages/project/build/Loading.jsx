@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
+  artificialIntelligence,
+  cloud,
+  software,
+  file,
+  chatLoading,
   Aipoweredmarketingtoolsabstract,
   AITools,
   KeitoFrontPage,
@@ -8,27 +13,18 @@ import {
 } from "src/assets/gif";
 
 const gifs = [
+  software,
+  cloud,
+  file,
   Aipoweredmarketingtoolsabstract,
-  AITools,
-  KeitoFrontPage,
-  LiveChatbot,
-  SandyLoading,
+  LiveChatbot
 ];
 
-export default function Loading() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % gifs.length);
-    }, 10000); // đổi mỗi 10 giây
-    return () => clearInterval(timer);
-  }, []);
-
+export default function Loading({ currentStep }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 gap-4" style={{marginTop: '50px'}}>
       <img
-        src={gifs[index]}
+        src={gifs[currentStep]}
         alt="loading"
         style={{ width: "300px", height: "300px" }}
       />

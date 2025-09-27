@@ -673,7 +673,9 @@ const Training = () => {
                                     </Button>
                                 </div>
                             ) : (
-                                <Loading/>
+                                <Loading
+									currentStep={currentStep} 
+								/>
                             )}
                         </Space>
                     </animated.div>
