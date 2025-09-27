@@ -1,24 +1,19 @@
-import React, {useState} from 'react'
-import { Layout, message } from 'antd'
+import React from 'react'
+import { Layout } from 'antd'
 
 // Components
 import {
 	ProjectHeader,
 	TaskFilter,
 	ProjectsGrid,
-	CreationMethodModal,
-	ManualCreationModal,
-	DatasetSelectionModal,
-	ProjectSearchBar,
 } from 'src/components/projects'
-import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
-import AIAssistantModal from './AIAssistantModal'
 import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import Pager from 'src/components/Pager'
+import CreateProjectModal from 'src/components/projects/CreateProjectModal'
 
 // Hooks
-import { useProjects, useChatbot, useDatasets } from 'src/hooks'
+import { useProjects } from 'src/hooks'
 import { useTheme } from 'src/theme/ThemeProvider'
 
 const { Content } = Layout
@@ -26,6 +21,7 @@ const { Content } = Layout
 export default function Projects() {
 	const pageSize = 9
 	const [currentPage, setCurrentPage] = React.useState(1)
+	
 	// Custom hooks
 	const {
 		projectState,
@@ -34,43 +30,14 @@ export default function Projects() {
 		setAllProjects,
 		selectedTrainingTask,
 		setSelectedTrainingTask,
-		isSelected,
-		projectName,
-		setProjectName,
-		description,
-		setDescription,
-		jsonSumm,
-		setJsonSumm,
-		selectType,
 		getProjects,
-		handleCreateProject,
-		setTask,
 		handleSearch,
 		selectedSort,
 		handleSortChange,
 		searchValue,
-		setSearchValue,
 		isReset,
 		resetFilters,
-		visibility,
-		setVisibility,
-		projType,
-		license,
-		setLicense,
-		expectedAccuracy,
-		setExpectedAccuracy,
-
 	} = useProjects()
-
-	const { 
-		selectedDataset, 
-		setSelectedDataset, 
-		datasets, 
-		getDatasets,
-		datasetState,
-		updateDataState,
-		handleCreateDataset
-	} =useDatasets()
 
 	const { theme } = useTheme()
 
@@ -203,29 +170,13 @@ export default function Projects() {
 						</div>
 						</ContentContainer>
 
-						{/* Manual Creation Modal */}
-						<ManualCreationModal
+						{/* New Create Project Modal */}
+						<CreateProjectModal
 							open={projectState.showUploaderManual}
 							onCancel={() =>
-								updateProjState({ showUploaderManual: false})
+								updateProjState({ showUploaderManual: false })
 							}
-							onSubmit={handleCreateProject}
-							initialProjectName={projectName}
-							initialDescription={description}
-							initialVisibility={visibility}
-							initialLicense="MIT"
-							initialExpectedAccuracy={75}
-							isSelected={isSelected}
-							onSelectType={selectType}
-						/>
-
-						{/* Create Dataset Modal */}
-						<CreateDatasetModal
-							visible={projectState.showCreateDataset}
-							onCancel={() =>
-								updateProjState({ showCreateDataset: false })
-							}
-							onCreate={handleCreateDataset}
+                            onCreate={getProjects}
 						/>
 					</Content>
 				</Layout>

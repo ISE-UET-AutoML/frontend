@@ -363,7 +363,9 @@ const Training = () => {
 	const [trainProgress, setTrainProgress] = useState(0)
 	const [currentStep, setCurrentStep] = useState(0)
 	const [currentSettingUpStep, setCurrentSettingUpStep] = useState(0)
-	const [experimentName, setExperimentName] = useState(searchParams.get('experimentName') || 'loading')
+	const [experimentName, setExperimentName] = useState(
+		searchParams.get('experimentName') || 'loading'
+	)
 
 	// Handle view results button click
 	const handleViewResults = () => {
@@ -534,7 +536,11 @@ const Training = () => {
 				console.log('Status: ', response.data.status)
 
 				// Schedule next poll in 10 seconds
-				if (response.data.status !== 'DONE') {
+				if (response.data.status === 'DONE') {
+					navigate(`/app/project/${projectInfo.id}/build/info`, {
+						replace: true,
+					})
+				} else {
 					timeoutId = setTimeout(fetchExperiment, 30000)
 				}
 			} catch (err) {
