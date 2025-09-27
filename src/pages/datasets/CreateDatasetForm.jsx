@@ -13,10 +13,11 @@ import {
     Alert,
     Collapse,
     Table,
-    Typography
+    Typography,
+    Image
 } from 'antd';
 import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { DATASET_TYPES } from 'src/constants/types';
+import { TASK_TYPES,DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
 import Papa from 'papaparse';
 
@@ -44,12 +45,17 @@ export default function CreateDatasetForm({
     const [bucketName, setBucketName] = useState(initialValues?.bucket_name || 'user-private-dataset');
     const [datasetType, setDatasetType] = useState(initialValues?.dataset_type);
     const fileRefs = useRef(new Map());
-
+    const taskType = initialValues?.task_type
     // States for validation and preview
     const [imageStructureValid, setImageStructureValid] = useState(null);
     const [csvPreview, setCsvPreview] = useState(null);
     const [csvHasHeader, setCsvHasHeader] = useState(null);
     const [isDataValid, setIsDataValid] = useState(false);
+    const [imagePreviews, setImagePreviews] = useState([]); // State mới cho image preview
+
+    // States for task-specific validation
+    const [isRegressionTargetValid, setIsRegressionTargetValid] = useState(null);
+    const [isMultilabelFormatValid, setIsMultilabelFormatValid] = useState(null);
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
@@ -67,6 +73,11 @@ export default function CreateDatasetForm({
         }
     }, [initialValues, form]);
 
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach(preview => URL.revokeObjectURL(preview.url));
+        };
+    }, [imagePreviews]);
 
     // whenever initial props change (when coming back), refresh states
     useEffect(() => {
@@ -117,15 +128,32 @@ export default function CreateDatasetForm({
     };
 
 
-    const previewCsv = (csvFile) => {
+    const previewCsv = (csvFile, currentTaskType) => {
         Papa.parse(csvFile, {
             header: true,
-            preview: 4, 
+            preview: 10, 
             skipEmptyLines: true,
             complete: (results) => {
-                if (results.data.length > 0 && results.meta.fields && results.meta.fields.length > 0) {
+                const { data, meta } = results;
+                if (data.length > 0 && meta.fields && meta.fields.length > 0) {
                     setCsvHasHeader(true);
-                    setCsvPreview(results.data.slice(0, 3));
+                    setCsvPreview(data.slice(0, 3));
+                    const labelColumn = meta.fields[meta.fields.length - 1];
+
+                    // Task-specific validations
+                    switch (currentTaskType) {
+                        case 'TABULAR_REGRESSION':
+                            const allAreFloats = data.every(row => !isNaN(parseFloat(row[labelColumn])));
+                            setIsRegressionTargetValid(allAreFloats);
+                            break;
+                        case 'MULTILABEL_TEXT_CLASSIFICATION':
+                        case 'MULTILABEL_TABULAR_CLASSIFICATION':
+                            const someHaveSeparator = data.some(row => typeof row[labelColumn] === 'string' && row[labelColumn].includes(';'));
+                            setIsMultilabelFormatValid(someHaveSeparator);
+                            break;
+                        default:
+                            break;
+                    }
                 } else {
                     setCsvHasHeader(false);
                     setCsvPreview(null);
@@ -143,6 +171,12 @@ export default function CreateDatasetForm({
         setImageStructureValid(null);
         setCsvPreview(null);
         setCsvHasHeader(null);
+        setIsRegressionTargetValid(null);
+        setIsMultilabelFormatValid(null);
+        setImagePreviews(prev => {
+            prev.forEach(p => URL.revokeObjectURL(p.url));
+            return [];
+        });
 
         const uploadedFiles = Array.from(event.target.files || []);
         
@@ -165,11 +199,23 @@ export default function CreateDatasetForm({
                 message.error("The folder structure is incorrect. Please ensure all images are inside labeled subdirectories.", 5);
                 valid = false
             }
+            const imageFiles = validatedFiles.filter(f => f.type.startsWith('image/')).map(f => ({ path: f.webkitRelativePath, fileObject: f }));
+            const groupedByLabel = organizeFiles(imageFiles);
+            const previews = [];
+            for (const [label, filesInLabel] of groupedByLabel.entries()) {
+                if (filesInLabel.length > 0) {
+                    previews.push({
+                        url: URL.createObjectURL(filesInLabel[0].fileObject),
+                        label: label
+                    });
+                }
+            }
+            setImagePreviews(previews.slice(0, 8));
         }
         
         const csvFile = validatedFiles.find(file => (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv'));
         if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && csvFile) {
-            previewCsv(csvFile); // Corrected: Pass the File object directly
+            previewCsv(csvFile, taskType); // Corrected: Pass the File object directly
         }
 
 
@@ -232,7 +278,7 @@ export default function CreateDatasetForm({
     };
 
     const renderPreparingInstructions = () => {
-        const currentType = DATASET_TYPES[datasetType];
+        const currentType = TASK_TYPES[taskType];
         if (!currentType || !currentType.preparingInstructions) {
             return null;
         }
@@ -509,22 +555,114 @@ export default function CreateDatasetForm({
                         className="mt-4"
                     />
                 )}
-
+                {isRegressionTargetValid !== null && (
+                    <Alert
+                        message="Tabular Regression - Target Column Check"
+                        description={ isRegressionTargetValid ? "Target column values appear to be valid numbers." : "Warning: Some values in the target column are not numbers (float)."}
+                        type={isRegressionTargetValid ? "success" : "error"}
+                        showIcon className="mt-4"
+                    />
+                )}
+                {isMultilabelFormatValid !== null && (
+                     <Alert
+                        message="Multi-label - Label Column Check"
+                        description={ isMultilabelFormatValid ? "Labels appear to be correctly formatted." : "Warning: Labels should be separated by '; '."}
+                        type={isMultilabelFormatValid ? "success" : "warning"}
+                        showIcon className="mt-4"
+                    />
+                )}
                 {csvPreview && (
                     <div className="mt-4">
-                        <Text strong>CSV File Preview (First 3 rows):</Text>
-                        <Table
-                            dataSource={csvPreview}
-                            columns={Object.keys(csvPreview[0]).map(key => ({
-                                title: key,
-                                dataIndex: key,
-                                key: key,
-                            }))}
-                            pagination={false}
-                            size="small"
-                            bordered
-                            className="mt-2"
-                        />
+                        <Text strong style={{ color: 'var(--text)' }}>CSV File Preview (First 3 rows):</Text>
+                        <div style={{ overflowX: 'auto', border: '1px solid #f0f0f0', borderRadius: '8px', marginTop: '8px' }}>
+                            <Table
+                                dataSource={csvPreview}
+                                columns={Object.keys(csvPreview[0]).map(key => ({
+                                    title: key,
+                                    dataIndex: key,
+                                    key: key,
+                                }))}
+                                pagination={false}
+                                size="small"
+                                bordered
+                                scroll={{ x: 'max-content' }}
+                            />
+                        </div>
+                    </div>
+                )}
+                {imagePreviews.length > 0 && (
+                    <div className="mt-4" style={{ 
+                        background: 'var(--upload-bg)', 
+                        borderRadius: '8px', 
+                        padding: '16px',
+                        border: '1px solid var(--border-color)'
+                    }}>
+                        <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            marginBottom: '12px',
+                            gap: '8px'
+                        }}>
+                            <FileOutlined style={{ fontSize: '16px', color: 'var(--primary-color)' }} />
+                            <Text strong style={{ fontSize: '15px', color: 'var(--text)' }}>Image Preview ({imagePreviews.length} folders detected)</Text>
+                        </div>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', 
+                            gap: '16px' 
+                        }}>
+                            <Image.PreviewGroup>
+                                {imagePreviews.map((preview, index) => (
+                                    <div key={index} style={{ 
+                                        textAlign: 'center',
+                                        background: 'var(--surface)',
+                                        borderRadius: '8px',
+                                        padding: '12px',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                                        transition: 'all 0.3s ease',
+                                        cursor: 'pointer'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(-4px)';
+                                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.12)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+                                    }}>
+                                        <Image
+                                            width={116}
+                                            height={116}
+                                            src={preview.url}
+                                            alt={`preview ${preview.label}`}
+                                            style={{ 
+                                                objectFit: 'cover', 
+                                                borderRadius: '6px',
+                                                border: '2px solid var(--border-color)'
+                                            }}
+                                            preview={{
+                                                mask: <div style={{ fontSize: '12px' }}>Click to preview</div>
+                                            }}
+                                        />
+                                        <div style={{ 
+                                            marginTop: '8px',
+                                            padding: '4px 8px',
+                                            background: 'var(--upload-bg)',
+                                            borderRadius: '4px',
+                                            fontSize: '13px',
+                                            fontWeight: '500',
+                                            color: 'var(--text)',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            fontFamily: 'Poppins, sans-serif'
+                                        }} title={preview.label}>
+                                            {preview.label}
+                                        </div>
+                                    </div>
+                                ))}
+                            </Image.PreviewGroup>
+                        </div>
                     </div>
                 )}
 
