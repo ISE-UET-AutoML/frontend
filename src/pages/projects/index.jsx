@@ -153,11 +153,11 @@ export default function Projects() {
 						{/* Projects Grid */}
 						<ProjectsGrid
 							projects={paginatedProjects}
-								getProjects={getProjects}
-								onCreateProject={() =>
-									updateProjState({ showUploaderManual: true })
-								}
-							/>
+							getProjects={getProjects}
+							onCreateProject={() =>
+								updateProjState({ showUploaderManual: true })
+							}
+						/>
 
 						{/* Pager */}
 						<div className="mt-8">

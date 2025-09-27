@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
 	CubeTransparentIcon,
 	StarIcon,
@@ -31,6 +32,7 @@ import multilabel_image_classification from 'src/assets/images/multilabel_image_
 import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
+import * as experimentAPI from 'src/api/experiment'
 
 dayjs.extend(relativeTime)
 
@@ -38,6 +40,7 @@ const { Text, Title } = Typography
 
 export default function ProjectCard({ project, getProjects }) {
 	const [isStarred, setIsStarred] = useState(false)
+	const navigate = useNavigate()
 
 	const handleStarClick = (e) => {
 		e.preventDefault()
@@ -97,8 +100,18 @@ export default function ProjectCard({ project, getProjects }) {
 		IconComponent = ArrowTrendingUpIcon
 	}
 
-	const handleCardClick = () => {
-		window.location.href = PATHS.PROJECT_INFO(project?.id)
+	const handleCardClick = async () => {
+		const experimentsRes = await experimentAPI.getAllExperiments(project?.id)
+		const experiments = experimentsRes.data
+		const experiment = experiments.length > 0 ? experiments[0] : null
+		if (experiment.status === 'DONE') {
+			window.location.href = PATHS.PROJECT_INFO(project?.id)
+		} else {
+			navigate(
+				`/app/project/${project.id}/build/training?experimentName=${experiment.name}&experimentId=${experiment.id}`,
+				{ replace: true }
+			)
+		}
 	}
 
 	// Derive status from experiments
