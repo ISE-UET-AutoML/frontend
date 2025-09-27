@@ -16,7 +16,7 @@ import {
     Typography
 } from 'antd';
 import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { DATASET_TYPES } from 'src/constants/types';
+import { TASK_TYPES,DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
 import Papa from 'papaparse';
 
@@ -44,7 +44,7 @@ export default function CreateDatasetForm({
     const [bucketName, setBucketName] = useState(initialValues?.bucket_name || 'user-private-dataset');
     const [datasetType, setDatasetType] = useState(initialValues?.dataset_type);
     const fileRefs = useRef(new Map());
-
+    const taskType = initialValues?.task_type
     // States for validation and preview
     const [imageStructureValid, setImageStructureValid] = useState(null);
     const [csvPreview, setCsvPreview] = useState(null);
@@ -232,7 +232,7 @@ export default function CreateDatasetForm({
     };
 
     const renderPreparingInstructions = () => {
-        const currentType = DATASET_TYPES[datasetType];
+        const currentType = TASK_TYPES[taskType];
         if (!currentType || !currentType.preparingInstructions) {
             return null;
         }

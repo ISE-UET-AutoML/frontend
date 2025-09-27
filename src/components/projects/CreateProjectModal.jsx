@@ -421,6 +421,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                                 title: projectData?.name,
                                 description: projectData?.description,
                                 dataset_type: projectData ? TASK_TYPES[projectData.task_type]?.dataType : null,
+                                task_type: projectData?.task_type
                             }}
                             disableFields={['title', 'description', 'type']}
                             hideFields={['service', 'bucket_name']}
