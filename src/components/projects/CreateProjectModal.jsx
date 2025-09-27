@@ -114,20 +114,29 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 
         try {
             // 1. Create Project
-            const projectResponse = await projectAPI.createProject(projectData);
+
+            // 1. Initialize Dataset
+            const initialDatasetPayload = {
+                title: projectData.name,
+                dataset_type: TASK_TYPES[projectData.task_type].dataType,
+            };
+            const initialResponse = await datasetAPI.initializeDataset(initialDatasetPayload);
+            const createdDataset = initialResponse.data;
+            const datasetID = createdDataset.id;
+            message.success({ content: 'Dataset initialized!', key: 'submit', duration: 2 });
+            
+
+            // 2. Create Project
+            const projectPayload = {
+                ...projectData,
+                dataset_id: datasetID,    
+            }
+            const projectResponse = await projectAPI.createProject(projectPayload);
             const projectInfo = projectResponse.data;
             console.log('Created project:', projectInfo);
             const createdProject = projectResponse.data;
             message.success({ content: 'Project created!', key: 'submit', duration: 2 });
 
-            // 2. Initialize Dataset
-            const initialDatasetPayload = {
-                title: createdProject.name,
-                dataset_type: TASK_TYPES[createdProject.task_type].dataType,
-            };
-            const initialResponse = await datasetAPI.initializeDataset(initialDatasetPayload);
-            const createdDataset = initialResponse.data;
-            const datasetID = createdDataset.id;
 
             // 3. Process and Upload Files to S3
             const { files, totalKbytes } = finalDatasetData;

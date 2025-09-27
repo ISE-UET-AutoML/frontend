@@ -12,13 +12,18 @@ import {
     Col,
     Alert,
     Collapse,
+    Table,
+    Typography
 } from 'antd';
-import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
+import Papa from 'papaparse';
+
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Text } = Typography;
 
 export default function CreateDatasetForm({
     onNext,
@@ -39,6 +44,11 @@ export default function CreateDatasetForm({
     const [bucketName, setBucketName] = useState(initialValues?.bucket_name || 'user-private-dataset');
     const [datasetType, setDatasetType] = useState(initialValues?.dataset_type);
     const fileRefs = useRef(new Map());
+
+    // States for validation and preview
+    const [imageStructureValid, setImageStructureValid] = useState(null);
+    const [csvPreview, setCsvPreview] = useState(null);
+    const [csvHasHeader, setCsvHasHeader] = useState(null);
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
@@ -84,8 +94,39 @@ export default function CreateDatasetForm({
         const validExts = allowedTypes[currentDatasetType] || [];
         return files.filter((file) => validExts.includes(file.type));
     };
+    
+    const validateImageFolderStructure = (uploadedFiles) => {
+        if (!uploadedFiles || uploadedFiles.length === 0) return false;
+        return uploadedFiles.every(file => (file.webkitRelativePath || file.name).split('/').length > 1);
+    };
+
+    const previewCsv = (csvFile) => {
+        Papa.parse(csvFile, {
+            header: true,
+            preview: 4, 
+            skipEmptyLines: true,
+            complete: (results) => {
+                if (results.data.length > 0 && results.meta.fields && results.meta.fields.length > 0) {
+                    setCsvHasHeader(true);
+                    setCsvPreview(results.data.slice(0, 3));
+                } else {
+                    setCsvHasHeader(false);
+                    setCsvPreview(null);
+                }
+            },
+            error: () => {
+                setCsvHasHeader(false);
+                setCsvPreview(null);
+                message.error("Could not parse the CSV file.");
+            }
+        });
+    };
 
     const handleFileChange = async (event) => {
+        setImageStructureValid(null);
+        setCsvPreview(null);
+        setCsvHasHeader(null);
+
         const uploadedFiles = Array.from(event.target.files || []);
         
         if (!datasetType) {
@@ -98,13 +139,25 @@ export default function CreateDatasetForm({
         if (validatedFiles.length !== uploadedFiles.length) {
             message.warning("Some files were ignored due to incompatible types.");
         }
+        
+        if (datasetType === 'IMAGE') {
+            const isValidStructure = validateImageFolderStructure(validatedFiles);
+            setImageStructureValid(isValidStructure);
+            if (!isValidStructure) {
+                message.error("The folder structure is incorrect. Please ensure all images are inside labeled subdirectories.", 5);
+            }
+        }
+        
+        const csvFile = validatedFiles.find(file => (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv'));
+        if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && csvFile) {
+            previewCsv(csvFile); // Corrected: Pass the File object directly
+        }
+
 
         const hasImageFolder = validatedFiles.some((file) =>
             file.webkitRelativePath && file.webkitRelativePath.includes('/images/')
         );
-        const hasCSVFile = validatedFiles.some((file) =>
-            (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv')
-        );
+        const hasCSVFile = !!csvFile;
 
         if (datasetType === 'MULTIMODAL' && (!hasImageFolder || !hasCSVFile)) {
             message.error('For MULTIMODAL datasets, upload a folder with an "images" subfolder and a CSV file.');
@@ -123,10 +176,6 @@ export default function CreateDatasetForm({
         const labels = Array.from(fileMap.keys()).filter(label => label !== 'unlabeled');
         setDetectedLabels(labels);
 
-        const csvFile = validatedFiles.find(file =>
-            (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv')
-        );
-
         if (csvFile) {
             try {
                 const metadata = await extractCSVMetaData(csvFile);
@@ -143,7 +192,6 @@ export default function CreateDatasetForm({
     const handleDeleteFile = (filePath) => {
         const updatedFiles = files.filter((file) => file.path !== filePath);
         setFiles(updatedFiles);
-        // Recalculate everything
         const fileMap = organizeFiles(updatedFiles);
         const labels = Array.from(fileMap.keys()).filter(label => label !== 'unlabeled');
         setDetectedLabels(labels);
@@ -154,6 +202,8 @@ export default function CreateDatasetForm({
             extractCSVMetaData(csvFile.fileObject).then(setCsvMetadata).catch(() => setCsvMetadata(null));
         } else {
             setCsvMetadata(null);
+            setCsvPreview(null);
+            setCsvHasHeader(null);
         }
     };
 
@@ -401,7 +451,61 @@ export default function CreateDatasetForm({
 
                 <Tabs defaultActiveKey="file" items={tabItems} />
 
-                <Form.Item style={{ marginTop: 8, textAlign: 'right' }}>
+                {/* Validation and Preview Section */}
+                {imageStructureValid !== null && (
+                     <Alert
+                        message={
+                            <span className="font-semibold">Image Folder Structure Check</span>
+                        }
+                        description={
+                            imageStructureValid
+                                ? "The folder structure appears to be correct for image classification."
+                                : "Incorrect structure. Images should be organized in subfolders named after their labels (e.g., 'cats/cat1.jpg')."
+                        }
+                        type={imageStructureValid ? "success" : "error"}
+                        showIcon
+                        icon={imageStructureValid ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                        className="mt-4"
+                    />
+                )}
+
+                {csvHasHeader !== null && (
+                    <Alert
+                        message={
+                             <span className="font-semibold">CSV Header Check</span>
+                        }
+                        description={
+                            csvHasHeader
+                                ? "The CSV file appears to have a valid header row."
+                                : "A header row could not be detected. Please ensure the first row of your CSV contains column names."
+                        }
+                        type={csvHasHeader ? "success" : "warning"}
+                        showIcon
+                        icon={csvHasHeader ? <CheckCircleOutlined /> : <InfoCircleOutlined />}
+                        className="mt-4"
+                    />
+                )}
+
+                {csvPreview && (
+                    <div className="mt-4">
+                        <Text strong>CSV File Preview (First 3 rows):</Text>
+                        <Table
+                            dataSource={csvPreview}
+                            columns={Object.keys(csvPreview[0]).map(key => ({
+                                title: key,
+                                dataIndex: key,
+                                key: key,
+                            }))}
+                            pagination={false}
+                            size="small"
+                            bordered
+                            className="mt-2"
+                        />
+                    </div>
+                )}
+
+
+                <Form.Item style={{ marginTop: 24, textAlign: 'right' }}>
                     {isStep && (
                         <Button style={{ marginRight: 8 }} onClick={() => onBack({ files, detectedLabels, csvMetadata })}>
                             Back
