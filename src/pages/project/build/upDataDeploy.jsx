@@ -16,7 +16,6 @@ const UpDataDeploy = ({
 	isOpen,
 	onClose,
 	projectId,
-	deployModel,
 	onUploaded,
 	onUploadStart,
 }) => {
@@ -38,22 +37,12 @@ const UpDataDeploy = ({
 			if (typeof onUploadStart === 'function') {
 				onUploadStart()
 			}
-			// Hide modal immediately
-			onClose && onClose()
 			setIsUploading(true)
 
-			// Optional: prepare deploy if provided
-			if (deployModel) {
-				try {
-					const url = await deployModel()
-					console.log('API Ready:', url)
-				} catch (e) {
-					// ignore deploy error here; upload flow proceeds independently
-				}
-			}
+			// Không gọi deploy tại đây để ưu tiên upload dữ liệu trước
 
 			// Only allow image files and flatten to base filename
-			const allowed = ['.jpg', '.jpeg', '.png']
+			const allowed = ['.jpg', '.jpeg', '.png', '.csv']
 			const imageFiles = fileList.filter((f) => {
 				const name = (f.name || '').toLowerCase()
 				return allowed.some((ext) => name.endsWith(ext))
@@ -69,7 +58,8 @@ const UpDataDeploy = ({
 				const baseName = f.name
 				const type =
 					f.type ||
-					(baseName.toLowerCase().endsWith('.png')
+					(baseName.toLowerCase().endsWith('.png') ||
+					baseName.toLowerCase().endsWith('.csv')
 						? 'image/png'
 						: 'image/jpeg')
 				return {
@@ -123,6 +113,10 @@ const UpDataDeploy = ({
 			}
 			setFileList([])
 			setFolderStructure([])
+			// Đóng modal sau khi upload thành công
+			if (typeof onClose === 'function') {
+				onClose()
+			}
 		} catch (e) {
 			console.error('Upload error:', e)
 			message.error(e.message || 'Upload failed')
@@ -139,13 +133,13 @@ const UpDataDeploy = ({
 		name: 'file',
 		multiple: true,
 		directory: true,
-		accept: '.jpg,.jpeg,.png',
+		accept: '.jpg,.jpeg,.png,.csv',
 		fileList, // kiểm soát danh sách file
 		showUploadList: false,
 		beforeUpload: (file) => {
-			const isLt10M = file.size / 1024 / 1024 < 10
+			const isLt10M = file.size / 1024 / 1024 < 20
 			if (!isLt10M) {
-				message.error('File must be smaller than 10MB!')
+				message.error('File must be smaller than 20MB!')
 				return false
 			}
 			return false
@@ -158,7 +152,8 @@ const UpDataDeploy = ({
 				return (
 					fileName.endsWith('.jpg') ||
 					fileName.endsWith('.jpeg') ||
-					fileName.endsWith('.png')
+					fileName.endsWith('.png') ||
+					fileName.endsWith('.csv')
 				)
 			})
 

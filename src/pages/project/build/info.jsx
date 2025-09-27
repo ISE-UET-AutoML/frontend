@@ -10,6 +10,7 @@ import { Button, Card, Statistic, Tag, message } from 'antd'
 import { TrophyOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
+import useDeployStore from 'src/stores/deployStore'
 import instance from 'src/api/axios'
 import * as modelServiceAPI from 'src/api/model'
 import * as datasetAPI from 'src/api/dataset'
@@ -72,60 +73,128 @@ const getAccuracyStatus = (score) => {
 const ProjectInfo = () => {
 	const { theme } = useTheme()
 	const { projectInfo } = useOutletContext()
+	const {
+		enablePolling,
+		disablePolling,
+		restoreDeployingTasks,
+		startDeployTask,
+	} = useDeployStore()
 	const [experiment, setExperiment] = useState(null)
 	const [experimentId, setExperimentId] = useState(null)
 	const [metrics, setMetrics] = useState([])
 	const [isShowUpload, setIsShowUpload] = useState(false)
-	const [isPreparingData, setIsPreparingData] = useState(false)
-	const [usingModel, setUsingModel] = useState(false)
+	const [isModelOnline, setIsModelOnline] = useState(false)
+	const [isCheckingModelStatus, setIsCheckingModelStatus] = useState(false)
 	const [datasetInfo, setDatasetInfo] = useState(null)
+	const [isDeploySettingUp, setIsDeploySettingUp] = useState(false)
+	const [modelStatus, setModelStatus] = useState(null)
+	const [modelId, setModelId] = useState(null)
+	const [isPredictDone, setIsPredictDone] = useState(false)
+	const [isPreparing, setIsPreparing] = useState(false)
 
-	const showUpload = () => {
-		setIsShowUpload(true)
-	}
 	const hideUpload = () => {
 		setIsShowUpload(false)
 	}
 
-	const handleUseYourModel = async () => {
-		try {
-			setUsingModel(true)
-			// Resolve modelId from experiment id
-			const expId = experiment?.id || 1
-			if (!expId) {
-				throw new Error('Missing experiment id')
-			}
-			const modelRes = await modelServiceAPI.getModelByExperimentId(expId)
-			if (modelRes.status !== 200 || !modelRes.data?.id) {
-				throw new Error('Cannot resolve model id from experiment')
-			}
-			const modelId = modelRes.data.id
+	// Enable deployment polling only while on this page
+	useEffect(() => {
+		enablePolling()
+		restoreDeployingTasks()
+		return () => {
+			disablePolling()
+		}
+	}, [enablePolling, restoreDeployingTasks, disablePolling])
 
-			const ensureResp = await instance.post(
-				`/api/ml/model/${modelId}/ensure-deployed`
-			)
-			console.log('Ensure deployed details:', ensureResp?.data)
-			const apiUrl = ensureResp?.data?.api_base_url
-			if (!apiUrl) {
-				throw new Error('Cannot get deployed API URL')
+	const handleModelButtonClick = async () => {
+		if (!hasTraining) return
+		// Nếu đã ONLINE rồi thì mở upload ngay, không gọi ensure-deployed
+		if (isModelOnline) {
+			setIsShowUpload(true)
+			return
+		}
+		// Nếu đang SETTING_UP/CREATING_INSTANCE thì giữ loading, không mở upload
+		if (
+			modelStatus === 'SETTING_UP' ||
+			modelStatus === 'CREATING_INSTANCE'
+		) {
+			setIsDeploySettingUp(true)
+			return
+		}
+		// Các trạng thái khác -> mở upload
+		setIsShowUpload(true)
+	}
+
+	// Gọi sau khi upload xong để vừa check vừa trigger deploy
+	const handleAfterUpload = async () => {
+		try {
+			let ensuredModelId = modelId
+			if (!ensuredModelId) {
+				const modelRes =
+					await modelServiceAPI.getModelByExperimentId(experimentId)
+				ensuredModelId =
+					modelRes?.status === 200 ? modelRes?.data?.id : null
+				setModelId(ensuredModelId)
 			}
-			message.success('Model is ready!')
-			console.log('Deployed API:', apiUrl)
-			return apiUrl
+			if (!ensuredModelId) return
+			const ensureResp = await instance.post(
+				`/api/ml/model/${ensuredModelId}/ensure-deployed`
+			)
+			const status = ensureResp?.data?.status
+			const apiUrl = ensureResp?.data?.api_base_url
+			const deployId = ensureResp?.data?.deploy_id
+			console.log('ensureResp:', ensureResp.data)
+			setModelStatus(status || null)
+			const online = status === 'ONLINE' && !!apiUrl
+			setIsModelOnline(!!online)
+			if (online) {
+				setIsDeploySettingUp(false)
+				disablePolling()
+				setIsPredictDone(true)
+				setIsPreparing(false)
+				message.success('Predict done')
+			} else {
+				setIsDeploySettingUp(true)
+				setIsPreparing(true)
+				if (deployId) {
+					enablePolling()
+					startDeployTask(deployId)
+				}
+			}
 		} catch (err) {
 			console.error(err)
 			message.error(err?.response?.data?.error || err.message)
-			throw err
-		} finally {
-			setUsingModel(false)
+			setIsPreparing(false)
+		}
+	}
+
+	// Chạy ngầm ensure-deployed ngay khi bắt đầu upload, không chặn UI
+	const handleUploadStartBackground = async () => {
+		try {
+			// Bắt đầu trạng thái chuẩn bị khi vừa upload
+			setIsPreparing(true)
+			let ensuredModelId = modelId
+			if (!ensuredModelId) {
+				const modelRes =
+					await modelServiceAPI.getModelByExperimentId(experimentId)
+				ensuredModelId =
+					modelRes?.status === 200 ? modelRes?.data?.id : null
+				setModelId(ensuredModelId)
+			}
+			if (!ensuredModelId) return
+			// Fire-and-forget
+			instance
+				.post(`/api/ml/model/${ensuredModelId}/ensure-deployed`)
+				.catch(() => {})
+		} catch (err) {
+			console.error('ensure-deployed (background) error:', err)
 		}
 	}
 	useEffect(() => {
 		const getExperiment = async () => {
-			console.log('Project ID:', projectInfo?.id)
+			console.log('Project ID:', projectInfo)
 			const { data } = await getAllExperiments(projectInfo?.id)
 			if (data && data.length > 0) {
-				setExperimentId(data[1]?.id)
+				setExperimentId(data[0]?.id)
 			} else {
 				console.error('No experiments found')
 			}
@@ -135,6 +204,9 @@ const ProjectInfo = () => {
 
 	useEffect(() => {
 		if (!experimentId) return
+		// Khi đổi experiment, reset trạng thái Predict/Preparing
+		setIsPredictDone(false)
+		setIsPreparing(false)
 
 		const fetchDataset = async () => {
 			const datasetRes = await datasetAPI.getDataset(
@@ -187,6 +259,67 @@ const ProjectInfo = () => {
 		fetchExperiment()
 		fetchExperimentMetrics()
 		fetchDataset()
+
+		// Chỉ GET status để hiển thị trạng thái nút
+		const checkStatus = async () => {
+			try {
+				setIsCheckingModelStatus(true)
+				const modelRes =
+					await modelServiceAPI.getModelByExperimentId(experimentId)
+				const mId = modelRes?.status === 200 ? modelRes?.data?.id : null
+				setModelId(mId)
+				if (!mId) {
+					setIsModelOnline(false)
+					disablePolling()
+					return
+				}
+				const statusRes = await instance.get(
+					`/api/ml/model/${mId}/status`
+				)
+				const statusStr = statusRes?.data?.status
+				setModelStatus(statusStr || null)
+				const online =
+					statusStr === 'ONLINE' && !!statusRes?.data?.api_base_url
+				setIsModelOnline(!!online)
+				if (!online) {
+					disablePolling()
+				}
+			} catch (e) {
+				setIsModelOnline(false)
+				setModelStatus(null)
+				disablePolling()
+			} finally {
+				setIsCheckingModelStatus(false)
+			}
+		}
+		checkStatus()
+	}, [experimentId, disablePolling])
+
+	// Re-check when window gains focus
+	useEffect(() => {
+		const onFocus = async () => {
+			if (!experimentId) return
+			try {
+				const modelRes =
+					await modelServiceAPI.getModelByExperimentId(experimentId)
+				const mId = modelRes?.status === 200 ? modelRes?.data?.id : null
+				setModelId(mId)
+				if (!mId) return setIsModelOnline(false)
+				const statusRes = await instance.get(
+					`/api/ml/model/${mId}/status`
+				)
+				const statusStr = statusRes?.data?.status
+				setModelStatus(statusStr || null)
+				const online =
+					statusStr === 'ONLINE' && !!statusRes?.data?.api_base_url
+				setIsModelOnline(!!online)
+			} catch {
+				setIsModelOnline(false)
+				setModelStatus(null)
+			}
+		}
+		window.addEventListener('focus', onFocus)
+		return () => window.removeEventListener('focus', onFocus)
 	}, [experimentId])
 
 	// Format created_at
@@ -481,8 +614,18 @@ const ProjectInfo = () => {
 									borderRadius: '12px',
 									fontFamily: 'Poppins, sans-serif',
 								}}
-								loading={usingModel}
-								onClick={hasTraining ? showUpload : undefined}
+								loading={
+									isCheckingModelStatus ||
+									isPreparing ||
+									modelStatus === 'SETTING_UP' ||
+									modelStatus === 'CREATING_INSTANCE' ||
+									isDeploySettingUp
+								}
+								onClick={
+									hasTraining
+										? handleModelButtonClick
+										: undefined
+								}
 								disabled={!hasTraining}
 							>
 								<span
@@ -496,7 +639,20 @@ const ProjectInfo = () => {
 										<span
 											className={`${theme === 'dark' ? 'text-green-500' : 'text-gray-700'}`}
 										>
-											Use your model
+											{isCheckingModelStatus
+												? 'Fetching deploy status'
+												: isPreparing
+													? 'Preparing…'
+													: isModelOnline
+														? isPredictDone
+															? 'Predict done'
+															: 'Your model online'
+														: modelStatus ===
+																	'SETTING_UP' ||
+															  modelStatus ===
+																	'CREATING_INSTANCE'
+															? 'Setting your model…'
+															: 'Use your model'}
 										</span>
 									) : (
 										<span
@@ -603,110 +759,12 @@ const ProjectInfo = () => {
 					</div>
 				</div>
 			</div>
-			{isPreparingData && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-					<div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-					<div className="relative z-10 w-full max-w-md">
-						<div
-							className="rounded-2xl shadow-2xl overflow-hidden"
-							style={{
-								background: 'var(--modal-bg)',
-								border: '1px solid var(--modal-border)',
-							}}
-						>
-							<div
-								className="px-8 py-6"
-								style={{
-									borderBottom:
-										'1px solid var(--modal-header-border)',
-									background: 'var(--modal-header-bg)',
-								}}
-							>
-								<div className="flex items-center justify-center">
-									<div className="relative">
-										<div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin">
-											<div
-												className="w-14 h-14 rounded-full m-1 flex items-center justify-center"
-												style={{
-													background:
-														'var(--modal-bg)',
-												}}
-											>
-												<svg
-													className="w-6 h-6 animate-pulse"
-													style={{
-														color: 'var(--accent-text)',
-													}}
-													fill="none"
-													stroke="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path
-														strokeLinecap="round"
-														strokeLinejoin="round"
-														strokeWidth={2}
-														d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-													/>
-												</svg>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div className="px-8 py-6 text-center">
-								<h3
-									className="text-xl font-semibold mb-3"
-									style={{
-										color: 'var(--modal-title-color)',
-									}}
-								>
-									Preparing Your Data
-								</h3>
-								<p
-									className="leading-relaxed"
-									style={{ color: 'var(--text)' }}
-								>
-									The system is preparing your data for
-									prediction.
-									<br />
-									<span
-										className="text-sm mt-2 block"
-										style={{
-											color: 'var(--secondary-text)',
-										}}
-									>
-										This process may take a few minutes.
-										Please do not close this window.
-									</span>
-								</p>
-								<div className="mt-6">
-									<div className="flex justify-center space-x-1">
-										<div
-											className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-											style={{ animationDelay: '0ms' }}
-										></div>
-										<div
-											className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
-											style={{ animationDelay: '150ms' }}
-										></div>
-										<div
-											className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
-											style={{ animationDelay: '300ms' }}
-										></div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
 			<UpDataDeploy
 				isOpen={isShowUpload}
 				onClose={hideUpload}
 				projectId={projectInfo?.id}
-				deployModel={handleUseYourModel}
-				onUploadStart={() => setIsPreparingData(true)}
-				onUploaded={() => setIsPreparingData(false)}
+				onUploaded={handleAfterUpload}
+				onUploadStart={handleUploadStartBackground}
 			/>
 		</>
 	)
