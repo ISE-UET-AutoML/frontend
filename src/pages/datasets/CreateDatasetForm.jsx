@@ -49,6 +49,7 @@ export default function CreateDatasetForm({
     const [imageStructureValid, setImageStructureValid] = useState(null);
     const [csvPreview, setCsvPreview] = useState(null);
     const [csvHasHeader, setCsvHasHeader] = useState(null);
+    const [isDataValid, setIsDataValid] = useState(false);
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
@@ -95,10 +96,26 @@ export default function CreateDatasetForm({
         return files.filter((file) => validExts.includes(file.type));
     };
     
-    const validateImageFolderStructure = (uploadedFiles) => {
-        if (!uploadedFiles || uploadedFiles.length === 0) return false;
-        return uploadedFiles.every(file => (file.webkitRelativePath || file.name).split('/').length > 1);
+    const validateImageFolderStructure = (files) => {
+    if (!files || files.length === 0) return false;
+
+    const labelFolders = new Set();
+
+    for (const file of files) {
+        const path = file.path || file.webkitRelativePath || file.name;
+        const parts = path.split("/");
+
+        if (parts.length < 2) {
+        return false;
+        }
+
+        const parentFolder = parts[parts.length - 2];
+        labelFolders.add(parentFolder);
+    }
+
+    return labelFolders.size >= 2;
     };
+
 
     const previewCsv = (csvFile) => {
         Papa.parse(csvFile, {
@@ -139,12 +156,14 @@ export default function CreateDatasetForm({
         if (validatedFiles.length !== uploadedFiles.length) {
             message.warning("Some files were ignored due to incompatible types.");
         }
+        let valid = true
         
         if (datasetType === 'IMAGE') {
             const isValidStructure = validateImageFolderStructure(validatedFiles);
             setImageStructureValid(isValidStructure);
             if (!isValidStructure) {
                 message.error("The folder structure is incorrect. Please ensure all images are inside labeled subdirectories.", 5);
+                valid = false
             }
         }
         
@@ -161,6 +180,7 @@ export default function CreateDatasetForm({
 
         if (datasetType === 'MULTIMODAL' && (!hasImageFolder || !hasCSVFile)) {
             message.error('For MULTIMODAL datasets, upload a folder with an "images" subfolder and a CSV file.');
+            valid = false
             return;
         }
 
@@ -182,11 +202,15 @@ export default function CreateDatasetForm({
                 setCsvMetadata(metadata);
             } catch (err) {
                 message.error('Failed to analyze CSV file');
+                valid = false
             }
         }
+        
 
         setFiles(fileMetadata);
         setTotalKbytes(totalSizeInKB);
+
+        if (fileMetadata.length > 0 && valid) { setIsDataValid(true); } else { setIsDataValid(false); }
     };
 
     const handleDeleteFile = (filePath) => {
@@ -511,7 +535,7 @@ export default function CreateDatasetForm({
                             Back
                         </Button>
                     )}
-                    <Button type="primary" htmlType="submit">
+                    <Button type="primary" htmlType="submit" disabled={!isDataValid}>
                         {isStep ? 'Submit' : 'Next'}
                     </Button>
                     {!isStep && (
