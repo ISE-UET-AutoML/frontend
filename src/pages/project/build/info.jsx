@@ -15,6 +15,7 @@ import useDeployStore from 'src/stores/deployStore'
 import instance from 'src/api/axios'
 import * as modelServiceAPI from 'src/api/model'
 import * as datasetAPI from 'src/api/dataset'
+import * as visualizeAPI from 'src/api/visualize'
 import {
 	ResponsiveContainer,
 	AreaChart,
@@ -105,6 +106,7 @@ const ProjectInfo = () => {
 	const [chartData, setChartData] = useState([])
 	const [valMetric, setValMetric] = useState('Accuracy')
 	const [isChartLoading, setIsChartLoading] = useState(false)
+	const [isGeneratingUI, setIsGeneratingUI] = useState(false)
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -165,7 +167,50 @@ const ProjectInfo = () => {
 				disablePolling()
 				setIsPredictDone(true)
 				setIsPreparing(false)
-				message.success('Predict done')
+				
+				// Call visualize API after deployment is ONLINE
+				try {
+					setIsGeneratingUI(true)
+					console.log('Calling visualize API with endpoint:', apiUrl)
+					console.log('Project info:', projectInfo)
+					const visualizeResponse = await visualizeAPI.genUI(
+						projectInfo?.task_type,
+						projectInfo?.description || 'No description provided',
+						apiUrl + '/predict',
+						projectInfo?.id
+					)
+					console.log('Visualize API response:', visualizeResponse.data)
+					if (visualizeResponse.status === 200 && visualizeResponse.data.success) {
+						const { url } = visualizeResponse.data
+						if (url) {
+							message.info({
+								content: (
+									<div>
+										Streamlit app is ready! 
+										<a 
+											href={url} 
+											target="_blank" 
+											rel="noopener noreferrer"
+											style={{ 
+												marginLeft: '8px', 
+												textDecoration: 'underline',
+												color: '#1890ff'
+											}}
+											onClick={() => message.destroy()}
+										>
+											Click here to open
+										</a>
+									</div>
+								),
+								duration: 10,
+							})
+						}
+					}
+				} catch (visualizeError) {
+					console.error('Error calling visualize API:', visualizeError)
+				} finally {
+					setIsGeneratingUI(false)
+				}
 			} else {
 				setIsDeploySettingUp(true)
 				setIsPreparing(true)
@@ -707,7 +752,8 @@ const ProjectInfo = () => {
 									isPreparing ||
 									modelStatus === 'SETTING_UP' ||
 									modelStatus === 'CREATING_INSTANCE' ||
-									isDeploySettingUp
+									isDeploySettingUp ||
+									isGeneratingUI
 								}
 								onClick={
 									hasTraining
@@ -730,17 +776,19 @@ const ProjectInfo = () => {
 											{isCheckingModelStatus
 												? 'Fetching deploy status'
 												: isPreparing
-													? 'Preparing…'
-													: isModelOnline
-														? isPredictDone
-															? 'Predict done'
-															: 'Your model online'
-														: modelStatus ===
-																	'SETTING_UP' ||
-															  modelStatus ===
-																	'CREATING_INSTANCE'
-															? 'Setting your model…'
-															: 'Use your model'}
+													? 'Preparing...'
+													: isGeneratingUI
+														? 'Generating UI...'
+														: isModelOnline
+															? isPredictDone
+																? 'Done'
+																: 'Your model online'
+															: modelStatus ===
+																		'SETTING_UP' ||
+																  modelStatus ===
+																		'CREATING_INSTANCE'
+																? 'Setting your model…'
+																: 'Use your model'}
 										</span>
 									) : (
 										<span
