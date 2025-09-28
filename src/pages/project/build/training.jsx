@@ -541,8 +541,8 @@ const Training = () => {
                                 items={[
                                     {
                                         title: (
-                                            <span style={{ color: 'var(--text)' }}>
-                                                Selecting Instance
+                                            <span style={{ color: 'var(--text)', fontSize: '18px', whiteSpace: 'normal', display: 'block', maxWidth: '10vw' }}>
+                                                Creating Instance
                                             </span>
                                         ),
                                         icon:
@@ -554,7 +554,7 @@ const Training = () => {
                                     },
                                     {
                                         title: (
-                                            <span style={{ color: 'var(--text)' }}>
+                                            <span style={{ color: 'var(--text)', fontSize: '18px', whiteSpace: 'normal', display: 'block', maxWidth: '10vw' }}>
                                                 Downloading Dependencies
                                             </span>
                                         ),
@@ -567,7 +567,7 @@ const Training = () => {
                                     },
                                     {
                                         title: (
-                                            <span style={{ color: 'var(--text)' }}>
+                                            <span style={{ color: 'var(--text)', fontSize: '18px', whiteSpace: 'normal', display: 'block', maxWidth: '10vw' }}>
                                                 Downloading Data
                                             </span>
                                         ),
@@ -580,7 +580,7 @@ const Training = () => {
                                     },
                                     {
                                         title: (
-                                            <span style={{ color: 'var(--text)' }}>
+                                            <span style={{ color: 'var(--text)', fontSize: '18px', whiteSpace: 'normal', display: 'block', maxWidth: '10vw' }}>
                                                 Training
                                             </span>
                                         ),
@@ -598,7 +598,7 @@ const Training = () => {
                                     },
                                     {
                                         title: (
-                                            <span style={{ color: 'var(--text)' }}>
+                                            <span style={{ color: 'var(--text)', fontSize: '18px', whiteSpace: 'normal', display: 'block', maxWidth: '10vw' }}>
                                                 Done
                                             </span>
                                         ),
