@@ -482,6 +482,47 @@ export default function CreateDatasetForm({
             ),
         },
     ];
+    const getCsvPreviewColumns = () => {
+        if (!csvPreview || csvPreview.length === 0) return [];
+        
+        const keys = Object.keys(csvPreview[0]);
+        const labelColumnKey = keys[keys.length - 1];
+
+        return keys.map((key) => {
+            const isLabelColumn = key === labelColumnKey;
+            
+            // Cấu hình cho cột
+            const columnConfig = {
+                title: key,
+                dataIndex: key,
+                key: key,
+            };
+
+            if (isLabelColumn) {
+                columnConfig.fixed = 'right';
+                //columnConfig.width = 150; 
+                columnConfig.ellipsis = true;
+                columnConfig.onHeaderCell = () => ({
+                    style: {
+                        backgroundColor: '#8fc5ffff', // vàng nhạt
+                        fontWeight: 'bold',
+                    },
+                });
+            } else {
+                columnConfig.ellipsis = true; // vẫn giữ ellipsis
+                columnConfig.onCell = () => ({
+                    style: {
+                        maxWidth: 300,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    },
+                });
+            }
+
+            return columnConfig;
+        });
+    };
 
     const handleSubmit = (values) => {
         const payload = {
@@ -641,11 +682,7 @@ export default function CreateDatasetForm({
                         <div style={{ overflowX: 'auto', border: '1px solid #f0f0f0', borderRadius: '8px', marginTop: '8px' }}>
                             <Table
                                 dataSource={csvPreview}
-                                columns={Object.keys(csvPreview[0]).map(key => ({
-                                    title: key,
-                                    dataIndex: key,
-                                    key: key,
-                                }))}
+                                columns={getCsvPreviewColumns()}
                                 pagination={false}
                                 size="small"
                                 bordered
