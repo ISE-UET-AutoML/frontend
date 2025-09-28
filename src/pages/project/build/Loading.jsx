@@ -6,9 +6,10 @@ import {
 	SandyLoading,
 	ChatGif1,
 	LiquidLoading,
+  cloud
 } from 'src/assets/gif'
 
-const gifs = [LiquidLoading, LiquidLoading, ChatGif1]
+const gifs = [cloud, LiquidLoading, LiquidLoading, ChatGif1, LiveChatbot] // 5 gifts for 5 step
 
 export default function Loading({ currentStep }) {
 	return (
@@ -19,7 +20,7 @@ export default function Loading({ currentStep }) {
 			<img
 				src={gifs[currentStep]}
 				alt="loading"
-				style={{ width: '700px', height: '500px' }}
+				style={{ width: '400px', height: '300px' }}
 			/>
 			<p
 				style={{
