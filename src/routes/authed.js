@@ -7,7 +7,6 @@ import DefaultLayout from 'src/layouts/DefaultLayout'
 
 import Projects from 'src/pages/projects'
 import ProjectTasks from 'src/pages/project/tasks'
-import ProjectLayout from 'src/layouts/ProjectLayout'
 import ProjectDeploy from 'src/pages/project/deploy'
 import ProjectModels from 'src/pages/project/models'
 import ProjectBuild from 'src/pages/project/build/build'
@@ -61,7 +60,6 @@ const routes = {
                     children: [
                         {
                             path: 'project/:id',
-                            element: <ProjectLayout />,
                             children: [
                                 {
                                     path: 'build',
