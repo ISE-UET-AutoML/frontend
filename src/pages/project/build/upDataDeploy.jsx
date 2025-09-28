@@ -1,4 +1,4 @@
-import { Upload, Button, Modal, message } from 'antd'
+import { Upload, Button, Modal, message, Select } from 'antd'
 import {
 	InboxOutlined,
 	CloseOutlined,
@@ -22,6 +22,7 @@ const UpDataDeploy = ({
 	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
+	const [selectedDuration, setSelectedDuration] = useState('6hours')
 
 	const handleStart = async () => {
 		try {
@@ -109,7 +110,7 @@ const UpDataDeploy = ({
 			)
 
 			if (typeof onUploaded === 'function') {
-				onUploaded()
+				onUploaded(selectedDuration)
 			}
 			setFileList([])
 			setFolderStructure([])
@@ -377,6 +378,33 @@ const UpDataDeploy = ({
 						Total files: {fileList.length}
 					</div>
 				)}
+
+				{/* Duration Selection */}
+				<div className="mt-4">
+					<label 
+						className="block text-sm font-medium mb-2"
+						style={{ color: 'var(--text)' }}
+					>
+						App Valid Duration:
+					</label>
+					<Select
+						value={selectedDuration}
+						onChange={setSelectedDuration}
+						style={{ width: '100%' }}
+						options={[
+							{ value: '30min', label: '30 Minutes' },
+							{ value: '6hours', label: '6 Hours' },
+							{ value: '12hours', label: '12 Hours' },
+							{ value: 'max', label: 'Maximum Duration' }
+						]}
+					/>
+					<div
+						className="mt-1 text-xs"
+						style={{ color: 'var(--secondary-text)' }}
+					>
+						How long should your deployed app remain accessible?
+					</div>
+				</div>
 
 				<div className="flex justify-end space-x-3 mt-6">
 					<Button onClick={handleCancel} disabled={isUploading}>

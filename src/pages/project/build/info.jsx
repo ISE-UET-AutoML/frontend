@@ -15,6 +15,7 @@ import instance from 'src/api/axios'
 import * as modelServiceAPI from 'src/api/model'
 import * as datasetAPI from 'src/api/dataset'
 import * as visualizeAPI from 'src/api/visualize'
+import * as projectAPI from 'src/api/project'
 import {
     ResponsiveContainer,
     AreaChart,
@@ -100,17 +101,25 @@ const ProjectInfo = () => {
     const [valMetric, setValMetric] = useState('Accuracy')
     const [isChartLoading, setIsChartLoading] = useState(false)
     const [isGeneratingUI, setIsGeneratingUI] = useState(false)
+    const [streamlitUrl, setStreamlitUrl] = useState(null)
+    const [validDuration, setValidDuration] = useState(null)
 
     const hideUpload = () => {
         setIsShowUpload(false)
     }
 
     const handleModelButtonClick = async () => {
-        setIsShowUpload(true)
+        if (streamlitUrl) {
+            // If we have a streamlit URL, open it
+            window.open(streamlitUrl, '_blank', 'noopener,noreferrer')
+        } else {
+            // If no streamlit URL, show upload dialog
+            setIsShowUpload(true)
+        }
     }
 
     // Gọi sau khi upload xong để vừa check vừa trigger deploy
-    const handleAfterUpload = async () => {
+    const handleAfterUpload = async (selectedDuration) => {
         try {
             let ensuredModelId = modelId
             if (!ensuredModelId) {
@@ -124,11 +133,11 @@ const ProjectInfo = () => {
             const ensureResp = await instance.post(
                 `/api/ml/model/${ensuredModelId}/ensure-deployed`
             )
-            console.log("Under handleAfterUpload")
             const status = ensureResp?.data?.status
             const apiUrl = ensureResp?.data?.api_base_url
             const deployId = ensureResp?.data?.deploy_id
             console.log('ensureResp:', ensureResp.data)
+            console.log('projectINfo', projectInfo)
             setModelStatus(status || null)
             const online = status === 'ONLINE' && !!apiUrl
             setIsModelOnline(online)
@@ -151,7 +160,20 @@ const ProjectInfo = () => {
                     console.log('Visualize API response:', visualizeResponse.data)
                     if (visualizeResponse.status === 200 && visualizeResponse.data.success) {
                         const { url } = visualizeResponse.data
-                        if (url) {
+                        if (url && url.startsWith('http')) {
+                            // Update project with deploy_url and valid_duration
+                            try {
+                                // await projectAPI.updateProject(projectInfo?.id, {
+                                //     deploy_url: url,
+                                //     valid_duration: selectedDuration || '6hours'
+                                // })
+                                console.log('Project updated with deploy URL and duration:', url, selectedDuration)
+                                // setStreamlitUrl(url)
+                                // setValidDuration(selectedDuration || '6hours')
+                            } catch (updateError) {
+                                console.error('Error updating project with deploy URL:', updateError)
+                            }
+
                             message.info({
                                 content: (
                                     <div>
@@ -312,6 +334,19 @@ const ProjectInfo = () => {
         }
         fetchConfig()
     }, [experimentId])
+
+    // 6) Check existing deploy_url from projectInfo
+    useEffect(() => {
+        if (!projectInfo) return
+        
+        if (projectInfo.deploy_url && projectInfo.deploy_url.startsWith('http')) {
+            setStreamlitUrl(projectInfo.deploy_url)
+        }
+        
+        if (projectInfo.valid_duration) {
+            setValidDuration(projectInfo.valid_duration)
+        }
+    }, [projectInfo])
 
     // Format created_at
     const formattedDate = new Date(projectInfo?.created_at).toLocaleString(
@@ -655,12 +690,14 @@ const ProjectInfo = () => {
                                     fontFamily: 'Poppins, sans-serif',
                                 }}
                                 loading={
-                                    isCheckingModelStatus ||
-                                    isPreparing ||
-                                    modelStatus === 'SETTING_UP' ||
-                                    modelStatus === 'CREATING_INSTANCE' ||
-                                    isDeploySettingUp ||
-                                    isGeneratingUI
+                                    !streamlitUrl && (
+                                        isCheckingModelStatus ||
+                                        isPreparing ||
+                                        modelStatus === 'SETTING_UP' ||
+                                        modelStatus === 'CREATING_INSTANCE' ||
+                                        isDeploySettingUp ||
+                                        isGeneratingUI
+                                    )
                                 }
                                 onClick={
                                     hasTraining
@@ -680,22 +717,24 @@ const ProjectInfo = () => {
                                         <span
                                             className={`${theme === 'dark' ? 'text-green-500' : 'text-gray-700'}`}
                                         >
-                                            {isCheckingModelStatus
-                                                ? 'Fetching deploy status'
-                                                : isPreparing
-                                                    ? 'Preparing...'
-                                                    : isGeneratingUI
-                                                        ? 'Generating UI...'
-                                                        : isModelOnline
-                                                            ? isPredictDone
-                                                                ? 'Done'
-                                                                : 'Your model online'
-                                                            : modelStatus ===
-                                                                'SETTING_UP' ||
-                                                                modelStatus ===
-                                                                'CREATING_INSTANCE'
-                                                                ? 'Setting your model…'
-                                                                : 'Use your model'}
+                                            {streamlitUrl
+                                                ? 'Open App'
+                                                : isCheckingModelStatus
+                                                    ? 'Fetching deploy status'
+                                                    : isPreparing
+                                                        ? 'Preparing...'
+                                                        : isGeneratingUI
+                                                            ? 'Generating UI...'
+                                                            : isModelOnline
+                                                                ? isPredictDone
+                                                                    ? 'Done'
+                                                                    : 'Your model online'
+                                                                : modelStatus ===
+                                                                    'SETTING_UP' ||
+                                                                    modelStatus ===
+                                                                    'CREATING_INSTANCE'
+                                                                    ? 'Setting your model…'
+                                                                    : 'Use your model'}
                                         </span>
                                     ) : (
                                         <span
