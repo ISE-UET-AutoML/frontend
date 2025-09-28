@@ -17,9 +17,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { PATHS } from 'src/constants/paths'
 import { deleteProject } from 'src/api/project'
-import { Button, Typography, Tag } from 'antd'
-import { DeleteOutlined } from '@ant-design/icons'
-import { TASK_TYPES } from 'src/constants/types'
+// removed Typography imports (not used)
 
 import image_classification from 'src/assets/images/image_classification.png'
 import text_classification from 'src/assets/images/text_classification.png'
@@ -36,7 +34,7 @@ import * as experimentAPI from 'src/api/experiment'
 
 dayjs.extend(relativeTime)
 
-const { Text, Title } = Typography
+// no Text usage now
 
 export default function ProjectCard({ project, getProjects }) {
 	const [isStarred, setIsStarred] = useState(false)
@@ -66,8 +64,6 @@ export default function ProjectCard({ project, getProjects }) {
 	}
 
 	const taskType = project?.task_type
-	const tagColor =
-		TASK_TYPES[taskType]?.card || TASK_TYPES['IMAGE_CLASSIFICATION'].card // in case of no task assigned
 
 	const getTaskBackgroundImage = (taskType) => {
 		const imageMap = {
@@ -140,24 +136,20 @@ export default function ProjectCard({ project, getProjects }) {
 	return (
 		<div
 			key={project.id}
-			className="group rounded-2xl shadow-lg w-full h-[320px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative"
+			className="group rounded-2xl shadow-lg w-full h-[320px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative border-2 dark:border-gray-400"
 			style={{
 				background: 'var(--card-gradient)',
-				border: '1px solid var(--border)',
 				color: 'var(--text)',
 			}}
 			onClick={handleCardClick}
 		>
 			{/* Background Image Section */}
-			<div className="relative h-32 overflow-hidden">
-				<div
-					className="w-full h-full opacity-20 group-hover:opacity-30 transition-opacity duration-300"
-					style={{
-						backgroundImage: `url(${getTaskBackgroundImage(taskType)})`,
-						backgroundSize: 'cover',
-						backgroundPosition: 'center',
-						backgroundRepeat: 'no-repeat',
-					}}
+			<div className="relative h-40 overflow-hidden">
+				<img
+					src={getTaskBackgroundImage(taskType)}
+					alt="project cover"
+					className="max-h-[140px] w-full h-full object-cover opacity-80 group-hover:opacity-90 transition-opacity duration-300"
+					loading="lazy"
 				/>
 				<div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/10 dark:to-black/20" />
 
@@ -205,19 +197,7 @@ export default function ProjectCard({ project, getProjects }) {
 					</div>
 				</div>
 
-				{/* Task Type Badge */}
-				<div className="absolute bottom-4 left-4">
-					<span
-						className="px-3 py-1 text-sm font-semibold rounded-full shadow-md"
-						style={{
-							background: 'var(--tag-gradient)',
-							border: '1px solid rgba(255, 255, 255, 0.3)',
-							color: 'var(--text)',
-						}}
-					>
-						{project?.task_type.replace(/_/g, ' ')}
-					</span>
-				</div>
+				{/* Task Type Badge moved below project name */}
 			</div>
 
 			{/* Content Section */}
@@ -230,8 +210,32 @@ export default function ProjectCard({ project, getProjects }) {
 					>
 						{project?.name}
 					</h2>
+					{/* New Task Type Tag below the project name - color per task */}
+					{(() => {
+						const map = {
+							IMAGE_CLASSIFICATION: 'bg-blue-500',
+							TEXT_CLASSIFICATION: 'bg-emerald-500',
+							MULTILABEL_TEXT_CLASSIFICATION: 'bg-teal-500',
+							TABULAR_CLASSIFICATION: 'bg-amber-500',
+							TABULAR_REGRESSION: 'bg-orange-500',
+							MULTILABEL_TABULAR_CLASSIFICATION: 'bg-lime-500',
+							MULTIMODAL_CLASSIFICATION: 'bg-fuchsia-500',
+							MULTILABEL_IMAGE_CLASSIFICATION: 'bg-pink-500',
+							OBJECT_DETECTION: 'bg-red-500',
+							SEMANTIC_SEGMENTATION: 'bg-violet-500',
+							TIME_SERIES_FORECASTING: 'bg-cyan-500',
+						}
+						const cls = map[taskType] || 'bg-sky-500'
+						return (
+							<div
+								className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-white mb-3 ${cls}`}
+							>
+								{(project?.task_type || '').replace(/_/g, ' ')}
+							</div>
+						)
+					})()}
 					<p
-						className="text-base leading-relaxed mb-4"
+						className="text-base leading-relaxed mb-1"
 						style={{
 							color: 'var(--secondary-text)',
 							display: '-webkit-box',
@@ -240,7 +244,7 @@ export default function ProjectCard({ project, getProjects }) {
 							overflow: 'hidden',
 						}}
 					>
-						{project?.description}
+						{project?.description || 'No description'}
 					</p>
 				</div>
 
