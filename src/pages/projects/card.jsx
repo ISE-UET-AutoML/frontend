@@ -21,13 +21,13 @@ import { Button, Typography, Tag } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import { TASK_TYPES } from 'src/constants/types'
 
-import image_classification from 'src/assets/images/image_classification.jpg'
-import text_classification from 'src/assets/images/text_classification.jpg'
-import multilabel_text_classification from 'src/assets/images/multilabel_text_classification.jpg'
-import tabular_classification from 'src/assets/images/tabular_classification.jpg'
-import tabular_regression from 'src/assets/images/tabular_regression.jpg'
-import multilabel_tabular_classification from 'src/assets/images/multilabel_tabular_classification.jpg'
-import multimodal_classification from 'src/assets/images/multimodal_classification.jpg'
+import image_classification from 'src/assets/images/image_classification.png'
+import text_classification from 'src/assets/images/text_classification.png'
+import multilabel_text_classification from 'src/assets/images/multilabel_text_classification.png'
+import tabular_classification from 'src/assets/images/tabular_classification.png'
+import tabular_regression from 'src/assets/images/tabular_regression.png'
+import multilabel_tabular_classification from 'src/assets/images/multilabel_tabular_classification.png'
+import multimodal_classification from 'src/assets/images/multimodal_classification.png'
 import multilabel_image_classification from 'src/assets/images/multilabel_image_classification.jpg'
 import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
@@ -101,7 +101,9 @@ export default function ProjectCard({ project, getProjects }) {
 	}
 
 	const handleCardClick = async () => {
-		const experimentsRes = await experimentAPI.getAllExperiments(project?.id)
+		const experimentsRes = await experimentAPI.getAllExperiments(
+			project?.id
+		)
 		const experiments = experimentsRes.data
 		const experiment = experiments.length > 0 ? experiments[0] : null
 		if (experiment.status === 'DONE') {

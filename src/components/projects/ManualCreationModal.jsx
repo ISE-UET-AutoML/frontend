@@ -1,32 +1,22 @@
 import React from 'react'
-import {
-	Modal,
-	Row,
-	Col,
-	Button,
-	Typography,
-	Input,
-	Tooltip,
-	Tag,
-	Form,
-} from 'antd'
-import { InfoCircleOutlined } from '@ant-design/icons'
+import { Modal, Row, Col, Button, Typography, Input, Tag, Form } from 'antd'
+// Removed Info icon for cleaner inputs
 
 // import { TASK_TYPES } from 'src/constants/types'
-import image_classification from 'src/assets/images/image_classification.jpg'
-import text_classification from 'src/assets/images/text_classification.jpg'
-import multilabel_text_classification from 'src/assets/images/multilabel_text_classification.jpg'
-import tabular_classification from 'src/assets/images/tabular_classification.jpg'
-import tabular_regression from 'src/assets/images/tabular_regression.jpg'
-import multilabel_tabular_classification from 'src/assets/images/multilabel_tabular_classification.jpg'
-import multimodal_classification from 'src/assets/images/multimodal_classification.jpg'
+import image_classification from 'src/assets/images/image_classification.png'
+import text_classification from 'src/assets/images/text_classification.png'
+import multilabel_text_classification from 'src/assets/images/multilabel_text_classification.png'
+import tabular_classification from 'src/assets/images/tabular_classification.png'
+import tabular_regression from 'src/assets/images/tabular_regression.png'
+import multilabel_tabular_classification from 'src/assets/images/multilabel_tabular_classification.png'
+import multimodal_classification from 'src/assets/images/multimodal_classification.png'
 import multilabel_image_classification from 'src/assets/images/multilabel_image_classification.jpg'
 import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 
 const { Title, Text } = Typography
-const { TextArea } = Input
+// const { TextArea } = Input
 
 // Only include the 8 non-technical task types
 const projType = [
@@ -257,34 +247,6 @@ const taskCards = [
 		difficulty: 'Advanced',
 		timeToTrain: '25-45 minutes',
 	},
-	{
-		id: 'multilabel_image_classification',
-		title: 'Multilabel Image Classification',
-		subtitle:
-			'Multiple tags for comprehensive photo understanding and organization.',
-		description:
-			'Advanced image analysis that identifies multiple elements in photos for comprehensive tagging and enhanced searchability.',
-		icon: '🖼️',
-		example: {
-			input: 'Photo of a beach sunset with people',
-			output: 'Tags: Nature, Beach, Sunset, People, Outdoor, Golden hour',
-		},
-		benefits: [
-			'Rich photo metadata',
-			'Improved search capabilities',
-			'Content discovery',
-		],
-		useCases: [
-			'Photo library management',
-			'Stock photo tagging',
-			'Social media content analysis',
-			'Scene understanding for autonomous vehicles',
-			'Medical imaging analysis',
-		],
-		image: multilabel_image_classification,
-		difficulty: 'Intermediate',
-		timeToTrain: '15-35 minutes',
-	},
 ]
 
 // const getImageByProjectType = (selectedProjectType) => projectTypeImages[selectedProjectType] || image_classification
@@ -371,522 +333,342 @@ const ManualCreationModal = ({
 				task_type: initialTaskType,
 			}}
 		>
-			<Row gutter={[24, 24]}>
-				<Col span={24}>
-					<Form.Item
-						label="Project Name"
-						name="name"
-						style={{ marginBottom: 16 }}
-						rules={[
-							{
-								required: true,
-								message: 'Please enter project name!',
-							},
-							{
-								min: 3,
-								message: 'Name must be at least 3 characters',
-							},
-						]}
-					>
-						<Input
-							placeholder="E.g., Customer Churn Predictor"
-							prefix={<InfoCircleOutlined />}
-							size="large"
-						/>
-					</Form.Item>
-				</Col>
-			</Row>
-
-			{/* Description */}
-			<Row gutter={[24, 24]}>
-				<Col span={24}>
-					<Form.Item label="Description" name="description">
-						<Tooltip title="Explain what your project aims to achieve">
-							<TextArea
-								rows={3}
-								placeholder="Describe your project's goals and requirements..."
-								showCount
-							/>
-						</Tooltip>
-					</Form.Item>
-				</Col>
-			</Row>
-
-			{/* Two-Column Task Selection Layout */}
+			{/* Two-column overall layout: left = fields + task list, right = task details */}
 			<div
-				className="task-selection-container"
 				style={{
-					borderRadius: '20px',
-					background: 'var(--filter-bg)',
-					border: '1px solid var(--filter-border)',
-					overflow: 'hidden',
-					height: '520px',
-					display: 'flex',
-					flexDirection: 'column',
+					display: 'grid',
+					gridTemplateColumns: '1.1fr 0.9fr',
+					gap: 24,
 				}}
 			>
-				<Title
-					level={3}
-					style={{
-						textAlign: 'center',
-						margin: '20px 0 16px 0',
-						color: 'var(--title-project)',
-						fontWeight: 700,
-						fontFamily: 'Poppins, sans-serif',
-						flexShrink: 0,
-					}}
-				>
-					Choose What You Want to Build
-				</Title>
-
+				{/* Left column */}
 				<div
-					className="two-column-layout"
 					style={{
-						display: 'grid',
-						gridTemplateColumns: '1fr 1fr',
-						height: 'calc(100% - 80px)',
-						overflow: 'hidden',
+						borderRight: '2px solid #0ea5e9',
+						paddingRight: '12px',
 					}}
 				>
-					{/* Left Column - Task Cards List */}
+					<Row gutter={[24, 24]}>
+						<Col span={24}>
+							<Form.Item
+								label="Project Name"
+								name="name"
+								style={{ marginBottom: 16 }}
+								rules={[
+									{
+										required: true,
+										message: 'Please enter project name!',
+									},
+									{
+										min: 3,
+										message:
+											'Name must be at least 3 characters',
+									},
+								]}
+							>
+								<Input
+									placeholder="E.g., Customer Churn Predictor"
+									size="large"
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+
+					{/* Description */}
+					<Row gutter={[24, 24]}>
+						<Col span={24}>
+							<Form.Item label="Description" name="description">
+								<Input
+									placeholder="Describe your project's goals and requirements..."
+									size="large"
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+
+					{/* Task list box */}
 					<div
-						className="task-list-column"
+						className="task-selection-container"
 						style={{
-							padding: '0 20px 20px 28px',
-							borderRight: '1px solid var(--border)',
-							overflowY: 'auto',
-							height: '100%',
+							borderRadius: '20px',
+							background: 'var(--filter-bg)',
+							border: '1px solid var(--filter-border)',
+							overflow: 'hidden',
+							marginTop: 8,
 						}}
 					>
-						<div
+						<Title
+							level={3}
 							style={{
-								display: 'grid',
-								gridTemplateColumns:
-									'repeat(3, minmax(0, 1fr))',
-								gap: '12px',
-								paddingTop: '8px',
+								textAlign: 'center',
+								margin: '16px 0',
+								color: 'var(--title-project)',
+								fontWeight: 700,
+								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
-							{taskCards.map((task, idx) => {
-								const projTypeIndex = projType.findIndex(
-									(type) => type === task.id
-								)
-								const isTaskSelected =
-									isSelected && isSelected[projTypeIndex]
+							Choose Your Label
+						</Title>
+						<div
+							className="task-list-column"
+							style={{
+								padding: '0 20px 20px 28px',
+								borderTop: '1px solid var(--border)',
+								maxHeight: 520,
+								overflowY: 'auto',
+							}}
+						>
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns:
+										'repeat(3, minmax(0, 1fr))',
+									gap: '12px',
+									paddingTop: '12px',
+								}}
+							>
+								{taskCards.map((task, idx) => {
+									const projTypeIndex = projType.findIndex(
+										(type) => type === task.id
+									)
+									const isTaskSelected =
+										isSelected && isSelected[projTypeIndex]
 
-								return (
-									<div
-										key={task.id}
-										className={`task-list-item ${isTaskSelected ? 'selected' : ''}`}
-										onClick={(e) =>
-											handleSelectType(e, projTypeIndex)
-										}
-										onKeyDown={(e) => {
-											if (
-												e.key === 'Enter' ||
-												e.key === ' '
-											) {
-												e.preventDefault()
+									return (
+										<div
+											key={task.id}
+											className={`task-list-item ${isTaskSelected ? 'selected' : ''}`}
+											onClick={(e) =>
 												handleSelectType(
 													e,
 													projTypeIndex
 												)
 											}
-										}}
-										onMouseEnter={() =>
-											setHoverTaskIndex(projTypeIndex)
-										}
-										onMouseLeave={() =>
-											setHoverTaskIndex(null)
-										}
-										tabIndex={0}
-										role="button"
-										aria-label={`Select ${task.title} task type`}
-										aria-pressed={isTaskSelected}
-										style={{
-											cursor: 'pointer',
-											padding: '14px',
-											borderRadius: '16px',
-											border: '2px solid var(--border)',
-											background: isTaskSelected
-												? 'var(--selection-bg)'
-												: 'var(--card-gradient)',
-											transition: 'all 0.3s ease',
-											position: 'relative',
-											minHeight: '120px',
-											overflow: 'hidden',
-										}}
-									>
-										<div
+											onKeyDown={(e) => {
+												if (
+													e.key === 'Enter' ||
+													e.key === ' '
+												) {
+													e.preventDefault()
+													handleSelectType(
+														e,
+														projTypeIndex
+													)
+												}
+											}}
+											onMouseEnter={() =>
+												setHoverTaskIndex(projTypeIndex)
+											}
+											onMouseLeave={() =>
+												setHoverTaskIndex(null)
+											}
+											tabIndex={0}
+											role="button"
+											aria-label={`Select ${task.title} task type`}
+											aria-pressed={isTaskSelected}
 											style={{
-												display: 'flex',
-												alignItems: 'flex-start',
-												gap: '12px',
+												cursor: 'pointer',
+												padding: '14px',
+												borderRadius: '16px',
+												border: '2px solid var(--border)',
+												background: isTaskSelected
+													? 'var(--selection-bg)'
+													: 'var(--card-gradient)',
+												transition: 'all 0.3s ease',
+												position: 'relative',
+												minHeight: '120px',
+												overflow: 'hidden',
 											}}
 										>
 											<div
 												style={{
-													fontSize: '24px',
-													lineHeight: 1,
-													marginTop: '2px',
+													display: 'flex',
+													alignItems: 'flex-start',
+													gap: '12px',
 												}}
 											>
-												{task.icon}
-											</div>
-											<div style={{ flex: 1 }}>
-												<Title
-													level={5}
-													style={{
-														margin: '0 0 4px 0',
-														color: 'var(--text)',
-														fontSize: '14px',
-														fontWeight: 600,
-														fontFamily:
-															'Poppins, sans-serif',
-													}}
-													className="task-title"
-												>
-													{task.title}
-												</Title>
-												{/* description shown on hover via overlay */}
 												<div
 													style={{
-														display: 'flex',
-														gap: '8px',
-														flexWrap: 'wrap',
+														fontSize: '24px',
+														lineHeight: 1,
+														marginTop: '2px',
 													}}
 												>
-													<Tag
+													{task.icon}
+												</div>
+												<div style={{ flex: 1 }}>
+													<Title
+														level={5}
 														style={{
-															borderRadius:
-																'12px',
-															fontSize: '10px',
-															padding: '2px 8px',
-															background:
-																'var(--tag-gradient)',
-															border: '1px solid var(--tag-border)',
-															color: 'var(--tag-color)',
+															margin: '0 0 4px 0',
+															color: 'var(--text)',
+															fontSize: '14px',
+															fontWeight: 600,
 															fontFamily:
 																'Poppins, sans-serif',
-															fontWeight: 500,
+														}}
+														className="task-title"
+													>
+														{task.title}
+													</Title>
+													<div
+														style={{
+															display: 'flex',
+															gap: '8px',
+															flexWrap: 'wrap',
 														}}
 													>
-														{task.difficulty}
-													</Tag>
+														<Tag
+															style={{
+																borderRadius:
+																	'12px',
+																fontSize:
+																	'10px',
+																padding:
+																	'2px 8px',
+																background:
+																	'var(--tag-gradient)',
+																border: '1px solid var(--tag-border)',
+																color: 'var(--tag-color)',
+																fontFamily:
+																	'Poppins, sans-serif',
+																fontWeight: 500,
+															}}
+														>
+															{task.difficulty}
+														</Tag>
+													</div>
 												</div>
+
+												{isTaskSelected && (
+													<div
+														style={{
+															position:
+																'absolute',
+															top: '16px',
+															right: '16px',
+															width: '24px',
+															height: '24px',
+															borderRadius: '50%',
+															background:
+																'var(--button-gradient)',
+															display: 'flex',
+															alignItems:
+																'center',
+															justifyContent:
+																'center',
+															color: '#ffffff',
+															fontSize: '14px',
+															fontWeight: 'bold',
+														}}
+													>
+														✓
+													</div>
+												)}
 											</div>
-											{/* description moved to right panel on hover */}
-											{isTaskSelected && (
-												<div
-													style={{
-														position: 'absolute',
-														top: '16px',
-														right: '16px',
-														width: '24px',
-														height: '24px',
-														borderRadius: '50%',
-														background:
-															'var(--button-gradient)',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent:
-															'center',
-														color: '#ffffff',
-														fontSize: '14px',
-														fontWeight: 'bold',
-													}}
-												>
-													✓
-												</div>
-											)}
 										</div>
-									</div>
-								)
-							})}
+									)
+								})}
+							</div>
 						</div>
 					</div>
+				</div>
 
-					{/* Right Column - Task Details */}
-					<div
-						className="task-details-column"
-						style={{
-							padding: '0 24px 24px 24px',
-							display: 'flex',
-							flexDirection: 'column',
-							overflowY: 'auto',
-							height: '100%',
-						}}
-					>
-						{displayTask ? (
+				{/* Right column - task details */}
+				<div
+					className="task-details-column"
+					style={{
+						padding: '0 24px 24px 24px',
+						overflowY: 'auto',
+						maxHeight: 700,
+					}}
+				>
+					{displayTask ? (
+						<div
+							className="task-details"
+							style={{
+								width: '100%',
+								minWidth: '300px',
+								maxWidth: '100%',
+							}}
+						>
 							<div
-								className="task-details"
 								style={{
 									width: '100%',
-									minWidth: '300px',
-									maxWidth: '600px',
+									height: '340px',
+									borderRadius: '20px',
+									overflow: 'hidden',
+									marginBottom: '24px',
+									boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
+									border: '2px solid var(--border-hover)',
 								}}
 							>
-								{/* Large Image */}
-								<div
+								<img
+									src={displayTask.image}
+									alt={displayTask.title}
 									style={{
 										width: '100%',
-										height: '200px',
-										borderRadius: '20px',
-										overflow: 'hidden',
-										marginBottom: '24px',
-										boxShadow:
-											'0 12px 32px rgba(0,0,0,0.15)',
-										border: '2px solid var(--border-hover)',
+										height: '100%',
+										objectFit: 'contain',
+									}}
+								/>
+							</div>
+
+							<div
+								style={{
+									textAlign: 'center',
+									marginBottom: '24px',
+								}}
+							>
+								<Title
+									level={3}
+									style={{
+										margin: '0 0 8px 0',
+										color: 'var(--text)',
+										fontWeight: 700,
+										fontFamily: 'Poppins, sans-serif',
 									}}
 								>
-									<img
-										src={displayTask.image}
-										alt={displayTask.title}
-										style={{
-											width: '100%',
-											height: '100%',
-											objectFit: 'cover',
-										}}
-									/>
-								</div>
-
-								{/* Title and Subtitle */}
-								<div
+									{displayTask.title}
+								</Title>
+								<Text
 									style={{
+										color: 'var(--secondary-text)',
+										fontSize: '14px',
+										lineHeight: '1.5',
+										fontFamily: 'Poppins, sans-serif',
+									}}
+								>
+									{displayTask.subtitle}
+								</Text>
+							</div>
+
+							<div
+								style={{
+									background: 'var(--card-gradient)',
+									border: '2px solid var(--border)',
+									borderRadius: '16px',
+									padding: '20px',
+									marginBottom: '24px',
+								}}
+							>
+								<Title
+									level={5}
+									style={{
+										margin: '0 0 16px 0',
+										color: 'var(--text)',
+										fontFamily: 'Poppins, sans-serif',
 										textAlign: 'center',
-										marginBottom: '24px',
 									}}
 								>
-									<Title
-										level={3}
-										style={{
-											margin: '0 0 8px 0',
-											color: 'var(--text)',
-											fontWeight: 700,
-											fontFamily: 'Poppins, sans-serif',
-										}}
-									>
-										{displayTask.title}
-									</Title>
-									<Text
-										style={{
-											color: 'var(--secondary-text)',
-											fontSize: '14px',
-											lineHeight: '1.5',
-											fontFamily: 'Poppins, sans-serif',
-										}}
-									>
-										{displayTask.subtitle}
-									</Text>
-								</div>
-
-								{/* Example Section */}
-								<div
-									style={{
-										background: 'var(--card-gradient)',
-										border: '2px solid var(--border)',
-										borderRadius: '16px',
-										padding: '20px',
-										marginBottom: '24px',
-									}}
-								>
-									<Title
-										level={5}
-										style={{
-											margin: '0 0 16px 0',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-											textAlign: 'center',
-										}}
-									>
-										Example
-									</Title>
-									<div style={{ marginBottom: '12px' }}>
-										<Text
-											style={{
-												color: 'var(--secondary-text)',
-												fontSize: '11px',
-												fontWeight: 700,
-												textTransform: 'uppercase',
-												letterSpacing: '0.5px',
-												fontFamily:
-													'Poppins, sans-serif',
-												display: 'block',
-												marginBottom: '6px',
-											}}
-										>
-											INPUT:
-										</Text>
-										<Text
-											style={{
-												color: 'var(--text)',
-												fontSize: '13px',
-												fontWeight: 500,
-												fontFamily:
-													'Poppins, sans-serif',
-												lineHeight: '1.4',
-											}}
-										>
-											{displayTask.example.input}
-										</Text>
-									</div>
-									<div>
-										<Text
-											style={{
-												color: 'var(--secondary-text)',
-												fontSize: '11px',
-												fontWeight: 700,
-												textTransform: 'uppercase',
-												letterSpacing: '0.5px',
-												fontFamily:
-													'Poppins, sans-serif',
-												display: 'block',
-												marginBottom: '6px',
-											}}
-										>
-											OUTPUT:
-										</Text>
-										<Text
-											style={{
-												color: 'var(--accent-text)',
-												fontSize: '13px',
-												fontWeight: 600,
-												fontFamily:
-													'Poppins, sans-serif',
-												lineHeight: '1.4',
-											}}
-										>
-											{displayTask.example.output}
-										</Text>
-									</div>
-								</div>
-
-								{/* Use Cases */}
-								<div style={{ marginBottom: '24px' }}>
-									<Title
-										level={5}
-										style={{
-											margin: '0 0 12px 0',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-										}}
-									>
-										Common Use Cases
-									</Title>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'column',
-											gap: '8px',
-										}}
-									>
-										{displayTask.useCases.map(
-											(useCase, i) => (
-												<div
-													key={i}
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-													}}
-												>
-													<div
-														style={{
-															width: '6px',
-															height: '6px',
-															borderRadius: '50%',
-															background:
-																'var(--accent-text)',
-														}}
-													/>
-													<Text
-														style={{
-															color: 'var(--text)',
-															fontSize: '13px',
-															fontFamily:
-																'Poppins, sans-serif',
-															lineHeight: '1.4',
-														}}
-													>
-														{useCase}
-													</Text>
-												</div>
-											)
-										)}
-									</div>
-								</div>
-
-								{/* Benefits */}
-								<div style={{ marginBottom: '24px' }}>
-									<Title
-										level={5}
-										style={{
-											margin: '0 0 12px 0',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-										}}
-									>
-										Key Benefits
-									</Title>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'column',
-											gap: '8px',
-										}}
-									>
-										{displayTask.benefits.map(
-											(benefit, i) => (
-												<div
-													key={i}
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-													}}
-												>
-													<div
-														style={{
-															width: '6px',
-															height: '6px',
-															borderRadius: '50%',
-															background:
-																'var(--accent-text)',
-														}}
-													/>
-													<Text
-														style={{
-															color: 'var(--text)',
-															fontSize: '13px',
-															fontFamily:
-																'Poppins, sans-serif',
-															lineHeight: '1.4',
-														}}
-													>
-														{benefit}
-													</Text>
-												</div>
-											)
-										)}
-									</div>
-								</div>
-
-								{/* Training Time */}
-								<div
-									style={{
-										background: 'var(--tag-gradient)',
-										border: '1px solid var(--tag-border)',
-										borderRadius: '12px',
-										padding: '16px',
-										textAlign: 'center',
-										marginBottom: '24px',
-									}}
-								>
+									Example
+								</Title>
+								<div style={{ marginBottom: '12px' }}>
 									<Text
 										style={{
 											color: 'var(--secondary-text)',
 											fontSize: '11px',
-											fontWeight: 600,
+											fontWeight: 700,
 											textTransform: 'uppercase',
 											letterSpacing: '0.5px',
 											fontFamily: 'Poppins, sans-serif',
@@ -894,66 +676,238 @@ const ManualCreationModal = ({
 											marginBottom: '6px',
 										}}
 									>
-										Expected Training Time
+										INPUT:
 									</Text>
 									<Text
 										style={{
 											color: 'var(--text)',
-											fontSize: '14px',
-											fontWeight: 600,
+											fontSize: '13px',
+											fontWeight: 500,
 											fontFamily: 'Poppins, sans-serif',
+											lineHeight: '1.4',
 										}}
 									>
-										{displayTask.timeToTrain}
+										{displayTask.example.input}
+									</Text>
+								</div>
+								<div>
+									<Text
+										style={{
+											color: 'var(--secondary-text)',
+											fontSize: '11px',
+											fontWeight: 700,
+											textTransform: 'uppercase',
+											letterSpacing: '0.5px',
+											fontFamily: 'Poppins, sans-serif',
+											display: 'block',
+											marginBottom: '6px',
+										}}
+									>
+										OUTPUT:
+									</Text>
+									<Text
+										style={{
+											color: 'var(--accent-text)',
+											fontSize: '13px',
+											fontWeight: 600,
+											fontFamily: 'Poppins, sans-serif',
+											lineHeight: '1.4',
+										}}
+									>
+										{displayTask.example.output}
 									</Text>
 								</div>
 							</div>
-						) : (
-							<div
-								style={{
-									textAlign: 'center',
-									color: 'var(--secondary-text)',
-									fontFamily: 'Poppins, sans-serif',
-								}}
-							>
+
+							<div style={{ marginBottom: '24px' }}>
+								<Title
+									level={5}
+									style={{
+										margin: '0 0 12px 0',
+										color: 'var(--text)',
+										fontFamily: 'Poppins, sans-serif',
+									}}
+								>
+									Common Use Cases
+								</Title>
 								<div
 									style={{
-										fontSize: '48px',
-										marginBottom: '16px',
-										opacity: 0.5,
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '8px',
 									}}
 								>
-									🎯
+									{displayTask.useCases.map((useCase, i) => (
+										<div
+											key={i}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											<div
+												style={{
+													width: '6px',
+													height: '6px',
+													borderRadius: '50%',
+													background:
+														'var(--accent-text)',
+												}}
+											/>
+											<Text
+												style={{
+													color: 'var(--text)',
+													fontSize: '13px',
+													fontFamily:
+														'Poppins, sans-serif',
+													lineHeight: '1.4',
+												}}
+											>
+												{useCase}
+											</Text>
+										</div>
+									))}
 								</div>
+							</div>
+
+							<div style={{ marginBottom: '24px' }}>
 								<Title
-									level={4}
+									level={5}
 									style={{
-										color: 'var(--secondary-text)',
+										margin: '0 0 12px 0',
+										color: 'var(--text)',
 										fontFamily: 'Poppins, sans-serif',
-										fontWeight: 500,
 									}}
 								>
-									Select a task type to see details
+									Key Benefits
 								</Title>
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: '8px',
+									}}
+								>
+									{displayTask.benefits.map((benefit, i) => (
+										<div
+											key={i}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											<div
+												style={{
+													width: '6px',
+													height: '6px',
+													borderRadius: '50%',
+													background:
+														'var(--accent-text)',
+												}}
+											/>
+											<Text
+												style={{
+													color: 'var(--text)',
+													fontSize: '13px',
+													fontFamily:
+														'Poppins, sans-serif',
+													lineHeight: '1.4',
+												}}
+											>
+												{benefit}
+											</Text>
+										</div>
+									))}
+								</div>
+							</div>
+
+							<div
+								style={{
+									background: 'var(--tag-gradient)',
+									border: '1px solid var(--tag-border)',
+									borderRadius: '12px',
+									padding: '16px',
+									textAlign: 'center',
+									marginBottom: '24px',
+								}}
+							>
 								<Text
 									style={{
 										color: 'var(--secondary-text)',
+										fontSize: '11px',
+										fontWeight: 600,
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+										fontFamily: 'Poppins, sans-serif',
+										display: 'block',
+										marginBottom: '6px',
+									}}
+								>
+									Expected Training Time
+								</Text>
+								<Text
+									style={{
+										color: 'var(--text)',
 										fontSize: '14px',
+										fontWeight: 600,
 										fontFamily: 'Poppins, sans-serif',
 									}}
 								>
-									Choose from the options on the left to learn
-									more
+									{displayTask.timeToTrain}
 								</Text>
 							</div>
-						)}
-					</div>
+						</div>
+					) : (
+						<div
+							style={{
+								textAlign: 'center',
+								color: 'var(--secondary-text)',
+								fontFamily: 'Poppins, sans-serif',
+							}}
+						>
+							<div
+								style={{
+									fontSize: '48px',
+									marginBottom: '16px',
+									opacity: 0.5,
+								}}
+							>
+								🎯
+							</div>
+							<Title
+								level={4}
+								style={{
+									color: 'var(--secondary-text)',
+									fontFamily: 'Poppins, sans-serif',
+									fontWeight: 500,
+								}}
+							>
+								Select a task type to see details
+							</Title>
+							<Text
+								style={{
+									color: 'var(--secondary-text)',
+									fontSize: '14px',
+									fontFamily: 'Poppins, sans-serif',
+								}}
+							>
+								Choose from the options on the left to learn
+								more
+							</Text>
+						</div>
+					)}
 				</div>
 			</div>
 
 			{/* Submit */}
 			<Row justify="end" style={{ marginTop: 24 }}>
-				<Button onClick={onCancel} style={{ marginRight: 8 }}>
+				<Button
+					onClick={onCancel}
+					style={{ marginRight: 8 }}
+					size="large"
+				>
 					Cancel
 				</Button>
 				<Button
@@ -979,9 +933,9 @@ const ManualCreationModal = ({
                 }
 
                 .theme-manual-form .ant-input {
-                    background: var(--input-bg) !important;
+                    background: transparent !important;
                     border: 1px solid var(--input-border) !important;
-                    color: var(--input-color) !important;
+                    color: var(--text) !important;
                     border-radius: 8px !important;
                 }
 
@@ -993,6 +947,27 @@ const ManualCreationModal = ({
                 .theme-manual-form .ant-input-focused {
                     border-color: var(--input-focus-border) !important;
                     box-shadow: var(--input-shadow) !important;
+                    background: transparent !important;
+                    color: var(--text) !important;
+                    caret-color: var(--text) !important;
+                }
+
+                .theme-manual-form textarea.ant-input {
+                    background: transparent !important;
+                    color: var(--text) !important;
+                    caret-color: var(--text) !important;
+                }
+                .theme-manual-form textarea.ant-input:focus,
+                .theme-manual-form textarea.ant-input:hover {
+                    background: transparent !important;
+                }
+
+                /* Stronger override for AntD textarea wrapper */
+                .theme-manual-form .ant-input-textarea,
+                .theme-manual-form .ant-input-textarea textarea,
+                .theme-manual-form .ant-input {
+                    background: transparent !important;
+                    color: var(--text) !important;
                 }
 
                 .theme-manual-form .ant-input::placeholder {
