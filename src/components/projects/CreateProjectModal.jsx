@@ -352,6 +352,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 				title="Create New Project"
 				destroyOnClose
 				className="theme-create-project-modal"
+				style={{ top: 30 }}
 			>
 				<style>{`
                     .theme-create-project-modal .ant-modal-content {
