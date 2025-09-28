@@ -500,7 +500,8 @@ export default function CreateDatasetForm({
 
             if (isLabelColumn) {
                 columnConfig.fixed = 'right';
-                columnConfig.width = 150; 
+                //columnConfig.width = 150; 
+                columnConfig.ellipsis = true;
                 columnConfig.onHeaderCell = () => ({
                     style: {
                         backgroundColor: '#8fc5ffff', // vàng nhạt
@@ -508,8 +509,15 @@ export default function CreateDatasetForm({
                     },
                 });
             } else {
-                //columnConfig.width = 180;
-                columnConfig.ellipsis = true;
+                columnConfig.ellipsis = true; // vẫn giữ ellipsis
+                columnConfig.onCell = () => ({
+                    style: {
+                        maxWidth: 300,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    },
+                });
             }
 
             return columnConfig;
