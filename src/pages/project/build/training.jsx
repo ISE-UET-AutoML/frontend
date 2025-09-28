@@ -674,7 +674,7 @@ const Training = () => {
                                 </div>
                             ) : (
                                 <Loading
-									currentStep={currentStep}
+									currentStep={currentStep} 
 								/>
                             )}
                         </Space>

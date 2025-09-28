@@ -7,12 +7,38 @@ let hasRestored = false;
 const useDeployStore = create(
     (set, get) => ({
         deployingTasks: {},
+        activeTimers: {}, // deployId -> timeout id
         shouldPoll: false,
 
         enablePolling: () => set({ shouldPoll: true }),
-        disablePolling: () => set({ shouldPoll: false }),
+        disablePolling: () => {
+            // Clear all active timers and stop polling globally
+            const timers = get().activeTimers || {}
+            Object.values(timers).forEach((t) => {
+                try { clearTimeout(t) } catch { }
+            })
+            set({ shouldPoll: false, activeTimers: {} })
+        },
+
+        stopDeployTask: (deployId) => {
+            const timers = get().activeTimers || {}
+            const timer = timers[deployId]
+            if (timer) {
+                try { clearTimeout(timer) } catch { }
+                set((state) => {
+                    const next = { ...state.activeTimers }
+                    delete next[deployId]
+                    return { activeTimers: next }
+                })
+            }
+        },
 
         startDeployTask: (deployId) => {
+            // Avoid duplicate polling chains for the same deployId
+            if (get().activeTimers?.[deployId]) return
+            // Skip if this deploy already ONLINE in store state
+            const current = get().deployingTasks?.[deployId]
+            if (current?.status === 'ONLINE') return
             // Resume polling (after reload or manual start)
             const pollDeploying = async () => {
                 // Stop if polling disabled or store not ready
@@ -41,6 +67,8 @@ const useDeployStore = create(
                                     },
                                 },
                             }));
+                            // Clear timer for this deployId when ONLINE
+                            get().stopDeployTask(deployId)
                             return; // Stop polling
                         }
 
@@ -61,7 +89,13 @@ const useDeployStore = create(
                 }
 
                 if (get().shouldPoll) {
-                    setTimeout(pollDeploying, 10000);
+                    const timerId = setTimeout(pollDeploying, 10000);
+                    set((state) => ({
+                        activeTimers: {
+                            ...state.activeTimers,
+                            [deployId]: timerId,
+                        }
+                    }))
                 }
             };
 
