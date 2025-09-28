@@ -5,11 +5,16 @@ import {
 	FolderOutlined,
 	FileOutlined,
 	DeleteOutlined,
+	CheckCircleOutlined, // Thêm icon
+    CloseCircleOutlined, // Thêm icon
+
 } from '@ant-design/icons'
 import { useState } from 'react'
 import { createPresignedUrlsPredict } from 'src/api/dataset'
 import { createDownPresignedUrlsForFolder } from 'src/api/dataset'
 import instance from 'src/api/axios'
+import Papa from "papaparse"
+
 
 const { Dragger } = Upload
 
@@ -17,6 +22,8 @@ const UpDataDeploy = ({
 	isOpen,
 	onClose,
 	projectId,
+	taskType,
+	featureColumns,
 	onUploaded,
 	onUploadStart,
 }) => {
@@ -24,6 +31,61 @@ const UpDataDeploy = ({
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
 	const [selectedDuration, setSelectedDuration] = useState('6hours')
+	const [verificationStatus, setVerificationStatus] = useState('idle'); // 'idle', 'success', 'error'
+    const [verificationMessage, setVerificationMessage] = useState('');
+	const verifyData = async (files, taskType, featureColumns) => {
+		if (taskType.includes('IMAGE')) {
+			const allImages = files.every(f => /\.(jpg|jpeg|png)$/i.test(f.name))
+			if (!allImages) {
+				return { isValid: false, message: "For Image classification, only JPG/PNG files are allowed." };
+			}
+			return { isValid: true, message: "Image files are valid." };
+		}
+
+		if (files.length !== 1 || !files[0].name.toLowerCase().endsWith(".csv")) {
+			return { isValid: false, message: "Please upload exactly one CSV file for this task type." };
+		}
+
+		const file = files[0].originFileObj || files[0];
+		return new Promise(resolve => {
+			Papa.parse(file, {
+				header: true,
+				skipEmptyLines: true,
+				complete: (results) => {
+					const { data, errors } = results;
+					if (errors.length > 0) {
+						resolve({ isValid: false, message: "CSV parse error: " + errors[0].message });
+						return;
+					}
+					if (data.length === 0) {
+						resolve({ isValid: false, message: "CSV file cannot be empty." });
+						return;
+					}
+
+					const cols = Object.keys(data[0] || {});
+					if (cols.length !== featureColumns.length || !featureColumns.every(c => cols.includes(c))) {
+						resolve({ isValid: false, message: "CSV columns must exactly match feature columns: " + featureColumns.join(", ") });
+						return;
+					}
+
+					for (let i = 0; i < data.length; i++) {
+						const row = data[i];
+						for (let c of cols) {
+							if (row[c] === null || row[c] === "" || String(row[c]).toLowerCase() === "nan") {
+								resolve({ isValid: false, message: `CSV contains empty or NaN values at row ${i + 1}, column "${c}".` });
+								return;
+							}
+						}
+					}
+					
+					resolve({ isValid: true, message: "CSV data is valid." });
+				},
+				error: (error) => {
+					resolve({ isValid: false, message: "Failed to parse CSV file: " + error.message });
+				}
+			});
+		});
+	}
 
 	const getNextVersion = async (pid) => {
 		try {
@@ -216,35 +278,39 @@ const UpDataDeploy = ({
 		multiple: true,
 		directory: true,
 		accept: '.jpg,.jpeg,.png,.csv',
-		fileList, // kiểm soát danh sách file
+		fileList,
 		showUploadList: false,
 		beforeUpload: (file) => {
-			const isLt10M = file.size / 1024 / 1024 < 20
-			if (!isLt10M) {
+			const isLt20M = file.size / 1024 / 1024 < 20
+			if (!isLt20M) {
 				message.error('File must be smaller than 20MB!')
 				return false
 			}
 			return false
 		},
-		onChange(info) {
-			const { fileList: newFileList } = info
-			// Chỉ nhận ảnh: .jpg, .jpeg, .png
-			const validFiles = newFileList.filter((f) => {
-				const fileName = f.name.toLowerCase()
-				return (
-					fileName.endsWith('.jpg') ||
-					fileName.endsWith('.jpeg') ||
-					fileName.endsWith('.png') ||
-					fileName.endsWith('.csv')
-				)
-			})
+		onChange: async (info) => {
+            const { fileList: newFileList } = info;
+            if (newFileList.length === 0) {
+                setFileList([]);
+                setFolderStructure({});
+                setVerificationStatus('idle');
+                return;
+            }
 
-			setFileList(validFiles)
-
-			// Tạo cấu trúc thư mục
-			const structure = createFolderStructure(validFiles)
-			setFolderStructure(structure)
-		},
+            const verificationResult = await verifyData(newFileList, taskType, featureColumns);
+            
+            if (verificationResult.isValid) {
+                setVerificationStatus('success');
+                setVerificationMessage('Data verification successful! Ready to start.');
+                setFileList(newFileList);
+                setFolderStructure(createFolderStructure(newFileList));
+            } else {
+                setVerificationStatus('error');
+                setVerificationMessage(verificationResult.message);
+                setFileList([]); // Xóa file nếu không hợp lệ
+                setFolderStructure({});
+            }
+        },
 		onDrop(e) {
 			console.log('Dropped files', e.dataTransfer.files)
 		},
@@ -369,6 +435,7 @@ const UpDataDeploy = ({
 	const handleCancel = () => {
 		setFileList([])
 		setFolderStructure([])
+        setVerificationStatus('idle');
 		onClose()
 	}
 
@@ -430,6 +497,21 @@ const UpDataDeploy = ({
 						allowed. (MAX. 10MB per file)
 					</p>
 				</Dragger>
+
+				{verificationStatus !== 'idle' && (
+                    <Alert
+                        className="mt-4"
+                        type={verificationStatus}
+                        showIcon
+                        message={
+                            <span className="font-semibold">
+                                {verificationStatus === 'success' ? 'Validation Passed' : 'Validation Failed'}
+                            </span>
+                        }
+                        description={verificationMessage}
+                        icon={verificationStatus === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                    />
+                )}
 
 				{folderStructure && Object.keys(folderStructure).length > 0 && (
 					<div
@@ -494,7 +576,7 @@ const UpDataDeploy = ({
 					<Button
 						type="primary"
 						onClick={handleStart}
-						disabled={fileList.length === 0 || isUploading}
+						disabled={fileList.length === 0 || isUploading || verificationStatus !== 'success'}
 						loading={isUploading}
 					>
 						Start

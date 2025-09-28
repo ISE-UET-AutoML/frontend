@@ -118,6 +118,8 @@ const ProjectInfo = () => {
 		}
 	}
 
+    const featureColumns = datasetInfo.data.ls_project.meta_data.text_columns
+
 	// Gọi sau khi upload xong để vừa check vừa trigger deploy
 	const handleAfterUpload = async (selectedDuration) => {
 		try {
@@ -969,6 +971,8 @@ const ProjectInfo = () => {
 				isOpen={isShowUpload}
 				onClose={hideUpload}
 				projectId={projectInfo?.id}
+                taskType={projectInfo?.task_type}
+                featureColumns={featureColumns}
 				onUploaded={handleAfterUpload}
 				onUploadStart={handleUploadStartBackground}
 			/>
