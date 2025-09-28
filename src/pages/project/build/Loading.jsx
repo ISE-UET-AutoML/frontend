@@ -13,6 +13,8 @@ export default function Loading({ currentStep }) {
 		'https://lottie.host/embed/1d947a49-e3c3-4829-b6a3-4aad8b315a3e/2be5iOiE2i.lottie',
 		'https://lottie.host/embed/45dede61-c804-4fba-9143-ad8ac39c0cb2/Ma1FXatlzi.lottie',
 		'https://lottie.host/embed/f6ec3dec-0fca-412a-8538-cea8aeca6c5c/gPWIC8O3wf.lottie',
+		'https://lottie.host/embed/90580e0a-59d4-4f53-a45a-ae0c1e4432ba/XLLYQHCHKn.lottie',
+		'https://lottie.host/embed/946d751f-399f-4c74-ab0f-66b56d35baac/zy4jCJuhwQ.lottie',
 	]
 
 	const [index, setIndex] = useState(0)

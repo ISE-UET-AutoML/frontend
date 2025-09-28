@@ -14,7 +14,8 @@ import {
     Collapse,
     Table,
     Typography,
-    Image
+    Image,
+    Spin
 } from 'antd';
 import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { TASK_TYPES,DATASET_TYPES } from 'src/constants/types';
@@ -56,6 +57,7 @@ export default function CreateDatasetForm({
     // States for task-specific validation
     const [isRegressionTargetValid, setIsRegressionTargetValid] = useState(null);
     const [isMultilabelFormatValid, setIsMultilabelFormatValid] = useState(null);
+    const [isValidating, setIsValidating] = useState(false);
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
@@ -108,23 +110,69 @@ export default function CreateDatasetForm({
     };
     
     const validateImageFolderStructure = (files) => {
-    if (!files || files.length === 0) return false;
+        if (!files || files.length === 0) return false;
+        const labelFolders = new Set();
 
-    const labelFolders = new Set();
+        for (const file of files) {
+            const path = file.path || file.webkitRelativePath || file.name;
+            const parts = path.split("/");
 
-    for (const file of files) {
-        const path = file.path || file.webkitRelativePath || file.name;
-        const parts = path.split("/");
+            if (parts.length < 2) {
+            return false;
+            }
 
-        if (parts.length < 2) {
-        return false;
+            const parentFolder = parts[parts.length - 2];
+            labelFolders.add(parentFolder);
         }
 
-        const parentFolder = parts[parts.length - 2];
-        labelFolders.add(parentFolder);
-    }
+        return labelFolders.size >= 2;
+    };
 
-    return labelFolders.size >= 2;
+    const validateFullCsv = (csvFile, currentTaskType) => {
+        return new Promise((resolve) => {
+            let isValid = true;
+            let labelColumn = '';
+
+            Papa.parse(csvFile, {
+                header: true,
+                skipEmptyLines: true,
+                step: (results, parser) => {
+                    if (!labelColumn) {
+                        labelColumn = results.meta.fields[results.meta.fields.length - 1];
+                    }
+                    const labelValue = results.data[labelColumn];
+
+                    if (currentTaskType === 'TABULAR_REGRESSION') {
+                        if (labelValue && isNaN(parseFloat(labelValue))) {
+                            isValid = false;
+                            parser.abort(); // Stop parsing on first error
+                        }
+                    } else if (currentTaskType === 'MULTILABEL_TEXT_CLASSIFICATION' || currentTaskType === 'MULTILABEL_TABULAR_CLASSIFICATION') {
+                        if (labelValue) {
+                            if (labelValue.includes(",") || labelValue.includes("|")) {
+                            isValid = false;
+                            parser.abort();
+                            }
+
+                            const labels = labelValue.includes(";")
+                            ? labelValue.split(";")
+                            : [labelValue]; // coi là single-label
+
+                            if (labels.some((l) => l.trim() === "")) {
+                            isValid = false;
+                            parser.abort();
+                            }
+                        }
+                    }
+                },
+                complete: () => {
+                    resolve(isValid);
+                },
+                error: () => {
+                    resolve(false);
+                }
+            });
+        });
     };
 
 
@@ -141,7 +189,7 @@ export default function CreateDatasetForm({
                     const labelColumn = meta.fields[meta.fields.length - 1];
 
                     // Task-specific validations
-                    switch (currentTaskType) {
+                    /*switch (currentTaskType) {
                         case 'TABULAR_REGRESSION':
                             const allAreFloats = data.every(row => !isNaN(parseFloat(row[labelColumn])));
                             setIsRegressionTargetValid(allAreFloats);
@@ -153,7 +201,7 @@ export default function CreateDatasetForm({
                             break;
                         default:
                             break;
-                    }
+                    }*/
                 } else {
                     setCsvHasHeader(false);
                     setCsvPreview(null);
@@ -216,6 +264,16 @@ export default function CreateDatasetForm({
         const csvFile = validatedFiles.find(file => (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv'));
         if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && csvFile) {
             previewCsv(csvFile, taskType); // Corrected: Pass the File object directly
+            setIsValidating(true);
+            const isFullyValid = await validateFullCsv(csvFile, taskType);
+            if (taskType === 'TABULAR_REGRESSION') {
+                setIsRegressionTargetValid(isFullyValid);
+            }
+            if (taskType.includes('MULTILABEL')) {
+                
+                setIsMultilabelFormatValid(true); 
+            }
+            setIsValidating(false);
         }
 
 
@@ -520,6 +578,12 @@ export default function CreateDatasetForm({
                 )}
 
                 <Tabs defaultActiveKey="file" items={tabItems} />
+                {/* Validation and Preview Section */}
+                {isValidating && (
+                    <div className="text-center my-4">
+                        <Spin tip="Validating full CSV file..." />
+                    </div>
+                )}
 
                 {/* Validation and Preview Section */}
                 {imageStructureValid !== null && (
