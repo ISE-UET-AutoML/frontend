@@ -9,6 +9,7 @@ import {
 import { useState } from 'react'
 import { createPresignedUrlsPredict } from 'src/api/dataset'
 import { createDownPresignedUrlsForFolder } from 'src/api/dataset'
+import instance from 'src/api/axios'
 
 const { Dragger } = Upload
 
@@ -22,6 +23,70 @@ const UpDataDeploy = ({
 	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
 	const [folderStructure, setFolderStructure] = useState([])
+
+	const getNextVersion = async (pid) => {
+		try {
+			// Lấy danh sách deploy_data hiện có của project
+			const res = await instance.get(
+				`/api/service/users/projects/${pid}/deployData`
+			)
+			const items = Array.isArray(res?.data) ? res.data : []
+			// Ưu tiên: sort theo created_at rồi extract version từ predict_data_url/data_url
+			const versionRegex = new RegExp(`^${pid}_predict\\/v(\\d+)\\/`)
+			if (items.length > 0) {
+				const sorted = [...items].sort((a, b) => {
+					const ta = new Date(a?.created_at || 0).getTime()
+					const tb = new Date(b?.created_at || 0).getTime()
+					return tb - ta
+				})
+				const latest = sorted[0]
+				const latestCand =
+					latest?.predict_data_url || latest?.data_url || ''
+				const latestMatch = String(latestCand).match(versionRegex)
+				if (latestMatch && latestMatch[1]) {
+					const v = parseInt(latestMatch[1], 10)
+					if (!Number.isNaN(v)) return v + 1
+				}
+			}
+
+			// Fallback: tìm version lớn nhất bằng regex nếu thiếu created_at hoặc không parse được
+			let maxV = 0
+			for (const it of items) {
+				const cand = it?.data_url || it?.predict_data_url || ''
+				const m = String(cand).match(versionRegex)
+				if (m && m[1]) {
+					const v = parseInt(m[1], 10)
+					if (!Number.isNaN(v)) maxV = Math.max(maxV, v)
+				}
+			}
+			return maxV + 1
+		} catch (e) {
+			// Nếu lỗi, fallback về 1
+			return 1
+		}
+	}
+
+	const getLatestVersion = async (pid) => {
+		const next = await getNextVersion(pid)
+		return Math.max(1, next - 1)
+	}
+
+	const getLatestDownloadUrls = async (pid) => {
+		const v = await getLatestVersion(pid)
+		const { data } = await createDownPresignedUrlsForFolder(pid, v)
+
+		return { version: v, urls: data }
+	}
+
+	const getLatestUploadPresigns = async (pid, files) => {
+		const v = await getLatestVersion(pid)
+		const { data } = await createPresignedUrlsPredict({
+			projectId: pid,
+			version: v,
+			files,
+		})
+		return { version: v, presigned: data }
+	}
 
 	const handleStart = async () => {
 		try {
@@ -53,7 +118,10 @@ const UpDataDeploy = ({
 				return
 			}
 
-			// Build presign request for predict endpoint: flatten keys and set version=1
+			// Tính version động theo deploy_data hiện có
+			const version = await getNextVersion(projectId)
+
+			// Build presign request for predict endpoint: flatten keys and set version
 			const filesToUpload = imageFiles.map((f) => {
 				const baseName = f.name
 				const type =
@@ -71,7 +139,7 @@ const UpDataDeploy = ({
 			const { data: presignedUrlResponse } =
 				await createPresignedUrlsPredict({
 					projectId,
-					version: 1,
+					version,
 					files: filesToUpload,
 				})
 
@@ -108,6 +176,20 @@ const UpDataDeploy = ({
 				})
 			)
 
+			// Lưu prefix folder mới nhất lên user_service (deploy_data)
+			const prefixKey = `${projectId}_predict/v${version}/`
+			try {
+				await instance.post(
+					`/api/service/users/projects/${projectId}/deployData`,
+					{
+						dataUrl: prefixKey,
+						predictDataUrl: prefixKey,
+					}
+				)
+			} catch (e) {
+				console.error('Save deploy_data error:', e)
+			}
+
 			if (typeof onUploaded === 'function') {
 				onUploaded()
 			}
@@ -121,11 +203,10 @@ const UpDataDeploy = ({
 			console.error('Upload error:', e)
 			message.error(e.message || 'Upload failed')
 		} finally {
-			const { data: urls } = await createDownPresignedUrlsForFolder(
-				projectId,
-				1
-			)
-			console.log('urls', urls)
+			// Gọi lại list folder cho version mới nhất để hiển thị bằng helper
+			const { version: latestV, urls } =
+				await getLatestDownloadUrls(projectId)
+			console.log('latest version', latestV, 'urls', urls)
 			setIsUploading(false)
 		}
 	}
