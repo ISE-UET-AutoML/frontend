@@ -31,12 +31,13 @@ import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 import * as experimentAPI from 'src/api/experiment'
-
+import { useTheme } from 'src/theme/ThemeProvider'
 dayjs.extend(relativeTime)
 
 // no Text usage now
 
 export default function ProjectCard({ project, getProjects }) {
+	const theme = useTheme()
 	const [isStarred, setIsStarred] = useState(false)
 	const navigate = useNavigate()
 
@@ -136,7 +137,7 @@ export default function ProjectCard({ project, getProjects }) {
 	return (
 		<div
 			key={project.id}
-			className="group rounded-2xl shadow-lg w-full h-[320px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative border-2 dark:border-gray-400"
+			className={`group rounded-2xl shadow-lg w-full h-[320px] overflow-hidden font-poppins cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col relative border-2 ${theme?.theme === 'dark' ? 'border-gray-400' : 'border-blue-300'}`}
 			style={{
 				background: 'var(--card-gradient)',
 				color: 'var(--text)',

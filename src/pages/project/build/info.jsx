@@ -484,7 +484,7 @@ const ProjectInfo = () => {
         	}
       `}</style>
 			<div
-				className="min-h-screen"
+				className="min-h-screen mt-8"
 				style={{ background: 'var(--surface)' }}
 			>
 				<div className="relative pt-16 px-4 sm:px-6 lg:px-8 pb-20">
@@ -564,7 +564,7 @@ const ProjectInfo = () => {
 								{/* Nút Back cố định bên trái */}
 								<Button
 									icon={<LeftOutlined />}
-									className="absolute left-0 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white border-none"
+									className="absolute left-0 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white border border-gray-400"
 									onClick={() => navigate(PATHS.PROJECTS)}
 									shape="round"
 									size="large"
@@ -763,7 +763,7 @@ const ProjectInfo = () => {
 														className={`${theme === 'dark' ? 'text-sky-500' : 'text-gray-700'} font-bold`}
 													>
 														{parseFloat(
-															(
+															Math.abs(
 																metrics[0]
 																	?.value *
 																	100 || 0
