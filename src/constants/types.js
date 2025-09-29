@@ -1,3 +1,10 @@
+import image_classification from '../assets/images/data_instruction/imageclassification.png'
+import text_classification from '../assets/images/data_instruction/textclassification.png'
+import tabular_classification from '../assets/images/data_instruction/tabularclassification.png'
+import multilabel_tabular_classification from '../assets/images/data_instruction/multilabeltabularclassification.png'
+import multilabel_text_classification from '../assets/images/data_instruction/multilabeltextclassification.png'
+import tabular_regression from '../assets/images/data_instruction/tabularregression.png'
+
 const TASK_TYPES = {
 	IMAGE_CLASSIFICATION: {
 		type: 'Image Classification',
@@ -5,6 +12,7 @@ const TASK_TYPES = {
 		allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
 		card: { bg: '#e6f4ff', text: '#1677ff', border: '#1677ff' },
 		dataType: 'IMAGE',
+		instructionImage: image_classification,
 		preparingInstructions: `📂 Organize your images into subfolders by label:
 
 💡 Example structure:
@@ -30,6 +38,7 @@ const TASK_TYPES = {
 		allowedExtensions: ['csv'],
 		card: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
 		dataType: 'TEXT',
+		instructionImage: text_classification,
 		preparingInstructions: `📄 Prepare your text data in CSV format:
 
 📋 Requirements:
@@ -53,6 +62,7 @@ text,label
 		allowedExtensions: ['csv'],
 		card: { bg: '#f6ffed', text: '#237804', border: '#237804' },
 		dataType: 'TEXT',
+		instructionImage: multilabel_text_classification,
 		preparingInstructions: `📄 Prepare your multi-label text data in CSV format:
 
 📋 Requirements:
@@ -80,6 +90,7 @@ text,label
 			border: '#722ed1',
 		},
 		dataType: 'TABULAR',
+		instructionImage: tabular_classification,
 		preparingInstructions: `📊 Prepare your tabular data in CSV format:
 
 📋 Requirements:
@@ -107,6 +118,7 @@ age,income,education,approved
 			border: '#621d5cff',
 		},
 		dataType: 'TABULAR',
+		instructionImage: tabular_regression,
 		preparingInstructions: `📊 Prepare your data for tabular regression (CSV):
 
 📋 Requirements:
@@ -131,6 +143,7 @@ square_feet,num_bedrooms,age,price
 			border: '#391085ff',
 		},
 		dataType: 'TABULAR',
+		instructionImage: multilabel_tabular_classification,
 		preparingInstructions: `📊 Prepare your multi-label tabular data in CSV format:
 
 📋 Requirements:

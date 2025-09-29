@@ -410,16 +410,43 @@ export default function CreateDatasetForm({
                 ),
                 children: (
                     <div style={{
-                        whiteSpace: 'pre-line',
-                        fontFamily: 'Poppins, sans-serif',
-                        fontSize: '13px',
-                        lineHeight: '1.6',
-                        padding: '12px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.02)',
-                        borderRadius: '6px',
-                        border: `1px solid ${currentType.card.border}20`
+                        display: 'flex',
+                        gap: '20px',
+                        alignItems: 'flex-start'
                     }}>
-                        {currentType.preparingInstructions}
+                        {/* Text instructions on the left */}
+                        <div style={{
+                            flex: 1,
+                            whiteSpace: 'pre-line',
+                            fontFamily: 'Poppins, sans-serif',
+                            fontSize: '13px',
+                            lineHeight: '1.6',
+                            padding: '12px',
+                            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                            borderRadius: '6px',
+                            border: `1px solid ${currentType.card.border}20`
+                        }}>
+                            {currentType.preparingInstructions}
+                        </div>
+                        
+                        {/* Image on the right */}
+                        <div style={{
+                            flexShrink: 0,
+                            width: '350px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'flex-start'
+                        }}>
+                            <Image
+                                width="100%"
+                                style={{ 
+                                    borderRadius: '8px',
+                                    border: '1px solid #e8e8e8'
+                                }}
+                                src={currentType.instructionImage}
+                                alt={`${currentType.type} example`}
+                            />
+                        </div>
                     </div>
                 ),
             },
