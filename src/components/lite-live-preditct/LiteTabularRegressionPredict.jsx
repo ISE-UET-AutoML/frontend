@@ -32,7 +32,7 @@ import {
 import Papa from 'papaparse'
 const { Title, Text } = Typography
 
-const LiteTextClassificationPredict = ({
+const LiteTabularRegressionPredict = ({
     predictResult,
     uploadedFiles,
     projectInfo,
@@ -84,24 +84,20 @@ const LiteTextClassificationPredict = ({
     // Convert prediction object to display format
     const getPredictedInfo = (prediction, index) => {
         if (!prediction || typeof prediction !== 'object') {
-            return { key: null, class: null, confidence: null }
+            return { key: null, value: null}
         }
 
         // Check if this prediction has been edited
         const editedPrediction = editedPredictions[index]
 
+        console.log("prediction:", prediction)
+
         return {
             key: prediction.key ?? null,
-            class:
-                editedPrediction?.class !== undefined
-                    ? editedPrediction.class
-                    : (prediction.class ?? null),
-            confidence:
-                editedPrediction?.confidence !== undefined
-                    ? editedPrediction.confidence
-                    : prediction.confidence
-                        ? parseFloat(prediction.confidence).toFixed(2)
-                        : null,
+            value:
+                editedPrediction?.value !== undefined
+                    ? editedPrediction.value
+                    : (prediction.value ?? null),
         }
     }
 
@@ -131,16 +127,7 @@ const LiteTextClassificationPredict = ({
                 const prediction = predictResult[index]
                 const predictedInfo = getPredictedInfo(prediction, index)
                 downloadRow[predictedClassColumnName] =
-                    predictedInfo.class !== null ? predictedInfo.class : '-'
-            }
-
-            if (visibleColumnsForDownload.includes('Confidence')) {
-                const prediction = predictResult[index]
-                const predictedInfo = getPredictedInfo(prediction, index)
-                downloadRow['Confidence'] =
-                    predictedInfo.confidence !== null
-                        ? predictedInfo.confidence
-                        : '-'
+                    predictedInfo.value !== null ? predictedInfo.value : '-'
             }
 
             return downloadRow
@@ -499,7 +486,7 @@ const LiteTextClassificationPredict = ({
                     }
 
                     const displayValue =
-                        predictedInfo.class === null ? '-' : predictedInfo.class
+                        predictedInfo.value === null ? '-' : predictedInfo.value.toFixed(2)
 
                     return (
                         <div className="flex items-center justify-between group">
@@ -515,92 +502,6 @@ const LiteTextClassificationPredict = ({
                                         handleEditCell(
                                             index,
                                             'predictedClass',
-                                            displayValue
-                                        )
-                                    }
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
-                                />
-                            )}
-                        </div>
-                    )
-                },
-            })
-        }
-
-        // Add Confidence column if visible
-        if (visibleColumns.includes('Confidence')) {
-            conditionalColumns.push({
-                title: 'Confidence',
-                key: 'confidence',
-                fixed: 'right',
-                width: 100,
-                align: 'center',
-                render: (_, __, index) => {
-                    const globalIndex = index + (currentPage - 1) * pageSize
-                    const prediction = predictResult[globalIndex]
-                    const predictedInfo = getPredictedInfo(
-                        prediction,
-                        globalIndex
-                    )
-                    const isCorrect =
-                        !incorrectPredictions.includes(globalIndex)
-                    const isEditing =
-                        editingCell?.rowIndex === index &&
-                        editingCell?.columnKey === 'confidence'
-
-                    if (isEditing) {
-                        return (
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={editValue}
-                                    onChange={(e) =>
-                                        setEditValue(e.target.value)
-                                    }
-                                    size="small"
-                                    className="flex-1"
-                                    autoFocus
-                                    onPressEnter={handleSaveEdit}
-                                    onBlur={handleSaveEdit}
-                                />
-                                <Space size="small">
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<SaveOutlined />}
-                                        onClick={handleSaveEdit}
-                                        className="text-green-600 hover:text-green-700"
-                                    />
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<CloseCircleOutlined />}
-                                        onClick={handleCancelEdit}
-                                        className="text-red-600 hover:text-red-700"
-                                    />
-                                </Space>
-                            </div>
-                        )
-                    }
-
-                    const displayValue =
-                        predictedInfo.confidence === null
-                            ? '-'
-                            : predictedInfo.confidence
-
-                    return (
-                        <div className="flex items-center justify-between group">
-                            <Tag color={isCorrect ? 'blue' : 'red'}>
-                                {displayValue}
-                            </Tag>
-                            {editMode && (
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<EditOutlined />}
-                                    onClick={() =>
-                                        handleEditCell(
-                                            index,
-                                            'confidence',
                                             displayValue
                                         )
                                     }
@@ -880,23 +781,9 @@ const LiteTextClassificationPredict = ({
                                                     color="purple"
                                                     className="text-sm font-medium"
                                                 >
-                                                    {predictedInfo.class !==
+                                                    {predictedInfo.value !==
                                                     null
-                                                        ? predictedInfo.class
-                                                        : 'No prediction'}
-                                                </Tag>
-                                            </div>
-                                            <div className="p-3 bg-purple-50 rounded-lg">
-                                                <Text className="text-sm font-medium text-slate-600 block mb-1">
-                                                    Confidence
-                                                </Text>
-                                                <Tag
-                                                    color="purple"
-                                                    className="text-sm font-medium"
-                                                >
-                                                    {predictedInfo.confidence !==
-                                                    null
-                                                        ? predictedInfo.confidence
+                                                        ? predictedInfo.value
                                                         : 'No prediction'}
                                                 </Tag>
                                             </div>
@@ -1033,34 +920,6 @@ const LiteTextClassificationPredict = ({
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <Switch
-                                                    checked={visibleColumns.includes(
-                                                        'Confidence'
-                                                    )}
-                                                    onChange={() =>
-                                                        handleColumnVisibilityToggle(
-                                                            'Confidence'
-                                                        )
-                                                    }
-                                                    size="small"
-                                                />
-                                                <div>
-                                                    <Text className="font-semibold text-blue-600">
-                                                        Confidence
-                                                    </Text>
-                                                    <Tag
-                                                        color="blue"
-                                                        size="small"
-                                                        className="ml-2"
-                                                    >
-                                                        Score
-                                                    </Tag>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </>
                                 )}
                             </div>
@@ -1083,4 +942,4 @@ const LiteTextClassificationPredict = ({
     )
 }
 
-export default LiteTextClassificationPredict
+export default LiteTabularRegressionPredict

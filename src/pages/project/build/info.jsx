@@ -225,7 +225,8 @@ const ProjectInfo = () => {
 				projectInfo?.task_type ===
 					'MULTILABEL_TABULAR_CLASSIFICATION' ||
 				projectInfo?.task_type === 'TABULAR_CLASSIFICATION' ||
-				projectInfo?.task_type == 'TEXT_CLASSIFICATION'
+				projectInfo?.task_type === "TEXT_CLASSIFICATION" ||
+				projectInfo?.task_type === "TABULAR_REGRESSION"
 			) {
 				formData.append('file', file)
 			} else {
@@ -251,6 +252,8 @@ const ProjectInfo = () => {
 				return
 			}
 			const { predictions } = data
+
+			console.log("prediction:", predictions)
 
 			setPredictResult(predictions)
 			console.log(predictions)
