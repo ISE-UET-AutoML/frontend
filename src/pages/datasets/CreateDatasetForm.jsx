@@ -21,7 +21,7 @@ import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, Quest
 import { TASK_TYPES,DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
 import Papa from 'papaparse';
-
+import * as XLSX from 'xlsx'; 
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -97,7 +97,7 @@ export default function CreateDatasetForm({
 
     const validateFiles = (files, currentDatasetType) => {
         const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        const allowedTextTypes = ['text/csv', 'application/vnd.ms-excel'];
+        const allowedTextTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         const allowedTypes = {
             IMAGE: allowedImageTypes,
             TEXT: allowedTextTypes,
@@ -262,10 +262,38 @@ export default function CreateDatasetForm({
         }
         
         const csvFile = validatedFiles.find(file => (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv'));
-        if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && csvFile) {
-            previewCsv(csvFile, taskType); // Corrected: Pass the File object directly
+        const excelFile = validatedFiles.find(file =>
+            (file.name || '').toLowerCase().endsWith('.xlsx') ||
+            (file.name || '').toLowerCase().endsWith('.xls')
+        );
+
+        let effectiveCsvFile = csvFile;
+
+        if (excelFile) {
+            try {
+                const data = await excelFile.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+
+                // Convert sheet to CSV
+                const csvString = XLSX.utils.sheet_to_csv(sheet);
+
+                // Create a Blob and wrap in File so Papa.parse có thể xử lý
+                const csvBlob = new Blob([csvString], { type: 'text/csv' });
+                effectiveCsvFile = new File([csvBlob], excelFile.name.replace(/\.(xlsx|xls)$/i, ".csv"), { type: 'text/csv' });
+
+                message.success(`Converted Excel file "${excelFile.name}" to CSV for validation.`);
+            } catch (err) {
+                console.error("Excel to CSV conversion failed:", err);
+                message.error("Failed to convert Excel file to CSV.");
+                valid = false;
+            }
+        }
+        if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && effectiveCsvFile) {
+            previewCsv(effectiveCsvFile, taskType); // Corrected: Pass the File object directly
             setIsValidating(true);
-            const isFullyValid = await validateFullCsv(csvFile, taskType);
+            const isFullyValid = await validateFullCsv(effectiveCsvFile, taskType);
             if (taskType === 'TABULAR_REGRESSION') {
                 setIsRegressionTargetValid(isFullyValid);
             }
@@ -275,6 +303,7 @@ export default function CreateDatasetForm({
             }
             setIsValidating(false);
         }
+        
 
 
         const hasImageFolder = validatedFiles.some((file) =>
@@ -300,9 +329,9 @@ export default function CreateDatasetForm({
         const labels = Array.from(fileMap.keys()).filter(label => label !== 'unlabeled');
         setDetectedLabels(labels);
 
-        if (csvFile) {
+        if (effectiveCsvFile) {
             try {
-                const metadata = await extractCSVMetaData(csvFile);
+                const metadata = await extractCSVMetaData(effectiveCsvFile);
                 setCsvMetadata(metadata);
             } catch (err) {
                 message.error('Failed to analyze CSV file');
