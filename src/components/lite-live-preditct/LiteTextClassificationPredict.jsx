@@ -81,65 +81,6 @@ const LiteTextClassificationPredict = ({
         return text && typeof text === 'string' && text.length > 50
     }
 
-    // Edit cell functions
-    const handleEditCell = (rowIndex, columnKey, originalValue) => {
-        setEditingCell({ rowIndex, columnKey, originalValue })
-        setEditValue(originalValue)
-    }
-
-    const handleSaveEdit = () => {
-        if (!editingCell) return
-
-        const { rowIndex, columnKey } = editingCell
-        const globalIndex = rowIndex + (currentPage - 1) * pageSize
-
-        // Handle prediction columns differently
-        if (columnKey === 'predictedClass' || columnKey === 'confidence') {
-            // Store edited prediction values
-            setEditedPredictions((prev) => ({
-                ...prev,
-                [globalIndex]: {
-                    ...prev[globalIndex],
-                    [columnKey === 'predictedClass' ? 'class' : 'confidence']:
-                        editValue,
-                },
-            }))
-        } else {
-            // Update CSV data for regular columns
-            setCsvData((prevData) => {
-                const newData = [...prevData]
-                newData[rowIndex] = {
-                    ...newData[rowIndex],
-                    [columnKey]: editValue,
-                }
-                return newData
-            })
-
-            // Update prediction history
-            setPredictionHistory((prevHistory) => {
-                const newHistory = [...prevHistory]
-                if (newHistory[currentFileIndex]) {
-                    const newData = [...newHistory[currentFileIndex].data]
-                    newData[rowIndex] = {
-                        ...newData[rowIndex],
-                        [columnKey]: editValue,
-                    }
-                    newHistory[currentFileIndex].data = newData
-                }
-                return newHistory
-            })
-        }
-
-        // Clear editing state
-        setEditingCell(null)
-        setEditValue('')
-    }
-
-    const handleCancelEdit = () => {
-        setEditingCell(null)
-        setEditValue('')
-    }
-
     // Convert prediction object to display format
     const getPredictedInfo = (prediction, index) => {
         if (!prediction || typeof prediction !== 'object') {
@@ -510,7 +451,6 @@ const LiteTextClassificationPredict = ({
                 key: 'predictedClass',
                 fixed: 'right',
                 width: 120,
-                align: 'center',
                 render: (_, __, index) => {
                     const globalIndex = index + (currentPage - 1) * pageSize
                     const prediction = predictResult[globalIndex]
@@ -794,35 +734,6 @@ const LiteTextClassificationPredict = ({
                                 <Text className="text-slate-700 font-medium">
                                     Prediction Results
                                 </Text>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <Tooltip
-                                    title={
-                                        editMode
-                                            ? 'Exit edit mode'
-                                            : 'Enable edit mode'
-                                    }
-                                >
-                                    <Button
-                                        type={editMode ? 'primary' : 'default'}
-                                        size="small"
-                                        icon={<EditOutlined />}
-                                        onClick={() => {
-                                            setEditMode(!editMode)
-                                            if (editMode) {
-                                                // Cancel any ongoing edit when disabling edit mode
-                                                handleCancelEdit()
-                                            }
-                                        }}
-                                        className={
-                                            editMode
-                                                ? 'bg-blue-600 hover:bg-blue-700'
-                                                : 'border-slate-200 hover:border-blue-300'
-                                        }
-                                    >
-                                        {editMode ? 'Exit Edit' : 'Edit Mode'}
-                                    </Button>
-                                </Tooltip>
                             </div>
                         </div>
                     </div>
