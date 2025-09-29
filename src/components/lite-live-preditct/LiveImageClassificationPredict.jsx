@@ -148,7 +148,7 @@ const LiveImageClassificationPredict = ({
 									</div>
 								</div>
 
-								<div className="p-6">
+								<div className="p-6 min-w-[400px] min-h-[400px] max-h-[400px]">
 									<div className="rounded-lg overflow-hidden bg-gray-50">
 										<img
 											src={
@@ -157,7 +157,7 @@ const LiveImageClassificationPredict = ({
 												) || '/placeholder.svg'
 											}
 											alt="Original Image"
-											className="w-full h-auto object-contain max-h-96"
+											className="w-full h-auto object-cover max-h-96"
 										/>
 									</div>
 								</div>
