@@ -164,7 +164,9 @@ const ProjectInfo = () => {
 		)
 
 		console.log('uploadedFiles', validFiles)
-		setUploadedFiles(validFiles)
+		setUploadedFiles((prevFiles) =>
+			prevFiles ? [...prevFiles, ...validFiles] : validFiles
+		)
 		setUploading(true)
 
 		// Wait for deployment to complete if no model is deployed
@@ -225,8 +227,8 @@ const ProjectInfo = () => {
 				projectInfo?.task_type ===
 					'MULTILABEL_TABULAR_CLASSIFICATION' ||
 				projectInfo?.task_type === 'TABULAR_CLASSIFICATION' ||
-				projectInfo?.task_type === "TEXT_CLASSIFICATION" ||
-				projectInfo?.task_type === "TABULAR_REGRESSION"
+				projectInfo?.task_type === 'TEXT_CLASSIFICATION' ||
+				projectInfo?.task_type === 'TABULAR_REGRESSION'
 			) {
 				formData.append('file', file)
 			} else {
@@ -253,9 +255,13 @@ const ProjectInfo = () => {
 			}
 			const { predictions } = data
 
-			console.log("prediction:", predictions)
+			console.log('prediction:', predictions)
 
-			setPredictResult(predictions)
+			setPredictResult((prevPredictions) =>
+				prevPredictions
+					? [...prevPredictions, ...predictions]
+					: predictions
+			)
 			console.log(predictions)
 			setUploading(false)
 			message.success('Success Predict', 3)
@@ -274,6 +280,12 @@ const ProjectInfo = () => {
 
 	const handleFileClick = () => {
 		setIsShowUpload(true)
+	}
+
+	const handleClearAll = () => {
+		setPredictResult(null)
+		setUploadedFiles(null)
+		message.success('All predictions cleared', 2)
 	}
 
 	// 1) Lấy experimentId theo projectInfo.id
@@ -888,6 +900,9 @@ const ProjectInfo = () => {
 															handleUploadFiles
 														}
 														model={model}
+														onClearAll={
+															handleClearAll
+														}
 													/>
 												)
 											})()}
