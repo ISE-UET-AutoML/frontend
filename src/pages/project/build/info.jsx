@@ -148,7 +148,7 @@ const ProjectInfo = () => {
 			const res = await modelServiceAPI.deployModel(model.id)
 			setPollFlag(true)
 		} else {
-			// todo: Handle case model already deploy => Directly predict
+			// Model already deployed, ready for prediction
 			console.log('Model deployed', modelDeploy)
 		}
 	}
@@ -175,7 +175,7 @@ const ProjectInfo = () => {
 				projectInfo?.task_type ===
 					'MULTILABEL_TABULAR_CLASSIFICATION' ||
 				projectInfo?.task_type === 'TABULAR_CLASSIFICATION' ||
-				projectInfo?.task_type == "TEXT_CLASSIFICATION"
+				projectInfo?.task_type == 'TEXT_CLASSIFICATION'
 			) {
 				formData.append('file', file)
 			} else {
@@ -215,12 +215,12 @@ const ProjectInfo = () => {
 	const handleFileChange = (event) => {
 		const files = event.target.files
 		if (files && files.length > 0) {
-			handleUploadFiles(files)
+			handleUploadStartBackground(files)
 		}
 	}
 
 	const handleFileClick = () => {
-		fileInputRef.current?.click()
+		setIsShowUpload(true)
 	}
 
 	// 1) Lấy experimentId theo projectInfo.id
@@ -720,12 +720,7 @@ const ProjectInfo = () => {
 										? handleModelButtonClick
 										: undefined
 								}
-								disabled={
-									!(
-										modelDeploy === undefined ||
-										modelDeploy?.status === 'ONLINE'
-									)
-								}
+								disabled={true}
 							>
 								<span
 									style={{
@@ -754,99 +749,97 @@ const ProjectInfo = () => {
 						</div>
 
 						{/* Live Predict Section */}
-						{modelDeploy?.status === 'ONLINE' &&
-							projectInfo &&
-							hasTraining && (
-								<div className="mt-8 mb-8">
-									<Card
-										title={
-											<Space>
-												<LinkOutlined
-													style={{
-														color: '#1890ff',
-													}}
-												/>
-												<span
-													style={{
-														color: 'var(--text)',
-													}}
-												>
-													Live Prediction
-												</span>
-											</Space>
-										}
-										className="rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
-										style={{
-											background: cardGradient,
-											backdropFilter: 'blur(10px)',
-										}}
-									>
-										<Row gutter={[24, 24]}>
-											<Col span={24}>
-												<div className="flex flex-col sm:flex-row gap-4 items-start">
-													<Space>
-														<input
-															type="file"
-															multiple
-															ref={fileInputRef}
-															onChange={
-																handleFileChange
-															}
-															className="hidden"
-															accept=".csv,.txt,.json,.xlsx,.png,.jpg"
-														/>
-														<Button
-															type="primary"
-															onClick={
-																handleFileClick
-															}
-															loading={uploading}
-															icon={
-																<CloudUploadOutlined />
-															}
-															size="large"
-														>
-															{uploading
-																? 'Predicting...'
-																: 'Upload Files to Predict'}
-														</Button>
-													</Space>
-												</div>
-											</Col>
-										</Row>
-									</Card>
-
-									{/* Prediction Results */}
-									{!uploading &&
-										predictResult &&
-										projectInfo &&
-										object && (
-											<div className="mt-6">
-												{(() => {
-													const PredictComponent =
-														object.predictView
-													return (
-														<PredictComponent
-															predictResult={
-																predictResult
-															}
-															uploadedFiles={
-																uploadedFiles
-															}
-															projectInfo={
-																projectInfo
-															}
-															handleUploadFiles={
-																handleUploadFiles
-															}
-															model={model}
-														/>
-													)
-												})()}
+						{projectInfo && hasTraining && (
+							<div className="mt-8 mb-8">
+								<Card
+									title={
+										<Space>
+											<LinkOutlined
+												style={{
+													color: '#1890ff',
+												}}
+											/>
+											<span
+												style={{
+													color: 'var(--text)',
+												}}
+											>
+												Live Prediction
+											</span>
+										</Space>
+									}
+									className="rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+									style={{
+										background: cardGradient,
+										backdropFilter: 'blur(10px)',
+									}}
+								>
+									<Row gutter={[24, 24]}>
+										<Col span={24}>
+											<div className="flex flex-col sm:flex-row gap-4 items-start">
+												<Space>
+													<input
+														type="file"
+														multiple
+														ref={fileInputRef}
+														onChange={
+															handleFileChange
+														}
+														className="hidden"
+														accept=".csv,.txt,.json,.xlsx,.png,.jpg"
+													/>
+													<Button
+														type="primary"
+														onClick={
+															handleFileClick
+														}
+														loading={uploading}
+														icon={
+															<CloudUploadOutlined />
+														}
+														size="large"
+													>
+														{uploading
+															? 'Predicting...'
+															: 'Upload Files to Predict'}
+													</Button>
+												</Space>
 											</div>
-										)}
-								</div>
-							)}
+										</Col>
+									</Row>
+								</Card>
+
+								{/* Prediction Results */}
+								{!uploading &&
+									predictResult &&
+									projectInfo &&
+									object && (
+										<div className="mt-6">
+											{(() => {
+												const PredictComponent =
+													object.predictView
+												return (
+													<PredictComponent
+														predictResult={
+															predictResult
+														}
+														uploadedFiles={
+															uploadedFiles
+														}
+														projectInfo={
+															projectInfo
+														}
+														handleUploadFiles={
+															handleUploadFiles
+														}
+														model={model}
+													/>
+												)
+											})()}
+										</div>
+									)}
+							</div>
+						)}
 
 						{/* Training history chart - only show when no prediction results */}
 						{!predictResult &&
@@ -975,6 +968,7 @@ const ProjectInfo = () => {
 					datasetInfo?.data.ls_project.meta_data.text_columns
 				}
 				onUploadStart={handleUploadStartBackground}
+				onUploadComplete={handleUploadFiles}
 			/>
 		</>
 	)
