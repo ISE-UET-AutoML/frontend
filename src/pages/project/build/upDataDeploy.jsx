@@ -308,8 +308,7 @@ const UpDataDeploy = ({
 	const uploadProps = {
 		name: 'file',
 		multiple: true,
-		directory: true,
-		accept: '.jpg,.jpeg,.png,.csv',
+		accept: '.jpg,.jpeg,.png,.csv, .zip',
 		fileList,
 		showUploadList: false,
 		beforeUpload: (file) => {
