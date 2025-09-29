@@ -226,7 +226,8 @@ const ProjectInfo = () => {
 					'MULTILABEL_TABULAR_CLASSIFICATION' ||
 				projectInfo?.task_type === 'TABULAR_CLASSIFICATION' ||
 				projectInfo?.task_type === "TEXT_CLASSIFICATION" ||
-				projectInfo?.task_type === "TABULAR_REGRESSION"
+				projectInfo?.task_type === "TABULAR_REGRESSION" ||
+				projectInfo?.task_type === "MULTILABEL_TEXT_CLASSIFICATION"
 			) {
 				formData.append('file', file)
 			} else {
