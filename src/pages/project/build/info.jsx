@@ -6,6 +6,8 @@ import { getAllExperiments } from 'src/api/experiment'
 import * as experimentAPI from 'src/api/experiment'
 import * as mlServiceAPI from 'src/api/mlService'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
+import { useNavigate } from 'react-router-dom'
+import { PATHS } from 'src/constants/paths'
 import { getExperimentConfig } from 'src/api/experiment_config'
 import {
 	Button,
@@ -28,6 +30,7 @@ import {
 	LinkOutlined,
 	CheckCircleOutlined,
 	ThunderboltOutlined,
+	LeftOutlined,
 } from '@ant-design/icons'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
@@ -107,6 +110,7 @@ const getAccuracyStatus = (score) => {
 
 const ProjectInfo = () => {
 	const { theme } = useTheme()
+	const navigate = useNavigate()
 	const { projectInfo } = useOutletContext()
 	const [experiment, setExperiment] = useState(null)
 	const [experimentId, setExperimentId] = useState(null)
@@ -227,9 +231,9 @@ const ProjectInfo = () => {
 				projectInfo?.task_type ===
 					'MULTILABEL_TABULAR_CLASSIFICATION' ||
 				projectInfo?.task_type === 'TABULAR_CLASSIFICATION' ||
-				projectInfo?.task_type === "TEXT_CLASSIFICATION" ||
-				projectInfo?.task_type === "TABULAR_REGRESSION" ||
-				projectInfo?.task_type === "MULTILABEL_TEXT_CLASSIFICATION"
+				projectInfo?.task_type === 'TEXT_CLASSIFICATION' ||
+				projectInfo?.task_type === 'TABULAR_REGRESSION' ||
+				projectInfo?.task_type === 'MULTILABEL_TEXT_CLASSIFICATION'
 			) {
 				formData.append('file', file)
 			} else {
@@ -555,40 +559,63 @@ const ProjectInfo = () => {
 							>
 								{projectInfo?.name || 'PROJECT'}
 							</h1>
-							<div
-								className="max-w-4xl mx-auto p-4 rounded-2xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
-								style={{ background: 'var(--card-gradient)' }}
-							>
-								<div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+							{/* Back button + Project info card */}
+							<div className="relative mb-12">
+								{/* Nút Back cố định bên trái */}
+								<Button
+									icon={<LeftOutlined />}
+									className="absolute left-0 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white border-none"
+									onClick={() => navigate(PATHS.PROJECTS)}
+									shape="round"
+									size="large"
+								>
+									Home
+								</Button>
+
+								{/* Card căn giữa */}
+								<div className="max-w-3xl mx-auto">
 									<div
-										className="text-sm font-semibold"
-										style={{ color: 'var(--text)' }}
+										className="p-4 rounded-2xl border-[var(--border)] border-white/10 
+        bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+										style={{
+											background: 'var(--card-gradient)',
+										}}
 									>
-										Task:{' '}
-										<span className="opacity-80">
-											{projectInfo?.task_type || 'N/A'}
-										</span>
-									</div>
-									<div
-										className="text-sm font-semibold"
-										style={{ color: 'var(--text)' }}
-									>
-										Created:{' '}
-										<span className="opacity-80">
-											{formattedDate}
-										</span>
-									</div>
-									{projectInfo?.visibility && (
-										<div
-											className="text-sm font-semibold"
-											style={{ color: 'var(--text)' }}
-										>
-											Visibility:{' '}
-											<span className="opacity-80">
-												{projectInfo.visibility}
-											</span>
+										<div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+											<div
+												className="text-sm font-semibold"
+												style={{ color: 'var(--text)' }}
+											>
+												Task:{' '}
+												<span className="opacity-80">
+													{projectInfo?.task_type ||
+														'N/A'}
+												</span>
+											</div>
+											<div
+												className="text-sm font-semibold"
+												style={{ color: 'var(--text)' }}
+											>
+												Created:{' '}
+												<span className="opacity-80">
+													{formattedDate}
+												</span>
+											</div>
+											{projectInfo?.visibility && (
+												<div
+													className="text-sm font-semibold"
+													style={{
+														color: 'var(--text)',
+													}}
+												>
+													Visibility:{' '}
+													<span className="opacity-80">
+														{projectInfo.visibility}
+													</span>
+												</div>
+											)}
 										</div>
-									)}
+									</div>
 								</div>
 							</div>
 						</div>
@@ -939,7 +966,21 @@ const ProjectInfo = () => {
 											height="100%"
 										>
 											<AreaChart
-												data={chartData}
+												data={
+													Array.isArray(chartData)
+														? chartData.map(
+																(d) => ({
+																	...d,
+																	score: Math.abs(
+																		Number(
+																			d?.score ??
+																				0
+																		)
+																	),
+																})
+															)
+														: []
+												}
 												margin={{
 													top: 10,
 													right: 30,
@@ -988,7 +1029,7 @@ const ProjectInfo = () => {
 												/>
 												<RechartsTooltip
 													formatter={(value) => [
-														`${(value * 1).toFixed(2)}`,
+														`${Math.abs(value).toFixed(2)}`,
 														valMetric,
 													]}
 													labelFormatter={(label) =>

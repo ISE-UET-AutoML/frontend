@@ -7,8 +7,12 @@ import {
 	ChatGif1,
 	LiquidLoading,
 } from 'src/assets/gif'
-
+import { Button } from 'antd'
+import { PATHS } from 'src/constants/paths'
+import { HomeOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 export default function Loading({ currentStep }) {
+	const navigate = useNavigate()
 	const iframes = [
 		'https://lottie.host/embed/1d947a49-e3c3-4829-b6a3-4aad8b315a3e/2be5iOiE2i.lottie',
 		'https://lottie.host/embed/45dede61-c804-4fba-9143-ad8ac39c0cb2/Ma1FXatlzi.lottie',
@@ -28,7 +32,7 @@ export default function Loading({ currentStep }) {
 	}, [iframes.length])
 	return (
 		<div
-			className="flex flex-col items-center justify-center py-12 gap-4"
+			className="flex flex-col items-center justify-center py-12 gap-4 overflow-hidden"
 			style={{ marginTop: '50px' }}
 		>
 			<div className="relative w-full h-[400px] overflow-hidden">
@@ -52,6 +56,15 @@ export default function Loading({ currentStep }) {
 			>
 				It may take a while, you can exit and come back later.
 			</p>
+			<Button
+				type="primary"
+				icon={<HomeOutlined />}
+				size="large"
+				className="mt-4 bg-sky-500 hover:bg-sky-600 text-white border-none px-6 py-3 text-lg font-semibold"
+				onClick={() => navigate(PATHS.PROJECTS)}
+			>
+				Back to Home
+			</Button>
 		</div>
 	)
 }
