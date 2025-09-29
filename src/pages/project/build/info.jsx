@@ -157,7 +157,7 @@ const ProjectInfo = () => {
 	// Live predict file upload handler
 	const handleUploadFiles = async (files) => {
 		console.log('Files: ', files)
-		
+
 		const validFiles = validateFilesForPrediction(
 			files,
 			projectInfo?.task_type
@@ -166,24 +166,31 @@ const ProjectInfo = () => {
 		console.log('uploadedFiles', validFiles)
 		setUploadedFiles(validFiles)
 		setUploading(true)
-		
+
 		// Wait for deployment to complete if no model is deployed
 		let currentModelDeploy = modelDeploy
 		if (!currentModelDeploy?.api_base_url) {
 			console.log('No deployed model found, waiting for deployment...')
 			setIsWaitingForDeployment(true)
 			message.info('Deploying model, please wait...', 3)
-			
+
 			// Poll for deployment completion
 			const maxWaitTime = 10 * 60 * 1000 // 10 minutes
 			const pollInterval = 5000 // 5 seconds
 			const startTime = Date.now()
-			
-			while (!currentModelDeploy?.api_base_url && (Date.now() - startTime) < maxWaitTime) {
-				await new Promise(resolve => setTimeout(resolve, pollInterval))
-				
+
+			while (
+				!currentModelDeploy?.api_base_url &&
+				Date.now() - startTime < maxWaitTime
+			) {
+				await new Promise((resolve) =>
+					setTimeout(resolve, pollInterval)
+				)
+
 				try {
-					const res = await deployServiceAPI.getDeployedModel(model.id)
+					const res = await deployServiceAPI.getDeployedModel(
+						model.id
+					)
 					if (res.status === 200 && res.data?.[0]) {
 						const deploy = res.data[0]
 						if (deploy.status === 'ONLINE' && deploy.api_base_url) {
@@ -198,12 +205,14 @@ const ProjectInfo = () => {
 					console.log('Error polling deployment status:', error)
 				}
 			}
-			
+
 			setIsWaitingForDeployment(false)
-			
+
 			// Check if deployment completed successfully
 			if (!currentModelDeploy?.api_base_url) {
-				message.error('Model deployment failed or timed out. Please try again later.')
+				message.error(
+					'Model deployment failed or timed out. Please try again later.'
+				)
 				setUploading(false)
 				return
 			}
