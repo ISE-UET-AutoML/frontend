@@ -123,9 +123,6 @@ const ProjectInfo = () => {
 	const [chartData, setChartData] = useState([])
 	const [valMetric, setValMetric] = useState('Accuracy')
 	const [isChartLoading, setIsChartLoading] = useState(false)
-	const [isGeneratingUI, setIsGeneratingUI] = useState(false)
-	const [streamlitUrl, setStreamlitUrl] = useState(null)
-	const [validDuration, setValidDuration] = useState(null)
 
 	// Live predict states
 	const [uploading, setUploading] = useState(false)
@@ -140,17 +137,7 @@ const ProjectInfo = () => {
 	}
 
 	const handleModelButtonClick = async () => {
-		if (streamlitUrl) {
-			// If we have a streamlit URL, open it
-			window.open(streamlitUrl, '_blank', 'noopener,noreferrer')
-		} else {
-			// If no streamlit URL, show upload dialog
-			setIsShowUpload(true)
-		}
-	}
-
-	const handleAfterUpload = async (selectedDuration) => {
-		// Đ hiểu hàm này làm cái j ????
+		setIsShowUpload(true)
 	}
 
 	// Chạy ngầm ensure-deployed ngay khi bắt đầu upload, không chặn UI
@@ -378,22 +365,6 @@ const ProjectInfo = () => {
 		}
 		fetchConfig()
 	}, [experimentId])
-
-	// 6) Check existing deploy_url from projectInfo
-	useEffect(() => {
-		if (!projectInfo) return
-
-		if (
-			projectInfo.deploy_url &&
-			projectInfo.deploy_url.startsWith('http')
-		) {
-			setStreamlitUrl(projectInfo.deploy_url)
-		}
-
-		if (projectInfo.valid_duration) {
-			setValidDuration(projectInfo.valid_duration)
-		}
-	}, [projectInfo])
 
 	// Format created_at
 	const formattedDate = new Date(projectInfo?.created_at).toLocaleString(
@@ -727,6 +698,7 @@ const ProjectInfo = () => {
 								</div>
 							</Card>
 
+							{/* Deploy Button */}
 							<Button
 								size="large"
 								className="border border-gray-400 border-1 h-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
@@ -875,6 +847,7 @@ const ProjectInfo = () => {
 								</div>
 							)}
 
+						{/* Training history chart - only show when no prediction results */}
 						{!predictResult &&
 						(isChartLoading ||
 							(Array.isArray(chartData) &&
@@ -1000,7 +973,6 @@ const ProjectInfo = () => {
 				featureColumns={
 					datasetInfo?.data.ls_project.meta_data.text_columns
 				}
-				onUploaded={handleAfterUpload}
 				onUploadStart={handleUploadStartBackground}
 			/>
 		</>
