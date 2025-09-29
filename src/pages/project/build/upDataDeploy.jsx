@@ -34,7 +34,7 @@ const UpDataDeploy = ({
 	const [verificationStatus, setVerificationStatus] = useState('idle'); // 'idle', 'success', 'error'
     const [verificationMessage, setVerificationMessage] = useState('');
 	const verifyData = async (files, taskType, featureColumns) => {
-		if (taskType.includes('IMAGE')) {
+		if (taskType === "IMAGE_CLASSIFICATION") {
 			const allImages = files.every(f => /\.(jpg|jpeg|png)$/i.test(f.name))
 			if (!allImages) {
 				return { isValid: false, message: "For Image classification, only JPG/PNG files are allowed." };
