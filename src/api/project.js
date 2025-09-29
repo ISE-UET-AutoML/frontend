@@ -47,7 +47,7 @@ const explainInstance = (projectID, data) => {
 }
 
 const deleteProject = (projectID) => {
-    return instance.post(API_URL.delete_project(projectID))
+    return instance.delete(API_URL.delete_project(projectID))
 }
 
 const autoLabel = (projectID) => {
