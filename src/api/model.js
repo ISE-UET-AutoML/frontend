@@ -22,6 +22,7 @@ const deployModel = (modelId) => {
 }
 
 const modelPredict = (base_url, formData) => {
+    console.log("predictPayload:", formData)
     return axios.post(`${base_url}/predict`, formData)
 }
 
