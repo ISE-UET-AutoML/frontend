@@ -3,13 +3,11 @@ import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
 import MultilabelTabularClassificationPredict from '../../../components/Predict/MultilabelTabularClassificationPredict'
-import TabularClassificationPredict from 'src/components/Predict/TabularClassificationPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
-import TextLiveInfer from 'src/components/LiveInfer/TextLiveInfer'
+import LiteTabularClassificationPredict from 'src/components/lite-live-preditct/LiteTabularClassificationPredict'
 import { UploadTypes } from 'src/constants/file'
-import ImageClassification from 'src/components/lite-live-preditct/ImageClassification'
 
 // Empty component fallback
 const EmptyLiveInfer = () => <></>
@@ -19,7 +17,7 @@ const LiteConfig = {
 		afterUploadURL: 'selectInstance',
 		folder: UploadTypes.FOLDER,
 		labelingView: LabelingImageClassification,
-		predictView: ImageClassification,
+		predictView: ImagePredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	TEXT_CLASSIFICATION: {
@@ -27,20 +25,20 @@ const LiteConfig = {
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
 		predictView: TextPredict,
-		liveInferView: TextLiveInfer,
+		liveInferView: EmptyLiveInfer,
 	},
 	MULTILABEL_TEXT_CLASSIFICATION: {
 		folder: UploadTypes.CSV_SINGLE,
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
 		predictView: TextPredict,
-		liveInferView: TextLiveInfer,
+		liveInferView: EmptyLiveInfer,
 	},
 	TABULAR_CLASSIFICATION: {
 		folder: UploadTypes.CSV_SINGLE,
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
-		predictView: TabularClassificationPredict,
+		predictView: LiteTabularClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	TABULAR_REGRESSION: {
