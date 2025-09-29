@@ -17,7 +17,7 @@ import {
     Image,
     Spin
 } from 'antd';
-import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined,ReloadOutlined  } from '@ant-design/icons';
 import { TASK_TYPES,DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
 import Papa from 'papaparse';
@@ -58,6 +58,7 @@ export default function CreateDatasetForm({
     const [isRegressionTargetValid, setIsRegressionTargetValid] = useState(null);
     const [isMultilabelFormatValid, setIsMultilabelFormatValid] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
+    const [csvContainsNaN, setCsvContainsNaN] = useState(null);
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
@@ -214,7 +215,30 @@ export default function CreateDatasetForm({
             }
         });
     };
+    const handleReset = () => {
+        // Clear file input visually
+        const fileInput = document.getElementById('file-upload-input');
+        if (fileInput) {
+            fileInput.value = "";
+        }
 
+        // Reset all states
+        setFiles([]);
+        setTotalKbytes(0);
+        setDetectedLabels([]);
+        setCsvMetadata(null);
+        setImageStructureValid(null);
+        setCsvPreview(null);
+        setCsvHasHeader(null);
+        setIsRegressionTargetValid(null);
+        setIsMultilabelFormatValid(null);
+        setCsvContainsNaN(null);
+        setImagePreviews(prev => {
+            prev.forEach(p => URL.revokeObjectURL(p.url));
+            return [];
+        });
+        message.info('Form has been reset.');
+    };
     const handleFileChange = async (event) => {
         setImageStructureValid(null);
         setCsvPreview(null);
@@ -283,7 +307,7 @@ export default function CreateDatasetForm({
                 const csvBlob = new Blob([csvString], { type: 'text/csv' });
                 effectiveCsvFile = new File([csvBlob], excelFile.name.replace(/\.(xlsx|xls)$/i, ".csv"), { type: 'text/csv' });
 
-                message.success(`Converted Excel file "${excelFile.name}" to CSV for validation.`);
+                //message.success(`Converted Excel file "${excelFile.name}" to CSV for validation.`);
             } catch (err) {
                 console.error("Excel to CSV conversion failed:", err);
                 message.error("Failed to convert Excel file to CSV.");
@@ -462,6 +486,16 @@ export default function CreateDatasetForm({
                             onChange={handleFileChange}
                         />
                     </label>
+                    {files.length > 0 && (
+                             <Button 
+                                icon={<ReloadOutlined />}
+                                onClick={handleReset}
+                                danger
+                             >
+                                Reset
+                            </Button>
+                        )}
+
                     <div style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                         <span style={{ fontWeight: '500' }}>{files.length} Files</span>
                         <span style={{ marginLeft: '8px', color: 'var(--secondary-text)' }}>({totalKbytes} kB)</span>
@@ -651,7 +685,7 @@ export default function CreateDatasetForm({
                 {/* Validation and Preview Section */}
                 {isValidating && (
                     <div className="text-center my-4">
-                        <Spin tip="Validating full CSV file..." />
+                        <Spin tip="Validating full file..." />
                     </div>
                 )}
 
@@ -676,12 +710,12 @@ export default function CreateDatasetForm({
                 {csvHasHeader !== null && (
                     <Alert
                         message={
-                             <span className="font-semibold">CSV Header Check</span>
+                             <span className="font-semibold">Header Check</span>
                         }
                         description={
                             csvHasHeader
-                                ? "The CSV file appears to have a valid header row."
-                                : "A header row could not be detected. Please ensure the first row of your CSV contains column names."
+                                ? "The file appears to have a valid header row."
+                                : "A header row could not be detected. Please ensure the first row of your file contains column names."
                         }
                         type={csvHasHeader ? "success" : "warning"}
                         showIcon
@@ -707,7 +741,7 @@ export default function CreateDatasetForm({
                 )}
                 {csvPreview && (
                     <div className="mt-4">
-                        <Text strong style={{ color: 'var(--text)' }}>CSV File Preview (First 3 rows):</Text>
+                        <Text strong style={{ color: 'var(--text)' }}>File Preview (First 3 rows):</Text>
                         <div style={{ overflowX: 'auto', border: '1px solid #f0f0f0', borderRadius: '8px', marginTop: '8px' }}>
                             <Table
                                 dataSource={csvPreview}
