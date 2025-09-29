@@ -2,12 +2,12 @@ import ImagePredict from '../../../components/Predict/ImagePredict'
 import TextPredict from '../../../components/Predict/TextPredict'
 import TabularPredict from '../../../components/Predict/TabularPredict'
 import MultimodalPredict from '../../../components/Predict/MultimodalPredict'
-import MultilabelTabularClassificationPredict from '../../../components/Predict/MultilabelTabularClassificationPredict'
 import LabelingTextClassification from 'src/pages/project/build/labelData/labeling/LabelingTextClassification'
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
 import LiteTabularClassificationPredict from 'src/components/lite-live-preditct/LiteTabularClassificationPredict'
 import LiteTextClassificationPredict from 'src/components/lite-live-preditct/LiteTextClassificationPredict'
+import LiteMultilabelTabularClassificationPredict from 'src/components/lite-live-preditct/LiteMultilabelTabularClassificationPredict'
 import { UploadTypes } from 'src/constants/file'
 
 // Empty component fallback
@@ -53,7 +53,7 @@ const LiteConfig = {
 		folder: UploadTypes.CSV_SINGLE,
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
-		predictView: MultilabelTabularClassificationPredict,
+		predictView: LiteMultilabelTabularClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	TIME_SERIES_FORECASTING: {
