@@ -39,14 +39,14 @@ const TASK_TYPES = {
 		card: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
 		dataType: 'TEXT',
 		instructionImage: text_classification,
-		preparingInstructions: `📄 Prepare your text data in CSV format:
+		preparingInstructions: `📄 Prepare your text data in CSV/XSLX format:
 
 📋 Requirements:
-• File must be in .csv format.
+• File must be in .csv and .xslx(excel) format.
 • Must have a header row (column names).
-• The label column must be the last column.
+• The label column must be the LAST COLUMN.
 
-💡 Example CSV format:
+💡 Example format:
 text,label
 "This is a positive review","positive"
 "Great product, highly recommend","positive"
@@ -63,19 +63,19 @@ text,label
 		card: { bg: '#f6ffed', text: '#237804', border: '#237804' },
 		dataType: 'TEXT',
 		instructionImage: multilabel_text_classification,
-		preparingInstructions: `📄 Prepare your multi-label text data in CSV format:
+		preparingInstructions: `📄 Prepare your multi-label text data in CSV/XSLX format:
 
 📋 Requirements:
-• File must be in .csv format.
+• File must be in .csv/.xslx format.
 • Must have a header row (column names).
-• The label column must be the last column.
+• The label column must be the LAST COLUMN.
 • Labels in the last column must be separated by "; " (a semicolon followed by a space).
 
-💡 Example CSV format:
-text,label
-"UET is a member of VNU","uet; vnu"
-"ULIS is a great university","ulis; vnu"
-"UEB has many majors","ueb; vnu"
+💡 Example format:
+text,                              label
+"UET is a member of VNU",          "uet; vnu"
+"ULIS is a great university",      "ulis; vnu"
+"UEB has many majors",             "ueb; vnu"
 
 ✅ Guidelines:
 • UTF-8 encoding.`,
@@ -91,14 +91,14 @@ text,label
 		},
 		dataType: 'TABULAR',
 		instructionImage: tabular_classification,
-		preparingInstructions: `📊 Prepare your tabular data in CSV format:
+		preparingInstructions: `📊 Prepare your tabular data in CSV/XSLX format:
 
 📋 Requirements:
-• File must be in .csv format.
+• File must be in .csv/.xslx(excel) format.
 • Must have a header row (column names).
-• The target/label column must be the last column.
+• The target/label column must be the LAST COLUMN.
 
-💡 Example CSV format:
+💡 Example format:
 age,income,education,approved
 25,50000,bachelor,1
 35,75000,master,1
@@ -119,15 +119,15 @@ age,income,education,approved
 		},
 		dataType: 'TABULAR',
 		instructionImage: tabular_regression,
-		preparingInstructions: `📊 Prepare your data for tabular regression (CSV):
+		preparingInstructions: `📊 Prepare your data for tabular regression (CSV, EXCEL):
 
 📋 Requirements:
-• File must be in .csv format.
+• File must be in .csv/.xslx format.
 • Must have a header row (column names).
-• The target/label column must be the last column.
+• The target/label column must be the LAST COLUMN.
 • ❗️ Important: Values in the target column must be floating-point numbers (e.g., 1.5, 25.0, 105.7).
 
-💡 Example CSV format:
+💡 Example format:
 square_feet,num_bedrooms,age,price
 1500,3,10,300.5
 2200,4,5,450.0
@@ -144,19 +144,19 @@ square_feet,num_bedrooms,age,price
 		},
 		dataType: 'TABULAR',
 		instructionImage: multilabel_tabular_classification,
-		preparingInstructions: `📊 Prepare your multi-label tabular data in CSV format:
+		preparingInstructions: `📊 Prepare your multi-label tabular data in CSV/XSLX format:
 
 📋 Requirements:
-• File must be in .csv format.
+• File must be in .csv/.xslx format.
 • Must have a header row (column names).
-• The label column must be the last column.
-• Labels in the last column must be separated by "; " (a semicolon followed by a space).
+• The label column must be the LAST COLUMN.
+• Labels in the last column must be SEPARATED by "; " (a semicolon followed by a space).
 
-💡 Example CSV format:
-movie_summary,genres
-"A young wizard discovers his magical heritage...","adventure; fantasy"
-"A group of thieves attempts a final heist...","crime; thriller; drama"
-"Two strangers meet on a train and talk all night...","romance; drama"`,
+💡 Example format:
+movie_summary,                                                   genres
+"A young wizard discovers his magical heritage...",              "adventure; fantasy"
+"A group of thieves attempts a final heist...",                  "crime; thriller; drama"
+"Two strangers meet on a train and talk all night...",           "romance; drama"`,
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',
