@@ -7,6 +7,7 @@ import LabelingTextClassification from 'src/pages/project/build/labelData/labeli
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
 import LiteTabularClassificationPredict from 'src/components/lite-live-preditct/LiteTabularClassificationPredict'
+import LiteTextClassificationPredict from 'src/components/lite-live-preditct/LiteTextClassificationPredict'
 import { UploadTypes } from 'src/constants/file'
 
 // Empty component fallback
@@ -24,7 +25,7 @@ const LiteConfig = {
 		folder: UploadTypes.CSV_SINGLE,
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
-		predictView: TextPredict,
+		predictView: LiteTextClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	MULTILABEL_TEXT_CLASSIFICATION: {
