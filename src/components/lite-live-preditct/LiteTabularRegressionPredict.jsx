@@ -329,40 +329,6 @@ const LiteTabularRegressionPredict = ({
                         editingCell?.rowIndex === index &&
                         editingCell?.columnKey === col
 
-                    if (isEditing) {
-                        return (
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={editValue}
-                                    onChange={(e) =>
-                                        setEditValue(e.target.value)
-                                    }
-                                    size="small"
-                                    className="flex-1"
-                                    autoFocus
-                                    onPressEnter={handleSaveEdit}
-                                    onBlur={handleSaveEdit}
-                                />
-                                <Space size="small">
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<SaveOutlined />}
-                                        onClick={handleSaveEdit}
-                                        className="text-green-600 hover:text-green-700"
-                                    />
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<CloseCircleOutlined />}
-                                        onClick={handleCancelEdit}
-                                        className="text-red-600 hover:text-red-700"
-                                    />
-                                </Space>
-                            </div>
-                        )
-                    }
-
                     if (col === targetColumn) {
                         return (
                             <div className="flex items-center justify-between">
@@ -379,17 +345,6 @@ const LiteTabularRegressionPredict = ({
                                         {truncatedText}
                                     </Tag>
                                 </Tooltip>
-                                {editMode && (
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<EditOutlined />}
-                                        onClick={() =>
-                                            handleEditCell(index, col, text)
-                                        }
-                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
-                                    />
-                                )}
                             </div>
                         )
                     }
@@ -407,17 +362,6 @@ const LiteTabularRegressionPredict = ({
                                     {truncatedText}
                                 </Text>
                             </Tooltip>
-                            {editMode && (
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<EditOutlined />}
-                                    onClick={() =>
-                                        handleEditCell(index, col, text)
-                                    }
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
-                                />
-                            )}
                         </div>
                     )
                 },
@@ -451,40 +395,6 @@ const LiteTabularRegressionPredict = ({
                         editingCell?.rowIndex === index &&
                         editingCell?.columnKey === 'predictedClass'
 
-                    if (isEditing) {
-                        return (
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={editValue}
-                                    onChange={(e) =>
-                                        setEditValue(e.target.value)
-                                    }
-                                    size="small"
-                                    className="flex-1"
-                                    autoFocus
-                                    onPressEnter={handleSaveEdit}
-                                    onBlur={handleSaveEdit}
-                                />
-                                <Space size="small">
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<SaveOutlined />}
-                                        onClick={handleSaveEdit}
-                                        className="text-green-600 hover:text-green-700"
-                                    />
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<CloseCircleOutlined />}
-                                        onClick={handleCancelEdit}
-                                        className="text-red-600 hover:text-red-700"
-                                    />
-                                </Space>
-                            </div>
-                        )
-                    }
-
                     const displayValue =
                         predictedInfo.value === null ? '-' : predictedInfo.value.toFixed(2)
 
@@ -493,21 +403,6 @@ const LiteTabularRegressionPredict = ({
                             <Tag color={isCorrect ? 'green' : 'red'}>
                                 {displayValue}
                             </Tag>
-                            {editMode && (
-                                <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<EditOutlined />}
-                                    onClick={() =>
-                                        handleEditCell(
-                                            index,
-                                            'predictedClass',
-                                            displayValue
-                                        )
-                                    }
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:text-blue-700"
-                                />
-                            )}
                         </div>
                     )
                 },
