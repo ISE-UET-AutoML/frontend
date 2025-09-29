@@ -8,6 +8,7 @@ import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
 import LiteTabularClassificationPredict from 'src/components/lite-live-preditct/LiteTabularClassificationPredict'
 import LiteTextClassificationPredict from 'src/components/lite-live-preditct/LiteTextClassificationPredict'
 import LiteTabularRegressionPredict from 'src/components/lite-live-preditct/LiteTabularRegressionPredict'
+import LiteMultilabelTabularClassificationPredict from 'src/components/lite-live-preditct/LiteMultilabelTabularClassificationPredict'
 import { UploadTypes } from 'src/constants/file'
 
 // Empty component fallback

@@ -252,9 +252,7 @@ const LiteMultilabelTabularClassificationPredict = ({
 							>
 								<Tag
 									color="blue"
-									className={
-										isTruncated ? 'cursor-help' : ''
-									}
+									className={isTruncated ? 'cursor-help' : ''}
 								>
 									{truncatedText}
 								</Tag>
@@ -268,9 +266,7 @@ const LiteMultilabelTabularClassificationPredict = ({
 							placement="topLeft"
 							overlayStyle={{ maxWidth: 450 }}
 						>
-							<Text
-								className={isTruncated ? 'cursor-help' : ''}
-							>
+							<Text className={isTruncated ? 'cursor-help' : ''}>
 								{truncatedText}
 							</Text>
 						</Tooltip>
@@ -299,11 +295,7 @@ const LiteMultilabelTabularClassificationPredict = ({
 					)
 
 					if (predictedLabels.length === 0) {
-						return (
-							<Tag color="green">
-								No prediction
-							</Tag>
-						)
+						return <Tag color="green">No prediction</Tag>
 					}
 
 					return (
@@ -573,10 +565,11 @@ const LiteMultilabelTabularClassificationPredict = ({
 									{(() => {
 										const prediction =
 											predictResult[selectedRowData.index]
-										const predictedLabels = getPredictedLabels(
-											prediction,
-											selectedRowData.index
-										)
+										const predictedLabels =
+											getPredictedLabels(
+												prediction,
+												selectedRowData.index
+											)
 
 										return predictedLabels.length > 0 ? (
 											predictedLabels.map(
