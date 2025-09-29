@@ -514,13 +514,40 @@ export default function CreateDatasetForm({
                         />
                     </label>
                     {files.length > 0 && (
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={handleReset}
-                            danger
-                        >
-                            Reset
-                        </Button>
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'flex-end',
+                            marginBottom: '12px'
+                        }}>
+                            <Button
+                                icon={<ReloadOutlined />}
+                                onClick={handleReset}
+                                size="middle"
+                                style={{
+                                    fontFamily: 'Poppins',
+                                    fontWeight: '500',
+                                    borderRadius: '6px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    backgroundColor: '#ff4d4f',
+                                    borderColor: '#ff4d4f',
+                                    color: '#fff',
+                                    height: '32px',
+                                    padding: '4px 15px'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#ff7875';
+                                    e.currentTarget.style.borderColor = '#ff7875';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#ff4d4f';
+                                    e.currentTarget.style.borderColor = '#ff4d4f';
+                                }}
+                            >
+                                Reset
+                            </Button>
+                        </div>
                     )}
 
                     <div style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
