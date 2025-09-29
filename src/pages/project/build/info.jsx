@@ -128,6 +128,7 @@ const ProjectInfo = () => {
 	const [uploading, setUploading] = useState(false)
 	const [predictResult, setPredictResult] = useState(null)
 	const [uploadedFiles, setUploadedFiles] = useState(null)
+	const [isWaitingForDeployment, setIsWaitingForDeployment] = useState(false)
 	const fileInputRef = useRef(null)
 
 	const object = LiteConfig[projectInfo?.task_type]
@@ -156,10 +157,7 @@ const ProjectInfo = () => {
 	// Live predict file upload handler
 	const handleUploadFiles = async (files) => {
 		console.log('Files: ', files)
-		if (!modelDeploy?.api_base_url) {
-			message.error('No deployment instance URL available')
-			return
-		}
+		
 		const validFiles = validateFilesForPrediction(
 			files,
 			projectInfo?.task_type
@@ -168,6 +166,49 @@ const ProjectInfo = () => {
 		console.log('uploadedFiles', validFiles)
 		setUploadedFiles(validFiles)
 		setUploading(true)
+		
+		// Wait for deployment to complete if no model is deployed
+		let currentModelDeploy = modelDeploy
+		if (!currentModelDeploy?.api_base_url) {
+			console.log('No deployed model found, waiting for deployment...')
+			setIsWaitingForDeployment(true)
+			message.info('Deploying model, please wait...', 3)
+			
+			// Poll for deployment completion
+			const maxWaitTime = 10 * 60 * 1000 // 10 minutes
+			const pollInterval = 5000 // 5 seconds
+			const startTime = Date.now()
+			
+			while (!currentModelDeploy?.api_base_url && (Date.now() - startTime) < maxWaitTime) {
+				await new Promise(resolve => setTimeout(resolve, pollInterval))
+				
+				try {
+					const res = await deployServiceAPI.getDeployedModel(model.id)
+					if (res.status === 200 && res.data?.[0]) {
+						const deploy = res.data[0]
+						if (deploy.status === 'ONLINE' && deploy.api_base_url) {
+							currentModelDeploy = deploy
+							setModelDeploy(deploy)
+							console.log('Model deployment completed:', deploy)
+							message.success('Model deployed successfully!', 2)
+							break
+						}
+					}
+				} catch (error) {
+					console.log('Error polling deployment status:', error)
+				}
+			}
+			
+			setIsWaitingForDeployment(false)
+			
+			// Check if deployment completed successfully
+			if (!currentModelDeploy?.api_base_url) {
+				message.error('Model deployment failed or timed out. Please try again later.')
+				setUploading(false)
+				return
+			}
+		}
+
 		const formData = new FormData()
 
 		Array.from(validFiles).forEach((file) => {
@@ -187,7 +228,7 @@ const ProjectInfo = () => {
 		try {
 			// Make predictions
 			const predictRequest = await modelServiceAPI.modelPredict(
-				modelDeploy?.api_base_url,
+				currentModelDeploy.api_base_url,
 				formData
 			)
 			const data = predictRequest.data
@@ -800,7 +841,9 @@ const ProjectInfo = () => {
 														size="large"
 													>
 														{uploading
-															? 'Predicting...'
+															? isWaitingForDeployment
+																? 'Deploying Model...'
+																: 'Predicting...'
 															: 'Upload Files to Predict'}
 													</Button>
 												</Space>
