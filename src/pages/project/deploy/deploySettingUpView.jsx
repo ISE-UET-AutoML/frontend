@@ -21,20 +21,11 @@ import {
     Spin,
 } from 'antd'
 import {
-    ExperimentOutlined,
-    LineChartOutlined,
-    CheckCircleOutlined,
-    InfoCircleOutlined,
+    CloudServerOutlined,
     DatabaseOutlined,
-    BarChartOutlined,
-    DashboardOutlined,
-    CalendarOutlined,
-    HourglassOutlined,
-    RadarChartOutlined,
     SettingOutlined,
     CloudDownloadOutlined,
     LoadingOutlined,
-    CloseCircleOutlined,
     RocketOutlined,
 } from '@ant-design/icons'
 import * as deployAPI from 'src/api/deploy'
@@ -160,6 +151,21 @@ const downloadModelProgress = [
     }
 ];
 
+const initServerProgress = [
+    {
+        title: (
+            <span style={{ color: 'var(--text)' }}>
+                Setting up your server
+            </span>
+        ),
+        description: (
+            <span style={{ color: '#94a3b8' }}>
+                Starting model prediction server on port 8680
+            </span>
+        ),
+    }
+]
+
 
 export default function DeploySettingUpView() {
     const getCurrentStep = (status) => {
@@ -170,6 +176,8 @@ export default function DeploySettingUpView() {
                 return 1
             case 'DOWNLOADING_MODEL':
                 return 2
+            case 'OFFLINE':
+                return 3
             default:
                 return 0
         }
@@ -183,6 +191,8 @@ export default function DeploySettingUpView() {
                 return settingUpProgress
             case 'DOWNLOADING_MODEL':
                 return downloadModelProgress
+            case 'OFFLINE':
+                return initServerProgress
             default:
                 return []
         }
@@ -204,14 +214,14 @@ export default function DeploySettingUpView() {
             try {
                 const deployModelRes = await deployAPI.getDeployData(deployId)
                 console.log("Current status:", deployModelRes.data)
-                setDeployStatus(deployModelRes.data?.status || 'CREATING_INSTANCE')
-                setCurrentStep(getCurrentStep(deployModelRes.data?.status || 0))
                 if (deployModelRes.data?.status != deployStatus) {
                     setCurrentSettingUpStep(prev => 0);
                 }
                 else {
                     setCurrentSettingUpStep(prev => prev + 1);
                 }
+                setDeployStatus(deployModelRes.data?.status || 'CREATING_INSTANCE')
+                setCurrentStep(getCurrentStep(deployModelRes.data?.status || 0))
                 if (deployModelRes.data.status === 'ONLINE') {
                     navigate(PATHS.MODEL_DEPLOY_VIEW(projectId, deployId))
                     return
@@ -393,6 +403,26 @@ export default function DeploySettingUpView() {
                                         description: (
                                             <span style={{ color: '#94a3b8' }}>
                                                 Fetching model from cloud storage
+                                            </span>
+                                        ),
+                                    },
+                                    {
+                                        title: (
+                                            <span
+                                                style={{ color: 'var(--text)' }}
+                                            >
+                                                Initializing Server
+                                            </span>
+                                        ),
+                                        icon:
+                                            currentStep !== 3 ? (
+                                                <CloudServerOutlined />
+                                            ) : (
+                                                <LoadingOutlined />
+                                            ),
+                                        description: (
+                                            <span style={{ color: '#94a3b8' }}>
+                                                Serving your model
                                             </span>
                                         ),
                                     }
