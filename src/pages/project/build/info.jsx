@@ -798,7 +798,7 @@ const ProjectInfo = () => {
 														color: 'var(--text)',
 													}}
 												>
-													Live Model Prediction
+													Live Prediction
 												</span>
 											</Space>
 										}
@@ -875,201 +875,120 @@ const ProjectInfo = () => {
 								</div>
 							)}
 
-						{/* Dataset details + Training history on the same row */}
-						<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-							{datasetInfo === null ? (
-								<div className="lg:col-span-1 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
-									<Skeleton
-										active
-										paragraph={{ rows: 4 }}
-										title={false}
-									/>
-								</div>
-							) : datasetInfo?.data ? (
-								<div className="lg:col-span-1 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl bg-[linear-gradient(135deg, var(--card-gradient)_0%, rgba(255,255,255,0.02)_100%)]">
-									<div className="flex items-center space-x-3 mb-6">
-										<div className="p-2 rounded-xl bg-gradient-to-br from-white/20 to-white/10">
-											<SettingOutlined
-												className="text-xl"
-												style={{
-													color: 'var(--accent-text)',
-												}}
+						{!predictResult &&
+						(isChartLoading ||
+							(Array.isArray(chartData) &&
+								chartData.length > 0)) ? (
+							<div className="p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
+								<h2
+									className="text-xl font-bold mb-4"
+									style={{ color: 'var(--text)' }}
+								>
+									Training History ({valMetric})
+								</h2>
+								<div style={{ width: '100%', height: 300 }}>
+									{isChartLoading ? (
+										<div className="w-full h-full">
+											<Skeleton
+												active
+												paragraph={{ rows: 6 }}
+												title={false}
 											/>
 										</div>
-										<h2
-											className="text-xl font-bold"
-											style={{ color: 'var(--text)' }}
+									) : (
+										<ResponsiveContainer
+											width="100%"
+											height="100%"
 										>
-											Dataset Details
-										</h2>
-									</div>
-									<div className="space-y-4">
-										<MetadataItem
-											label="Data Type"
-											value={
-												datasetInfo?.data?.data_type ||
-												'N/A'
-											}
-										/>
-										<MetadataItem
-											label="Total Files"
-											value={(
-												datasetInfo?.data?.meta_data
-													?.total_files ?? 'N/A'
-											).toString()}
-										/>
-										<MetadataItem
-											label="Total Size (MB)"
-											value={(() => {
-												const kb =
-													datasetInfo?.data?.meta_data
-														?.total_size_kb
-												if (kb == null) return 'N/A'
-												const mb = Number(kb) / 1024
-												return `${mb.toFixed(2)}`
-											})()}
-										/>
-										<MetadataItem
-											label="Title"
-											value={
-												datasetInfo?.data?.title ||
-												datasetInfo?.data
-													?.dataset_title ||
-												'N/A'
-											}
-										/>
-									</div>
-								</div>
-							) : (
-								<div className="lg:col-span-1 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
-									<Empty
-										description="No dataset info"
-										image={Empty.PRESENTED_IMAGE_SIMPLE}
-									/>
-								</div>
-							)}
-
-							{/* Training history chart on the same row, wider column */}
-							{isChartLoading ||
-							(Array.isArray(chartData) &&
-								chartData.length > 0) ? (
-								<div className="lg:col-span-2 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
-									<h2
-										className="text-xl font-bold mb-4"
-										style={{ color: 'var(--text)' }}
-									>
-										Training History ({valMetric})
-									</h2>
-									<div style={{ width: '100%', height: 300 }}>
-										{isChartLoading ? (
-											<div className="w-full h-full">
-												<Skeleton
-													active
-													paragraph={{ rows: 6 }}
-													title={false}
-												/>
-											</div>
-										) : (
-											<ResponsiveContainer
-												width="100%"
-												height="100%"
+											<AreaChart
+												data={chartData}
+												margin={{
+													top: 10,
+													right: 30,
+													left: 0,
+													bottom: 0,
+												}}
 											>
-												<AreaChart
-													data={chartData}
-													margin={{
-														top: 10,
-														right: 30,
-														left: 0,
-														bottom: 0,
+												<defs>
+													<linearGradient
+														id="colorAccuracy"
+														x1="0"
+														y1="0"
+														x2="0"
+														y2="1"
+													>
+														<stop
+															offset="5%"
+															stopColor="#60a5fa"
+															stopOpacity={0.8}
+														/>
+														<stop
+															offset="95%"
+															stopColor="#22d3ee"
+															stopOpacity={0.1}
+														/>
+													</linearGradient>
+												</defs>
+												<CartesianGrid
+													strokeDasharray="3 3"
+													stroke="#334155"
+												/>
+												<XAxis
+													dataKey="step"
+													tick={{
+														fontSize: 12,
+														fill: '#94a3b8',
 													}}
-												>
-													<defs>
-														<linearGradient
-															id="colorAccuracy"
-															x1="0"
-															y1="0"
-															x2="0"
-															y2="1"
-														>
-															<stop
-																offset="5%"
-																stopColor="#60a5fa"
-																stopOpacity={
-																	0.8
-																}
-															/>
-															<stop
-																offset="95%"
-																stopColor="#22d3ee"
-																stopOpacity={
-																	0.1
-																}
-															/>
-														</linearGradient>
-													</defs>
-													<CartesianGrid
-														strokeDasharray="3 3"
-														stroke="#334155"
-													/>
-													<XAxis
-														dataKey="step"
-														tick={{
-															fontSize: 12,
-															fill: '#94a3b8',
-														}}
-														domain={[0, 'auto']}
-													/>
-													<YAxis
-														tick={{
-															fontSize: 12,
-															fill: '#94a3b8',
-														}}
-														domain={[0, 'auto']}
-													/>
-													<RechartsTooltip
-														formatter={(value) => [
-															`${(value * 1).toFixed(2)}`,
-															valMetric,
-														]}
-														labelFormatter={(
-															label
-														) =>
-															`Epoch: ${label} step`
-														}
-														contentStyle={{
-															backgroundColor:
-																'rgba(15, 23, 42, 0.95)',
-															borderRadius: '8px',
-															boxShadow:
-																'0 4px 20px rgba(0,0,0,0.5)',
-															border: '1px solid var(--border)',
-															color: '#e2e8f0',
-														}}
-													/>
-													<Legend />
-													<Area
-														type="monotone"
-														dataKey="score"
-														stroke="#60a5fa"
-														strokeWidth={3}
-														fillOpacity={1}
-														fill="url(#colorAccuracy)"
-														name={`Validation ${valMetric}`}
-													/>
-												</AreaChart>
-											</ResponsiveContainer>
-										)}
-									</div>
+													domain={[0, 'auto']}
+												/>
+												<YAxis
+													tick={{
+														fontSize: 12,
+														fill: '#94a3b8',
+													}}
+													domain={[0, 'auto']}
+												/>
+												<RechartsTooltip
+													formatter={(value) => [
+														`${(value * 1).toFixed(2)}`,
+														valMetric,
+													]}
+													labelFormatter={(label) =>
+														`Epoch: ${label} step`
+													}
+													contentStyle={{
+														backgroundColor:
+															'rgba(15, 23, 42, 0.95)',
+														borderRadius: '8px',
+														boxShadow:
+															'0 4px 20px rgba(0,0,0,0.5)',
+														border: '1px solid var(--border)',
+														color: '#e2e8f0',
+													}}
+												/>
+												<Legend />
+												<Area
+													type="monotone"
+													dataKey="score"
+													stroke="#60a5fa"
+													strokeWidth={3}
+													fillOpacity={1}
+													fill="url(#colorAccuracy)"
+													name={`Validation ${valMetric}`}
+												/>
+											</AreaChart>
+										</ResponsiveContainer>
+									)}
 								</div>
-							) : (
-								<div className="lg:col-span-2 p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
-									<Empty
-										description="No training history yet"
-										image={Empty.PRESENTED_IMAGE_SIMPLE}
-									/>
-								</div>
-							)}
-						</div>
+							</div>
+						) : !predictResult ? (
+							<div className="p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
+								<Empty
+									description="No training history yet"
+									image={Empty.PRESENTED_IMAGE_SIMPLE}
+								/>
+							</div>
+						) : null}
 					</div>
 				</div>
 			</div>
