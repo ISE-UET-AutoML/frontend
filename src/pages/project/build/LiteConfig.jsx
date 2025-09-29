@@ -10,6 +10,7 @@ import LiteTextClassificationPredict from 'src/components/lite-live-preditct/Lit
 import LiteTabularRegressionPredict from 'src/components/lite-live-preditct/LiteTabularRegressionPredict'
 import LiteMultilabelTabularClassificationPredict from 'src/components/lite-live-preditct/LiteMultilabelTabularClassificationPredict'
 import LiveImageClassificationPredict from 'src/components/lite-live-preditct/LiveImageClassificationPredict'
+import LiteMultilabelTextClassificationPredict from 'src/components/lite-live-preditct/LiteMulLabTexClassiPredict'
 import { UploadTypes } from 'src/constants/file'
 
 // Empty component fallback
@@ -34,7 +35,7 @@ const LiteConfig = {
 		folder: UploadTypes.CSV_SINGLE,
 		afterUploadURL: 'selectInstance',
 		labelingView: LabelingTextClassification,
-		predictView: TextPredict,
+		predictView: LiteMultilabelTextClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	TABULAR_CLASSIFICATION: {
