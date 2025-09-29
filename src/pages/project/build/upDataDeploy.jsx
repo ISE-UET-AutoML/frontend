@@ -23,6 +23,7 @@ const UpDataDeploy = ({
 	taskType,
 	featureColumns,
 	onUploadStart,
+	onUploadComplete,
 }) => {
 	const [isUploading, setIsUploading] = useState(false)
 	const [fileList, setFileList] = useState([])
@@ -278,11 +279,20 @@ const UpDataDeploy = ({
 				console.error('Save deploy_data error:', e)
 			}
 
+			const filesToPredict = imageFiles.map(
+				(file) => file.originFileObj || file
+			)
+
 			setFileList([])
 			setFolderStructure([])
+			// setVerificationStatus('idle')
 			// Đóng modal sau khi upload thành công
 			if (typeof onClose === 'function') {
 				onClose()
+			}
+
+			if (typeof onUploadComplete === 'function') {
+				onUploadComplete(filesToPredict)
 			}
 		} catch (e) {
 			console.error('Upload error:', e)
