@@ -17,11 +17,11 @@ import {
     Image,
     Spin
 } from 'antd';
-import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { TASK_TYPES,DATASET_TYPES } from 'src/constants/types';
+import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, ReloadOutlined } from '@ant-design/icons';
+import { TASK_TYPES, DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
 import Papa from 'papaparse';
-
+import * as XLSX from 'xlsx';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -58,6 +58,7 @@ export default function CreateDatasetForm({
     const [isRegressionTargetValid, setIsRegressionTargetValid] = useState(null);
     const [isMultilabelFormatValid, setIsMultilabelFormatValid] = useState(null);
     const [isValidating, setIsValidating] = useState(false);
+    const [csvContainsNaN, setCsvContainsNaN] = useState(null);
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce((sum, f) => sum + (f.fileObject?.size || 0), 0);
@@ -67,7 +68,7 @@ export default function CreateDatasetForm({
     const [totalKbytes, setTotalKbytes] = useState(calcSizeKB(initialFiles));
     const [detectedLabels, setDetectedLabels] = useState(initialDetectedLabels);
     const [csvMetadata, setCsvMetadata] = useState(initialCsvMetadata);
-    
+
     useEffect(() => {
         form.setFieldsValue(initialValues);
         if (initialValues?.dataset_type) {
@@ -97,7 +98,7 @@ export default function CreateDatasetForm({
 
     const validateFiles = (files, currentDatasetType) => {
         const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        const allowedTextTypes = ['text/csv', 'application/vnd.ms-excel'];
+        const allowedTextTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         const allowedTypes = {
             IMAGE: allowedImageTypes,
             TEXT: allowedTextTypes,
@@ -108,7 +109,7 @@ export default function CreateDatasetForm({
         const validExts = allowedTypes[currentDatasetType] || [];
         return files.filter((file) => validExts.includes(file.type));
     };
-    
+
     const validateImageFolderStructure = (files) => {
         if (!files || files.length === 0) return false;
         const labelFolders = new Set();
@@ -118,7 +119,7 @@ export default function CreateDatasetForm({
             const parts = path.split("/");
 
             if (parts.length < 2) {
-            return false;
+                return false;
             }
 
             const parentFolder = parts[parts.length - 2];
@@ -150,17 +151,17 @@ export default function CreateDatasetForm({
                     } else if (currentTaskType === 'MULTILABEL_TEXT_CLASSIFICATION' || currentTaskType === 'MULTILABEL_TABULAR_CLASSIFICATION') {
                         if (labelValue) {
                             if (labelValue.includes(",") || labelValue.includes("|")) {
-                            isValid = false;
-                            parser.abort();
+                                isValid = false;
+                                parser.abort();
                             }
 
                             const labels = labelValue.includes(";")
-                            ? labelValue.split(";")
-                            : [labelValue]; // coi là single-label
+                                ? labelValue.split(";")
+                                : [labelValue]; // coi là single-label
 
                             if (labels.some((l) => l.trim() === "")) {
-                            isValid = false;
-                            parser.abort();
+                                isValid = false;
+                                parser.abort();
                             }
                         }
                     }
@@ -179,7 +180,7 @@ export default function CreateDatasetForm({
     const previewCsv = (csvFile, currentTaskType) => {
         Papa.parse(csvFile, {
             header: true,
-            preview: 10, 
+            preview: 10,
             skipEmptyLines: true,
             complete: (results) => {
                 const { data, meta } = results;
@@ -214,7 +215,30 @@ export default function CreateDatasetForm({
             }
         });
     };
+    const handleReset = () => {
+        // Clear file input visually
+        const fileInput = document.getElementById('file-upload-input');
+        if (fileInput) {
+            fileInput.value = "";
+        }
 
+        // Reset all states
+        setFiles([]);
+        setTotalKbytes(0);
+        setDetectedLabels([]);
+        setCsvMetadata(null);
+        setImageStructureValid(null);
+        setCsvPreview(null);
+        setCsvHasHeader(null);
+        setIsRegressionTargetValid(null);
+        setIsMultilabelFormatValid(null);
+        setCsvContainsNaN(null);
+        setImagePreviews(prev => {
+            prev.forEach(p => URL.revokeObjectURL(p.url));
+            return [];
+        });
+        message.info('Form has been reset.');
+    };
     const handleFileChange = async (event) => {
         setImageStructureValid(null);
         setCsvPreview(null);
@@ -227,7 +251,7 @@ export default function CreateDatasetForm({
         });
 
         const uploadedFiles = Array.from(event.target.files || []);
-        
+
         if (!datasetType) {
             message.error("Please select a dataset type before uploading files.");
             return;
@@ -239,7 +263,7 @@ export default function CreateDatasetForm({
             message.warning("Some files were ignored due to incompatible types.");
         }
         let valid = true
-        
+
         if (datasetType === 'IMAGE') {
             const isValidStructure = validateImageFolderStructure(validatedFiles);
             setImageStructureValid(isValidStructure);
@@ -260,21 +284,50 @@ export default function CreateDatasetForm({
             }
             setImagePreviews(previews.slice(0, 8));
         }
-        
+
         const csvFile = validatedFiles.find(file => (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv'));
-        if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && csvFile) {
-            previewCsv(csvFile, taskType); // Corrected: Pass the File object directly
+        const excelFile = validatedFiles.find(file =>
+            (file.name || '').toLowerCase().endsWith('.xlsx') ||
+            (file.name || '').toLowerCase().endsWith('.xls')
+        );
+
+        let effectiveCsvFile = csvFile;
+
+        if (excelFile) {
+            try {
+                const data = await excelFile.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+
+                // Convert sheet to CSV
+                const csvString = XLSX.utils.sheet_to_csv(sheet);
+
+                // Create a Blob and wrap in File so Papa.parse có thể xử lý
+                const csvBlob = new Blob([csvString], { type: 'text/csv' });
+                effectiveCsvFile = new File([csvBlob], excelFile.name.replace(/\.(xlsx|xls)$/i, ".csv"), { type: 'text/csv' });
+
+                //message.success(`Converted Excel file "${excelFile.name}" to CSV for validation.`);
+            } catch (err) {
+                console.error("Excel to CSV conversion failed:", err);
+                message.error("Failed to convert Excel file to CSV.");
+                valid = false;
+            }
+        }
+        if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && effectiveCsvFile) {
+            previewCsv(effectiveCsvFile, taskType); // Corrected: Pass the File object directly
             setIsValidating(true);
-            const isFullyValid = await validateFullCsv(csvFile, taskType);
+            const isFullyValid = await validateFullCsv(effectiveCsvFile, taskType);
             if (taskType === 'TABULAR_REGRESSION') {
                 setIsRegressionTargetValid(isFullyValid);
             }
             if (taskType.includes('MULTILABEL')) {
-                
-                setIsMultilabelFormatValid(true); 
+
+                setIsMultilabelFormatValid(true);
             }
             setIsValidating(false);
         }
+
 
 
         const hasImageFolder = validatedFiles.some((file) =>
@@ -300,16 +353,16 @@ export default function CreateDatasetForm({
         const labels = Array.from(fileMap.keys()).filter(label => label !== 'unlabeled');
         setDetectedLabels(labels);
 
-        if (csvFile) {
+        if (effectiveCsvFile) {
             try {
-                const metadata = await extractCSVMetaData(csvFile);
+                const metadata = await extractCSVMetaData(effectiveCsvFile);
                 setCsvMetadata(metadata);
             } catch (err) {
                 message.error('Failed to analyze CSV file');
                 valid = false
             }
         }
-        
+
 
         setFiles(fileMetadata);
         setTotalKbytes(totalSizeInKB);
@@ -324,7 +377,7 @@ export default function CreateDatasetForm({
         const labels = Array.from(fileMap.keys()).filter(label => label !== 'unlabeled');
         setDetectedLabels(labels);
         setTotalKbytes(calcSizeKB(updatedFiles));
-        
+
         const csvFile = updatedFiles.find(file => file.path.toLowerCase().endsWith('.csv'));
         if (csvFile) {
             extractCSVMetaData(csvFile.fileObject).then(setCsvMetadata).catch(() => setCsvMetadata(null));
@@ -411,7 +464,7 @@ export default function CreateDatasetForm({
                             target.style.background = 'var(--hover-bg)';
                         }}
                         onMouseLeave={(e) => {
-                             const target = e.currentTarget;
+                            const target = e.currentTarget;
                             target.style.borderColor = 'var(--upload-border)';
                             target.style.background = 'var(--upload-bg)';
                         }}
@@ -433,6 +486,16 @@ export default function CreateDatasetForm({
                             onChange={handleFileChange}
                         />
                     </label>
+                    {files.length > 0 && (
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={handleReset}
+                            danger
+                        >
+                            Reset
+                        </Button>
+                    )}
+
                     <div style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
                         <span style={{ fontWeight: '500' }}>{files.length} Files</span>
                         <span style={{ marginLeft: '8px', color: 'var(--secondary-text)' }}>({totalKbytes} kB)</span>
@@ -484,13 +547,13 @@ export default function CreateDatasetForm({
     ];
     const getCsvPreviewColumns = () => {
         if (!csvPreview || csvPreview.length === 0) return [];
-        
+
         const keys = Object.keys(csvPreview[0]);
         const labelColumnKey = keys[keys.length - 1];
 
         return keys.map((key) => {
             const isLabelColumn = key === labelColumnKey;
-            
+
             // Cấu hình cho cột
             const columnConfig = {
                 title: key,
@@ -571,9 +634,9 @@ export default function CreateDatasetForm({
                         </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Form.Item 
-                            label="Type" 
-                            name="dataset_type" 
+                        <Form.Item
+                            label="Type"
+                            name="dataset_type"
                             rules={[{ required: true, message: 'Please select a type' }]}
                         >
                             <Select
@@ -622,13 +685,13 @@ export default function CreateDatasetForm({
                 {/* Validation and Preview Section */}
                 {isValidating && (
                     <div className="text-center my-4">
-                        <Spin tip="Validating full CSV file..." />
+                        <Spin tip="Validating full file..." />
                     </div>
                 )}
 
                 {/* Validation and Preview Section */}
                 {imageStructureValid !== null && (
-                     <Alert
+                    <Alert
                         message={
                             <span className="font-semibold">Image Folder Structure Check</span>
                         }
@@ -647,12 +710,12 @@ export default function CreateDatasetForm({
                 {csvHasHeader !== null && (
                     <Alert
                         message={
-                             <span className="font-semibold">CSV Header Check</span>
+                            <span className="font-semibold">Header Check</span>
                         }
                         description={
                             csvHasHeader
-                                ? "The CSV file appears to have a valid header row."
-                                : "A header row could not be detected. Please ensure the first row of your CSV contains column names."
+                                ? "The file appears to have a valid header row."
+                                : "A header row could not be detected. Please ensure the first row of your file contains column names."
                         }
                         type={csvHasHeader ? "success" : "warning"}
                         showIcon
@@ -663,22 +726,22 @@ export default function CreateDatasetForm({
                 {isRegressionTargetValid !== null && (
                     <Alert
                         message="Tabular Regression - Target Column Check"
-                        description={ isRegressionTargetValid ? "Target column values appear to be valid numbers." : "Warning: Some values in the target column are not numbers (float)."}
+                        description={isRegressionTargetValid ? "Target column values appear to be valid numbers." : "Warning: Some values in the target column are not numbers (float)."}
                         type={isRegressionTargetValid ? "success" : "error"}
                         showIcon className="mt-4"
                     />
                 )}
                 {isMultilabelFormatValid !== null && (
-                     <Alert
+                    <Alert
                         message="Multi-label - Label Column Check"
-                        description={ isMultilabelFormatValid ? "Labels appear to be correctly formatted." : "Warning: Labels should be separated by '; '."}
+                        description={isMultilabelFormatValid ? "Labels appear to be correctly formatted." : "Warning: Labels should be separated by '; '."}
                         type={isMultilabelFormatValid ? "success" : "warning"}
                         showIcon className="mt-4"
                     />
                 )}
                 {csvPreview && (
                     <div className="mt-4">
-                        <Text strong style={{ color: 'var(--text)' }}>CSV File Preview (First 3 rows):</Text>
+                        <Text strong style={{ color: 'var(--text)' }}>File Preview (First 3 rows):</Text>
                         <div style={{ overflowX: 'auto', border: '1px solid #f0f0f0', borderRadius: '8px', marginTop: '8px' }}>
                             <Table
                                 dataSource={csvPreview}
@@ -692,29 +755,29 @@ export default function CreateDatasetForm({
                     </div>
                 )}
                 {imagePreviews.length > 0 && (
-                    <div className="mt-4" style={{ 
-                        background: 'var(--upload-bg)', 
-                        borderRadius: '8px', 
+                    <div className="mt-4" style={{
+                        background: 'var(--upload-bg)',
+                        borderRadius: '8px',
                         padding: '16px',
                         border: '1px solid var(--border-color)'
                     }}>
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
                             marginBottom: '12px',
                             gap: '8px'
                         }}>
                             <FileOutlined style={{ fontSize: '16px', color: 'var(--primary-color)' }} />
                             <Text strong style={{ fontSize: '15px', color: 'var(--text)' }}>Image Preview ({imagePreviews.length} folders detected)</Text>
                         </div>
-                        <div style={{ 
-                            display: 'grid', 
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', 
-                            gap: '16px' 
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                            gap: '16px'
                         }}>
                             <Image.PreviewGroup>
                                 {imagePreviews.map((preview, index) => (
-                                    <div key={index} style={{ 
+                                    <div key={index} style={{
                                         textAlign: 'center',
                                         background: 'var(--surface)',
                                         borderRadius: '8px',
@@ -723,21 +786,21 @@ export default function CreateDatasetForm({
                                         transition: 'all 0.3s ease',
                                         cursor: 'pointer'
                                     }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-4px)';
-                                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.12)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
-                                    }}>
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-4px)';
+                                            e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.12)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+                                        }}>
                                         <Image
                                             width={116}
                                             height={116}
                                             src={preview.url}
                                             alt={`preview ${preview.label}`}
-                                            style={{ 
-                                                objectFit: 'cover', 
+                                            style={{
+                                                objectFit: 'cover',
                                                 borderRadius: '6px',
                                                 border: '2px solid var(--border-color)'
                                             }}
@@ -745,7 +808,7 @@ export default function CreateDatasetForm({
                                                 mask: <div style={{ fontSize: '12px' }}>Click to preview</div>
                                             }}
                                         />
-                                        <div style={{ 
+                                        <div style={{
                                             marginTop: '8px',
                                             padding: '4px 8px',
                                             background: 'var(--upload-bg)',

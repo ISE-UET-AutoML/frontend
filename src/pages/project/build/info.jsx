@@ -132,7 +132,7 @@ const ProjectInfo = () => {
             setPollFlag(true)
         }
         else {
-            // Handle case model already deploy => Directly predict
+            // todo: Handle case model already deploy => Directly predict
             console.log("Model deployed", modelDeploy)
         }
     }
@@ -876,6 +876,8 @@ const ProjectInfo = () => {
                 isOpen={isShowUpload}
                 onClose={hideUpload}
                 projectId={projectInfo?.id}
+                taskType={projectInfo?.task_type}
+                featureColumns={datasetInfo?.data.ls_project.meta_data.text_columns}
                 onUploaded={handleAfterUpload}
                 onUploadStart={handleUploadStartBackground}
             />
