@@ -949,7 +949,7 @@ const ProjectInfo = () => {
 									className="text-xl font-bold mb-4"
 									style={{ color: 'var(--text)' }}
 								>
-									Training History ({valMetric})
+									Training History
 								</h2>
 								<div style={{ width: '100%', height: 300 }}>
 									{isChartLoading ? (
