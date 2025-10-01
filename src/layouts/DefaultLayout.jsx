@@ -8,12 +8,12 @@ const DefaultLayout = () => {
         <div className="relative min-h-screen">
             <style>{`
                 body, html {
-                    background-color: var(--surface) !important;
+                    background-color: #0b0b11 !important;
                     min-height: 100dvh !important;
                 }
             `}</style>
             {/* Full-viewport background fill (aligns with LandingPage approach) */}
-            <div className="fixed inset-0 bg-[var(--surface)] -z-50" />
+            <div className="fixed inset-0 bg-[#0b0b11] -z-50" />
 
             <NavBar />
             <div className="min-h-[calc(100dvh-60px)]">
