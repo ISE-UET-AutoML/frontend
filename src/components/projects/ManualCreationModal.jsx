@@ -354,6 +354,7 @@ const ManualCreationModal = ({
 								label="Project Name"
 								name="name"
 								style={{ marginBottom: 16 }}
+								validateTrigger={['onChange', 'onBlur']}
 								rules={[
 									{
 										required: true,
@@ -363,6 +364,11 @@ const ManualCreationModal = ({
 										min: 3,
 										message:
 											'Name must be at least 3 characters',
+									},
+									{
+										pattern: /^[\p{L}0-9 _-]+$/u,
+										message:
+											'Only letters, numbers, spaces, _ and - are allowed.',
 									},
 								]}
 							>
