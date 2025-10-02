@@ -9,7 +9,7 @@ export const API_URL = {
     train_model: (projectID) => `${API_BASE_URL}/projects/${projectID}/train`,
     get_project_by_id: (projectID) => `${API_BASE_URL}/api/service/users/projects/${projectID}`,
     delete_project: (projectID) =>
-        `${API_BASE_URL}/api/service/users/projects/${projectID}/delete`,
+        `${API_BASE_URL}/api/users/projects/${projectID}`,
     upload_file: (projectID) => `${API_BASE_URL}/projects/${projectID}/upload`,
     get_project_dataset: (projectID) =>
         `${API_BASE_URL}/projects/${projectID}/datasets`,
