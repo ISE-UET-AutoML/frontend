@@ -9,7 +9,7 @@ import LiteTabularClassificationPredict from 'src/components/lite-live-preditct/
 import LiteTextClassificationPredict from 'src/components/lite-live-preditct/LiteTextClassificationPredict'
 import LiteTabularRegressionPredict from 'src/components/lite-live-preditct/LiteTabularRegressionPredict'
 import LiteMultilabelTabularClassificationPredict from 'src/components/lite-live-preditct/LiteMultilabelTabularClassificationPredict'
-import LiveImageClassificationPredict from 'src/components/lite-live-preditct/LiveImageClassificationPredict'
+import LiteImageClassificationPredict from 'src/components/lite-live-preditct/LiteImageClassificationPredict'
 import LiteMultilabelTextClassificationPredict from 'src/components/lite-live-preditct/LiteMulLabTexClassiPredict'
 import { UploadTypes } from 'src/constants/file'
 
@@ -21,7 +21,7 @@ const LiteConfig = {
 		afterUploadURL: 'selectInstance',
 		folder: UploadTypes.FOLDER,
 		labelingView: LabelingImageClassification,
-		predictView: LiveImageClassificationPredict,
+		predictView: LiteImageClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	TEXT_CLASSIFICATION: {

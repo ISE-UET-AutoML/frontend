@@ -14,7 +14,7 @@ import {
 const { Title, Text, Paragraph } = Typography
 const { Content } = Layout
 
-const LiveImageClassificationPredict = ({
+const LiteImageClassificationPredict = ({
 	predictResult,
 	uploadedFiles,
 	projectInfo,
@@ -265,4 +265,4 @@ const LiveImageClassificationPredict = ({
 	)
 }
 
-export default LiveImageClassificationPredict
+export default LiteImageClassificationPredict

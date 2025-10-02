@@ -484,7 +484,7 @@ const ProjectInfo = () => {
         	}
       `}</style>
             <div
-                className="min-h-screen mt-8"
+                className="min-h-screen"
                 style={{ background: 'var(--surface)' }}
             >
                 <div className="relative pt-16 px-4 sm:px-6 lg:px-8 pb-20">
