@@ -9,13 +9,17 @@ import { Modal, Steps, Spin } from 'antd'
 const handleCompletedDataset = async (item, removingPending) => {
   const {dataset, labelProjectValues} = item;
   try {
-    message.info(`Verifying uploaded files for dataset '${dataset.title}'...`);
-    const verificationResponse = await datasetAPI.verifyUpload(dataset.id);
-    console.log(verificationResponse.data);
-    if (verificationResponse.data.status === false) {
-        throw new Error("File count mismatch on the server.");
+    if (dataset.dataType === 'IMAGE') {
+      message.info(`Verifying uploaded files for dataset '${dataset.title}'...`);
+
+      const verificationResponse = await datasetAPI.verifyUpload(dataset.id);
+      console.log(verificationResponse.data);
+      
+      if (verificationResponse.data.status === false) {
+          throw new Error("File count mismatch on the server.");
+      }
+      console.log("Verification ", verificationResponse.data);
     }
-    console.log("Verification ", verificationResponse.data);
     const payload = {
       name: labelProjectValues.name,
       taskType: labelProjectValues.taskType,
