@@ -7,6 +7,13 @@ import { message } from 'antd';
 const handleCompletedDataset = async (item, removingPending) => {
   const {dataset, labelProjectValues} = item;
   try {
+    message.info(`Verifying uploaded files for dataset '${dataset.title}'...`);
+    const verificationResponse = await datasetAPI.verifyUpload(dataset.id);
+    console.log(verificationResponse.data);
+    if (verificationResponse.data.status === false) {
+        throw new Error("File count mismatch on the server.");
+    }
+    console.log("Verification ", verificationResponse.data);
     const payload = {
       name: labelProjectValues.name,
       taskType: labelProjectValues.taskType,
@@ -18,7 +25,15 @@ const handleCompletedDataset = async (item, removingPending) => {
     console.log(`Dataset '${dataset.title}' is COMPLETED. Creating label project...`);
     await labelProjectAPI.createLbProject(payload);
   } catch (err) {
-    console.error(`Error while creating label project '${dataset.title}':`, err);
+    console.error(`Error while processing completed dataset '${dataset.title}':`, err);
+    
+    if (err.message === "File count mismatch on the server.") {
+        Modal.error({
+            title: 'Upload Verification Failed',
+            content: `Please check your network connection and try creating the dataset again.`,
+        });
+        await datasetAPI.deleteDataset(dataset.id);
+      }
   } finally {
     removingPending(dataset.id);
   }

@@ -332,9 +332,6 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 			handleCancel()
 		} catch (error) {
 			console.error('Failed to create project pipeline:', error)
-			message.error(
-				'An error occurred. Please check the console for details.'
-			)
 		} finally {
 			setIsLoading(false)
 		}

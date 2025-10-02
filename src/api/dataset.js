@@ -53,6 +53,13 @@ const createPresignedUrls = async (payload) => {
     return instance.post(`${URL}/createPresignedUrls`, payload, options)
 }
 
+const verifyUpload = async (datasetId) => {
+    const options = {
+        headers: { 'Content-Type': 'application/json' },
+    }
+    return instance.get(`${URL_SERVICE}/datasets/${datasetId}/verify_upload`, options)
+}
+
 const createPresignedUrlsPredict = async (payload) => {
     const options = {
         headers: { 'Content-Type': 'application/json' },
@@ -142,4 +149,5 @@ export {
     createDownZipPU,
     initializeDataset,
     finalizeDataset,
+    verifyUpload
 }
