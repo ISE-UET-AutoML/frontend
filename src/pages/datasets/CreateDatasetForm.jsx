@@ -72,6 +72,8 @@ export default function CreateDatasetForm({
 	const [isValidating, setIsValidating] = useState(false)
 	const [csvContainsNaN, setCsvContainsNaN] = useState(null)
 
+	const fileInputRef = useRef(null);
+
 	const calcSizeKB = (fileArr) => {
 		const totalSize = fileArr.reduce(
 			(sum, f) => sum + (f.fileObject?.size || 0),
@@ -242,10 +244,9 @@ export default function CreateDatasetForm({
 	}
 	const handleReset = () => {
 		// Clear file input visually
-		const fileInput = document.getElementById('file-upload-input')
-		if (fileInput) {
-			fileInput.value = ''
-		}
+		if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+        }
 
 		// Reset all states
 		setFiles([])
@@ -600,6 +601,7 @@ export default function CreateDatasetForm({
 							</p>
 						</div>
 						<input
+							ref={fileInputRef}
 							type="file"
 							name="file"
 							id="file"
