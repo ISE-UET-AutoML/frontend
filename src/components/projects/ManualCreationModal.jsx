@@ -1065,46 +1065,6 @@ const ManualCreationModal = ({
                     opacity: 0.8;
                 }
 
-                /* Smooth animations */
-                @keyframes slideInLeft {
-                    from {
-                        opacity: 0;
-                        transform: translateX(-20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateX(0);
-                    }
-                }
-
-                @keyframes slideInRight {
-                    from {
-                        opacity: 0;
-                        transform: translateX(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateX(0);
-                    }
-                }
-
-                .task-list-item {
-                    animation: slideInLeft 0.5s ease-out forwards;
-                }
-
-                .task-details {
-                    animation: slideInRight 0.5s ease-out forwards;
-                }
-
-                .task-list-item:nth-child(1) { animation-delay: 0.1s; }
-                .task-list-item:nth-child(2) { animation-delay: 0.15s; }
-                .task-list-item:nth-child(3) { animation-delay: 0.2s; }
-                .task-list-item:nth-child(4) { animation-delay: 0.25s; }
-                .task-list-item:nth-child(5) { animation-delay: 0.3s; }
-                .task-list-item:nth-child(6) { animation-delay: 0.35s; }
-                .task-list-item:nth-child(7) { animation-delay: 0.4s; }
-                .task-list-item:nth-child(8) { animation-delay: 0.45s; }
-
                 /* Responsive Design for Fixed Modal */
                 @media (max-width: 1200px) {
                     .fixed-size-modal .ant-modal {
