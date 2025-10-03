@@ -287,25 +287,6 @@ export default function CreateDatasetForm({
 
 		const validatedFiles = validateFiles(uploadedFiles, datasetType)
 
-		// If nothing matches the allowed types for the selected dataset type, show an error and reset
-		if (uploadedFiles.length > 0 && validatedFiles.length === 0) {
-			message.error({
-				content:
-					'Selected files are not compatible with the chosen dataset type. Please upload the correct file types.',
-				key: 'uploadInvalid',
-				duration: 3,
-			})
-			if (fileInputRef.current) {
-				fileInputRef.current.value = null
-			}
-			setFiles([])
-			setTotalKbytes(0)
-			setDetectedLabels([])
-			setCsvMetadata(null)
-			setIsDataValid(false)
-			return
-		}
-
 		if (validatedFiles.length !== uploadedFiles.length) {
 			message.warning(
 				'Some files were ignored due to incompatible types.'
@@ -414,19 +395,6 @@ export default function CreateDatasetForm({
 			return
 		}
 
-		// If previous validations failed, reset selected files and exit early
-		if (!valid) {
-			if (fileInputRef.current) {
-				fileInputRef.current.value = null
-			}
-			setFiles([])
-			setTotalKbytes(0)
-			setDetectedLabels([])
-			setCsvMetadata(null)
-			setIsDataValid(false)
-			return
-		}
-
 		const totalSize = validatedFiles.reduce(
 			(sum, file) => sum + (file.size || 0),
 			0
@@ -453,19 +421,6 @@ export default function CreateDatasetForm({
 				message.error('Failed to analyze CSV file')
 				valid = false
 			}
-		}
-
-		// After metadata analysis, if invalid then reset and exit
-		if (!valid) {
-			if (fileInputRef.current) {
-				fileInputRef.current.value = null
-			}
-			setFiles([])
-			setTotalKbytes(0)
-			setDetectedLabels([])
-			setCsvMetadata(null)
-			setIsDataValid(false)
-			return
 		}
 
 		setFiles(fileMetadata)

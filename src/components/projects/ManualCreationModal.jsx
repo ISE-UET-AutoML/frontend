@@ -251,9 +251,10 @@ const ManualCreationModal = ({
 			onFinish={handleSubmit}
 			className="theme-form theme-manual-form"
 			style={{
-				height: '100%',
+				height: '95%',
 				display: 'flex',
 				flexDirection: 'column',
+				marginBottom: '-40px',
 			}}
 			initialValues={{
 				name: initialProjectName,
@@ -266,7 +267,9 @@ const ManualCreationModal = ({
 				style={{
 					display: 'grid',
 					gridTemplateColumns: '1.1fr 0.9fr',
-					gap: 24,
+					gap: 20,
+					alignItems: 'stretch',
+					height: 'calc(85vh - 180px)',
 				}}
 			>
 				{/* Left column */}
@@ -274,6 +277,8 @@ const ManualCreationModal = ({
 					style={{
 						borderRight: '2px solid #0ea5e9',
 						paddingRight: '12px',
+						display: 'flex',
+						flexDirection: 'column',
 					}}
 				>
 					<Row gutter={[24, 24]}>
@@ -324,21 +329,25 @@ const ManualCreationModal = ({
 					<div
 						className="task-selection-container"
 						style={{
-							borderRadius: '20px',
+							borderRadius: '16px',
 							background: 'var(--filter-bg)',
 							border: '1px solid var(--filter-border)',
 							overflow: 'hidden',
 							marginTop: 8,
+							flex: 1,
+							display: 'flex',
+							flexDirection: 'column',
 						}}
 					>
 						<Title
-							level={3}
+							level={4}
 							style={{
 								textAlign: 'center',
-								margin: '16px 0',
+								margin: '12px 0',
 								color: 'var(--title-project)',
 								fontWeight: 700,
 								fontFamily: 'Poppins, sans-serif',
+								flexShrink: 0,
 							}}
 						>
 							Choose Your Task
@@ -346,9 +355,9 @@ const ManualCreationModal = ({
 						<div
 							className="task-list-column"
 							style={{
-								padding: '0 20px 20px 28px',
+								padding: '0 16px 16px 20px',
 								borderTop: '1px solid var(--border)',
-								maxHeight: 520,
+								flex: 1,
 								overflowY: 'auto',
 							}}
 						>
@@ -512,9 +521,10 @@ const ManualCreationModal = ({
 				<div
 					className="task-details-column"
 					style={{
-						padding: '0 24px 24px 24px',
+						padding: '0 20px 20px 20px',
 						overflowY: 'auto',
-						maxHeight: 700,
+						display: 'flex',
+						flexDirection: 'column',
 					}}
 				>
 					{displayTask ? (
@@ -558,11 +568,11 @@ const ManualCreationModal = ({
 							<div
 								style={{
 									width: '100%',
-									height: '340px',
-									borderRadius: '20px',
+									height: '250px',
+									borderRadius: '16px',
 									overflow: 'hidden',
-									marginBottom: '24px',
-									boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
+									marginBottom: '20px',
+									boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
 									border: '2px solid var(--border-hover)',
 								}}
 							>
@@ -893,19 +903,25 @@ const ManualCreationModal = ({
 			</div>
 
 			{/* Submit */}
-			<Row justify="end" style={{ marginTop: 24 }}>
+			<Row
+				justify="end"
+				style={{
+					marginTop: 50,
+					paddingTop: 16,
+					borderTop: '1px solid var(--border)',
+				}}
+			>
 				<Button
 					onClick={onCancel}
-					style={{ marginRight: 8 }}
-					size="large"
+					style={{ marginRight: 8, marginTop: 5 }}
 				>
 					Cancel
 				</Button>
 				<Button
 					type="primary"
 					htmlType="submit"
-					size="large"
 					disabled={selectedIndex === -1}
+					style={{ marginTop: 5 }}
 				>
 					{isStep ? 'Next' : 'Create Project'}
 				</Button>
@@ -967,7 +983,7 @@ const ManualCreationModal = ({
 
                 /* Fixed Size Modal */
                 .fixed-size-modal .ant-modal {
-                    max-width: 90vw !important;
+                    max-width: 80vw !important;
                 }
 
                 .fixed-size-modal .ant-modal-content {
@@ -1099,20 +1115,20 @@ const ManualCreationModal = ({
                 @media (max-width: 768px) {
                     .fixed-size-modal .ant-modal {
                         width: 95vw !important;
-                        height: 90vh !important;
+                        height: 70vh !important;
                     }
 
                     .fixed-size-modal .ant-modal-content {
-                        height: 90vh !important;
+                        height: 70vh !important;
                     }
 
                     .fixed-size-modal .ant-modal-body {
                         padding: 16px !important;
-                        height: calc(90vh - 120px) !important;
+                        height: calc(70vh - 120px) !important;
                     }
 
                     .task-selection-container {
-                        height: calc(90vh - 260px) !important;
+                        height: calc(70vh - 260px) !important;
                     }
 
                     .two-column-layout {
@@ -1143,20 +1159,20 @@ const ManualCreationModal = ({
                 @media (max-width: 480px) {
                     .fixed-size-modal .ant-modal {
                         width: 98vw !important;
-                        height: 95vh !important;
+                        height: 70vh !important;
                     }
 
                     .fixed-size-modal .ant-modal-content {
-                        height: 95vh !important;
+                        height: 70vh !important;
                     }
 
                     .fixed-size-modal .ant-modal-body {
                         padding: 12px !important;
-                        height: calc(95vh - 120px) !important;
+                        height: calc(70vh - 60px) !important;
                     }
 
                     .task-selection-container {
-                        height: calc(95vh - 240px) !important;
+                        height: calc(70vh - 120px) !important;
                         border-radius: 12px !important;
                     }
 
@@ -1211,7 +1227,8 @@ const ManualCreationModal = ({
 					open={open}
 					onCancel={onCancel}
 					footer={null}
-					width={1200}
+					width="90vw"
+					style={{ maxWidth: '1000px' }}
 					destroyOnClose
 					centered
 					className="theme-manual-modal fixed-size-modal"
@@ -1223,30 +1240,29 @@ const ManualCreationModal = ({
 							border: '1px solid var(--modal-border)',
 							overflow: 'hidden',
 							backdropFilter: 'blur(20px)',
-							height: '700px',
-							maxHeight: '90vh',
+							maxHeight: '85vh',
 						},
 						header: {
 							background: 'var(--modal-header-bg)',
 							borderBottom:
 								'1px solid var(--modal-header-border)',
-							padding: '24px 32px 16px 32px',
+							padding: '20px 24px 16px 24px',
 							borderRadius: '20px 20px 0 0',
 						},
 						body: {
 							background: 'transparent',
-							padding: '24px',
+							padding: '20px',
 							borderRadius: '0 0 20px 20px',
-							height: 'calc(700px - 120px)',
-							overflow: 'hidden',
+							maxHeight: 'calc(85vh - 100px)',
+							overflowY: 'auto',
 						},
 					}}
 				>
 					<Title
-						level={3}
+						level={4}
 						style={{
 							textAlign: 'center',
-							marginBottom: 24,
+							marginBottom: 16,
 							color: 'var(--modal-title-color)',
 							fontFamily: 'Poppins, sans-serif',
 							fontWeight: 600,
