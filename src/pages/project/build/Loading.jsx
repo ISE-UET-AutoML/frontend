@@ -32,10 +32,10 @@ export default function Loading({ currentStep }) {
 	}, [iframes.length])
 	return (
 		<div
-			className="flex flex-col items-center justify-center py-12 gap-4 overflow-hidden"
-			style={{ marginTop: '50px' }}
+			className="flex flex-col items-center justify-center py-8 gap-6 overflow-hidden"
+			style={{ marginTop: '5px' }}
 		>
-			<div className="relative w-full h-[400px] overflow-hidden">
+			<div className="relative w-full max-w-2xl h-[380px] overflow-hidden">
 				{iframes.map((src, i) => (
 					<iframe
 						key={i}
@@ -50,17 +50,30 @@ export default function Loading({ currentStep }) {
 			<p
 				style={{
 					color: 'var(--text)',
-					fontSize: '18px',
-					marginTop: '20px',
+					fontSize: '20px',
+					fontWeight: '500',
+					marginTop: '12px',
+					textAlign: 'center',
+					lineHeight: '1.6',
 				}}
 			>
 				It may take a while, you can exit and come back later.
 			</p>
 			<Button
 				type="primary"
-				icon={<HomeOutlined />}
+				icon={<HomeOutlined style={{ fontSize: '18px' }} />}
 				size="large"
-				className="mt-4 bg-sky-500 hover:bg-sky-600 text-white border-none px-6 py-3 text-lg font-semibold"
+				className="mt-2 transition-all duration-300 hover:scale-105"
+				style={{
+					background: 'linear-gradient(135deg, #3b82f6, #22d3ee)',
+					border: 'none',
+					borderRadius: '12px',
+					padding: '14px 40px',
+					height: 'auto',
+					fontSize: '17px',
+					fontWeight: '600',
+					boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+				}}
 				onClick={() => navigate(PATHS.PROJECTS)}
 			>
 				Back to Home

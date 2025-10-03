@@ -78,7 +78,6 @@ const TrainingMetricCard = ({
 				backdropFilter: 'blur(10px)',
 				border: '1px solid var(--border)',
 				borderRadius: '12px',
-				fontFamily: 'Poppins, sans-serif',
 			}}
 		>
 			{loading ? (
@@ -126,7 +125,6 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
 						type="secondary"
 						style={{
 							color: '#94a3b8',
-							fontFamily: 'Poppins, sans-serif',
 						}}
 					>
 						Waiting for training data...
@@ -171,13 +169,11 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
 						offset: -5,
 						style: {
 							fill: '#94a3b8',
-							fontFamily: 'Poppins, sans-serif',
 						},
 					}}
 					tick={{
 						fontSize: 12,
 						fill: '#94a3b8',
-						fontFamily: 'Poppins, sans-serif',
 					}}
 					domain={[0, 'auto']}
 				/>
@@ -188,14 +184,12 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
 						position: 'insideLeft',
 						style: {
 							fill: '#94a3b8',
-							fontFamily: 'Poppins, sans-serif',
 						},
 					}}
 					domain={[0, 'auto']}
 					tick={{
 						fontSize: 12,
 						fill: '#94a3b8',
-						fontFamily: 'Poppins, sans-serif',
 					}}
 				/>
 				<RechartsTooltip
@@ -210,7 +204,6 @@ const EnhancedLineGraph = ({ valMetric, data, loading, maxTrainingTime }) => {
 						boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
 						border: '1px solid var(--border)',
 						color: '#e2e8f0',
-						fontFamily: 'Poppins, sans-serif',
 					}}
 				/>
 				<Legend />
@@ -255,7 +248,6 @@ const TrainingInfoCard = ({
 					style={{
 						margin: 0,
 						color: 'var(--text)',
-						fontFamily: 'Poppins, sans-serif',
 					}}
 				>
 					<DashboardOutlined style={{ color: '#60a5fa' }} />{' '}
@@ -268,7 +260,6 @@ const TrainingInfoCard = ({
 								'linear-gradient(135deg, #3b82f6, #22d3ee)',
 							border: 'none',
 							color: 'white',
-							fontFamily: 'Poppins, sans-serif',
 							marginLeft: '10px',
 						}}
 					>
@@ -282,7 +273,6 @@ const TrainingInfoCard = ({
 				backdropFilter: 'blur(10px)',
 				border: '1px solid var(--border)',
 				borderRadius: '12px',
-				fontFamily: 'Poppins, sans-serif',
 			}}
 		>
 			<Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -459,9 +449,108 @@ const Training = () => {
                     background-color: var(--surface) !important;
                     font-family: 'Poppins', sans-serif !important;
                 }
+                
+                .custom-training-steps .ant-steps-item-icon {
+                    width: 64px !important;
+                    height: 64px !important;
+                    line-height: 64px !important;
+                    border-width: 3px !important;
+                    box-shadow: none !important;
+                    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    margin-bottom: 12px !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-process .ant-steps-item-icon {
+                    background: linear-gradient(135deg, #3b82f6, #22d3ee) !important;
+                    border-color: #3b82f6 !important;
+                    box-shadow: none !important;
+                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                    will-change: transform;
+                }
+                
+                .custom-training-steps .ant-steps-item-process .ant-steps-item-icon .anticon {
+                    color: white !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-finish .ant-steps-item-icon {
+                    background: var(--card-gradient) !important;
+                    border-color: #10b981 !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-finish .ant-steps-item-icon .anticon {
+                    color: #10b981 !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-wait .ant-steps-item-icon {
+                    background: var(--card-gradient) !important;
+                    border-color: var(--border) !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-wait .ant-steps-item-icon .anticon {
+                    color: var(--secondary-text) !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-tail::after {
+                    background: linear-gradient(90deg, #10b981, #3b82f6) !important;
+                    height: 3px !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-tail::after {
+                    background: linear-gradient(90deg, #3b82f6, var(--border)) !important;
+                    height: 3px !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-title {
+                    line-height: 1.5 !important;
+                    margin-bottom: 16px !important;
+                    font-size: 18px !important;
+                    font-weight: 700 !important;
+                    letter-spacing: 0.3px !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-description {
+                    margin-top: 0 !important;
+                    padding-left: 0 !important;
+                    font-size: 15px !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-content {
+                    min-height: auto !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    justify-content: center !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-container {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                }
+                
+                .custom-training-steps .ant-steps-item-tail {
+                    left: 50% !important;
+                    margin-left: -1px !important;
+                }
+                
+                .custom-training-steps.ant-steps-horizontal {
+                    display: flex !important;
+                    align-items: center !important;
+                }
+                
+                @keyframes pulse {
+                    0%, 100% {
+                        transform: scale(1);
+                    }
+                    50% {
+                        transform: scale(1.05);
+                    }
+                }
             `}</style>
 			<div
-				className="min-h-screen relative overflow-hidden"
+				className="min-h-screen relative overflow-hidden font-poppins"
 				style={{ background: 'var(--surface)' }}
 			>
 				{theme === 'dark' && (
@@ -526,7 +615,7 @@ const Training = () => {
 						]}
 					/>
 				)}
-				<div className="relative z-10 p-6">
+				<div className="relative z-10 px-8 py-6 max-w-7xl mx-auto">
 					<animated.div
 						style={useSpring({
 							from: { opacity: 0, transform: 'translateY(20px)' },
@@ -539,145 +628,286 @@ const Training = () => {
 							size="large"
 							style={{ width: '100%' }}
 						>
-							<Steps
-								current={currentStep}
-								style={{ marginTop: '130px' }}
-								items={[
-									{
-										title: (
-											<span
-												style={{
-													color: 'var(--text)',
-													fontSize: '18px',
-													whiteSpace: 'normal',
-													display: 'block',
-													maxWidth: '10vw',
-												}}
-											>
-												Creating Instance
-											</span>
-										),
-										icon:
-											currentStep !== 0 ? (
-												<DatabaseOutlined />
-											) : (
-												<LoadingOutlined />
+							<div
+								style={{
+									background: 'transparent',
+									padding: '32px 0px',
+									marginTop: '40px',
+									marginBottom: '40px',
+								}}
+							>
+								<Steps
+									current={currentStep}
+									className="custom-training-steps"
+									items={[
+										{
+											title: (
+												<div>
+													<div
+														style={{
+															color: 'var(--text)',
+															fontSize: '16px',
+															fontWeight: '600',
+															whiteSpace:
+																'nowrap',
+															marginBottom: '4px',
+														}}
+													>
+														Creating Instance
+													</div>
+													{currentStep === 0 && (
+														<div
+															style={{
+																color: 'var(--secondary-text)',
+																fontSize:
+																	'14px',
+																fontWeight:
+																	'400',
+																marginTop:
+																	'4px',
+															}}
+														>
+															Setting up...
+														</div>
+													)}
+												</div>
 											),
-									},
-									{
-										title: (
-											<span
-												style={{
-													color: 'var(--text)',
-													fontSize: '18px',
-													whiteSpace: 'normal',
-													display: 'block',
-													maxWidth: '10vw',
-												}}
-											>
-												Downloading Dependencies
-											</span>
-										),
-										icon:
-											currentStep !== 1 ? (
-												<SettingOutlined />
-											) : (
-												<LoadingOutlined />
+											icon:
+												currentStep !== 0 ? (
+													<DatabaseOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												) : (
+													<LoadingOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												),
+										},
+										{
+											title: (
+												<div>
+													<div
+														style={{
+															color: 'var(--text)',
+															fontSize: '16px',
+															fontWeight: '600',
+															whiteSpace:
+																'nowrap',
+															marginBottom: '4px',
+														}}
+													>
+														Downloading Dependencies
+													</div>
+													{currentStep === 1 && (
+														<div
+															style={{
+																color: 'var(--secondary-text)',
+																fontSize:
+																	'14px',
+																fontWeight:
+																	'400',
+																marginTop:
+																	'4px',
+															}}
+														>
+															Installing
+															packages...
+														</div>
+													)}
+												</div>
 											),
-									},
-									{
-										title: (
-											<span
-												style={{
-													color: 'var(--text)',
-													fontSize: '18px',
-													whiteSpace: 'normal',
-													display: 'block',
-													maxWidth: '10vw',
-												}}
-											>
-												Downloading Data
-											</span>
-										),
-										icon:
-											currentStep !== 2 ? (
-												<CloudDownloadOutlined />
-											) : (
-												<LoadingOutlined />
+											icon:
+												currentStep !== 1 ? (
+													<SettingOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												) : (
+													<LoadingOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												),
+										},
+										{
+											title: (
+												<div>
+													<div
+														style={{
+															color: 'var(--text)',
+															fontSize: '16px',
+															fontWeight: '600',
+															whiteSpace:
+																'nowrap',
+															marginBottom: '4px',
+														}}
+													>
+														Downloading Data
+													</div>
+													{currentStep === 2 && (
+														<div
+															style={{
+																color: 'var(--secondary-text)',
+																fontSize:
+																	'14px',
+																fontWeight:
+																	'400',
+																marginTop:
+																	'4px',
+															}}
+														>
+															Fetching dataset...
+														</div>
+													)}
+												</div>
 											),
-									},
-									{
-										title: (
-											<span
-												style={{
-													color: 'var(--text)',
-													fontSize: '18px',
-													whiteSpace: 'normal',
-													display: 'block',
-													maxWidth: '10vw',
-												}}
-											>
-												Training
-											</span>
-										),
-										icon:
-											currentStep !== 3 ? (
-												<LineChartOutlined />
-											) : maxTrainingTime &&
-											  elapsedTime >= maxTrainingTime ? (
-												<CloseCircleOutlined
-													style={{ color: '#ef4444' }}
+											icon:
+												currentStep !== 2 ? (
+													<CloudDownloadOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												) : (
+													<LoadingOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												),
+										},
+										{
+											title: (
+												<div>
+													<div
+														style={{
+															color: 'var(--text)',
+															fontSize: '16px',
+															fontWeight: '600',
+															whiteSpace:
+																'nowrap',
+															marginBottom: '4px',
+														}}
+													>
+														Training
+													</div>
+													{currentStep === 3 && (
+														<div
+															style={{
+																color: 'var(--secondary-text)',
+																fontSize:
+																	'14px',
+																fontWeight:
+																	'400',
+																marginTop:
+																	'4px',
+															}}
+														>
+															Model training in
+															progress...
+														</div>
+													)}
+												</div>
+											),
+											icon:
+												currentStep !== 3 ? (
+													<LineChartOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												) : maxTrainingTime &&
+												  elapsedTime >=
+														maxTrainingTime ? (
+													<CloseCircleOutlined
+														style={{
+															color: '#ef4444',
+															fontSize: '32px',
+														}}
+													/>
+												) : (
+													<LoadingOutlined
+														style={{
+															fontSize: '32px',
+														}}
+													/>
+												),
+										},
+										{
+											title: (
+												<div>
+													<div
+														style={{
+															color: 'var(--text)',
+															fontSize: '16px',
+															fontWeight: '600',
+															whiteSpace:
+																'nowrap',
+															marginBottom: '4px',
+														}}
+													>
+														Done
+													</div>
+													{currentStep === 4 && (
+														<div
+															style={{
+																color: '#10b981',
+																fontSize:
+																	'14px',
+																fontWeight:
+																	'600',
+																marginTop:
+																	'4px',
+															}}
+														>
+															Completed!
+														</div>
+													)}
+												</div>
+											),
+											icon: (
+												<CheckCircleOutlined
+													style={{ fontSize: '32px' }}
 												/>
-											) : (
-												<LoadingOutlined />
 											),
-									},
-									{
-										title: (
-											<span
-												style={{
-													color: 'var(--text)',
-													fontSize: '18px',
-													whiteSpace: 'normal',
-													display: 'block',
-													maxWidth: '10vw',
-												}}
-											>
-												Done
-											</span>
-										),
-										icon: <CheckCircleOutlined />,
-									},
-								]}
-							/>
+										},
+									]}
+								/>
+							</div>
 
 							{status === 'DONE' ? (
-								<div className="text-center py-8">
-									<div className="mb-4">
+								<div className="text-center py-12">
+									<div className="mb-6">
 										<CheckCircleOutlined
 											style={{
-												fontSize: '64px',
+												fontSize: '72px',
 												color: '#10b981',
-												marginBottom: '16px',
+												marginBottom: '20px',
 											}}
 										/>
 									</div>
 									<Title
-										level={3}
+										level={2}
 										style={{
 											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-											marginBottom: '8px',
+											marginBottom: '12px',
 										}}
 									>
 										Training Completed Successfully!
 									</Title>
 									<Paragraph
 										style={{
-											color: '#94a3b8',
-											fontFamily: 'Poppins, sans-serif',
-											marginBottom: '24px',
+											color: 'var(--secondary-text)',
+											marginBottom: '32px',
 											fontSize: '16px',
+											maxWidth: '600px',
+											margin: '0 auto 32px',
 										}}
 									>
 										Your model has been trained and is ready
@@ -696,21 +926,19 @@ const Training = () => {
 												)
 											)
 										}
+										className="hover:shadow-2xl hover:scale-105 transition-all duration-300"
 										style={{
 											background:
 												'linear-gradient(135deg, #3b82f6, #22d3ee)',
 											border: 'none',
 											borderRadius: '12px',
-											padding: '12px 32px',
+											padding: '14px 40px',
 											height: 'auto',
-											fontSize: '18px',
+											fontSize: '16px',
 											fontWeight: '600',
-											fontFamily: 'Poppins, sans-serif',
 											boxShadow:
 												'0 8px 32px rgba(59, 130, 246, 0.3)',
-											transition: 'all 0.3s ease',
 										}}
-										className="hover:shadow-2xl hover:scale-105"
 									>
 										<CheckCircleOutlined className="mr-2" />
 										View Training Results
