@@ -72,7 +72,7 @@ export default function CreateDatasetForm({
 	const [isValidating, setIsValidating] = useState(false)
 	const [csvContainsNaN, setCsvContainsNaN] = useState(null)
 
-	const fileInputRef = useRef(null);
+	const fileInputRef = useRef(null)
 
 	const calcSizeKB = (fileArr) => {
 		const totalSize = fileArr.reduce(
@@ -245,8 +245,8 @@ export default function CreateDatasetForm({
 	const handleReset = () => {
 		// Clear file input visually
 		if (fileInputRef.current) {
-            fileInputRef.current.value = null;
-        }
+			fileInputRef.current.value = null
+		}
 
 		// Reset all states
 		setFiles([])
@@ -829,335 +829,366 @@ export default function CreateDatasetForm({
 					setHasFormErrors(hasErrors)
 				}}
 				className="theme-form"
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					maxHeight: '70vh',
+				}}
 			>
-				<Row gutter={16}>
-					<Col span={12}>
-						<Form.Item
-							label="Title"
-							name="title"
-							validateTrigger={['onChange', 'onBlur']}
-							rules={[
-								{
-									required: true,
-									message: 'Please enter a title',
-								},
-								{
-									pattern: /^[\p{L}0-9 _-]+$/u,
-									message:
-										'Only letters, numbers, spaces, _ and - are allowed.',
-								},
-							]}
-						>
-							<Input
-								placeholder="Enter dataset title"
-								disabled={disableFields.includes('title')}
-							/>
-						</Form.Item>
-					</Col>
-					<Col span={12}>
-						<Form.Item
-							label="Type"
-							name="dataset_type"
-							rules={[
-								{
-									required: true,
-									message: 'Please select a type',
-								},
-							]}
-						>
-							<Select
-								placeholder="Select dataset type"
-								onChange={(value) => {
-									setDatasetType(value)
-								}}
-								disabled={disableFields.includes('type')}
+				<div
+					style={{
+						flex: 1,
+						overflowY: 'auto',
+						minHeight: 0,
+						paddingRight: 8,
+					}}
+				>
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item
+								label="Title"
+								name="title"
+								validateTrigger={['onChange', 'onBlur']}
+								rules={[
+									{
+										required: true,
+										message: 'Please enter a title',
+									},
+									{
+										pattern: /^[\p{L}0-9 _-]+$/u,
+										message:
+											'Only letters, numbers, spaces, _ and - are allowed.',
+									},
+								]}
 							>
-								{Object.entries(DATASET_TYPES).map(
-									([key, value]) => (
-										<Option key={key} value={key}>
-											{value.type}
-										</Option>
-									)
-								)}
-							</Select>
-						</Form.Item>
-					</Col>
-				</Row>
+								<Input
+									placeholder="Enter dataset title"
+									disabled={disableFields.includes('title')}
+								/>
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							<Form.Item
+								label="Type"
+								name="dataset_type"
+								rules={[
+									{
+										required: true,
+										message: 'Please select a type',
+									},
+								]}
+							>
+								<Select
+									placeholder="Select dataset type"
+									onChange={(value) => {
+										setDatasetType(value)
+									}}
+									disabled={disableFields.includes('type')}
+								>
+									{Object.entries(DATASET_TYPES).map(
+										([key, value]) => (
+											<Option key={key} value={key}>
+												{value.type}
+											</Option>
+										)
+									)}
+								</Select>
+							</Form.Item>
+						</Col>
+					</Row>
 
-				{renderPreparingInstructions()}
+					{renderPreparingInstructions()}
 
-				<Form.Item name="description" label="Description">
-					<TextArea
-						rows={2}
-						maxLength={500}
-						showCount
-						disabled={disableFields.includes('description')}
-					/>
-				</Form.Item>
+					<Form.Item name="description" label="Description">
+						<TextArea
+							rows={2}
+							maxLength={500}
+							showCount
+							disabled={disableFields.includes('description')}
+						/>
+					</Form.Item>
 
-				{!hideFields.includes('service') &&
-					!hideFields.includes('bucket_name') && (
-						<Row gutter={16}>
-							<Col span={7}>
-								<Form.Item label="Storage Provider">
-									<Radio.Group
-										value={service}
-										onChange={(e) =>
-											setService(e.target.value)
-										}
-									>
-										<Radio value="AWS_S3">AWS S3</Radio>
-										<Radio value="GCP_STORAGE">
-											Google Cloud Storage
-										</Radio>
-									</Radio.Group>
-								</Form.Item>
-							</Col>
-							<Col span={17}>
-								<Form.Item label="Bucket Name">
-									<Select
-										value={bucketName}
-										onChange={(value) =>
-											setBucketName(value)
-										}
-									>
-										<Option value="user-private-dataset">
-											user-private-dataset
-										</Option>
-										<Option value="bucket-2">
-											bucket-2
-										</Option>
-									</Select>
-								</Form.Item>
-							</Col>
-						</Row>
+					{!hideFields.includes('service') &&
+						!hideFields.includes('bucket_name') && (
+							<Row gutter={16}>
+								<Col span={7}>
+									<Form.Item label="Storage Provider">
+										<Radio.Group
+											value={service}
+											onChange={(e) =>
+												setService(e.target.value)
+											}
+										>
+											<Radio value="AWS_S3">AWS S3</Radio>
+											<Radio value="GCP_STORAGE">
+												Google Cloud Storage
+											</Radio>
+										</Radio.Group>
+									</Form.Item>
+								</Col>
+								<Col span={17}>
+									<Form.Item label="Bucket Name">
+										<Select
+											value={bucketName}
+											onChange={(value) =>
+												setBucketName(value)
+											}
+										>
+											<Option value="user-private-dataset">
+												user-private-dataset
+											</Option>
+											<Option value="bucket-2">
+												bucket-2
+											</Option>
+										</Select>
+									</Form.Item>
+								</Col>
+							</Row>
+						)}
+
+					<Tabs defaultActiveKey="file" items={tabItems} />
+					{/* Validation and Preview Section */}
+					{isValidating && (
+						<div className="text-center my-4">
+							<Spin tip="Validating full file..." />
+						</div>
 					)}
 
-				<Tabs defaultActiveKey="file" items={tabItems} />
-				{/* Validation and Preview Section */}
-				{isValidating && (
-					<div className="text-center my-4">
-						<Spin tip="Validating full file..." />
-					</div>
-				)}
+					{/* Validation and Preview Section */}
+					{imageStructureValid !== null && (
+						<Alert
+							message={
+								<span className="font-semibold">
+									Image Folder Structure Check
+								</span>
+							}
+							description={
+								imageStructureValid
+									? 'The folder structure appears to be correct for image classification.'
+									: "Incorrect structure. Images should be organized in subfolders named after their labels (e.g., 'cats/cat1.jpg')."
+							}
+							type={imageStructureValid ? 'success' : 'error'}
+							showIcon
+							icon={
+								imageStructureValid ? (
+									<CheckCircleOutlined />
+								) : (
+									<CloseCircleOutlined />
+								)
+							}
+							className="mt-4"
+						/>
+					)}
 
-				{/* Validation and Preview Section */}
-				{imageStructureValid !== null && (
-					<Alert
-						message={
-							<span className="font-semibold">
-								Image Folder Structure Check
-							</span>
-						}
-						description={
-							imageStructureValid
-								? 'The folder structure appears to be correct for image classification.'
-								: "Incorrect structure. Images should be organized in subfolders named after their labels (e.g., 'cats/cat1.jpg')."
-						}
-						type={imageStructureValid ? 'success' : 'error'}
-						showIcon
-						icon={
-							imageStructureValid ? (
-								<CheckCircleOutlined />
-							) : (
-								<CloseCircleOutlined />
-							)
-						}
-						className="mt-4"
-					/>
-				)}
-
-				{csvHasHeader !== null && (
-					<Alert
-						message={
-							<span className="font-semibold">Header Check</span>
-						}
-						description={
-							csvHasHeader
-								? 'The file appears to have a valid header row.'
-								: 'A header row could not be detected. Please ensure the first row of your file contains column names.'
-						}
-						type={csvHasHeader ? 'success' : 'warning'}
-						showIcon
-						icon={
-							csvHasHeader ? (
-								<CheckCircleOutlined />
-							) : (
-								<InfoCircleOutlined />
-							)
-						}
-						className="mt-4"
-					/>
-				)}
-				{isRegressionTargetValid !== null && (
-					<Alert
-						message="Tabular Regression - Target Column Check"
-						description={
-							isRegressionTargetValid
-								? 'Target column values appear to be valid numbers.'
-								: 'Warning: Some values in the target column are not numbers (float).'
-						}
-						type={isRegressionTargetValid ? 'success' : 'error'}
-						showIcon
-						className="mt-4"
-					/>
-				)}
-				{isMultilabelFormatValid !== null && (
-					<Alert
-						message="Multi-label - Label Column Check"
-						description={
-							isMultilabelFormatValid
-								? 'Labels appear to be correctly formatted.'
-								: "Warning: Labels should be separated by '; '."
-						}
-						type={isMultilabelFormatValid ? 'success' : 'warning'}
-						showIcon
-						className="mt-4"
-					/>
-				)}
-				{csvPreview && (
-					<div className="mt-4">
-						<Text strong style={{ color: 'var(--text)' }}>
-							File Preview (First 3 rows):
-						</Text>
-						<div
-							style={{
-								overflowX: 'auto',
-								border: '1px solid #f0f0f0',
-								borderRadius: '8px',
-								marginTop: '8px',
-							}}
-						>
-							<Table
-								dataSource={csvPreview}
-								columns={getCsvPreviewColumns()}
-								pagination={false}
-								size="small"
-								bordered
-								scroll={{ x: 'max-content' }}
-							/>
-						</div>
-					</div>
-				)}
-				{imagePreviews.length > 0 && (
-					<div
-						className="mt-4"
-						style={{
-							background: 'var(--upload-bg)',
-							borderRadius: '8px',
-							padding: '16px',
-							border: '1px solid var(--border-color)',
-						}}
-					>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								marginBottom: '12px',
-								gap: '8px',
-							}}
-						>
-							<FileOutlined
+					{csvHasHeader !== null && (
+						<Alert
+							message={
+								<span className="font-semibold">
+									Header Check
+								</span>
+							}
+							description={
+								csvHasHeader
+									? 'The file appears to have a valid header row.'
+									: 'A header row could not be detected. Please ensure the first row of your file contains column names.'
+							}
+							type={csvHasHeader ? 'success' : 'warning'}
+							showIcon
+							icon={
+								csvHasHeader ? (
+									<CheckCircleOutlined />
+								) : (
+									<InfoCircleOutlined />
+								)
+							}
+							className="mt-4"
+						/>
+					)}
+					{isRegressionTargetValid !== null && (
+						<Alert
+							message="Tabular Regression - Target Column Check"
+							description={
+								isRegressionTargetValid
+									? 'Target column values appear to be valid numbers.'
+									: 'Warning: Some values in the target column are not numbers (float).'
+							}
+							type={isRegressionTargetValid ? 'success' : 'error'}
+							showIcon
+							className="mt-4"
+						/>
+					)}
+					{isMultilabelFormatValid !== null && (
+						<Alert
+							message="Multi-label - Label Column Check"
+							description={
+								isMultilabelFormatValid
+									? 'Labels appear to be correctly formatted.'
+									: "Warning: Labels should be separated by '; '."
+							}
+							type={
+								isMultilabelFormatValid ? 'success' : 'warning'
+							}
+							showIcon
+							className="mt-4"
+						/>
+					)}
+					{csvPreview && (
+						<div className="mt-4">
+							<Text strong style={{ color: 'var(--text)' }}>
+								File Preview (First 3 rows):
+							</Text>
+							<div
 								style={{
-									fontSize: '16px',
-									color: 'var(--primary-color)',
-								}}
-							/>
-							<Text
-								strong
-								style={{
-									fontSize: '15px',
-									color: 'var(--text)',
+									overflowX: 'auto',
+									border: '1px solid #f0f0f0',
+									borderRadius: '8px',
+									marginTop: '8px',
 								}}
 							>
-								Image Preview ({imagePreviews.length} folders
-								detected)
-							</Text>
+								<Table
+									dataSource={csvPreview}
+									columns={getCsvPreviewColumns()}
+									pagination={false}
+									size="small"
+									bordered
+									scroll={{ x: 'max-content' }}
+								/>
+							</div>
 						</div>
+					)}
+					{imagePreviews.length > 0 && (
 						<div
+							className="mt-4"
 							style={{
-								display: 'grid',
-								gridTemplateColumns:
-									'repeat(auto-fill, minmax(140px, 1fr))',
-								gap: '16px',
+								background: 'var(--upload-bg)',
+								borderRadius: '8px',
+								padding: '16px',
+								border: '1px solid var(--border-color)',
 							}}
 						>
-							<Image.PreviewGroup>
-								{imagePreviews.map((preview, index) => (
-									<div
-										key={index}
-										style={{
-											textAlign: 'center',
-											background: 'var(--surface)',
-											borderRadius: '8px',
-											padding: '12px',
-											boxShadow:
-												'0 2px 8px rgba(0, 0, 0, 0.08)',
-											transition: 'all 0.3s ease',
-											cursor: 'pointer',
-										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.transform =
-												'translateY(-4px)'
-											e.currentTarget.style.boxShadow =
-												'0 4px 16px rgba(0, 0, 0, 0.12)'
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.transform =
-												'translateY(0)'
-											e.currentTarget.style.boxShadow =
-												'0 2px 8px rgba(0, 0, 0, 0.08)'
-										}}
-									>
-										<Image
-											width={116}
-											height={116}
-											src={preview.url}
-											alt={`preview ${preview.label}`}
-											style={{
-												objectFit: 'cover',
-												borderRadius: '6px',
-												border: '2px solid var(--border-color)',
-											}}
-											preview={{
-												mask: (
-													<div
-														style={{
-															fontSize: '12px',
-														}}
-													>
-														Click to preview
-													</div>
-												),
-											}}
-										/>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									marginBottom: '12px',
+									gap: '8px',
+								}}
+							>
+								<FileOutlined
+									style={{
+										fontSize: '16px',
+										color: 'var(--primary-color)',
+									}}
+								/>
+								<Text
+									strong
+									style={{
+										fontSize: '15px',
+										color: 'var(--text)',
+									}}
+								>
+									Image Preview ({imagePreviews.length}{' '}
+									folders detected)
+								</Text>
+							</div>
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns:
+										'repeat(auto-fill, minmax(140px, 1fr))',
+									gap: '16px',
+								}}
+							>
+								<Image.PreviewGroup>
+									{imagePreviews.map((preview, index) => (
 										<div
+											key={index}
 											style={{
-												marginTop: '8px',
-												padding: '4px 8px',
-												background: 'var(--upload-bg)',
-												borderRadius: '4px',
-												fontSize: '13px',
-												fontWeight: '500',
-												color: 'var(--text)',
-												overflow: 'hidden',
-												textOverflow: 'ellipsis',
-												whiteSpace: 'nowrap',
-												fontFamily:
-													'Poppins, sans-serif',
+												textAlign: 'center',
+												background: 'var(--surface)',
+												borderRadius: '8px',
+												padding: '12px',
+												boxShadow:
+													'0 2px 8px rgba(0, 0, 0, 0.08)',
+												transition: 'all 0.3s ease',
+												cursor: 'pointer',
 											}}
-											title={preview.label}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.transform =
+													'translateY(-4px)'
+												e.currentTarget.style.boxShadow =
+													'0 4px 16px rgba(0, 0, 0, 0.12)'
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.transform =
+													'translateY(0)'
+												e.currentTarget.style.boxShadow =
+													'0 2px 8px rgba(0, 0, 0, 0.08)'
+											}}
 										>
-											{preview.label}
+											<Image
+												width={116}
+												height={116}
+												src={preview.url}
+												alt={`preview ${preview.label}`}
+												style={{
+													objectFit: 'cover',
+													borderRadius: '6px',
+													border: '2px solid var(--border-color)',
+												}}
+												preview={{
+													mask: (
+														<div
+															style={{
+																fontSize:
+																	'12px',
+															}}
+														>
+															Click to preview
+														</div>
+													),
+												}}
+											/>
+											<div
+												style={{
+													marginTop: '8px',
+													padding: '4px 8px',
+													background:
+														'var(--upload-bg)',
+													borderRadius: '4px',
+													fontSize: '13px',
+													fontWeight: '500',
+													color: 'var(--text)',
+													overflow: 'hidden',
+													textOverflow: 'ellipsis',
+													whiteSpace: 'nowrap',
+													fontFamily:
+														'Poppins, sans-serif',
+												}}
+												title={preview.label}
+											>
+												{preview.label}
+											</div>
 										</div>
-									</div>
-								))}
-							</Image.PreviewGroup>
+									))}
+								</Image.PreviewGroup>
+							</div>
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 
-				<Form.Item style={{ marginTop: 24, textAlign: 'right' }}>
+				{/* Footer buttons fixed at the bottom of modal body */}
+				<Form.Item
+					style={{
+						marginTop: 0,
+						paddingTop: 12,
+						textAlign: 'right',
+						background: 'transparent',
+						borderTop: '1px solid var(--divider-color)',
+						marginBottom: 0,
+						paddingBottom: 0,
+					}}
+				>
 					{isStep && (
 						<Button
 							style={{ marginRight: 8 }}
