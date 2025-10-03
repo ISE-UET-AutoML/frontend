@@ -128,7 +128,22 @@ const taskCards = [
 		description:
 			'Forecast future values like house prices, sales numbers, or performance scores using your historical data patterns.',
 		icon: '📈',
-		example_explain: 'Predicts a numeric target from structured features.',
+		example_explain: `📌 **This example shows how a system can predict house prices based on simple features.**
+
+In this table:
+- Each row represents one house.
+- The first 3 columns (Square Footage, Bedrooms, Location) are the **input information** — things we already know about the house.
+- The last column (“Predicted Price”) is the **output** — what the system calculates or guesses based on those inputs.
+
+🏡 For example:
+→ House #1: 80 sq ft, 2 bedrooms, in Suburban → Predicted price: **$1.2M**  
+→ House #2: 120 sq ft, 3 bedrooms, also in Suburban → Predicted price: **$1.8M**  
+→ House #3: 100 sq ft, 3 bedrooms, but in Downtown → Predicted price: **$3.0M**  
+→ House #4: 150 sq ft, 4 bedrooms, in Downtown → Predicted price: **$4.5M**
+
+💡 In short:  
+This is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
+		explain: `📌 **This example shows how a system can predict house prices based on simple features.**\n\nIn this table:\n- Each row represents one house.\n- The first 3 columns (Square Footage, Bedrooms, Location) are the **input information** — things we already know about the house.\n- The last column (“Predicted Price”) is the **output** — what the system calculates or guesses based on those inputs.\n\n🏡 For example:\n- House #1: 80 sq ft, 2 bedrooms — Predicted price: **$1.2M**\n- House #2: 120 sq ft, 3 bedrooms — Predicted price: **$1.8M**\n- House #3: 100 sq ft, 3 bedrooms  — Predicted price: **$3.0M**\n- House #4: 150 sq ft, 4 bedrooms  — Predicted price: **$4.5M**\n\n💡 In short:\nThis is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
 		image: tabular_regression,
 		difficulty: 'Intermediate',
 		timeToTrain: '10-30 minutes',
@@ -577,7 +592,7 @@ const ManualCreationModal = ({
 										level={5}
 										style={{
 											margin: '0 0 12px 0',
-											color: 'var(--text)',
+											color: 'var(--text, #ffffff)',
 											fontFamily: 'Poppins, sans-serif',
 											textAlign: 'center',
 										}}

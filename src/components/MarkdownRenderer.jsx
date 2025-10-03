@@ -10,14 +10,32 @@ const MarkdownRenderer = ({ markdownText }) => {
 		import('katex/dist/katex.min.css')
 	}, [])
 	return (
-		<div className="markdown">
-			<ReactMarkdown
-				remarkPlugins={[remarkMath, remarkGfm]}
-				rehypePlugins={[rehypeKatex]}
-			>
-				{markdownText}
-			</ReactMarkdown>
-		</div>
+		<>
+			<style>{`
+				/* Ensure markdown text follows theme colors with white fallback */
+				.markdown.theming,
+				.markdown.theming * {
+					color: var(--text, #ffffff) !important;
+				}
+				.markdown.theming a {
+					color: var(--accent-text, #93c5fd) !important;
+					text-decoration: underline;
+				}
+				.markdown.theming code {
+					background: var(--code-bg, rgba(255,255,255,0.08));
+					padding: 2px 6px;
+					border-radius: 4px;
+				}
+			`}</style>
+			<div className="markdown theming">
+				<ReactMarkdown
+					remarkPlugins={[remarkMath, remarkGfm]}
+					rehypePlugins={[rehypeKatex]}
+				>
+					{markdownText}
+				</ReactMarkdown>
+			</div>
+		</>
 	)
 }
 
