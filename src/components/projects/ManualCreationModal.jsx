@@ -1,5 +1,6 @@
 import React from 'react'
 import { Modal, Row, Col, Button, Typography, Input, Tag, Form } from 'antd'
+import MarkdownRenderer from 'src/components/MarkdownRenderer.jsx'
 // Removed Info icon for cleaner inputs
 
 // import { TASK_TYPES } from 'src/constants/types'
@@ -65,18 +66,9 @@ const taskCards = [
 			input: 'Photos of different fruits: apples, oranges, bananas',
 			output: 'Automatically sorted into fruit categories with confidence scores',
 		},
-		benefits: [
-			'Automate photo organization',
-			'Improve content discovery',
-			'Scale visual analysis',
-		],
-		useCases: [
-			'Photo organization and management',
-			'Content moderation systems',
-			'Product categorization',
-			'Quality control in manufacturing',
-			'Medical image analysis',
-		],
+		example_explain:
+			'Classifies an input image into one of several categories.',
+
 		image: image_classification,
 		difficulty: 'Beginner',
 		timeToTrain: '10-30 minutes',
@@ -93,18 +85,8 @@ const taskCards = [
 			input: 'Customer review: "Amazing product, fast delivery!"',
 			output: 'Category: Positive Feedback, Sentiment: 95% positive',
 		},
-		benefits: [
-			'Understand customer sentiment',
-			'Automate content filtering',
-			'Improve response times',
-		],
-		useCases: [
-			'Customer feedback analysis',
-			'Email routing and prioritization',
-			'Social media monitoring',
-			'Document classification',
-			'Spam detection',
-		],
+		example_explain: 'Predicts sentiment or topic for the given text.',
+
 		image: text_classification,
 		difficulty: 'Beginner',
 		timeToTrain: '5-15 minutes',
@@ -121,18 +103,7 @@ const taskCards = [
 			input: 'Email: "Urgent: Account access issue for premium user"',
 			output: 'Labels: Urgent, Technical Support, Premium Customer',
 		},
-		benefits: [
-			'Enhanced content organization',
-			'Better search capabilities',
-			'Improved workflow automation',
-		],
-		useCases: [
-			'Email tagging and routing',
-			'Content management systems',
-			'Research paper categorization',
-			'News article classification',
-			'Social media content analysis',
-		],
+
 		image: multilabel_text_classification,
 		difficulty: 'Intermediate',
 		timeToTrain: '15-25 minutes',
@@ -145,22 +116,7 @@ const taskCards = [
 		description:
 			'Perfect for business analytics! Upload spreadsheet data and automatically categorize customers, transactions, or any structured data.',
 		icon: '📊',
-		example: {
-			input: 'Customer data: Age: 35, Income: $75k, History: 3 years',
-			output: 'Classification: High-value customer, Retention priority',
-		},
-		benefits: [
-			'Automate customer segmentation',
-			'Improve decision making',
-			'Scale data analysis',
-		],
-		useCases: [
-			'Customer segmentation',
-			'Credit risk assessment',
-			'Employee performance evaluation',
-			'Sales lead scoring',
-			'Medical diagnosis support',
-		],
+		example_explain: 'Predicts a class for each row in a structured table.',
 		image: tabular_classification,
 		difficulty: 'Beginner',
 		timeToTrain: '5-20 minutes',
@@ -172,22 +128,7 @@ const taskCards = [
 		description:
 			'Forecast future values like house prices, sales numbers, or performance scores using your historical data patterns.',
 		icon: '📈',
-		example: {
-			input: 'House: 2000 sq ft, 3 bedrooms, downtown location',
-			output: 'Predicted price: $485,000 (±$15,000)',
-		},
-		benefits: [
-			'Accurate price forecasting',
-			'Data-driven decisions',
-			'Risk assessment',
-		],
-		useCases: [
-			'Real estate price prediction',
-			'Sales forecasting',
-			'Stock price analysis',
-			'Energy consumption prediction',
-			'Insurance premium calculation',
-		],
+		example_explain: 'Predicts a numeric target from structured features.',
 		image: tabular_regression,
 		difficulty: 'Intermediate',
 		timeToTrain: '10-30 minutes',
@@ -199,22 +140,9 @@ const taskCards = [
 		description:
 			'Advanced analysis when data needs multiple classifications - essential for comprehensive customer profiling and risk assessment.',
 		icon: '🔍',
-		example: {
-			input: 'Customer: High spending, infrequent purchases, price-sensitive',
-			output: 'Labels: High-value, At-risk, Price-conscious, VIP potential',
-		},
-		benefits: [
-			'Comprehensive customer insights',
-			'Advanced segmentation',
-			'Risk identification',
-		],
-		useCases: [
-			'Customer behavior analysis',
-			'Multi-factor risk assessment',
-			'Product recommendation systems',
-			'Healthcare patient profiling',
-			'Financial portfolio analysis',
-		],
+		explain: `📌 **This example shows how Multilabel Classification works using movies.**\n\nIn this table:\n- Each row is a movie (like "Avengers: Endgame" or "Titanic").\n- The last column — “Genres” — shows **all the categories that apply to that movie**.\n\n🎬 For example:\n\n- Movie #1: "Avengers: Endgame" — has 3 genres: **Action, Adventure, Sci-Fi**\n- Movie #2: "Titanic" — has 3 genres: **Romance, Disaster, Historical**\n- Movie #3: "Parasite" — has 4 genres: **Thriller, Comedy, Drama, Social Commentary**\n- Movie #4: "The Hangover" — has 2 genres: **Comedy, Adventure**\n\n✅ This is different from “single-label” classification, where each movie could only belong to ONE genre (e.g., just “Action” or just “Comedy”). Here, we allow **multiple labels per item** — because real life is rarely black-and-white!\n\n💡 In short:\nThis table shows how one movie can be many things at once — and that’s exactly what multilabel classification does: it lets you assign **multiple correct answers** to one piece of data.`,
+		example_explain:
+			'Multilabel Tabular Classification\nMultiple labels for detailed insights from structured data.',
 		image: multilabel_tabular_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '20-40 minutes',
@@ -227,22 +155,7 @@ const taskCards = [
 		description:
 			'The most comprehensive approach! Analyze both visual and textual content together for social media, e-commerce, or content platforms.',
 		icon: '🎯',
-		example: {
-			input: 'Product photo + description: "Elegant vintage watch"',
-			output: 'Analysis: Luxury item, Fashion category, High engagement potential',
-		},
-		benefits: [
-			'Complete content understanding',
-			'Enhanced user experience',
-			'Better content recommendations',
-		],
-		useCases: [
-			'Social media content analysis',
-			'E-commerce product classification',
-			'Brand monitoring',
-			'Advertisement effectiveness',
-			'Content recommendation systems',
-		],
+		example_explain: 'Combines image and text signals for classification.',
 		image: multimodal_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '25-45 minutes',
@@ -649,185 +562,242 @@ const ManualCreationModal = ({
 								/>
 							</div>
 
-							<div
-								style={{
-									background: 'var(--card-gradient)',
-									border: '2px solid var(--border)',
-									borderRadius: '16px',
-									padding: '20px',
-									marginBottom: '24px',
-								}}
-							>
-								<Title
-									level={5}
+							{/* Long explanation block (if provided) */}
+							{displayTask.explain && (
+								<div
 									style={{
-										margin: '0 0 16px 0',
-										color: 'var(--text)',
-										fontFamily: 'Poppins, sans-serif',
-										textAlign: 'center',
+										background: 'var(--card-gradient)',
+										border: '2px solid var(--border)',
+										borderRadius: '16px',
+										padding: '20px',
+										marginBottom: '24px',
 									}}
 								>
-									Example
-								</Title>
-								<div style={{ marginBottom: '12px' }}>
-									<Text
+									<Title
+										level={5}
 										style={{
-											color: 'var(--secondary-text)',
-											fontSize: '11px',
-											fontWeight: 700,
-											textTransform: 'uppercase',
-											letterSpacing: '0.5px',
-											fontFamily: 'Poppins, sans-serif',
-											display: 'block',
-											marginBottom: '6px',
-										}}
-									>
-										INPUT:
-									</Text>
-									<Text
-										style={{
+											margin: '0 0 12px 0',
 											color: 'var(--text)',
-											fontSize: '13px',
-											fontWeight: 500,
 											fontFamily: 'Poppins, sans-serif',
-											lineHeight: '1.4',
+											textAlign: 'center',
 										}}
 									>
-										{displayTask.example.input}
-									</Text>
+										Explanation
+									</Title>
+									<MarkdownRenderer
+										markdownText={displayTask.explain}
+									/>
 								</div>
-								<div>
-									<Text
-										style={{
-											color: 'var(--secondary-text)',
-											fontSize: '11px',
-											fontWeight: 700,
-											textTransform: 'uppercase',
-											letterSpacing: '0.5px',
-											fontFamily: 'Poppins, sans-serif',
-											display: 'block',
-											marginBottom: '6px',
-										}}
-									>
-										OUTPUT:
-									</Text>
-									<Text
-										style={{
-											color: 'var(--accent-text)',
-											fontSize: '13px',
-											fontWeight: 600,
-											fontFamily: 'Poppins, sans-serif',
-											lineHeight: '1.4',
-										}}
-									>
-										{displayTask.example.output}
-									</Text>
-								</div>
-							</div>
+							)}
 
-							<div style={{ marginBottom: '24px' }}>
-								<Title
-									level={5}
-									style={{
-										margin: '0 0 12px 0',
-										color: 'var(--text)',
-										fontFamily: 'Poppins, sans-serif',
-									}}
-								>
-									Common Use Cases
-								</Title>
+							{displayTask.example && (
 								<div
 									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										gap: '8px',
+										background: 'var(--card-gradient)',
+										border: '2px solid var(--border)',
+										borderRadius: '16px',
+										padding: '20px',
+										marginBottom: '24px',
 									}}
 								>
-									{displayTask.useCases.map((useCase, i) => (
-										<div
-											key={i}
+									<Title
+										level={5}
+										style={{
+											margin: '0 0 16px 0',
+											color: 'var(--text)',
+											fontFamily: 'Poppins, sans-serif',
+											textAlign: 'center',
+										}}
+									>
+										Example
+									</Title>
+									<div style={{ marginBottom: '12px' }}>
+										<Text
 											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
+												color: 'var(--secondary-text)',
+												fontSize: '11px',
+												fontWeight: 700,
+												textTransform: 'uppercase',
+												letterSpacing: '0.5px',
+												fontFamily:
+													'Poppins, sans-serif',
+												display: 'block',
+												marginBottom: '6px',
 											}}
 										>
-											<div
-												style={{
-													width: '6px',
-													height: '6px',
-													borderRadius: '50%',
-													background:
-														'var(--accent-text)',
-												}}
-											/>
+											INPUT:
+										</Text>
+										<Text
+											style={{
+												color: 'var(--text)',
+												fontSize: '13px',
+												fontWeight: 500,
+												fontFamily:
+													'Poppins, sans-serif',
+												lineHeight: '1.4',
+											}}
+										>
+											{displayTask.example.input}
+										</Text>
+									</div>
+									<div>
+										<Text
+											style={{
+												color: 'var(--secondary-text)',
+												fontSize: '11px',
+												fontWeight: 700,
+												textTransform: 'uppercase',
+												letterSpacing: '0.5px',
+												fontFamily:
+													'Poppins, sans-serif',
+												display: 'block',
+												marginBottom: '6px',
+											}}
+										>
+											OUTPUT:
+										</Text>
+										<Text
+											style={{
+												color: 'var(--accent-text)',
+												fontSize: '13px',
+												fontWeight: 600,
+												fontFamily:
+													'Poppins, sans-serif',
+												lineHeight: '1.4',
+											}}
+										>
+											{displayTask.example.output}
+										</Text>
+									</div>
+									{displayTask.example_explain && (
+										<div style={{ marginTop: '12px' }}>
 											<Text
 												style={{
-													color: 'var(--text)',
-													fontSize: '13px',
+													color: 'var(--secondary-text)',
+													fontSize: '12px',
 													fontFamily:
 														'Poppins, sans-serif',
-													lineHeight: '1.4',
+													whiteSpace: 'pre-wrap',
 												}}
 											>
-												{useCase}
+												{displayTask.example_explain}
 											</Text>
 										</div>
-									))}
+									)}
 								</div>
-							</div>
+							)}
 
-							<div style={{ marginBottom: '24px' }}>
-								<Title
-									level={5}
-									style={{
-										margin: '0 0 12px 0',
-										color: 'var(--text)',
-										fontFamily: 'Poppins, sans-serif',
-									}}
-								>
-									Key Benefits
-								</Title>
-								<div
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										gap: '8px',
-									}}
-								>
-									{displayTask.benefits.map((benefit, i) => (
-										<div
-											key={i}
-											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-											}}
-										>
-											<div
-												style={{
-													width: '6px',
-													height: '6px',
-													borderRadius: '50%',
-													background:
-														'var(--accent-text)',
-												}}
-											/>
-											<Text
-												style={{
-													color: 'var(--text)',
-													fontSize: '13px',
-													fontFamily:
-														'Poppins, sans-serif',
-													lineHeight: '1.4',
-												}}
-											>
-												{benefit}
-											</Text>
-										</div>
-									))}
+							{displayTask.useCases && (
+								<div style={{ marginBottom: '24px' }}>
+									<Title
+										level={5}
+										style={{
+											margin: '0 0 12px 0',
+											color: 'var(--text)',
+											fontFamily: 'Poppins, sans-serif',
+										}}
+									>
+										Common Use Cases
+									</Title>
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: '8px',
+										}}
+									>
+										{displayTask.useCases.map(
+											(useCase, i) => (
+												<div
+													key={i}
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+													}}
+												>
+													<div
+														style={{
+															width: '6px',
+															height: '6px',
+															borderRadius: '50%',
+															background:
+																'var(--accent-text)',
+														}}
+													/>
+													<Text
+														style={{
+															color: 'var(--text)',
+															fontSize: '13px',
+															fontFamily:
+																'Poppins, sans-serif',
+															lineHeight: '1.4',
+														}}
+													>
+														{useCase}
+													</Text>
+												</div>
+											)
+										)}
+									</div>
 								</div>
-							</div>
+							)}
+
+							{displayTask.benefits && (
+								<div style={{ marginBottom: '24px' }}>
+									<Title
+										level={5}
+										style={{
+											margin: '0 0 12px 0',
+											color: 'var(--text)',
+											fontFamily: 'Poppins, sans-serif',
+										}}
+									>
+										Key Benefits
+									</Title>
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: '8px',
+										}}
+									>
+										{displayTask.benefits.map(
+											(benefit, i) => (
+												<div
+													key={i}
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+													}}
+												>
+													<div
+														style={{
+															width: '6px',
+															height: '6px',
+															borderRadius: '50%',
+															background:
+																'var(--accent-text)',
+														}}
+													/>
+													<Text
+														style={{
+															color: 'var(--text)',
+															fontSize: '13px',
+															fontFamily:
+																'Poppins, sans-serif',
+															lineHeight: '1.4',
+														}}
+													>
+														{benefit}
+													</Text>
+												</div>
+											)
+										)}
+									</div>
+								</div>
+							)}
 
 							<div
 								style={{
