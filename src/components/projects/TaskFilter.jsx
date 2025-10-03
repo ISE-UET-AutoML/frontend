@@ -106,7 +106,7 @@ const TaskFilter = ({
 							}}
 						>
 							<span
-								className="text-sm font-poppins font-semibold"
+								className="text-sm font-poppins font-medium"
 								style={{
 									color: 'var(--title-project)',
 									whiteSpace: 'nowrap',
@@ -133,7 +133,7 @@ const TaskFilter = ({
 							}}
 						>
 							<span
-								className="text-sm font-poppins font-semibold"
+								className="text-sm font-poppins font-medium"
 								style={{
 									color: 'var(--title-project)',
 									whiteSpace: 'nowrap',
