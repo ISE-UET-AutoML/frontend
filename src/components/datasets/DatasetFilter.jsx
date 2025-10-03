@@ -72,194 +72,225 @@ const themeSelectStyles = `
 `
 
 const statusOptions = [
-  { value: 'COMPLETED', label: 'Completed' },
-  { value: 'PROCESSING', label: 'Processing' },
-  { value: 'CREATING_DATASET', label: 'Creating Dataset' },
-  { value: 'CREATING_LABEL_PROJECT', label: 'Creating Label Project' },
-  { value: 'FAILED', label: 'Failed' },
+	{ value: 'COMPLETED', label: 'Completed' },
+	{ value: 'PROCESSING', label: 'Processing' },
+	{ value: 'CREATING_DATASET', label: 'Creating Dataset' },
+	{ value: 'CREATING_LABEL_PROJECT', label: 'Creating Label Project' },
+	{ value: 'FAILED', label: 'Failed' },
 ]
 
 const sortOptions = [
-  { value: 'name', label: 'Name' },
-  { value: 'latest', label: 'Latest' },
-  { value: 'oldest', label: 'Oldest' },
+	{ value: 'name', label: 'Name' },
+	{ value: 'latest', label: 'Latest' },
+	{ value: 'oldest', label: 'Oldest' },
 ]
 
 const typeFilterOptions = [
-  { value: 'None', label: 'None' },
-  { value: 'TEXT', label: 'Text' },
-  { value: 'IMAGE', label: 'Image' },
-  { value: 'TABULAR', label: 'Tabular' },
-  { value: 'MULTIMODAL', label: 'Multimodal' },
+	{ value: 'None', label: 'None' },
+	{ value: 'TEXT', label: 'Text' },
+	{ value: 'IMAGE', label: 'Image' },
+	{ value: 'TABULAR', label: 'Tabular' },
+	{ value: 'MULTIMODAL', label: 'Multimodal' },
 ]
 
 const DatasetFilter = ({
-  selectedType,
-  onTypeChange,
-  selectedStatus,
-  onStatusChange,
-  onReset,
-  searchTerm,
-  onSearchChange,
-  sortBy,
-  onSortChange,
+	selectedType,
+	onTypeChange,
+	selectedStatus,
+	onStatusChange,
+	onReset,
+	searchTerm,
+	onSearchChange,
+	sortBy,
+	onSortChange,
 }) => {
-  return (
-    <>
-      <style>{themeSelectStyles}</style>
-      <div
-        className="mb-6 p-4 rounded-xl backdrop-blur-sm"
-        style={{
-          background: 'var(--filter-bg)',
-          border: '1px solid var(--filter-border)'
-        }}
-      >
-        <div className="space-y-4">
-          {/* Search Bar */}
-          <div>
-            <span
-              className="text-sm font-poppins font-medium block mb-2"
-              style={{ color: 'var(--secondary-text)' }}
-            >
-              Search:
-            </span>
-            <input
-              type="text"
-              placeholder="Search datasets..."
-              value={searchTerm || ''}
-              onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                borderRadius: '6px'
-              }}
-            />
-          </div>
+	return (
+		<>
+			<style>{themeSelectStyles}</style>
+			<div
+				className="mb-6 p-4 rounded-xl backdrop-blur-sm"
+				style={{
+					background: 'var(--filter-bg)',
+					border: '1px solid var(--filter-border)',
+				}}
+			>
+				<div className="space-y-4">
+					{/* Search Bar */}
+					<div>
+						<span
+							className="text-sm font-poppins font-medium block mb-2"
+							style={{ color: 'var(--secondary-text)' }}
+						>
+							Search:
+						</span>
+						<input
+							type="text"
+							placeholder="Search datasets..."
+							value={searchTerm || ''}
+							onChange={(e) =>
+								onSearchChange && onSearchChange(e.target.value)
+							}
+							className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
+							style={{
+								fontFamily: 'Poppins, sans-serif',
+								borderRadius: '6px',
+							}}
+						/>
+					</div>
 
-          {/* Sort and Filter Controls */}
-          <Row gutter={[16, 16]} align="middle">
-            {/* Sort Control */}
-            <Col xs={24} sm={8}>
-              <div className="space-y-2">
-                <span
-                  className="text-sm font-poppins font-medium"
-                  style={{ color: 'var(--secondary-text)' }}
-                >
-                  Sort by:
-                </span>
-                <Select
-                  options={sortOptions.map(option => ({
-                    ...option,
-                    label: (
-                      <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
-                        {option.label}
-                      </span>
-                    )
-                  }))}
-                  value={sortBy || 'latest'}
-                  className="w-full theme-select"
-                  onChange={(value) => onSortChange && onSortChange(value)}
-                  dropdownStyle={{
-                    background: 'var(--filter-dropdown-bg)',
-                    border: '1px solid var(--filter-dropdown-border)',
-                    borderRadius: '12px',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  popupClassName="theme-select-dropdown"
-                />
-              </div>
-            </Col>
+					{/* Sort and Filter Controls */}
+					<Row gutter={[16, 16]} align="middle">
+						{/* Sort Control */}
+						<Col xs={24} sm={8}>
+							<div className="space-y-2">
+								<span
+									className="text-sm font-poppins font-medium"
+									style={{ color: 'var(--secondary-text)' }}
+								>
+									Sort by:
+								</span>
+								<Select
+									options={sortOptions.map((option) => ({
+										...option,
+										label: (
+											<span
+												className="font-poppins font-medium"
+												style={{ color: 'var(--text)' }}
+											>
+												{option.label}
+											</span>
+										),
+									}))}
+									value={sortBy || 'latest'}
+									className="w-full theme-select"
+									onChange={(value) =>
+										onSortChange && onSortChange(value)
+									}
+									dropdownStyle={{
+										background: 'var(--filter-dropdown-bg)',
+										border: '1px solid var(--filter-dropdown-border)',
+										borderRadius: '12px',
+										backdropFilter: 'blur(10px)',
+									}}
+									popupClassName="theme-select-dropdown"
+								/>
+							</div>
+						</Col>
 
-            {/* Type Filter Control */}
-            <Col xs={24} sm={8}>
-              <div className="space-y-2">
-                <span
-                  className="text-sm font-poppins font-medium"
-                  style={{ color: 'var(--secondary-text)' }}
-                >
-                  Type:
-                </span>
-                <Select
-                  options={typeFilterOptions.map(option => ({
-                    ...option,
-                    label: (
-                      <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
-                        {option.label}
-                      </span>
-                    )
-                  }))}
-                  value={selectedType || 'none'}
-                  className="w-full theme-select"
-                  onChange={(value) => onTypeChange && onTypeChange(value)}
-                  dropdownStyle={{
-                    background: 'var(--filter-dropdown-bg)',
-                    border: '1px solid var(--filter-dropdown-border)',
-                    borderRadius: '12px',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  popupClassName="theme-select-dropdown"
-                />
-              </div>
-            </Col>
+						{/* Type Filter Control */}
+						<Col xs={24} sm={8}>
+							<div className="space-y-2">
+								<span
+									className="text-sm font-poppins font-medium"
+									style={{ color: 'var(--secondary-text)' }}
+								>
+									Type:
+								</span>
+								<Select
+									options={typeFilterOptions.map(
+										(option) => ({
+											...option,
+											label: (
+												<span
+													className="font-poppins font-medium"
+													style={{
+														color: 'var(--text)',
+													}}
+												>
+													{option.label}
+												</span>
+											),
+										})
+									)}
+									value={selectedType || 'none'}
+									className="w-full theme-select"
+									onChange={(value) =>
+										onTypeChange && onTypeChange(value)
+									}
+									dropdownStyle={{
+										background: 'var(--filter-dropdown-bg)',
+										border: '1px solid var(--filter-dropdown-border)',
+										borderRadius: '12px',
+										backdropFilter: 'blur(10px)',
+									}}
+									popupClassName="theme-select-dropdown"
+								/>
+							</div>
+						</Col>
 
-            {/* Status Filter */}
-            <Col xs={24} sm={8}>
-              <div className="space-y-2">
-                <span
-                  className="text-sm font-poppins font-medium"
-                  style={{ color: 'var(--secondary-text)' }}
-                >
-                  Status:
-                </span>
-                <Select
-                  options={statusOptions.map(option => ({
-                    ...option,
-                    label: (
-                      <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
-                        {option.label}
-                      </span>
-                    )
-                  }))}
-                  value={selectedStatus}
-                  className="w-full theme-select"
-                  onChange={onStatusChange}
-                  allowClear
-                  dropdownStyle={{
-                    background: 'var(--filter-dropdown-bg)',
-                    border: '1px solid var(--filter-dropdown-border)',
-                    borderRadius: '12px',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  popupClassName="theme-select-dropdown"
-                />
-              </div>
-            </Col>
-          </Row>
+						{/* Status Filter */}
+						<Col xs={24} sm={8}>
+							<div className="space-y-2">
+								<span
+									className="text-sm font-poppins font-medium"
+									style={{ color: 'var(--secondary-text)' }}
+								>
+									Status:
+								</span>
+								<Select
+									options={statusOptions.map((option) => ({
+										...option,
+										label: (
+											<span
+												className="font-poppins font-medium"
+												style={{ color: 'var(--text)' }}
+											>
+												{option.label}
+											</span>
+										),
+									}))}
+									value={selectedStatus}
+									className="w-full theme-select"
+									onChange={onStatusChange}
+									allowClear
+									dropdownStyle={{
+										background: 'var(--filter-dropdown-bg)',
+										border: '1px solid var(--filter-dropdown-border)',
+										borderRadius: '12px',
+										backdropFilter: 'blur(10px)',
+									}}
+									popupClassName="theme-select-dropdown"
+								/>
+							</div>
+						</Col>
+					</Row>
 
-          {/* Reset Button */}
-          {(selectedStatus || searchTerm || sortBy !== 'latest' || selectedType !== 'none') && (
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={onReset}
-                className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  background: 'var(--hover-bg)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)'
-                }}
-                onMouseEnter={(e) => e.target.style.background = 'var(--active-bg)'}
-                onMouseLeave={(e) => e.target.style.background = 'var(--hover-bg)'}
-              >
-                <XMarkIcon className="h-4 w-4" />
-                Reset Filters
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </>
-  )
+					{/* Reset Button */}
+					{(selectedStatus ||
+						searchTerm ||
+						sortBy !== 'latest' ||
+						selectedType !== 'none') && (
+						<div className="flex justify-end pt-2">
+							<button
+								onClick={onReset}
+								className="px-4 py-2 flex items-center gap-2 transition-all duration-200"
+								style={{
+									fontFamily: 'Poppins, sans-serif',
+									background: 'var(--hover-bg)',
+									color: 'var(--text)',
+									borderRadius: '9999px',
+									border: '1px solid var(--border)',
+									outline: 'none',
+									overflow: 'hidden',
+								}}
+								onMouseEnter={(e) =>
+									(e.target.style.background =
+										'var(--active-bg)')
+								}
+								onMouseLeave={(e) =>
+									(e.target.style.background =
+										'var(--hover-bg)')
+								}
+							>
+								<XMarkIcon className="h-4 w-4 border rounded-2xl" />
+								Reset Filters
+							</button>
+						</div>
+					)}
+				</div>
+			</div>
+		</>
+	)
 }
 
 export default DatasetFilter

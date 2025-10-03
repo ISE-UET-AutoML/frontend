@@ -11,6 +11,7 @@ import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import Pager from 'src/components/Pager'
 import CreateProjectModal from 'src/components/projects/CreateProjectModal'
+import create_project from 'src/assets/images/create_project.png'
 
 // Hooks
 import { useProjects } from 'src/hooks'
@@ -21,7 +22,7 @@ const { Content } = Layout
 export default function Projects() {
 	const pageSize = 9
 	const [currentPage, setCurrentPage] = React.useState(1)
-	
+
 	// Custom hooks
 	const {
 		projectState,
@@ -49,7 +50,11 @@ export default function Projects() {
 	}, [projectState.projects])
 
 	const startIndex = (currentPage - 1) * pageSize
-	const paginatedProjects = (projectState.projects || []).slice(startIndex, startIndex + pageSize)
+	const paginatedProjects = (projectState.projects || []).slice(
+		startIndex,
+		startIndex + pageSize
+	)
+	const hasProjects = (projectState.projects || []).length > 0
 
 	return (
 		<>
@@ -134,7 +139,9 @@ export default function Projects() {
 							{/* Header Section */}
 							<ProjectHeader
 								onNewProject={() =>
-									updateProjState({ showUploaderManual: true })
+									updateProjState({
+										showUploaderManual: true,
+									})
 								}
 							/>
 
@@ -150,24 +157,87 @@ export default function Projects() {
 								searchValue={searchValue}
 							/>
 
-						{/* Projects Grid */}
-						<ProjectsGrid
-							projects={paginatedProjects}
-							getProjects={getProjects}
-							onCreateProject={() =>
-								updateProjState({ showUploaderManual: true })
-							}
-						/>
+							{/* Content */}
+							{hasProjects ? (
+								<>
+									{/* Projects Grid */}
+									<ProjectsGrid
+										projects={paginatedProjects}
+										getProjects={getProjects}
+										onCreateProject={() =>
+											updateProjState({
+												showUploaderManual: true,
+											})
+										}
+									/>
 
-						{/* Pager */}
-						<div className="mt-8">
-							<Pager
-								currentPage={currentPage}
-								totalItems={(projectState.projects || []).length}
-								pageSize={pageSize}
-								onPageChange={setCurrentPage}
-							/>
-						</div>
+									{/* Pager */}
+									<div className="mt-8">
+										<Pager
+											currentPage={currentPage}
+											totalItems={
+												(projectState.projects || [])
+													.length
+											}
+											pageSize={pageSize}
+											onPageChange={setCurrentPage}
+										/>
+									</div>
+								</>
+							) : (
+								<div
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+										justifyContent: 'center',
+										padding: '48px 0',
+									}}
+								>
+									<img
+										src={create_project}
+										alt="Create project"
+										style={{
+											width: '360px',
+											maxWidth: '90%',
+											cursor: 'pointer',
+											filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.25))',
+										}}
+										onClick={() =>
+											updateProjState({
+												showUploaderManual: true,
+											})
+										}
+									/>
+									<div
+										style={{
+											marginTop: 24,
+											textAlign: 'center',
+										}}
+									>
+										<div
+											className="font-poppins"
+											style={{
+												color: 'var(--text)',
+												fontSize: 24,
+												fontWeight: 600,
+											}}
+										>
+											No Projects Yet
+										</div>
+										<div
+											className="font-poppins"
+											style={{
+												color: 'var(--secondary-text)',
+												marginTop: 6,
+											}}
+										>
+											Start by creating your first AI
+											project
+										</div>
+									</div>
+								</div>
+							)}
 						</ContentContainer>
 
 						{/* New Create Project Modal */}
@@ -176,7 +246,7 @@ export default function Projects() {
 							onCancel={() =>
 								updateProjState({ showUploaderManual: false })
 							}
-                            onCreate={getProjects}
+							onCreate={getProjects}
 						/>
 					</Content>
 				</Layout>
