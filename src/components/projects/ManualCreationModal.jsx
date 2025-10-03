@@ -600,28 +600,6 @@ const ManualCreationModal = ({
 						>
 							<div
 								style={{
-									width: '100%',
-									height: '340px',
-									borderRadius: '20px',
-									overflow: 'hidden',
-									marginBottom: '24px',
-									boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
-									border: '2px solid var(--border-hover)',
-								}}
-							>
-								<img
-									src={displayTask.image}
-									alt={displayTask.title}
-									style={{
-										width: '100%',
-										height: '100%',
-										objectFit: 'contain',
-									}}
-								/>
-							</div>
-
-							<div
-								style={{
 									textAlign: 'center',
 									marginBottom: '24px',
 								}}
@@ -647,6 +625,28 @@ const ManualCreationModal = ({
 								>
 									{displayTask.subtitle}
 								</Text>
+							</div>
+
+							<div
+								style={{
+									width: '100%',
+									height: '340px',
+									borderRadius: '20px',
+									overflow: 'hidden',
+									marginBottom: '24px',
+									boxShadow: '0 12px 32px rgba(0,0,0,0.15)',
+									border: '2px solid var(--border-hover)',
+								}}
+							>
+								<img
+									src={displayTask.image}
+									alt={displayTask.title}
+									style={{
+										width: '100%',
+										height: '100%',
+										objectFit: 'contain',
+									}}
+								/>
 							</div>
 
 							<div
