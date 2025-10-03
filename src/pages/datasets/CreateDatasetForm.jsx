@@ -845,68 +845,162 @@ export default function CreateDatasetForm({
 				>
 					<Row gutter={16}>
 						<Col span={12}>
-							<Form.Item
-								label="Title"
-								name="title"
-								validateTrigger={['onChange', 'onBlur']}
-								rules={[
-									{
-										required: true,
-										message: 'Please enter a title',
-									},
-									{
-										pattern: /^[\p{L}0-9 _-]+$/u,
-										message:
-											'Only letters, numbers, spaces, _ and - are allowed.',
-									},
-								]}
-							>
-								<Input
-									placeholder="Enter dataset title"
-									disabled={disableFields.includes('title')}
-								/>
-							</Form.Item>
+							{disableFields.includes('title') ? (
+								<div style={{ marginBottom: '24px' }}>
+									<Text
+										style={{
+											display: 'block',
+											marginBottom: '8px',
+											color: 'var(--form-label-color)',
+											fontFamily: 'Poppins, sans-serif',
+											fontWeight: 600,
+											fontSize: '14px',
+										}}
+									>
+										Title
+									</Text>
+									<div
+										style={{
+											padding: '8px 12px',
+											background: 'var(--upload-bg)',
+											borderRadius: '8px',
+											border: '1px solid var(--border-color)',
+											color: 'var(--text)',
+											fontFamily: 'Poppins, sans-serif',
+											fontSize: '14px',
+											minHeight: '40px',
+											display: 'flex',
+											alignItems: 'center',
+										}}
+									>
+										{initialValues?.title || '-'}
+									</div>
+								</div>
+							) : (
+								<Form.Item
+									label="Title"
+									name="title"
+									validateTrigger={['onChange', 'onBlur']}
+									rules={[
+										{
+											required: true,
+											message: 'Please enter a title',
+										},
+										{
+											pattern: /^[\p{L}0-9 _-]+$/u,
+											message:
+												'Only letters, numbers, spaces, _ and - are allowed.',
+										},
+									]}
+								>
+									<Input placeholder="Enter dataset title" />
+								</Form.Item>
+							)}
 						</Col>
 						<Col span={12}>
-							<Form.Item
-								label="Type"
-								name="dataset_type"
-								rules={[
-									{
-										required: true,
-										message: 'Please select a type',
-									},
-								]}
-							>
-								<Select
-									placeholder="Select dataset type"
-									onChange={(value) => {
-										setDatasetType(value)
-									}}
-									disabled={disableFields.includes('type')}
+							{disableFields.includes('type') ? (
+								<div style={{ marginBottom: '24px' }}>
+									<Text
+										style={{
+											display: 'block',
+											marginBottom: '8px',
+											color: 'var(--form-label-color)',
+											fontFamily: 'Poppins, sans-serif',
+											fontWeight: 600,
+											fontSize: '14px',
+										}}
+									>
+										Type
+									</Text>
+									<div
+										style={{
+											padding: '8px 12px',
+											background: 'var(--upload-bg)',
+											borderRadius: '8px',
+											border: '1px solid var(--border-color)',
+											color: 'var(--text)',
+											fontFamily: 'Poppins, sans-serif',
+											fontSize: '14px',
+											minHeight: '40px',
+											display: 'flex',
+											alignItems: 'center',
+										}}
+									>
+										{initialValues?.dataset_type
+											? DATASET_TYPES[
+													initialValues.dataset_type
+												]?.type
+											: '-'}
+									</div>
+								</div>
+							) : (
+								<Form.Item
+									label="Type"
+									name="dataset_type"
+									rules={[
+										{
+											required: true,
+											message: 'Please select a type',
+										},
+									]}
 								>
-									{Object.entries(DATASET_TYPES).map(
-										([key, value]) => (
-											<Option key={key} value={key}>
-												{value.type}
-											</Option>
-										)
-									)}
-								</Select>
-							</Form.Item>
+									<Select
+										placeholder="Select dataset type"
+										onChange={(value) => {
+											setDatasetType(value)
+										}}
+									>
+										{Object.entries(DATASET_TYPES).map(
+											([key, value]) => (
+												<Option key={key} value={key}>
+													{value.type}
+												</Option>
+											)
+										)}
+									</Select>
+								</Form.Item>
+							)}
 						</Col>
 					</Row>
 
 					{renderPreparingInstructions()}
 
-					<Form.Item name="description" label="Description">
-						<TextArea
-							rows={2}
-							maxLength={500}
-							showCount
-							disabled={disableFields.includes('description')}
-						/>
-					</Form.Item>
+					{disableFields.includes('description') ? (
+						<div style={{ marginBottom: '24px' }}>
+							<Text
+								style={{
+									display: 'block',
+									marginBottom: '8px',
+									color: 'var(--form-label-color)',
+									fontFamily: 'Poppins, sans-serif',
+									fontWeight: 600,
+									fontSize: '14px',
+								}}
+							>
+								Description
+							</Text>
+							<div
+								style={{
+									padding: '8px 12px',
+									background: 'var(--upload-bg)',
+									borderRadius: '8px',
+									border: '1px solid var(--border-color)',
+									color: 'var(--text)',
+									fontFamily: 'Poppins, sans-serif',
+									fontSize: '14px',
+									minHeight: '60px',
+									display: 'flex',
+									alignItems: 'flex-start',
+								}}
+							>
+								{initialValues?.description || '-'}
+							</div>
+						</div>
+					) : (
+						<Form.Item name="description" label="Description">
+							<TextArea rows={2} maxLength={500} showCount />
+						</Form.Item>
+					)}
 
 					{!hideFields.includes('service') &&
 						!hideFields.includes('bucket_name') && (
