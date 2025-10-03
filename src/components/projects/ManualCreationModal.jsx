@@ -341,7 +341,7 @@ const ManualCreationModal = ({
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
-							Choose Your Label
+							Choose Your Task
 						</Title>
 						<div
 							className="task-list-column"

@@ -31,26 +31,58 @@ const themeInputStyles = `
     border-color: var(--filter-input-focus) !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
 }
+
+/* Custom plain input used in filters */
+.theme-search-input {
+    background: var(--filter-input-bg) !important;
+    border: 1px solid var(--filter-input-border) !important;
+    color: var(--text) !important;
+}
+
+.theme-search-input::placeholder {
+    color: var(--secondary-text) !important;
+}
+
+.theme-search-input:hover {
+    border-color: var(--filter-input-hover) !important;
+}
+
+.theme-search-input:focus {
+    border-color: var(--filter-input-focus) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+    outline: none !important;
+}
 `
 
-export default function ProjectSearchBar({ onSearch, isReset }) {
-    const [searchValue, setSearchValue] = React.useState('')
+export default function ProjectSearchBar({
+	onSearch,
+	isReset,
+	compact = false,
+}) {
+	const [searchValue, setSearchValue] = React.useState('')
 
-    const handleChange = (e) => {
-        const value = e.target.value
-        setSearchValue(value)
-        onSearch(value)
-    }
+	const handleChange = (e) => {
+		const value = e.target.value
+		setSearchValue(value)
+		onSearch(value)
+	}
 
-    React.useEffect(() => {
-        setSearchValue('')
-    }, [isReset])
+	React.useEffect(() => {
+		setSearchValue('')
+	}, [isReset])
 
-    return (
-        <>
-            <style>{themeInputStyles}</style>
-            <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                {/* <Input
+	return (
+		<>
+			<style>{themeInputStyles}</style>
+			<div
+				style={{
+					marginBottom: compact ? 0 : 24,
+					display: 'flex',
+					alignItems: 'center',
+					gap: 12,
+				}}
+			>
+				{/* <Input
                     placeholder="Search projects..."
                     value={searchValue}
                     onChange={handleChange}
@@ -60,22 +92,24 @@ export default function ProjectSearchBar({ onSearch, isReset }) {
                     spellCheck={false}
                     style={{ flex: 1 }}
                 /> */}
-                <input
-                    type="text"
-                    placeholder="Search projects..."
-                    value={searchValue || ''}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
-                    style={{
-                        fontFamily: 'Poppins, sans-serif',
-                        borderRadius: '6px',
-                        background: 'var(--filter-bg)',
-                        border: '1px solid var(--filter-border)',
-                        color: 'var(--text)',
-                    }}
-                />
-            </div>
-        </>
-    )
+				<input
+					type="text"
+					placeholder="Search projects..."
+					value={searchValue || ''}
+					onChange={handleChange}
+					className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
+					style={{
+						fontFamily: 'Poppins, sans-serif',
+						borderRadius: '6px',
+						background: 'var(--filter-bg)',
+						border: '1px solid var(--filter-border)',
+						color: 'var(--text)',
+						minWidth: 0,
+						height: 40,
+						padding: '0 12px',
+					}}
+				/>
+			</div>
+		</>
+	)
 }
-
