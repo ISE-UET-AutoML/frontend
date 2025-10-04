@@ -488,7 +488,7 @@ const ProjectInfo = () => {
 				className="min-h-screen"
 				style={{ background: 'var(--surface)' }}
 			>
-				<div className="relative pt-16 px-4 sm:px-6 lg:px-8 pb-20">
+				<div className="relative pt-16 px-4 sm:px-6 lg:px-8">
 					{theme === 'dark' && (
 						<BackgroundShapes
 							width="1280px"
@@ -862,10 +862,12 @@ const ProjectInfo = () => {
 											</span>
 										</Space>
 									}
-									className="rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+									className="border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
 									style={{
 										background: cardGradient,
 										backdropFilter: 'blur(10px)',
+										borderRadius: '12px',
+										paddingBottom: '10px'
 									}}
 								>
 									<Row gutter={[24, 24]}>
@@ -883,7 +885,6 @@ const ProjectInfo = () => {
 														accept=".csv,.txt,.json,.xlsx,.png,.jpg"
 													/>
 													<Button
-														type="primary"
 														onClick={
 															handleFileClick
 														}
@@ -892,6 +893,7 @@ const ProjectInfo = () => {
 															<CloudUploadOutlined />
 														}
 														size="large"
+														className="absolute left-0 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white border border-gray-400 mb-10"
 													>
 														{uploading
 															? isWaitingForDeployment
@@ -945,7 +947,7 @@ const ProjectInfo = () => {
 						(isChartLoading ||
 							(Array.isArray(chartData) &&
 								chartData.length > 0)) ? (
-							<div className="p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
+							<div className="p-6 rounded-xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
 								<h2
 									className="text-xl font-bold mb-4"
 									style={{ color: 'var(--text)' }}
