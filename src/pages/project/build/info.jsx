@@ -52,6 +52,7 @@ import {
 	Tooltip as RechartsTooltip,
 	Legend,
 } from 'recharts'
+import { SparklesIcon } from '@heroicons/react/24/solid'
 
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
@@ -292,6 +293,12 @@ const ProjectInfo = () => {
 		setPredictResult(null)
 		setUploadedFiles(null)
 		message.success('All predictions cleared', 2)
+	}
+
+	const handleGenUI = () => {
+		const url = PATHS.PROJECT_DEMO(projectInfo?.id)
+
+		window.open(url, '_blank', 'noopener,noreferrer')
 	}
 
 	// 1) Lấy experimentId theo projectInfo.id
@@ -793,53 +800,27 @@ const ProjectInfo = () => {
 								</div>
 							</Card>
 
-							{/* Deploy Button */}
-							<Button
-								size="large"
-								className="border border-gray-400 border-1 h-full flex items-center justify-center backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transition:ease-in-out hover:opacity-90 relative group text-green-500"
-								style={{
-									background: cardGradient,
-									backdropFilter: 'blur(10px)',
-									borderRadius: '12px',
-									fontFamily: 'Poppins, sans-serif',
-								}}
-								loading={
-									!(
-										modelDeploy === undefined ||
-										modelDeploy?.status === 'ONLINE'
-									)
-								}
-								onClick={
-									hasTraining
-										? handleModelButtonClick
-										: undefined
-								}
-								disabled={true}
+							{/* Gen UI Button */}
+							<Card
+								className="border border-gray-300 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ease-in-out hover:opacity-90 relative group cursor-pointer overflow-hidden rounded-xl font-poppins bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200"
+								onClick={handleGenUI}
 							>
-								<span
-									style={{
-										fontFamily: 'Poppins, sans-serif',
-										fontWeight: 'bold',
-										fontSize: '1.5rem',
-									}}
-								>
-									{hasTraining ? (
-										<span
-											className={`${theme === 'dark' ? 'text-green-500' : 'text-gray-700'}`}
-										>
-											{modelDeploy?.status
-												? modelDeploy.status
-												: 'Use Your Model'}
-										</span>
-									) : (
-										<span
-											className={`${theme === 'dark' ? 'text-red-400' : 'text-gray-700'}`}
-										>
-											Your model not available
-										</span>
-									)}
-								</span>
-							</Button>
+								<div className="absolute inset-0 bg-gradient-to-br from-violet-400/20 via-violet-500/20 to-violet-700/30 opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
+
+								<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+									<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+								</div>
+
+								<div className="relative flex flex-row items-center justify-center gap-3 py-4">
+									<div className="relative">
+										<div className="absolute inset-0 bg-violet-500/30 blur-xl rounded-full animate-pulse"></div>
+										<SparklesIcon className="relative w-8 h-8 text-violet-500 animate-pulse" />
+									</div>
+									<span className="text-violet-500 font-bold text-xl tracking-wide">
+										Generate UI
+									</span>
+								</div>
+							</Card>
 						</div>
 
 						{/* Live Predict Section */}
@@ -867,7 +848,7 @@ const ProjectInfo = () => {
 										background: cardGradient,
 										backdropFilter: 'blur(10px)',
 										borderRadius: '12px',
-										paddingBottom: '10px'
+										paddingBottom: '10px',
 									}}
 								>
 									<Row gutter={[24, 24]}>

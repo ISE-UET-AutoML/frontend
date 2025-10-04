@@ -285,7 +285,10 @@ const ImageClassificationDemo = () => {
 							<div>
 								<div className="grid grid-cols-2 gap-3 p-1.5 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur rounded-xl">
 									<button
-										onClick={() => setActiveTab('upload')}
+										onClick={() => {
+											setActiveTab('upload')
+											setError(null)
+										}}
 										className={`flex items-center justify-center gap-2 px-5 py-3 rounded-[0.75rem] font-semibold transition-all duration-300 ${
 											activeTab === 'upload'
 												? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-lg'
@@ -409,7 +412,7 @@ const ImageClassificationDemo = () => {
 								<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
 									<PhotoIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
 								</div>
-								Example Classifications
+								Example
 							</h2>
 						</div>
 						<div className="p-8 space-y-8">
