@@ -642,10 +642,10 @@ const ProjectInfo = () => {
 							>
 								<div className="relative">
 									{/* Tooltip cho Training Duration */}
-									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg min-w-max">
+									<div className="absolute bottom-[130%] left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg min-w-max relative">
 											Training time for the model
-											<div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
+											<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
 										</div>
 									</div>
 
@@ -719,11 +719,10 @@ const ProjectInfo = () => {
 							>
 								<div className="relative">
 									{/* Tooltip hiện khi hover vào card */}
-									<div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg min-w-max shadow-lg">
-											The proportion of correct
-											predictions.
-											<div className="absolute bottom-full right-4 transform -translate-y-1 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800"></div>
+									<div className="absolute bottom-[130%] left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg min-w-max relative">
+											The proportion of correct predictions.
+											<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
 										</div>
 									</div>
 
