@@ -136,16 +136,13 @@ const ProjectInfo = () => {
 	const [predictResult, setPredictResult] = useState(null)
 	const [uploadedFiles, setUploadedFiles] = useState(null)
 	const [isWaitingForDeployment, setIsWaitingForDeployment] = useState(false)
+	const [isGeneratingUI, setIsGeneratingUI] = useState(false)
 	const fileInputRef = useRef(null)
 
 	const object = LiteConfig[projectInfo?.task_type]
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
-	}
-
-	const handleModelButtonClick = async () => {
-		setIsShowUpload(true)
 	}
 
 	// Chạy ngầm ensure-deployed ngay khi bắt đầu upload, không chặn UI
@@ -296,10 +293,56 @@ const ProjectInfo = () => {
 		message.success('All predictions cleared', 2)
 	}
 
-	const handleGenUI = () => {
-		const url = PATHS.PROJECT_DEMO(projectInfo?.id)
+	const handleGenUI = async () => {
+		try {
+			setIsGeneratingUI(true)
 
-		window.open(url, '_blank', 'noopener,noreferrer')
+			const taskType =
+				TASK_TYPES[projectInfo.task_type]?.type || projectInfo.task_type
+			const taskDescription =
+				projectInfo.description || `A model for ${taskType}`
+			const labels = model.metadata.labels
+			const apiEndpoint = modelDeploy.api_base_url + '/predict'
+
+			console.log('Calling genUI API with:', {
+				taskType,
+				taskDescription,
+				labels,
+				apiEndpoint,
+			})
+
+			const response = await visualizeAPI.genUI(
+				taskType,
+				taskDescription,
+				labels,
+				apiEndpoint
+			)
+
+			console.log('GenUI API response:', response.data)
+
+			const metadata = {
+				description: response.data.description,
+				apiUrl: response.data.apiUrl,
+				samples: response.data.samples,
+			}
+
+			await visualizeAPI.saveMetadata(projectInfo.id, metadata)
+
+			const url = PATHS.PROJECT_DEMO(projectInfo.id)
+			console.log('Opening generated UI at:', url)
+			window.open(url, '_blank', 'noopener,noreferrer')
+		} catch (error) {
+			console.error('Error generating UI:', error)
+			message.error({
+				content:
+					error.response?.data?.detail ||
+					'Failed to generate UI. Please try again.',
+				key: 'genui',
+				duration: 3,
+			})
+		} finally {
+			setIsGeneratingUI(false)
+		}
 	}
 
 	// 1) Lấy experimentId theo projectInfo.id
@@ -577,7 +620,7 @@ const ProjectInfo = () => {
 									onClick={() => navigate(PATHS.PROJECTS)}
 									shape="round"
 									size="large"
-									style={{borderRadius: '8px'}}
+									style={{ borderRadius: '8px' }}
 								>
 									Home
 								</Button>
@@ -598,7 +641,9 @@ const ProjectInfo = () => {
 											>
 												Task:{' '}
 												<span className="opacity-80">
-													{TASK_TYPES[projectInfo?.task_type]?.type || 'N/A'}
+													{TASK_TYPES[
+														projectInfo?.task_type
+													]?.type || 'N/A'}
 												</span>
 											</div>
 											<div
@@ -721,7 +766,8 @@ const ProjectInfo = () => {
 									{/* Tooltip hiện khi hover vào card */}
 									<div className="absolute bottom-[130%] left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
 										<div className="px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg min-w-max relative">
-											The proportion of correct predictions.
+											The proportion of correct
+											predictions.
 											<div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800"></div>
 										</div>
 									</div>
@@ -802,8 +848,10 @@ const ProjectInfo = () => {
 
 							{/* Gen UI Button */}
 							<Card
-								className="border border-gray-300 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ease-in-out hover:opacity-90 relative group cursor-pointer overflow-hidden rounded-xl font-poppins bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200"
-								onClick={handleGenUI}
+								className={`border border-gray-300 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ease-in-out hover:opacity-90 relative group overflow-hidden rounded-xl font-poppins bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200 ${isGeneratingUI ? 'cursor-wait opacity-75' : 'cursor-pointer'}`}
+								onClick={
+									isGeneratingUI ? undefined : handleGenUI
+								}
 							>
 								<div className="absolute inset-0 bg-gradient-to-br from-violet-400/20 via-violet-500/20 to-violet-700/30 opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
 
@@ -817,7 +865,9 @@ const ProjectInfo = () => {
 										<SparklesIcon className="relative w-8 h-8 text-violet-500 animate-pulse" />
 									</div>
 									<span className="text-violet-500 font-bold text-xl tracking-wide">
-										Generate UI
+										{isGeneratingUI
+											? 'Generating...'
+											: 'Generate UI'}
 									</span>
 								</div>
 							</Card>
