@@ -510,7 +510,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 						/>
 					)}
 					{current === 1 && (
-						<div className="dataset-step" style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative', zIndex: 1, height: 'calc(85vh - 180px)', overflow: 'hidden', scrollbarWidth: 'thin', scrollbarColor: '#0ea5e9 transparent' }}>
+						<div className="dataset-step" style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative', zIndex: 1, height: 'calc(85vh - 180px)', overflow: 'hidden', scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 transparent' }}>
 							<CreateDatasetForm
 								isStep={true}
 								onNext={handleSubmit}

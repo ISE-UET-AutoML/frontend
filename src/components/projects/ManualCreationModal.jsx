@@ -322,7 +322,7 @@ const ManualCreationModal = ({
 				display: 'flex',
 				flexDirection: 'column',
 				scrollbarWidth: 'thin',
-				scrollbarColor: '#0ea5e9 transparent',
+				scrollbarColor: '#94a3b8 transparent',
 			}}
 			initialValues={{
 				name: initialProjectName,
@@ -409,7 +409,7 @@ const ManualCreationModal = ({
 							flexDirection: 'column',
 							minHeight: 0, /* Quan trọng để flex container có thể scroll */
 							scrollbarWidth: 'thin',
-							scrollbarColor: '#0ea5e9 transparent',
+							scrollbarColor: '#94a3b8 transparent',
 						}}
 					>
 						<Title
@@ -434,7 +434,7 @@ const ManualCreationModal = ({
 								overflowY: 'auto',
 								minHeight: 0, /* Quan trọng để scroll hoạt động */
 								scrollbarWidth: 'thin',
-								scrollbarColor: '#0ea5e9 transparent',
+								scrollbarColor: '#94a3b8 transparent',
 							}}
 						>
 							<div

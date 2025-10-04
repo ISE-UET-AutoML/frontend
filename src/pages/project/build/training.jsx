@@ -32,6 +32,9 @@ const Training = () => {
 	const [status, setStatus] = useState('PENDING')
 	const [currentStep, setCurrentStep] = useState(0)
 	const [loading, setLoading] = useState(true)
+	
+	// Thêm biến textColor để điều chỉnh màu chữ theo theme
+	const textColor = theme === 'dark' ? '#fff' : '#000'
 
 	const getCurrentStep = (status) => {
 		switch (status) {
@@ -96,27 +99,27 @@ const Training = () => {
 		{
 			key: 'creating',
 			title: 'Creating Instance',
-			icon: <DatabaseOutlined style={{ fontSize: 28 }} />,
+			icon: <DatabaseOutlined style={{ fontSize: 28, color: textColor }}  />,
 		},
 		{
 			key: 'setup',
 			title: 'Setup Env',
-			icon: <SettingOutlined style={{ fontSize: 28 }} />,
+			icon: <SettingOutlined style={{ fontSize: 28, color: textColor }} />,
 		},
 		{
 			key: 'data',
 			title: 'Downloading Data',
-			icon: <CloudDownloadOutlined style={{ fontSize: 28 }} />,
+			icon: <CloudDownloadOutlined style={{ fontSize: 28, color: textColor }} />,
 		},
 		{
 			key: 'training',
 			title: 'Training',
-			icon: <LineChartOutlined style={{ fontSize: 28 }} />,
+			icon: <LineChartOutlined style={{ fontSize: 28, color: textColor }} />,				
 		},
 		{
 			key: 'done',
 			title: 'Done',
-			icon: <DashboardOutlined style={{ fontSize: 28 }} />,
+			icon: <DashboardOutlined style={{ fontSize: 28, color: textColor }} />,
 		},
 	]
 
@@ -162,29 +165,35 @@ const Training = () => {
 			title: (
 				<div className="flex items-center">
 					{step.icon}
-					<span style={{ marginLeft: 8, fontWeight: 600 }}>
+					<span style={{ marginLeft: 8, fontWeight: 600, color: textColor }}>
 						{step.title}
 					</span>
 				</div>
 			),
 			icon: iconEl,
-			description:
-				index === currentStep
-					? {
-							0: 'Setting up...',
-							1: 'Installing packages...',
-							2: 'Fetching dataset...',
-							3: 'Model training in progress...',
-							4: 'Completed!',
-						}[index]
-					: '',
+			description: (
+				<span style={{ color: textColor }}>
+					{index === currentStep
+						? {
+								0: 'Setting up...',
+								1: 'Installing packages...',
+								2: 'Fetching dataset...',
+								3: 'Model training in progress...',
+								4: 'Completed!',
+							}[index]
+						: ''}
+				</span>
+			),
 		}
 	})
+
+	// Xác định màu chữ dựa trên theme
+
 
 	return (
 		<div
 			className="min-h-screen relative overflow-hidden font-poppins"
-			style={{ background: 'var(--surface)' }}
+			style={{ background: 'var(--surface)', color: textColor }}
 		>
 			{theme === 'dark' && (
 				<BackgroundShapes
@@ -255,7 +264,7 @@ const Training = () => {
 								<Title
 									level={2}
 									style={{
-										color: 'var(--text)',
+										color: textColor,
 										marginBottom: '12px',
 									}}
 								>
@@ -263,7 +272,7 @@ const Training = () => {
 								</Title>
 								<Paragraph
 									style={{
-										color: 'var(--secondary-text)',
+										color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'var(--secondary-text)',
 										marginBottom: '32px',
 										fontSize: '16px',
 										maxWidth: '600px',
