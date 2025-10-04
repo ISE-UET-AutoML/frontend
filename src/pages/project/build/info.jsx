@@ -294,15 +294,100 @@ const ProjectInfo = () => {
 	}
 
 	const handleGenUI = async () => {
+		setIsGeneratingUI(true)
+
 		try {
-			setIsGeneratingUI(true)
+			// Check if model is deployed and online
+			let currentModelDeploy = modelDeploy
+			if (
+				!currentModelDeploy?.api_base_url ||
+				currentModelDeploy?.status !== 'ONLINE'
+			) {
+				console.log(
+					'Model not deployed or not online, initiating deployment...'
+				)
+				message.info('Deploying model, please wait...', 3)
+
+				// Start deployment if no model id
+				if (!model?.id) {
+					message.error('No model found to deploy')
+					return
+				}
+
+				// Trigger deployment if not already deployed
+				if (!currentModelDeploy || !currentModelDeploy.api_base_url) {
+					try {
+						await modelServiceAPI.deployModel(model.id)
+						setPollFlag(true)
+						console.log('Deployment initiated for model:', model.id)
+					} catch (error) {
+						console.error('Error starting deployment:', error)
+						message.error('Failed to start deployment')
+						return
+					}
+				}
+
+				// Poll for deployment completion
+				const maxWaitTime = 10 * 60 * 1000 // 10 minutes
+				const pollInterval = 30000 // 30 seconds
+				const startTime = Date.now()
+
+				while (
+					(!currentModelDeploy?.api_base_url ||
+						currentModelDeploy?.status !== 'ONLINE') &&
+					Date.now() - startTime < maxWaitTime
+				) {
+					await new Promise((resolve) =>
+						setTimeout(resolve, pollInterval)
+					)
+
+					try {
+						const res = await deployServiceAPI.getDeployedModel(
+							model.id
+						)
+						if (res.status === 200 && res.data?.[0]) {
+							const deploy = res.data[0]
+							console.log('Deployment status:', deploy.status)
+							if (
+								deploy.status === 'ONLINE' &&
+								deploy.api_base_url
+							) {
+								currentModelDeploy = deploy
+								setModelDeploy(deploy)
+								console.log(
+									'Model deployment completed:',
+									deploy
+								)
+								message.success(
+									'Model deployed successfully!',
+									2
+								)
+								break
+							}
+						}
+					} catch (error) {
+						console.log('Error polling deployment status:', error)
+					}
+				}
+
+				// Check if deployment completed successfully
+				if (
+					!currentModelDeploy?.api_base_url ||
+					currentModelDeploy?.status !== 'ONLINE'
+				) {
+					message.error(
+						'Model deployment failed or timed out. Please try again later.'
+					)
+					return
+				}
+			}
 
 			const taskType =
 				TASK_TYPES[projectInfo.task_type]?.type || projectInfo.task_type
 			const taskDescription =
 				projectInfo.description || `A model for ${taskType}`
 			const labels = model.metadata.labels
-			const apiEndpoint = modelDeploy.api_base_url + '/predict'
+			const apiEndpoint = currentModelDeploy.api_base_url + '/predict'
 
 			console.log('Calling genUI API with:', {
 				taskType,
@@ -530,11 +615,24 @@ const ProjectInfo = () => {
 	return (
 		<>
 			<style>{`
-        	 	body, html {
-         	 	background-color: var(--surface) !important;
+	body, html {
+		background-color: var(--surface) !important;
+	}
 
-        	}
-      `}</style>
+	@keyframes wave {
+		0%, 100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-8px);
+		}
+	}
+
+	.animate-wave {
+		animation: wave 1.5s ease-in-out infinite;
+		display: inline-block;
+	}
+`}</style>
 			<div
 				className="min-h-screen"
 				style={{ background: 'var(--surface)' }}
@@ -855,20 +953,35 @@ const ProjectInfo = () => {
 							>
 								<div className="absolute inset-0 bg-gradient-to-br from-violet-400/20 via-violet-500/20 to-violet-700/30 opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
 
-								<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-									<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-								</div>
-
 								<div className="relative flex flex-row items-center justify-center gap-3 py-4">
 									<div className="relative">
-										<div className="absolute inset-0 bg-violet-500/30 blur-xl rounded-full animate-pulse"></div>
-										<SparklesIcon className="relative w-8 h-8 text-violet-500 animate-pulse" />
+										<div className="absolute inset-0 bg-violet-500/30 blur-xl rounded-full"></div>
+										<SparklesIcon className="relative w-8 h-8 text-violet-500" />
 									</div>
-									<span className="text-violet-500 font-bold text-xl tracking-wide">
-										{isGeneratingUI
-											? 'Generating...'
-											: 'Generate UI'}
-									</span>
+
+									{isGeneratingUI ? (
+										<span className="text-violet-500 font-bold text-xl tracking-wide flex">
+											{[...'Generating...'].map(
+												(char, i) => (
+													<span
+														key={i}
+														className={`inline-block animate-wave`}
+														style={{
+															animationDelay: `${i * 0.1}s`,
+														}}
+													>
+														{char === ' '
+															? '\u00A0'
+															: char}
+													</span>
+												)
+											)}
+										</span>
+									) : (
+										<span className="text-violet-500 font-bold text-xl tracking-wide">
+											Generate UI
+										</span>
+									)}
 								</div>
 							</Card>
 						</div>
