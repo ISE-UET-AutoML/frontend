@@ -487,7 +487,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 					<Step key="Project Details" title="Project Details" />
 					<Step key="Upload Data" title="Upload Data" />
 				</Steps>
-				<div>
+				<div style={{ position: 'relative', zIndex: 1 }}>
 					{current === 0 && (
 						<ManualCreationModal
 							isStep={true}
@@ -510,7 +510,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 						/>
 					)}
 					{current === 1 && (
-						<div className="dataset-step" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+						<div className="dataset-step" style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative', zIndex: 1, height: 'calc(85vh - 180px)', overflow: 'hidden', scrollbarWidth: 'thin', scrollbarColor: '#0ea5e9 transparent' }}>
 							<CreateDatasetForm
 								isStep={true}
 								onNext={handleSubmit}
@@ -536,7 +536,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 			</Modal>
 
 			{isLoading && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[9999]">
+				<div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[1000]">
 					<div className="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center">
 						<Spin size="large" />
 						<div

@@ -558,7 +558,7 @@ export default function CreateDatasetForm({
 							display: 'flex',
 							justifyContent: 'center',
 							alignItems: 'center',
-							height: '120px',
+							height: '180px',
 							border: '2px dashed var(--upload-border)',
 							borderRadius: '12px',
 							cursor: 'pointer',
@@ -586,15 +586,17 @@ export default function CreateDatasetForm({
 						>
 							<FolderOutlined
 								style={{
-									fontSize: '48px',
+									fontSize: '64px',
 									color: 'var(--upload-icon)',
 								}}
 							/>
 							<p
 								style={{
-									marginTop: '8px',
+									marginTop: '12px',
 									color: 'var(--upload-text)',
 									fontFamily: 'Poppins, sans-serif',
+									fontSize: '16px',
+									fontWeight: '500'
 								}}
 							>
 								Drag and drop a folder or click to upload
@@ -1274,18 +1276,32 @@ export default function CreateDatasetForm({
 				{/* Footer buttons fixed at the bottom of modal body */}
 				<Form.Item
 					style={{
-						marginTop: 0,
+						marginTop: 30,
 						paddingTop: 12,
-						textAlign: 'right',
+						display: 'flex',
+						justifyContent: 'flex-end',
 						background: 'transparent',
 						borderTop: '1px solid var(--divider-color)',
-						marginBottom: 0,
-						paddingBottom: 0,
+						marginBottom: 30,
+						paddingBottom: 16,
+						position: 'sticky',
+						bottom: 0,
+						gap: 2,
+						zIndex: 10,
+						width: '100%',
+						boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)'
 					}}
 				>
 					{isStep && (
 						<Button
-							style={{ marginRight: 8 }}
+							style={{ 
+								marginRight: 'auto',
+								height: '20px',
+								borderRadius: '6px',
+								fontWeight: '500',
+								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+								marginRight: 10
+							}}
 							onClick={() =>
 								onBack({ files, detectedLabels, csvMetadata })
 							}
@@ -1297,11 +1313,26 @@ export default function CreateDatasetForm({
 						type="primary"
 						htmlType="submit"
 						disabled={!isDataValid || hasFormErrors}
+						style={{ 
+								marginRight: 'auto',
+								height: '20px',
+								borderRadius: '6px',
+								fontWeight: '500',
+								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+							
+							}}
 					>
 						{isStep ? 'Submit' : 'Next'}
 					</Button>
 					{!isStep && (
-						<Button style={{ marginLeft: 8 }} onClick={onCancel}>
+						<Button style={{ 
+								marginRight: 'auto',
+								height: '20px',
+								borderRadius: '6px',
+								fontWeight: '500',
+								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+								marginRight: 10
+							}} onClick={onCancel}>
 							Cancel
 						</Button>
 					)}
