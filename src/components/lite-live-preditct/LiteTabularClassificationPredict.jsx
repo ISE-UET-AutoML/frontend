@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import {
 	Card,
 	Typography,
@@ -40,13 +40,6 @@ const LiteTabularClassificationPredict = ({
 	const [predictionHistory, setPredictionHistory] = useState([])
 	const [currentFileIndex, setCurrentFileIndex] = useState(-1) // -1 khi chưa có file
 	const [currentPage, setCurrentPage] = useState(1)
-	const [incorrectPredictions, setIncorrectPredictions] = useState([])
-	const [statistics, setStatistics] = useState({
-		correct: 0,
-		incorrect: 0,
-		accuracy: 0,
-		totalReviewed: 0,
-	})
 	const [loading, setLoading] = useState(false)
 	const [infoDrawerVisible, setInfoDrawerVisible] = useState(false)
 	const [selectedRowData, setSelectedRowData] = useState(null)
@@ -146,70 +139,61 @@ const LiteTabularClassificationPredict = ({
 
 	// Parse CSV và cập nhật dữ liệu
 	useEffect(() => {
-		if (uploadedFiles?.length && uploadedFiles[0]?.name.endsWith('.csv')) {
+		if (uploadedFiles?.length) {
+			const latestFile = uploadedFiles[uploadedFiles.length - 1]
+
+			if (latestFile?.name.endsWith('.csv')) {
 			setLoading(true)
 			const reader = new FileReader()
 			reader.onload = () => {
 				Papa.parse(reader.result, {
-					header: true,
-					skipEmptyLines: true,
-					complete: ({ data, meta }) => {
-						// Start with all CSV data columns
-						const initialVisibleColumns = [...meta.fields]
+				header: true,
+				skipEmptyLines: true,
+				complete: ({ data, meta }) => {
+					const initialVisibleColumns = [...meta.fields]
 
-						// Add prediction columns if available
-						if (predictResult.length > 0) {
-							initialVisibleColumns.push(
-								getPredictedClassColumnName(),
-								'Confidence'
-							)
-						}
-						const initialIncorrect = []
+					if (predictResult.length > 0) {
+					initialVisibleColumns.push(
+						getPredictedClassColumnName(),
+						'Confidence'
+					)
+					}
 
-						// Cập nhật lịch sử
-						setPredictionHistory((prev) => {
-							const existingIndex = prev.findIndex(
-								(item) =>
-									item.fileName === uploadedFiles[0].name
-							)
-							const newHistoryItem = {
-								fileName: uploadedFiles[0].name,
-								predictions: predictResult,
-								data,
-								visibleColumns: initialVisibleColumns,
-								incorrectPredictions: initialIncorrect,
-							}
+					setPredictionHistory((prev) => {
+					const existingIndex = prev.findIndex(
+						(item) => item.fileName === latestFile.name
+					)
+					const newHistoryItem = {
+						fileName: latestFile.name,
+						predictions: predictResult,
+						data,
+						visibleColumns: initialVisibleColumns,
+					}
 
-							let newHistory
-							if (existingIndex >= 0) {
-								// Cập nhật file hiện có
-								newHistory = [...prev]
-								newHistory[existingIndex] = newHistoryItem
-							} else {
-								// Thêm file mới
-								newHistory = [...prev, newHistoryItem]
-							}
+					let newHistory
+					if (existingIndex >= 0) {
+						newHistory = [...prev]
+						newHistory[existingIndex] = newHistoryItem
+					} else {
+						newHistory = [...prev, newHistoryItem]
+					}
 
-							// Cập nhật currentFileIndex
-							setCurrentFileIndex(
-								existingIndex >= 0
-									? existingIndex
-									: newHistory.length - 1
-							)
+					setCurrentFileIndex(
+						existingIndex >= 0 ? existingIndex : newHistory.length - 1
+					)
 
-							return newHistory
-						})
+					return newHistory
+					})
 
-						// Cập nhật trạng thái hiện tại
-						setCsvData(data)
-						setVisibleColumns(initialVisibleColumns)
-						setIncorrectPredictions(initialIncorrect)
-						setCurrentPage(1) // Reset trang
-						setLoading(false)
-					},
+					setCsvData(data)
+					setVisibleColumns(initialVisibleColumns)
+					setCurrentPage(1)
+					setLoading(false)
+				},
 				})
 			}
-			reader.readAsText(uploadedFiles[0])
+			reader.readAsText(latestFile)
+			}
 		}
 	}, [uploadedFiles, predictResult, projectInfo])
 
@@ -220,45 +204,9 @@ const LiteTabularClassificationPredict = ({
 			setCurrentFileIndex(index)
 			setCsvData(selectedItem.data)
 			setVisibleColumns(selectedItem.visibleColumns)
-			setIncorrectPredictions(selectedItem.incorrectPredictions)
 			setCurrentPage(1) // Reset trang
 			setLoading(false)
 		}
-	}
-
-	// Cập nhật thống kê
-	useEffect(() => {
-		const incorrect = incorrectPredictions.length
-		const total = csvData.length
-		const reviewed = Math.min(currentPage * pageSize, total)
-
-		setStatistics({
-			correct: total - incorrect,
-			incorrect,
-			accuracy: total
-				? (((total - incorrect) / total) * 100).toFixed(1)
-				: 0,
-			totalReviewed: reviewed,
-		})
-	}, [incorrectPredictions, csvData, currentPage])
-
-	const handlePredictionToggle = (index) => {
-		setIncorrectPredictions((prev) =>
-			prev.includes(index)
-				? prev.filter((i) => i !== index)
-				: [...prev, index]
-		)
-		// Cập nhật predictionHistory
-		setPredictionHistory((prev) => {
-			const newHistory = [...prev]
-			if (newHistory[currentFileIndex]) {
-				newHistory[currentFileIndex].incorrectPredictions =
-					incorrectPredictions.includes(index)
-						? incorrectPredictions.filter((i) => i !== index)
-						: [...incorrectPredictions, index]
-			}
-			return newHistory
-		})
 	}
 
 	const showRowDetails = (record, index) => {
@@ -364,21 +312,22 @@ const LiteTabularClassificationPredict = ({
 				fixed: 'right',
 				width: 120,
 				align: 'center',
-				render: (_, __, index) => {
+				render: (_, record, index) => {
+                    if (record.__isPlaceholder) {
+                        return null
+                    }
 					const globalIndex = index + (currentPage - 1) * pageSize
 					const prediction = predictResult[globalIndex]
 					const predictedInfo = getPredictedInfo(
 						prediction,
 						globalIndex
 					)
-					const isCorrect =
-						!incorrectPredictions.includes(globalIndex)
 
 					const displayValue =
 						predictedInfo.class === null ? '-' : predictedInfo.class
 
 					return (
-						<Tag color={isCorrect ? 'green' : 'red'}>
+						<Tag color='green'>
 							{displayValue}
 						</Tag>
 					)
@@ -394,15 +343,16 @@ const LiteTabularClassificationPredict = ({
 				fixed: 'right',
 				width: 100,
 				align: 'center',
-				render: (_, __, index) => {
+				render: (_, record, index) => {
+                    if (record.__isPlaceholder) {
+                        return null
+                    }
 					const globalIndex = index + (currentPage - 1) * pageSize
 					const prediction = predictResult[globalIndex]
 					const predictedInfo = getPredictedInfo(
 						prediction,
 						globalIndex
 					)
-					const isCorrect =
-						!incorrectPredictions.includes(globalIndex)
 
 					const displayValue =
 						predictedInfo.confidence === null
@@ -410,7 +360,7 @@ const LiteTabularClassificationPredict = ({
 							: predictedInfo.confidence
 
 					return (
-						<Tag color={isCorrect ? 'blue' : 'red'}>
+						<Tag color='blue'>
 							{displayValue}
 						</Tag>
 					)
@@ -424,10 +374,23 @@ const LiteTabularClassificationPredict = ({
 	const columns = getColumns()
 	const filteredData = getFilteredData()
 
+	const displayData = useMemo(() => {
+			const start = (currentPage - 1) * pageSize
+			const pageItems = filteredData.slice(start, start + pageSize)
+			const placeholders = []
+			const missing = pageSize - pageItems.length
+			for (let i = 0; i < missing; i++) {
+				placeholders.push({ __isPlaceholder: true, __placeholderIndex: i })
+			}
+			return [...pageItems, ...placeholders]
+		}, [filteredData, currentPage, pageSize])
+	
+		const totalItems = filteredData.length
+
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
 			<div className="mb-8">
-				<div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+				<div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6">
 					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 						<div className="flex items-center gap-4">
 							<div>
@@ -543,33 +506,32 @@ const LiteTabularClassificationPredict = ({
 						</div>
 					</div>
 					<Table
-						dataSource={filteredData}
-						columns={columns}
-						rowKey={(_, index) => index}
-						pagination={{
-							pageSize,
-							current: currentPage,
-							onChange: setCurrentPage,
-							showSizeChanger: false,
-							showTotal: (total) => (
-								<span className="text-slate-500 font-medium">
-									{total} predictions
-								</span>
-							),
-							className:
-								'px-6 py-4 bg-slate-50 border-t border-slate-200',
-						}}
-						size="middle"
-						scroll={{ x: 'max-content' }}
-						rowClassName={(_, index) =>
-							incorrectPredictions.includes(
-								index + (currentPage - 1) * pageSize
-							)
-								? 'bg-red-50 hover:bg-red-100'
-								: 'hover:bg-slate-50'
-						}
-						className="[&_.ant-table-thead>tr>th]:bg-slate-100 [&_.ant-table-thead>tr>th]:border-slate-200 [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-slate-700"
-					/>
+                        dataSource={displayData}
+                        columns={columns}
+                        rowKey={(record, idx) =>
+                            record.__isPlaceholder
+                                ? `placeholder-${(currentPage - 1) * pageSize + idx}`
+                                : (idx + (currentPage - 1) * pageSize)
+                        }
+                        pagination={{
+                            pageSize,
+                            current: currentPage,
+                            onChange: setCurrentPage,
+                            total: totalItems,
+                            showSizeChanger: false,
+                            showTotal: (total) => (
+                                <span className="text-slate-500 font-medium">
+                                    {total} predictions
+                                </span>
+                            ),
+                            className:
+                                'px-6 py-4 bg-slate-50 border-t border-slate-200',
+                        }}
+                        size="middle"
+                        scroll={{ x: 'max-content' }}
+                        rowClassName="hover:bg-slate-50"
+                        className="[&_.ant-table-thead>tr>th]:bg-slate-100 [&_.ant-table-thead>tr>th]:border-slate-200 [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-slate-700 [&_.ant-table-tbody>tr>td]:h-12 [&_.ant-table-tbody>tr>td]:align-middle"
+                    />
 				</Card>
 			) : (
 				<Card className="border-0 shadow-lg rounded-xl">
@@ -709,46 +671,6 @@ const LiteTabularClassificationPredict = ({
 									)
 								})()}
 							</div>
-						</div>
-
-						<div className="pt-4 border-t border-slate-200">
-							<Button
-								type={
-									incorrectPredictions.includes(
-										selectedRowData.index
-									)
-										? 'default'
-										: 'primary'
-								}
-								danger={
-									!incorrectPredictions.includes(
-										selectedRowData.index
-									)
-								}
-								icon={
-									incorrectPredictions.includes(
-										selectedRowData.index
-									) ? (
-										<CheckCircleOutlined />
-									) : (
-										<CloseCircleOutlined />
-									)
-								}
-								onClick={() =>
-									handlePredictionToggle(
-										selectedRowData.index
-									)
-								}
-								size="large"
-								className="w-full h-12 rounded-lg font-medium"
-							>
-								Mark as{' '}
-								{incorrectPredictions.includes(
-									selectedRowData.index
-								)
-									? 'Correct'
-									: 'Incorrect'}
-							</Button>
 						</div>
 					</div>
 				) : (

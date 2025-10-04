@@ -5,7 +5,11 @@ const ProjectDemo = () => {
 	// const { projectInfo } = useOutletContext()
 	// console.log(projectInfo)
 
-	return <div></div>
+	return (
+		<div>
+			<ImageClassificationDemo />
+		</div>
+	)
 }
 
 export default ProjectDemo

@@ -112,34 +112,18 @@ function useAuth() {
 		},
 
 		logout() {
-			return new Promise((resolve, reject) => {
-				console.log('logging out...');
+			return new Promise((resolve) => {
+				console.log("Logging out from the main system...");
 
-				logoutLabelStudio()
-					.then(() => {
-						console.log("Yêu cầu logout khỏi Label Studio đã hoàn tất.");
-					})
-					.catch((error) => {
-						console.error("Logout khỏi Label Studio thất bại, nhưng vẫn tiếp tục:", error);
-						// Không reject, vẫn tiếp tục
-					})
-					.finally(() => {
-						console.log("Đang tiến hành logout khỏi hệ thống chính...");
+				cookies.remove('accessToken', { path: '/' });
+				cookies.remove('refreshToken', { path: '/' });
+				cookies.remove('Authorization', { path: '/' });
+				cookies.remove('x-user-id', { path: '/' });
 
-						cookies.remove('accessToken', { path: '/' });
-						cookies.remove('refreshToken', { path: '/' });
-						cookies.remove('Authorization', { path: '/' });
-						cookies.remove('x-user-id', { path: '/' });
+				setAuthed(false);
+				setUser(null);
 
-						setAuthed(false);
-						setUser(null);
-
-						// Nếu muốn reload thì đặt đây, nhưng sẽ dừng mọi logic sau đó
-						// window.location.reload();
-
-						// Nếu không reload, bạn có thể resolve để cho phép điều hướng:
-						resolve();
-					});
+				resolve();
 			});
 		}
 
