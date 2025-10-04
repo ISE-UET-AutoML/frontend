@@ -62,12 +62,23 @@ const taskCards = [
 		description:
 			'Perfect for organizing photo collections, content moderation, and product categorization. Upload images and let AI automatically sort them by content.',
 		icon: '📸',
-		example: {
-			input: 'Photos of different fruits: apples, oranges, bananas',
-			output: 'Automatically sorted into fruit categories with confidence scores',
-		},
 		example_explain:
 			'Classifies an input image into one of several categories.',
+		explain: `📌 **This example shows how Image Classification works**.
+
+In this example:
+
+The input is a photo of a pet.
+The system must decide which **category** this photo belongs to.
+
+🎯 Possible categories:
+
+**Dog** → the image shows a dog
+
+**Cat** → the image shows a cat
+
+💡 In short:
+Image classification puts each picture into **one clear group** — in this case, either **Dog** or **Cat**.`,
 
 		image: image_classification,
 		difficulty: 'Beginner',
@@ -81,11 +92,23 @@ const taskCards = [
 		description:
 			'Analyze customer reviews, emails, or documents to understand sentiment and automatically categorize content for better organization.',
 		icon: '📝',
-		example: {
-			input: 'Customer review: "Amazing product, fast delivery!"',
-			output: 'Category: Positive Feedback, Sentiment: 95% positive',
-		},
 		example_explain: 'Predicts sentiment or topic for the given text.',
+		explain: `📌 **This example shows how Text Classification works.**
+
+In this example:
+
+The input is a short review: “Great product, I am very satisfied.”
+
+The system must decide which **category** this review belongs to.
+
+🎯 Possible categories:
+
+**Positive** → the customer is happy
+
+**Negative** → the customer is unhappy
+
+💡 In short:
+Text classification puts each text into **one clear group** — in this case, either **Positive** or **Negative**.`,
 
 		image: text_classification,
 		difficulty: 'Beginner',
@@ -99,10 +122,24 @@ const taskCards = [
 		description:
 			'When text needs multiple tags - like marking an email as both "urgent" and "customer-support" for better organization and routing.',
 		icon: '🏷️',
-		example: {
-			input: 'Email: "Urgent: Account access issue for premium user"',
-			output: 'Labels: Urgent, Technical Support, Premium Customer',
-		},
+		explain: `📌 **This example shows how Multilabel Text Classification works.**
+
+In this example:
+
+Each text description represents a short summary of a movie.
+
+The arrows point to the genres that match that movie.
+
+🎬 For example:
+
+Description #1: “A superhero fights to save the world from a deadly threat.” → has 2 genres: **Action, Sci-Fi**
+
+Description #2: “A heartwarming tale of friendship and romance.” → has 3 genres: **Romance, Comedy, Drama**
+
+✅ This is different from single-label classification, where each movie could only belong to one genre (e.g., just “Action” or just “Comedy”). Here, we allow **multiple genres** for a movie description.
+
+💡 In short:
+This example shows that one movie description can belong to **several categories** at once — and that’s exactly what multilabel classification does.`,
 
 		image: multilabel_text_classification,
 		difficulty: 'Intermediate',
@@ -117,6 +154,22 @@ const taskCards = [
 			'Perfect for business analytics! Upload spreadsheet data and automatically categorize customers, transactions, or any structured data.',
 		icon: '📊',
 		example_explain: 'Predicts a class for each row in a structured table.',
+		explain: `📌 **This example shows how Tabular Classification can classify each customer based on their information**.
+
+In this example:
+
+The input is a table of customer information, such as **Age, Salary, and Balance**.
+
+The system uses these values to decide the outcome: whether the customer will **Churn** (leave) or **No Churn** (stay).
+
+🎯 For example:
+
+A customer with Age 25, Salary 50K, Balance 20K → **Churn**
+
+A customer with Age 45, Salary 80K, Balance 40K → **No Churn**
+
+💡 In short:
+Tabular classification helps businesses predict outcomes from structured data and it predicts a **single category for each row** — in this case, whether a customer will **churn** or **no churn**.`,
 		image: tabular_classification,
 		difficulty: 'Beginner',
 		timeToTrain: '5-20 minutes',
@@ -128,7 +181,7 @@ const taskCards = [
 		description:
 			'Forecast future values like house prices, sales numbers, or performance scores using your historical data patterns.',
 		icon: '📈',
-		example_explain: `📌 **This example shows how a system can predict house prices based on simple features.**
+		example_explain: `📌 **This example shows how Tabular Regression can predict house prices based on simple features.**
 
 In this table:
 - Each row represents one house.
@@ -143,7 +196,7 @@ In this table:
 
 💡 In short:  
 This is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
-		explain: `📌 **This example shows how a system can predict house prices based on simple features.**\n\nIn this table:\n- Each row represents one house.\n- The first 3 columns (Square Footage, Bedrooms, Location) are the **input information** — things we already know about the house.\n- The last column (“Predicted Price”) is the **output** — what the system calculates or guesses based on those inputs.\n\n🏡 For example:\n- House #1: 80 sq ft, 2 bedrooms — Predicted price: **$1.2M**\n- House #2: 120 sq ft, 3 bedrooms — Predicted price: **$1.8M**\n- House #3: 100 sq ft, 3 bedrooms  — Predicted price: **$3.0M**\n- House #4: 150 sq ft, 4 bedrooms  — Predicted price: **$4.5M**\n\n💡 In short:\nThis is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
+		explain: `📌 **This example shows how Tabular Regression can predict house prices based on simple features.**\n\nIn this table:\n- Each row represents one house.\n- The first 3 columns (Square Footage, Bedrooms, Location) are the **input information** — things we already know about the house.\n- The last column (“Predicted Price”) is the **output** — what the system calculates or guesses based on those inputs.\n\n🏡 For example:\n- House #1: 80 sq ft, 2 bedrooms — Predicted price: **$1.2M**\n- House #2: 120 sq ft, 3 bedrooms — Predicted price: **$1.8M**\n- House #3: 100 sq ft, 3 bedrooms  — Predicted price: **$3.0M**\n- House #4: 150 sq ft, 4 bedrooms  — Predicted price: **$4.5M**\n\n💡 In short:\nThis is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
 		image: tabular_regression,
 		difficulty: 'Intermediate',
 		timeToTrain: '10-30 minutes',
@@ -171,6 +224,20 @@ This is like a smart calculator that looks at the house’s details and gives yo
 			'The most comprehensive approach! Analyze both visual and textual content together for social media, e-commerce, or content platforms.',
 		icon: '🎯',
 		example_explain: 'Combines image and text signals for classification.',
+		explain: `📌 **This example shows how Multimodal Classification classify products based on several types of input**.
+
+In this example:
+
+The input can be **text, an image, audio, or any combination of these** describing a product.
+The system must decide which **category** this product belongs to.
+
+🎯 Possible categories:
+
+**Electronics** → the product is an electronic device
+**Clothing** → the product is a piece of clothing
+
+💡 In short:
+Multimodal classification considers **one or more** types of input together to put each item into **one clear group** — in this case, either Electronics or Clothing.`,
 		image: multimodal_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '25-45 minutes',
@@ -421,6 +488,8 @@ const ManualCreationModal = ({
 												position: 'relative',
 												minHeight: '120px',
 												overflow: 'hidden',
+												display: 'flex',
+    											alignItems: 'center'
 											}}
 										>
 											<div
@@ -454,33 +523,6 @@ const ManualCreationModal = ({
 													>
 														{task.title}
 													</Title>
-													<div
-														style={{
-															display: 'flex',
-															gap: '8px',
-															flexWrap: 'wrap',
-														}}
-													>
-														<Tag
-															style={{
-																borderRadius:
-																	'12px',
-																fontSize:
-																	'10px',
-																padding:
-																	'2px 8px',
-																background:
-																	'var(--tag-gradient)',
-																border: '1px solid var(--tag-border)',
-																color: 'var(--tag-color)',
-																fontFamily:
-																	'Poppins, sans-serif',
-																fontWeight: 500,
-															}}
-														>
-															{task.difficulty}
-														</Tag>
-													</div>
 												</div>
 
 												{isTaskSelected && (

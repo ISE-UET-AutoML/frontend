@@ -96,35 +96,8 @@ const TaskFilter = ({
 							compact
 						/>
 					</Col>
-					{/* Sort */}
-					<Col xs={12} md={7} lg={6}>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: 8,
-							}}
-						>
-							<span
-								className="text-sm font-poppins font-medium"
-								style={{
-									color: 'var(--title-project)',
-									whiteSpace: 'nowrap',
-									textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-								}}
-							>
-								Sort by:
-							</span>
-							<div style={{ flex: 1 }}>
-								<SortDropdown
-									selectedSort={selectedSort}
-									onSortChange={onSortChange}
-								/>
-							</div>
-						</div>
-					</Col>
 					{/* Task Type Filter */}
-					<Col xs={12} md={7} lg={6}>
+					<Col xs={12} md={7} lg={7}>
 						<div
 							style={{
 								display: 'flex',
@@ -168,6 +141,33 @@ const TaskFilter = ({
 									}}
 									popupClassName="theme-select-dropdown"
 									style={{ height: 40 }}
+								/>
+							</div>
+						</div>
+					</Col>
+					{/* Sort */}
+					<Col xs={12} md={7} lg={5}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
+							}}
+						>
+							<span
+								className="text-sm font-poppins font-medium"
+								style={{
+									color: 'var(--title-project)',
+									whiteSpace: 'nowrap',
+									textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+								}}
+							>
+								Sort by:
+							</span>
+							<div style={{ flex: 1 }}>
+								<SortDropdown
+									selectedSort={selectedSort}
+									onSortChange={onSortChange}
 								/>
 							</div>
 						</div>
