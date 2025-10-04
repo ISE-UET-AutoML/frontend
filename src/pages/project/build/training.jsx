@@ -222,10 +222,10 @@ const Training = () => {
 				>
 					<Space
 						direction="vertical"
-						size="large"
+						size="small"
 						style={{ width: '100%' }}
 					>
-						<div style={{ padding: '20px 0px', margin: '40px 0' }}>
+						<div style={{ padding: '20px 0px', margin: '10vh 0' }}>
 							<div
 								style={{
 									width: '100%',

@@ -33,7 +33,7 @@ export default function Loading({ currentStep }) {
 	return (
 		<div
 			className="flex flex-col items-center justify-center py-8 gap-6 overflow-hidden"
-			style={{ marginTop: '5px' }}
+			style={{ marginTop: '-20px' }}
 		>
 			<div className="relative w-full max-w-2xl h-[350px] overflow-hidden">
 				{iframes.map((src, i) => (
