@@ -35,3 +35,6 @@ train.zip
 
 yarn.lock
 src/hooks/useAuth.js
+
+# Shiny was here
+src/pages/demo/metadata/

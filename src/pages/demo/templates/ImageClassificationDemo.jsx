@@ -14,25 +14,7 @@ import {
 	ArrowRightIcon,
 } from '@heroicons/react/24/outline'
 
-const Metadata = {
-	description:
-		'Upload or snap photos to classify as cat, dog, deer, or horse.',
-	apiUrl: 'http://47.186.63.142:52682/predict',
-	samples: [
-		{
-			sampleImageUrl:
-				'https://ih1.redbubble.net/image.5479154047.2918/st,small,507x507-pad,600x600,f8f8f8.u2.jpg',
-			sampleLabel: 'Cat',
-		},
-		{
-			sampleImageUrl:
-				'https://media.phobienphapluat.vn/images/2025/09/07/67-1757237217-image.jpg',
-			sampleLabel: 'Dog',
-		},
-	],
-}
-
-const ImageClassificationDemo = () => {
+const ImageClassificationDemo = ({ metadata }) => {
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [incorrectPredictions, setIncorrectPredictions] = useState([])
 	const [uploadedFiles, setUploadedFiles] = useState([])
@@ -154,7 +136,7 @@ const ImageClassificationDemo = () => {
 
 			console.log('Sending request to API with', files.length, 'file(s)')
 
-			const response = await fetch(Metadata.apiUrl, {
+			const response = await fetch(metadata.apiUrl, {
 				method: 'POST',
 				body: formData,
 			})
@@ -275,7 +257,7 @@ const ImageClassificationDemo = () => {
 								Image Classification
 							</h1>
 							<p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-								{Metadata.description}
+								{metadata.description}
 							</p>
 						</div>
 
@@ -419,7 +401,7 @@ const ImageClassificationDemo = () => {
 							<div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900/30 dark:to-blue-900/20 rounded-xl">
 								<img
 									src={
-										Metadata.samples[0].sampleImageUrl ||
+										metadata.samples[0].sampleImageUrl ||
 										'/placeholder.svg' ||
 										'/placeholder.svg'
 									}
@@ -428,13 +410,13 @@ const ImageClassificationDemo = () => {
 								/>
 								<ArrowRightIcon className="h-10 w-10 text-blue-500 dark:text-blue-400 rotate-90 sm:rotate-0 flex-shrink-0" />
 								<span className="text-3xl sm:text-4xl font-bold px-8 py-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 rounded-2xl shadow-lg">
-									{Metadata.samples[0].sampleLabel}
+									{metadata.samples[0].sampleLabel}
 								</span>
 							</div>
 							<div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-900/30 dark:to-purple-900/20 rounded-xl">
 								<img
 									src={
-										Metadata.samples[1].sampleImageUrl ||
+										metadata.samples[1].sampleImageUrl ||
 										'/placeholder.svg' ||
 										'/placeholder.svg'
 									}
@@ -443,7 +425,7 @@ const ImageClassificationDemo = () => {
 								/>
 								<ArrowRightIcon className="h-10 w-10 text-purple-500 dark:text-purple-400 rotate-90 sm:rotate-0 flex-shrink-0" />
 								<span className="text-3xl sm:text-4xl font-bold px-8 py-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 rounded-2xl shadow-lg">
-									{Metadata.samples[1].sampleLabel}
+									{metadata.samples[1].sampleLabel}
 								</span>
 							</div>
 						</div>
