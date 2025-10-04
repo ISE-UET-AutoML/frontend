@@ -21,8 +21,8 @@ import { deleteProject } from 'src/api/project'
 // removed Typography imports (not used)
 
 import image_classification from 'src/assets/images/image_classification.png'
-import text_classification from 'src/assets/images/text_classification.jpg'
-import multilabel_text_classification from 'src/assets/images/multilabel_text_classification.jpg'
+import text_classification from 'src/assets/images/text_classification.png'
+import multilabel_text_classification from 'src/assets/images/multilabel_text_classification.png'
 import tabular_classification from 'src/assets/images/tabular_classification.png'
 import tabular_regression from 'src/assets/images/tabular_regression.png'
 import multilabel_tabular_classification from 'src/assets/images/multilabel_tabular_classification.png'

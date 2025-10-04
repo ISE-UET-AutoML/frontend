@@ -9,6 +9,7 @@ import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { useNavigate } from 'react-router-dom'
 import { PATHS } from 'src/constants/paths'
 import { getExperimentConfig } from 'src/api/experiment_config'
+import { TASK_TYPES } from 'src/constants/types'
 import {
 	Button,
 	Card,
@@ -565,16 +566,17 @@ const ProjectInfo = () => {
 								{/* Nút Back cố định bên trái */}
 								<Button
 									icon={<LeftOutlined />}
-									className="absolute left-0 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white border border-gray-400"
+									className="absolute left-0 top-1/2 -translate-y-1/2 !bg-sky-500 !text-white border border-gray-400 transition-transform duration-200 ease-in-out hover:scale-105"
 									onClick={() => navigate(PATHS.PROJECTS)}
 									shape="round"
 									size="large"
+									style={{borderRadius: '8px'}}
 								>
 									Home
 								</Button>
 
 								{/* Card căn giữa */}
-								<div className="max-w-3xl mx-auto">
+								<div className="max-w-4xl mx-auto">
 									<div
 										className="p-4 rounded-2xl border-[var(--border)] border-white/10 
         bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
@@ -589,8 +591,7 @@ const ProjectInfo = () => {
 											>
 												Task:{' '}
 												<span className="opacity-80">
-													{projectInfo?.task_type ||
-														'N/A'}
+													{TASK_TYPES[projectInfo?.task_type]?.type || 'N/A'}
 												</span>
 											</div>
 											<div
@@ -893,7 +894,7 @@ const ProjectInfo = () => {
 															<CloudUploadOutlined />
 														}
 														size="large"
-														className="absolute left-0 top-1/2 -translate-y-1/2 bg-sky-500 hover:bg-sky-600 text-white border border-gray-400 mb-10"
+														className="absolute left-0 top-1/2 -translate-y-1/2 !bg-sky-500 !text-white border border-gray-400 mb-10 transition-transform duration-200 ease-in-out hover:scale-105"
 													>
 														{uploading
 															? isWaitingForDeployment
