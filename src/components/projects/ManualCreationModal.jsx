@@ -567,8 +567,8 @@ const ManualCreationModal = ({
 
 							<div
 								style={{
-									width: '100%',
-									height: '250px',
+									width: '95%',
+									height: '300px',
 									borderRadius: '16px',
 									overflow: 'hidden',
 									marginBottom: '20px',
@@ -582,7 +582,7 @@ const ManualCreationModal = ({
 									style={{
 										width: '100%',
 										height: '100%',
-										objectFit: 'contain',
+										objectFit: 'cover',
 									}}
 								/>
 							</div>

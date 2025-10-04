@@ -38,9 +38,8 @@ const ProjectHeader = ({ onNewProject }) => {
 					<Tooltip title="Create a new project with AI assistance or manual setup">
 						<button
 							onClick={onNewProject}
-							className="px-6 py-3 rounded-xl font-poppins font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
+							className="px-8 py-3 rounded-xl font-poppins font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg bg-sky-500"
 							style={{
-								background: 'var(--button-gradient-dark)',
 								border: '1px solid var(--border)',
 								color: '#ffffff',
 							}}
