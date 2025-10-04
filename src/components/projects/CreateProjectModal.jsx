@@ -510,7 +510,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 						/>
 					)}
 					{current === 1 && (
-						<div className="dataset-step">
+						<div className="dataset-step" style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
 							<CreateDatasetForm
 								isStep={true}
 								onNext={handleSubmit}
@@ -528,6 +528,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 								}}
 								disableFields={['title', 'description', 'type']}
 								hideFields={['service', 'bucket_name']}
+								stickyFooter={true}
 							/>
 						</div>
 					)}

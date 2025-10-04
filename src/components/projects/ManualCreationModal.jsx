@@ -321,7 +321,6 @@ const ManualCreationModal = ({
 				height: '95%',
 				display: 'flex',
 				flexDirection: 'column',
-				marginBottom: '-40px',
 			}}
 			initialValues={{
 				name: initialProjectName,
@@ -337,6 +336,7 @@ const ManualCreationModal = ({
 					gap: 20,
 					alignItems: 'stretch',
 					height: 'calc(85vh - 180px)',
+					overflow: 'hidden', /* Prevent overall overflow */
 				}}
 			>
 				{/* Left column */}
@@ -346,6 +346,7 @@ const ManualCreationModal = ({
 						paddingRight: '12px',
 						display: 'flex',
 						flexDirection: 'column',
+						overflow: 'hidden', /* Prevent overflow in left column */
 					}}
 				>
 					<Row gutter={[24, 24]}>
@@ -404,6 +405,7 @@ const ManualCreationModal = ({
 							flex: 1,
 							display: 'flex',
 							flexDirection: 'column',
+							minHeight: 0, /* Quan trọng để flex container có thể scroll */
 						}}
 					>
 						<Title
@@ -426,6 +428,7 @@ const ManualCreationModal = ({
 								borderTop: '1px solid var(--border)',
 								flex: 1,
 								overflowY: 'auto',
+								minHeight: 0, /* Quan trọng để scroll hoạt động */
 							}}
 						>
 							<div
@@ -567,6 +570,7 @@ const ManualCreationModal = ({
 						overflowY: 'auto',
 						display: 'flex',
 						flexDirection: 'column',
+						minHeight: 0, /* Quan trọng để scroll hoạt động */
 					}}
 				>
 					{displayTask ? (
@@ -944,13 +948,17 @@ const ManualCreationModal = ({
 				</div>
 			</div>
 
-			{/* Submit */}
+			{/* Submit - fixed at bottom */}
 			<Row
 				justify="end"
 				style={{
-					marginTop: 50,
+					marginTop: 'auto',
 					paddingTop: 16,
 					borderTop: '1px solid var(--border)',
+					position: 'sticky',
+					bottom: 0,
+					background: 'var(--modal-bg)',
+					zIndex: 10,
 				}}
 			>
 				<Button
@@ -1237,7 +1245,7 @@ const ManualCreationModal = ({
 					styles={{
 						content: {
 							background: 'var(--modal-bg)',
-							borderRadius: '20px',
+							borderRadius: '24px',
 							boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
 							border: '1px solid var(--modal-border)',
 							overflow: 'hidden',
@@ -1249,12 +1257,12 @@ const ManualCreationModal = ({
 							borderBottom:
 								'1px solid var(--modal-header-border)',
 							padding: '20px 24px 16px 24px',
-							borderRadius: '20px 20px 0 0',
+							borderRadius: '24px 24px 0 0',
 						},
 						body: {
 							background: 'transparent',
 							padding: '20px',
-							borderRadius: '0 0 20px 20px',
+							borderRadius: '0 0 24px 24px',
 							maxHeight: 'calc(85vh - 100px)',
 							overflowY: 'auto',
 						},
