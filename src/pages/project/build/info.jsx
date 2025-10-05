@@ -228,8 +228,7 @@ const ProjectInfo = () => {
 
         Array.from(validFiles).forEach((file) => {
             if (
-                projectInfo?.task_type ===
-                'MULTILABEL_TABULAR_CLASSIFICATION' ||
+                projectInfo?.task_type === 'MULTILABEL_TABULAR_CLASSIFICATION' ||
                 projectInfo?.task_type === 'TABULAR_CLASSIFICATION' ||
                 projectInfo?.task_type === 'TEXT_CLASSIFICATION' ||
                 projectInfo?.task_type === 'TABULAR_REGRESSION' ||
