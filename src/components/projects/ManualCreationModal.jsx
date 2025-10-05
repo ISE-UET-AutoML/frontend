@@ -620,7 +620,7 @@ const ManualCreationModal = ({
 							<div
 								style={{
 									width: '95%',
-									height: '300px',
+									height: '320px',
 									borderRadius: '16px',
 									overflow: 'hidden',
 									marginBottom: '20px',
