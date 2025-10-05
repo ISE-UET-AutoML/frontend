@@ -25,7 +25,7 @@ export const useProjects = () => {
 	const [allProjects, setAllProjects] = useState([])
 	const [selectedTrainingTask, setSelectedTrainingTask] = useState(null)
 	const [jsonSumm, setJsonSumm] = useState('')
-	const [selectedSort, setSelectedSort] = useState('created_at')
+	const [selectedSort, setSelectedSort] = useState('latest')
 	const [searchValue, setSearchValue] = useState('')
 	const [isReset, setIsReset] = useState(false)
 
@@ -34,22 +34,37 @@ export const useProjects = () => {
 	const resetFilters = () => {
 		setSearchValue('')
 		setSelectedTrainingTask(null)
-		setSelectedSort('created_at')
+		setSelectedSort('latest')
 		setIsReset(true)
 	}
 
-	const sortProjects = (projects, sortKey = selectedSort) => {
-		if (sortKey === 'name') {
-			return [...projects].sort((a, b) =>
-				(a.name || '').localeCompare(b.name || '')
-			)
-		} else if (sortKey === 'created_at') {
-			return [...projects].sort(
-				(a, b) => new Date(b.created_at) - new Date(a.created_at)
-			)
+	const sortProjects = (projects, sortKey) => {
+		switch (sortKey) {
+			case 'name_asc':
+				return [...projects].sort((a, b) =>
+					(a.name || '').localeCompare(b.name || '')
+				)
+
+			case 'name_desc':
+				return [...projects].sort((a, b) =>
+					(b.name || '').localeCompare(a.name || '')
+				)
+
+			case 'latest':
+				return [...projects].sort(
+					(a, b) => new Date(b.created_at) - new Date(a.created_at)
+				)
+
+			case 'oldest':
+				return [...projects].sort(
+					(a, b) => new Date(a.created_at) - new Date(b.created_at)
+				)
+
+			default:
+				return projects
 		}
-		return projects
 	}
+
 
 	const applyFilters = () => {
 		let filtered = allProjects

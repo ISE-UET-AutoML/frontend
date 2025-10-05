@@ -594,7 +594,14 @@ const ProjectInfo = () => {
 	const cardGradient =
 		theme === 'dark'
 			? 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)'
-			: 'linear-gradient(150deg, #fff8e1 0%, #bbdefb 40%, #ffcdd2 100%)'
+			// : 'linear-gradient(150deg, #fff8e1 0%, #bbdefb 40%, #ffcdd2 100%)'
+			: '#F3F4F6'
+
+	const livePredictGradient =
+		theme === 'dark'
+			? 'linear-gradient(135deg, rgba(51, 65, 85, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%)'
+			// : 'linear-gradient(150deg, #fff8e1 0%, #bbdefb 40%, #ffcdd2 100%)'
+			: '#FFF8EF'
 
 	const MetadataItem = ({ label, value }) => (
 		<div className="flex flex-col space-y-1 p-4 rounded-xl bg-gradient-to-r from-white/5 to-transparent border border-gray-400 transition-all duration-200 hover:bg-white/10">
@@ -730,7 +737,7 @@ const ProjectInfo = () => {
 										className="p-4 rounded-2xl border-[var(--border)] border-white/10 
         bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
 										style={{
-											background: 'var(--card-gradient)',
+											background: cardGradient,
 										}}
 									>
 										<div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
@@ -951,6 +958,7 @@ const ProjectInfo = () => {
 								onClick={
 									isGeneratingUI ? undefined : handleGenUI
 								}
+								style={{background: cardGradient}}
 							>
 								<div className="absolute inset-0 bg-gradient-to-br from-violet-400/20 via-violet-500/20 to-violet-700/30 opacity-50 group-hover:opacity-70 transition-opacity duration-300"></div>
 
@@ -1009,7 +1017,7 @@ const ProjectInfo = () => {
 									}
 									className="border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
 									style={{
-										background: cardGradient,
+										background: livePredictGradient,
 										backdropFilter: 'blur(10px)',
 										borderRadius: '12px',
 										paddingBottom: '10px',

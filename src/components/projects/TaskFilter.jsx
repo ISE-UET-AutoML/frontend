@@ -94,6 +94,7 @@ const TaskFilter = ({
 							onSearch={onSearch}
 							isReset={isReset}
 							compact
+							searchValue={searchValue}
 						/>
 					</Col>
 					{/* Task Type Filter */}
@@ -175,7 +176,7 @@ const TaskFilter = ({
 				</Row>
 				{(selectedTrainingTask ||
 					searchValue !== '' ||
-					selectedSort !== 'created_at') && (
+					selectedSort !== 'latest') && (
 					<div className="flex justify-end pt-2">
 						<button
 							onClick={onReset}

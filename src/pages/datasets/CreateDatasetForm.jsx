@@ -504,6 +504,22 @@ export default function CreateDatasetForm({
 							}}
 						>
 							{currentType.preparingInstructions}
+
+							{currentType.exampleFile && (
+								<div style={{ marginTop: '12px' }}>
+									<a
+										href={currentType.exampleFile}
+										download
+										style={{
+											color: '#0EA5E9',
+											fontWeight: '500',
+											textDecoration: 'none',
+										}}
+									>
+										⬇ Download Example File
+									</a>
+								</div>
+							)}
 						</div>
 
 						{/* Image on the right */}

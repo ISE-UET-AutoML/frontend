@@ -31,6 +31,7 @@ const TASK_TYPES = {
 • Supported formats: JPEG, PNG, WebP
 • Recommended image size: 224x224px or higher
 • Maximum file size: 10MB per image`,
+	exampleFile: '/data_example/image_classification.zip'
 	},
 	TEXT_CLASSIFICATION: {
 		type: 'Text Classification',
@@ -55,6 +56,7 @@ text,label
 ✅ Guidelines:
 • UTF-8 encoding.
 • A minimum of 100 samples is recommended for good results.`,
+	exampleFile: '/data_example/text_classification.xlsx'
 	},
 	MULTILABEL_TEXT_CLASSIFICATION: {
 		type: 'Multilabel Text Classification',
@@ -79,6 +81,7 @@ text,                              label
 
 ✅ Guidelines:
 • UTF-8 encoding.`,
+	exampleFile: '/data_example/multilabel_text_classification.xlsx'
 	},
 	TABULAR_CLASSIFICATION: {
 		type: 'Tabular Classification',
@@ -107,6 +110,7 @@ age,income,education,approved
 ✅ Guidelines:
 • Handle missing values (use empty cells or 'NULL').
 • Ensure consistent data types for each column.`,
+	exampleFile: '/data_example/tabular_classification.xlsx'
 	},
 	TABULAR_REGRESSION: {
 		type: 'Tabular Regression',
@@ -132,6 +136,7 @@ square_feet,num_bedrooms,age,price
 1500,3,10,300.5
 2200,4,5,450.0
 800,2,25,150.75`,
+	exampleFile: '/data_example/tabular_regression.xlsx'
 	},
 	MULTILABEL_TABULAR_CLASSIFICATION: {
 		type: 'Multilabel Tabular Classification',
@@ -157,6 +162,7 @@ movie_summary,                                                   genres
 "A young wizard discovers his magical heritage...",              "adventure; fantasy"
 "A group of thieves attempts a final heist...",                  "crime; thriller; drama"
 "Two strangers meet on a train and talk all night...",           "romance; drama"`,
+	exampleFile: '/data_example/multilabel_tabular_classification.xlsx',
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',

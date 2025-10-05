@@ -58,18 +58,19 @@ export default function ProjectSearchBar({
 	onSearch,
 	isReset,
 	compact = false,
+	searchValue
 }) {
-	const [searchValue, setSearchValue] = React.useState('')
+	const [onSearchValue, setOnSearchValue] = React.useState(searchValue)
 
 	const handleChange = (e) => {
 		const value = e.target.value
-		setSearchValue(value)
+		setOnSearchValue(value)
 		onSearch(value)
 	}
 
 	React.useEffect(() => {
-		setSearchValue('')
-	}, [isReset])
+		setOnSearchValue(searchValue)
+	}, [isReset, searchValue])
 
 	return (
 		<>
@@ -95,7 +96,7 @@ export default function ProjectSearchBar({
 				<input
 					type="text"
 					placeholder="Search projects..."
-					value={searchValue || ''}
+					value={onSearchValue || ''}
 					onChange={handleChange}
 					className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
 					style={{

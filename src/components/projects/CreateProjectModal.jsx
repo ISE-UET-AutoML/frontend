@@ -536,7 +536,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 			</Modal>
 
 			{isLoading && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[1000]">
+				<div className="fixed inset-0 flex items-center justify-center bg-black/40 z-[2000]">
 					<div className="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center">
 						<Spin size="large" />
 						<div

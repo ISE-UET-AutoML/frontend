@@ -53,8 +53,10 @@ const themeSelectStyles = `
 `
 
 const SORT_OPTIONS = [
-	{ value: 'created_at', label: 'Latest' },
-	{ value: 'name', label: 'Name' },
+	{ value: 'latest', label: 'Latest' },
+	{ value: 'oldest', label: 'Oldest' },
+	{ value: 'name_asc', label: 'Name (A-Z)' },
+	{ value: 'name_desc', label: 'Name (Z-A)' }
 ]
 
 export default function SortDropdown({ selectedSort, onSortChange }) {
@@ -73,7 +75,7 @@ export default function SortDropdown({ selectedSort, onSortChange }) {
 						</span>
 					),
 				}))}
-				value={selectedSort || 'created_at'}
+				value={selectedSort || 'latest'}
 				placeholder={
 					<span
 						className="font-poppins"
