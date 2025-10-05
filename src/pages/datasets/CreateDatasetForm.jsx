@@ -612,7 +612,7 @@ export default function CreateDatasetForm({
 									color: 'var(--upload-text)',
 									fontFamily: 'Poppins, sans-serif',
 									fontSize: '16px',
-									fontWeight: '500'
+									fontWeight: '500',
 								}}
 							>
 								Drag and drop a folder or click to upload
@@ -875,7 +875,7 @@ export default function CreateDatasetForm({
 											fontSize: '14px',
 										}}
 									>
-										Title
+										Project Name
 									</Text>
 									<div
 										style={{
@@ -1305,18 +1305,18 @@ export default function CreateDatasetForm({
 						gap: 2,
 						zIndex: 10,
 						width: '100%',
-						boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)'
+						boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
 					}}
 				>
 					{isStep && (
 						<Button
-							style={{ 
+							style={{
 								marginRight: 'auto',
 								height: '20px',
 								borderRadius: '6px',
 								fontWeight: '500',
 								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-								marginRight: 10
+								marginRight: 10,
 							}}
 							onClick={() =>
 								onBack({ files, detectedLabels, csvMetadata })
@@ -1329,26 +1329,28 @@ export default function CreateDatasetForm({
 						type="primary"
 						htmlType="submit"
 						disabled={!isDataValid || hasFormErrors}
-						style={{ 
-								marginRight: 'auto',
-								height: '20px',
-								borderRadius: '6px',
-								fontWeight: '500',
-								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-							
-							}}
+						style={{
+							marginRight: 'auto',
+							height: '20px',
+							borderRadius: '6px',
+							fontWeight: '500',
+							boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+						}}
 					>
 						{isStep ? 'Submit' : 'Next'}
 					</Button>
 					{!isStep && (
-						<Button style={{ 
+						<Button
+							style={{
 								marginRight: 'auto',
 								height: '20px',
 								borderRadius: '6px',
 								fontWeight: '500',
 								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-								marginRight: 10
-							}} onClick={onCancel}>
+								marginRight: 10,
+							}}
+							onClick={onCancel}
+						>
 							Cancel
 						</Button>
 					)}
