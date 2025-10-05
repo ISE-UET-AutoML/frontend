@@ -267,17 +267,17 @@ const UpDataDeploy = ({
 
 			// Lưu prefix folder mới nhất lên user_service (deploy_data)
 			const prefixKey = `${projectId}_predict/v${version}/`
-			try {
-				await instance.post(
-					`/api/service/users/projects/${projectId}/deployData`,
-					{
-						dataUrl: prefixKey,
-						predictDataUrl: prefixKey,
-					}
-				)
-			} catch (e) {
-				console.error('Save deploy_data error:', e)
-			}
+			// try {
+			//     await instance.post(
+			//         `/api/service/users/projects/${projectId}/deployData`,
+			//         {
+			//             dataUrl: prefixKey,
+			//             predictDataUrl: prefixKey,
+			//         }
+			//     )
+			// } catch (e) {
+			//     console.error('Save deploy_data error:', e)
+			// }
 
 			const filesToPredict = imageFiles.map(
 				(file) => file.originFileObj || file
@@ -292,7 +292,7 @@ const UpDataDeploy = ({
 			}
 
 			if (typeof onUploadComplete === 'function') {
-				onUploadComplete(filesToPredict)
+				onUploadComplete(filesToPredict, prefixKey)
 			}
 		} catch (e) {
 			console.error('Upload error:', e)

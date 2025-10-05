@@ -21,9 +21,8 @@ const deployModel = (modelId) => {
     return instance.post(`${AGGREGATE_URL}/model/${modelId}/deploy`)
 }
 
-const modelPredict = (base_url, formData) => {
-    console.log("predictPayload:", formData)
-    return axios.post(`${base_url}/predict`, formData)
+const modelPredict = (formData, projectId) => {
+    return instance.post(`${AGGREGATE_URL}/project/${projectId}/predict`, formData)
 }
 
 export {

@@ -263,8 +263,8 @@ const ImageClassificationDemo = ({ metadata }) => {
 
 						{/* Content */}
 						<div className="p-8 space-y-8">
-							{/* Tabs */}
-							<div>
+							{/* Tabs - Hidden on mobile, visible on md+ screens */}
+							<div className="hidden md:block">
 								<div className="grid grid-cols-2 gap-3 p-1.5 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur rounded-xl">
 									<button
 										onClick={() => {
@@ -278,12 +278,7 @@ const ImageClassificationDemo = ({ metadata }) => {
 										}`}
 									>
 										<ArrowUpTrayIcon className="h-5 w-5" />
-										<span className="hidden sm:inline">
-											Upload Files
-										</span>
-										<span className="sm:hidden">
-											Upload
-										</span>
+										<span>Upload Files</span>
 									</button>
 									<button
 										onClick={switchToCameraTab}
@@ -294,12 +289,7 @@ const ImageClassificationDemo = ({ metadata }) => {
 										}`}
 									>
 										<CameraIcon className="h-5 w-5" />
-										<span className="hidden sm:inline">
-											Take Photo
-										</span>
-										<span className="sm:hidden">
-											Camera
-										</span>
+										<span>Take Photo</span>
 									</button>
 								</div>
 
@@ -366,6 +356,39 @@ const ImageClassificationDemo = ({ metadata }) => {
 										</button>
 									</div>
 								)}
+							</div>
+
+							{/* Mobile - Upload only (no tabs) */}
+							<div className="md:hidden space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+								<label
+									htmlFor="file-upload-mobile"
+									className="group relative flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl cursor-pointer bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900/30 dark:to-blue-900/20 hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-900/50 dark:hover:to-blue-900/30 transition-all duration-300 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-xl"
+								>
+									<div className="flex flex-col items-center justify-center pt-5 pb-6 px-4">
+										<div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
+											<ArrowUpTrayIcon className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+										</div>
+										<p className="mb-2 text-base text-center font-semibold text-gray-700 dark:text-gray-300">
+											<span className="text-blue-600 dark:text-blue-400">
+												Click to upload
+											</span>{' '}
+											or drag and drop
+										</p>
+										<p className="text-sm text-center text-gray-500 dark:text-gray-400">
+											PNG, JPG, JPEG (Multiple files
+											supported)
+										</p>
+									</div>
+									<input
+										id="file-upload-mobile"
+										type="file"
+										className="hidden"
+										multiple
+										accept="image/*"
+										onChange={handleFileUpload}
+										disabled={isLoading}
+									/>
+								</label>
 							</div>
 
 							{isLoading && (
