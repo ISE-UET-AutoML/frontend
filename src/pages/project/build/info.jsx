@@ -406,6 +406,7 @@ const ProjectInfo = () => {
 			console.log('GenUI API response:', response.data)
 
 			const metadata = {
+				taskType: taskType,
 				description: response.data.description,
 				apiUrl: response.data.apiUrl,
 				samples: response.data.samples,
