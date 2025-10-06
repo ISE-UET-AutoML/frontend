@@ -57,8 +57,7 @@ const taskCards = [
 	{
 		id: 'image_classification',
 		title: 'Image Classification',
-		subtitle:
-			'Identify and categorize objects in images using advanced computer vision techniques.',
+		subtitle: 'Recognize what’s in a picture',
 		description:
 			'Perfect for organizing photo collections, content moderation, and product categorization. Upload images and let AI automatically sort them by content.',
 		icon: '📸',
@@ -68,17 +67,13 @@ const taskCards = [
 
 In this example:
 
-The input is a photo of a pet.
-The system must decide which **category** this photo belongs to.
+You have a photo of a pet, and you want the system to recognize what animal it is, such as a **dog** or a **cat**
 
 🎯 Possible categories:
 
 **Dog** → the image shows a dog
 
-**Cat** → the image shows a cat
-
-💡 In short:
-Image classification puts each picture into **one clear group** — in this case, either **Dog** or **Cat**.`,
+**Cat** → the image shows a cat`,
 
 		image: image_classification,
 		difficulty: 'Beginner',
@@ -87,8 +82,7 @@ Image classification puts each picture into **one clear group** — in this case
 	{
 		id: 'text_classification',
 		title: 'Text Classification',
-		subtitle:
-			'Categorize text data based on content, sentiment, and contextual meaning.',
+		subtitle: 'Assign each piece of text to a specific category',
 		description:
 			'Analyze customer reviews, emails, or documents to understand sentiment and automatically categorize content for better organization.',
 		icon: '📝',
@@ -97,19 +91,13 @@ Image classification puts each picture into **one clear group** — in this case
 
 In this example:
 
-The input is a short review: “Great product, I am very satisfied.”
-
-The system must decide which **category** this review belongs to.
+You have customer reviews about your products, and you want the system to categorize each review as either **positive** or **negative**
 
 🎯 Possible categories:
 
-**Positive** → the customer is happy
+**Positive** → the customer is happy or satisfied
 
-**Negative** → the customer is unhappy
-
-💡 In short:
-Text classification puts each text into **one clear group** — in this case, either **Positive** or **Negative**.`,
-
+**Negative** → the customer is unhappy or disappointed`,
 		image: text_classification,
 		difficulty: 'Beginner',
 		timeToTrain: '5-15 minutes',
@@ -117,8 +105,7 @@ Text classification puts each text into **one clear group** — in this case, ei
 	{
 		id: 'multilabel_text_classification',
 		title: 'Multilabel Text Classification',
-		subtitle:
-			'Assign multiple relevant labels to each text input for comprehensive classification.',
+		subtitle: 'Assign each piece of text to one or more categories',
 		description:
 			'When text needs multiple tags - like marking an email as both "urgent" and "customer-support" for better organization and routing.',
 		icon: '🏷️',
@@ -126,20 +113,21 @@ Text classification puts each text into **one clear group** — in this case, ei
 
 In this example:
 
-Each text description represents a short summary of a movie.
-
-The arrows point to the genres that match that movie.
+You have short descriptions of movies, and you want the system to identify all the **genres** each movie belongs to.
 
 🎬 For example:
 
-Description #1: “A superhero fights to save the world from a deadly threat.” → has 2 genres: **Action, Sci-Fi**
+Description #1: “A superhero fights to save the world from a deadly threat.” → The system assigns the genres: **Action, Sci-Fi**
 
-Description #2: “A heartwarming tale of friendship and romance.” → has 3 genres: **Romance, Comedy, Drama**
+Description #2: “A heartwarming tale of friendship and romance.” → The system assigns the genres: **Romance, Comedy, Drama**
 
-✅ This is different from single-label classification, where each movie could only belong to one genre (e.g., just “Action” or just “Comedy”). Here, we allow **multiple genres** for a movie description.
 
-💡 In short:
-This example shows that one movie description can belong to **several categories** at once — and that’s exactly what multilabel classification does.`,
+#### 🏷️ Possible Genres (Labels)
+**Action**: exciting scenes, battles, or fast-paced events.  
+**Sci-Fi**: futuristic or science-based stories.  
+**Romance**: love stories or emotional relationships.  
+**Comedy**: light-hearted and funny moments.  
+**Drama**: serious or emotional storytelling.  `,
 
 		image: multilabel_text_classification,
 		difficulty: 'Intermediate',
@@ -158,18 +146,18 @@ This example shows that one movie description can belong to **several categories
 
 In this example:
 
-The input is a table of customer information, such as **Age, Salary, and Balance**.
-
-The system uses these values to decide the outcome: whether the customer will **Churn** (leave) or **No Churn** (stay).
+You have a table of customer information (such as: age, salary, and account balance), and you want the system to predict whether each customer **will churn** (leave your service) or **not churn** (stay).
 
 🎯 For example:
 
-A customer with Age 25, Salary 50K, Balance 20K → **Churn**
+#1 Customer with Age 35, Salary 50K, Balance 75K → The system predicts **Churn**
 
-A customer with Age 45, Salary 80K, Balance 40K → **No Churn**
+#2 Customer with Age 42, Salary 62K, Balance 12K → The system preidcts **No Churn**
 
-💡 In short:
-Tabular classification helps businesses predict outcomes from structured data and it predicts a **single category for each row** — in this case, whether a customer will **churn** or **no churn**.`,
+----- 
+**Churn**: the customer is likely to stop using the service  
+**No Churn**: the customer is likely to stay
+`,
 		image: tabular_classification,
 		difficulty: 'Beginner',
 		timeToTrain: '5-20 minutes',
@@ -177,26 +165,19 @@ Tabular classification helps businesses predict outcomes from structured data an
 	{
 		id: 'tabular_regression',
 		title: 'Tabular Regression',
-		subtitle: 'Predict numerical values from structured data.',
+		subtitle: 'Predict a number for each row in a table',
 		description:
 			'Forecast future values like house prices, sales numbers, or performance scores using your historical data patterns.',
 		icon: '📈',
-		example_explain: `📌 **This example shows how Tabular Regression can predict house prices based on simple features.**
+		explain: `📌 **This example shows how Tabular Regression can predict house prices based on simple features.**
 
-In this table:
-- Each row represents one house.
-- The first 3 columns (Square Footage, Bedrooms, Location) are the **input information** — things we already know about the house.
-- The last column (“Predicted Price”) is the **output** — what the system calculates or guesses based on those inputs.
+You have a table with information about houses (such as: square footage, number of bedrooms, and location), and you want the system to predict **the price of each house**.
 
-🏡 For example:
-→ House #1: 80 sq ft, 2 bedrooms, in Suburban → Predicted price: **$1.2M**  
-→ House #2: 120 sq ft, 3 bedrooms, also in Suburban → Predicted price: **$1.8M**  
-→ House #3: 100 sq ft, 3 bedrooms, but in Downtown → Predicted price: **$3.0M**  
-→ House #4: 150 sq ft, 4 bedrooms, in Downtown → Predicted price: **$4.5M**
-
-💡 In short:  
-This is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
-		explain: `📌 **This example shows how Tabular Regression can predict house prices based on simple features.**\n\nIn this table:\n- Each row represents one house.\n- The first 3 columns (Square Footage, Bedrooms, Location) are the **input information** — things we already know about the house.\n- The last column (“Predicted Price”) is the **output** — what the system calculates or guesses based on those inputs.\n\n🏡 For example:\n- House #1: 80 sq ft, 2 bedrooms — Predicted price: **$1.2M**\n- House #2: 120 sq ft, 3 bedrooms — Predicted price: **$1.8M**\n- House #3: 100 sq ft, 3 bedrooms  — Predicted price: **$3.0M**\n- House #4: 150 sq ft, 4 bedrooms  — Predicted price: **$4.5M**\n\n💡 In short:\nThis is like a smart calculator that looks at the house’s details and gives you an estimated price — not just guessing randomly, but using real patterns from past data.`,
+🏡 For example:  
+House #1: 80 sq ft, 2 bedrooms, Suburban → Predicted price: **1.2M**  
+House #2: 120 sq ft, 3 bedrooms, Suburban → Predicted price: **1.8M**    
+House #3: 100 sq ft, 3 bedrooms, Downtown → Predicted price: **3.0M**    
+House #4: 150 sq ft, 4 bedrooms, Downtown → Predicted price: **4.5M**`,
 		image: tabular_regression,
 		difficulty: 'Intermediate',
 		timeToTrain: '10-30 minutes',
@@ -204,13 +185,17 @@ This is like a smart calculator that looks at the house’s details and gives yo
 	{
 		id: 'multilabel_tabular_classification',
 		title: 'Multilabel Tabular Classification',
-		subtitle: 'Multiple labels for detailed insights from structured data.',
+		subtitle: 'Assign each row of a table to one or more categories',
 		description:
 			'Advanced analysis when data needs multiple classifications - essential for comprehensive customer profiling and risk assessment.',
 		icon: '🔍',
-		explain: `📌 **This example shows how Multilabel Classification works using movies.**\n\nIn this table:\n- Each row is a movie (like "Avengers: Endgame" or "Titanic").\n- The last column — “Genres” — shows **all the categories that apply to that movie**.\n\n🎬 For example:\n\n- Movie #1: "Avengers: Endgame" — has 3 genres: **Action, Adventure, Sci-Fi**\n- Movie #2: "Titanic" — has 3 genres: **Romance, Disaster, Historical**\n- Movie #3: "Parasite" — has 4 genres: **Thriller, Comedy, Drama, Social Commentary**\n- Movie #4: "The Hangover" — has 2 genres: **Comedy, Adventure**\n\n✅ This is different from “single-label” classification, where each movie could only belong to ONE genre (e.g., just “Action” or just “Comedy”). Here, we allow **multiple labels per item** — because real life is rarely black-and-white!\n\n💡 In short:\nThis table shows how one movie can be many things at once — and that’s exactly what multilabel classification does: it lets you assign **multiple correct answers** to one piece of data.`,
-		example_explain:
-			'Multilabel Tabular Classification\nMultiple labels for detailed insights from structured data.',
+		explain: `📌 **This example shows how Multilabel Classification works using movies.**  
+		You have a table with information about movies (such as: title and release year), and you want the system to identify all the genres each movie belongs to.  
+		🎬 For example:  
+		Movie #1: "Avengers: Endgame" — The system assigns: **Action, Adventure, Sci-Fi**  
+		Movie #2: "Titanic" — The system assigns: **Romance, Disaster, Historical**  
+		Movie #3: "Parasite" — The system assigns: **Thriller, Comedy, Drama, Social Commentary**  
+		Movie #4: "The Hangover" — The system assigns: **Comedy, Adventure**`,
 		image: multilabel_tabular_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '20-40 minutes',
@@ -219,25 +204,26 @@ This is like a smart calculator that looks at the house’s details and gives yo
 		id: 'multimodal_classification',
 		title: 'Multimodal Classification',
 		subtitle:
-			'Combine images and text for better insights and understanding.',
+			'Use information from different types of data, like text and images, to assign each item to a specific category.',
 		description:
 			'The most comprehensive approach! Analyze both visual and textual content together for social media, e-commerce, or content platforms.',
 		icon: '🎯',
 		example_explain: 'Combines image and text signals for classification.',
-		explain: `📌 **This example shows how Multimodal Classification classify products based on several types of input**.
+		explain: `📌 **This example shows how Multimodal Classification classifies customer feedback using multiple input types**.
 
 In this example:
 
-The input can be **text, an image, audio, or any combination of these** describing a product.
-The system must decide which **category** this product belongs to.
+You have customer feedback that can include **text**, **a photo**, or even a **voice recording**, and you want the system to decide whether the feedback is **positive** or **negative**.
 
-🎯 Possible categories:
+For example:  
+**#1**: A review with written comments, a happy photo of the product, and a cheerful voice message  
+ → The system classifies it as **Positive**  
+**#2**: A review with a complaint in text, a damaged product image, and a frustrated voice recording  
+ → The system classifies it as **Negative**  
 
-**Electronics** → the product is an electronic device
-**Clothing** → the product is a piece of clothing
-
-💡 In short:
-Multimodal classification considers **one or more** types of input together to put each item into **one clear group** — in this case, either Electronics or Clothing.`,
+-------
+**Positive**: the customer is happy and satisfied  
+**Negative**: the customer is unhappy and disappointed`,
 		image: multimodal_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '25-45 minutes',
@@ -338,7 +324,7 @@ const ManualCreationModal = ({
 					gap: 20,
 					alignItems: 'stretch',
 					height: 'calc(85vh - 180px)',
-					overflow: 'hidden', /* Prevent overall overflow */
+					overflow: 'hidden' /* Prevent overall overflow */,
 				}}
 			>
 				{/* Left column */}
@@ -348,7 +334,8 @@ const ManualCreationModal = ({
 						paddingRight: '12px',
 						display: 'flex',
 						flexDirection: 'column',
-						overflow: 'hidden', /* Prevent overflow in left column */
+						overflow:
+							'hidden' /* Prevent overflow in left column */,
 					}}
 				>
 					<Row gutter={[24, 24]}>
@@ -407,7 +394,7 @@ const ManualCreationModal = ({
 							flex: 1,
 							display: 'flex',
 							flexDirection: 'column',
-							minHeight: 0, /* Quan trọng để flex container có thể scroll */
+							minHeight: 0 /* Quan trọng để flex container có thể scroll */,
 							scrollbarWidth: 'thin',
 							scrollbarColor: '#94a3b8 transparent',
 						}}
@@ -432,7 +419,7 @@ const ManualCreationModal = ({
 								borderTop: '1px solid var(--border)',
 								flex: 1,
 								overflowY: 'auto',
-								minHeight: 0, /* Quan trọng để scroll hoạt động */
+								minHeight: 0 /* Quan trọng để scroll hoạt động */,
 								scrollbarWidth: 'thin',
 								scrollbarColor: '#94a3b8 transparent',
 							}}
@@ -498,7 +485,7 @@ const ManualCreationModal = ({
 												minHeight: '120px',
 												overflow: 'hidden',
 												display: 'flex',
-    											alignItems: 'center'
+												alignItems: 'center',
 											}}
 										>
 											<div
@@ -576,7 +563,7 @@ const ManualCreationModal = ({
 						overflowY: 'auto',
 						display: 'flex',
 						flexDirection: 'column',
-						minHeight: 0, /* Quan trọng để scroll hoạt động */
+						minHeight: 0 /* Quan trọng để scroll hoạt động */,
 					}}
 				>
 					{displayTask ? (
