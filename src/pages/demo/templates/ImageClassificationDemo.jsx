@@ -424,8 +424,7 @@ const ImageClassificationDemo = ({ metadata }) => {
 							<div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900/30 dark:to-blue-900/20 rounded-xl">
 								<img
 									src={
-										metadata.samples[0].sampleImageUrl ||
-										'/placeholder.svg' ||
+										metadata.samples[0].sampleData ||
 										'/placeholder.svg'
 									}
 									alt="Sample cat"
@@ -439,8 +438,7 @@ const ImageClassificationDemo = ({ metadata }) => {
 							<div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-900/30 dark:to-purple-900/20 rounded-xl">
 								<img
 									src={
-										metadata.samples[1].sampleImageUrl ||
-										'/placeholder.svg' ||
+										metadata.samples[1].sampleData ||
 										'/placeholder.svg'
 									}
 									alt="Sample dog"
