@@ -194,8 +194,7 @@ House #4: 150 sq ft, 4 bedrooms, Downtown → Predicted price: **4.5M**`,
 		🎬 For example:  
 		Movie #1: "Avengers: Endgame" — The system assigns: **Action, Adventure, Sci-Fi**  
 		Movie #2: "Titanic" — The system assigns: **Romance, Disaster, Historical**  
-		Movie #3: "Parasite" — The system assigns: **Thriller, Comedy, Drama, Social Commentary**  
-		Movie #4: "The Hangover" — The system assigns: **Comedy, Adventure**`,
+		Movie #3: "The Hangover" — The system assigns: **Comedy, Adventure**`,
 		image: multilabel_tabular_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '20-40 minutes',
