@@ -13,8 +13,9 @@ import {
 	PhotoIcon,
 	ArrowRightIcon,
 } from '@heroicons/react/24/outline'
+import * as modelServiceAPI from 'src/api/model'
 
-const ImageClassificationDemo = ({ metadata }) => {
+const ImageClassificationDemo = ({ metadata, projectId, s3Url }) => {
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [incorrectPredictions, setIncorrectPredictions] = useState([])
 	const [uploadedFiles, setUploadedFiles] = useState([])
@@ -136,40 +137,34 @@ const ImageClassificationDemo = ({ metadata }) => {
 
 			console.log('Sending request to API with', files.length, 'file(s)')
 
-			const response = await fetch(metadata.apiUrl, {
-				method: 'POST',
-				body: formData,
-			})
+			formData.append('api_base_url', metadata.apiUrl)
+			formData.append('s3_url', s3Url)
 
-			console.log('Response status:', response.status)
+			const response = await modelServiceAPI.modelPredict(
+				formData,
+				projectId
+			)
 
-			if (!response.ok) {
-				let errorMessage = `Prediction failed: ${response.statusText}`
-				try {
-					const errorData = await response.json()
-					console.error('Server error details:', errorData)
-					errorMessage =
-						errorData.detail || errorData.message || errorMessage
-				} catch (e) {
-					const errorText = await response.text()
-					console.error('Server error text:', errorText)
-					if (errorText) errorMessage = errorText
+			if (response.status !== 200) {
+				let errorMessage = 'Prediction failed'
+				if (response.data?.detail || response.data?.message) {
+					errorMessage = response.data.detail || response.data.message
 				}
 				throw new Error(errorMessage)
 			}
 
-			const results = await response.json()
-			console.log('Prediction results:', results)
+			const data = response.data
+			console.log('Fetch prediction successful', data)
 
 			let predictions = []
-			if (Array.isArray(results)) {
-				predictions = results
-			} else if (results.predictions) {
-				predictions = results.predictions
-			} else if (results.class && results.confidence !== undefined) {
-				predictions = [results]
+			if (data.predictions && Array.isArray(data.predictions)) {
+				predictions = data.predictions
+			} else if (Array.isArray(data)) {
+				predictions = data
+			} else if (data.class && data.confidence !== undefined) {
+				predictions = [data]
 			} else {
-				console.warn('Unexpected response format:', results)
+				console.warn('Unexpected response format:', data)
 				predictions = files.map(() => ({
 					class: 'Unknown',
 					confidence: 0,
@@ -421,34 +416,32 @@ const ImageClassificationDemo = ({ metadata }) => {
 							</h2>
 						</div>
 						<div className="p-8 space-y-8">
-							<div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900/30 dark:to-blue-900/20 rounded-xl">
-								<img
-									src={
-										metadata.samples[0].sampleData ||
-										'/placeholder.svg'
-									}
-									alt="Sample cat"
-									className="w-40 h-40 sm:w-64 sm:h-64 object-cover rounded-2xl shadow-xl ring-2 ring-gray-200 dark:ring-gray-700"
-								/>
-								<ArrowRightIcon className="h-10 w-10 text-blue-500 dark:text-blue-400 rotate-90 sm:rotate-0 flex-shrink-0" />
-								<span className="text-3xl sm:text-4xl font-bold px-8 py-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 rounded-2xl shadow-lg">
-									{metadata.samples[0].sampleLabel}
-								</span>
-							</div>
-							<div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 bg-gradient-to-br from-gray-50 to-purple-50/30 dark:from-gray-900/30 dark:to-purple-900/20 rounded-xl">
-								<img
-									src={
-										metadata.samples[1].sampleData ||
-										'/placeholder.svg'
-									}
-									alt="Sample dog"
-									className="w-40 h-40 sm:w-64 sm:h-64 object-cover rounded-2xl shadow-xl ring-2 ring-gray-200 dark:ring-gray-700"
-								/>
-								<ArrowRightIcon className="h-10 w-10 text-purple-500 dark:text-purple-400 rotate-90 sm:rotate-0 flex-shrink-0" />
-								<span className="text-3xl sm:text-4xl font-bold px-8 py-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 rounded-2xl shadow-lg">
-									{metadata.samples[1].sampleLabel}
-								</span>
-							</div>
+							{metadata.samples.map((sample, index) => (
+								<div
+									key={index}
+									className={`flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 p-6 
+        bg-gradient-to-br from-gray-50 to-${index % 2 === 0 ? 'blue' : 'purple'}-50/30 
+        dark:from-gray-900/30 dark:to-${index % 2 === 0 ? 'blue' : 'purple'}-900/20 
+        rounded-xl`}
+								>
+									<img
+										src={
+											sample.sampleData ||
+											'/placeholder.svg'
+										}
+										alt={`Sample ${sample.sampleLabel}`}
+										className="w-40 h-40 sm:w-64 sm:h-64 object-cover rounded-2xl shadow-xl ring-2 ring-gray-200 dark:ring-gray-700"
+									/>
+									<ArrowRightIcon
+										className={`h-10 w-10 text-${index % 2 === 0 ? 'blue' : 'purple'}-500 
+        dark:text-${index % 2 === 0 ? 'blue' : 'purple'}-400 
+        rotate-90 sm:rotate-0 flex-shrink-0`}
+									/>
+									<span className="text-3xl sm:text-4xl font-bold px-8 py-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-500 dark:border-green-600 text-green-600 dark:text-green-400 rounded-2xl shadow-lg">
+										{sample.sampleLabel}
+									</span>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>
