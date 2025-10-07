@@ -11,8 +11,9 @@ import {
 	SparklesIcon,
 	ClockIcon,
 } from '@heroicons/react/24/outline'
+import * as modelServiceAPI from 'src/api/model'
 
-const TextClassificationDemo = ({ metadata }) => {
+const TextClassificationDemo = ({ metadata, projectId, s3Url }) => {
 	const [currentIndex, setCurrentIndex] = useState(null)
 	const [incorrectPredictions, setIncorrectPredictions] = useState([])
 	const [textInputs, setTextInputs] = useState([])
@@ -51,44 +52,42 @@ const TextClassificationDemo = ({ metadata }) => {
 			// Create FormData and append the file
 			const formData = new FormData()
 			formData.append('file', blob, 'input.csv')
+			formData.append('api_base_url', metadata.apiUrl)
+			formData.append('s3_url', s3Url)
 
-			const response = await fetch(metadata.apiUrl, {
-				method: 'POST',
-				body: formData,
-			})
+			const response = await modelServiceAPI.modelPredict(
+				formData,
+				projectId
+			)
 
-			console.log('Response status:', response.status)
-
-			if (!response.ok) {
-				let errorMessage = `Prediction failed: ${response.statusText}`
-				try {
-					const errorData = await response.json()
-					console.error('Server error details:', errorData)
-					errorMessage =
-						errorData.detail || errorData.message || errorMessage
-				} catch (e) {
-					const errorText = await response.text()
-					console.error('Server error text:', errorText)
-					if (errorText) errorMessage = errorText
+			if (response.status !== 200) {
+				let errorMessage = 'Prediction failed'
+				if (response.data?.detail || response.data?.message) {
+					errorMessage = response.data.detail || response.data.message
 				}
 				throw new Error(errorMessage)
 			}
 
-			const result = await response.json()
-			console.log('Prediction result:', result)
+			const data = response.data
 
-			let prediction
-			if (result.class && result.confidence !== undefined) {
-				prediction = result
-			} else if (result.predictions && result.predictions[0]) {
-				prediction = result.predictions[0]
+			// Extract predictions from response
+			let predictions
+			if (data.predictions && Array.isArray(data.predictions)) {
+				predictions = data.predictions
+			} else if (data.class && data.confidence !== undefined) {
+				// Single prediction format
+				predictions = [
+					{ class: data.class, confidence: data.confidence },
+				]
 			} else {
-				console.warn('Unexpected response format:', result)
-				prediction = { class: 'Unknown', confidence: 0 }
+				console.warn('Unexpected response format:', data)
+				predictions = [{ class: 'Unknown', confidence: 0 }]
 			}
 
 			setTextInputs((prev) => [...prev, text])
-			setPredictResult((prev) => [...prev, prediction])
+			setPredictResult((prev) =>
+				prev ? [...prev, ...predictions] : predictions
+			)
 			setCurrentText('')
 			setCurrentIndex(textInputs.length)
 		} catch (err) {
@@ -237,10 +236,7 @@ const TextClassificationDemo = ({ metadata }) => {
 										className="flex flex-col gap-3 p-5 bg-gradient-to-br from-gray-50 to-green-50/30 dark:from-gray-900/30 dark:to-green-900/20 rounded-xl border border-gray-200 dark:border-gray-700"
 									>
 										<div>
-											<p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
-												Input:
-											</p>
-											<p className="text-sm text-gray-800 dark:text-gray-200 italic">
+											<p className="text-lg text-gray-800 dark:text-gray-200 italic">
 												"{sample.sampleData}"
 											</p>
 										</div>
@@ -275,7 +271,7 @@ const TextClassificationDemo = ({ metadata }) => {
 									<div className="space-y-6">
 										{/* Prediction Result */}
 										<div
-											className={`flex items-start gap-4 p-5 rounded-xl border-2 shadow-lg transition-all duration-300 ${
+											className={`flex items-start gap-4 p-5 rounded-xl border-2 transition-all duration-300 ${
 												incorrectPredictions.includes(
 													currentIndex
 												)
@@ -324,7 +320,7 @@ const TextClassificationDemo = ({ metadata }) => {
 												<h4 className="text-lg font-bold text-gray-900 dark:text-white">
 													Confidence
 												</h4>
-												<span className="text-2xl font-bold px-4 py-2 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-600 dark:text-blue-400 rounded-xl shadow-md border border-blue-200 dark:border-blue-700">
+												<span className="text-2xl font-bold px-4 py-2 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-700">
 													{Math.round(
 														currentPrediction.confidence *
 															100
@@ -333,7 +329,7 @@ const TextClassificationDemo = ({ metadata }) => {
 												</span>
 											</div>
 
-											<div className="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden shadow-inner">
+											<div className="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
 												<div
 													className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-700 ease-out"
 													style={{
@@ -393,8 +389,8 @@ const TextClassificationDemo = ({ metadata }) => {
 													}
 													className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
 														currentIndex === index
-															? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg scale-[1.01]'
-															: 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md'
+															? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.01]'
+															: 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-700'
 													}`}
 												>
 													<div className="flex items-start gap-3">
