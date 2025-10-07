@@ -43,6 +43,10 @@ const getProjectLabelingDataset = (projectID) => {
     return instance.get(API_URL.get_project_labelingdataset(projectID))
 }
 
+const getAllDeployData = (projectID) => {
+    return instance.get(API_URL.get_all_deploy_data(projectID))
+}
+
 const explainInstance = (projectID, data) => {
     const options = {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -113,4 +117,5 @@ export {
     getModels,
     createProject,
     sendTargetColumn,
+    getAllDeployData
 }

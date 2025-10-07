@@ -23,7 +23,14 @@ import {
 	Row,
 	Col,
 	Divider,
-} from 'antd'
+    Modal, Tooltip,
+    Table,  
+    Tabs,
+    Spin,
+    List,
+    Switch,
+    Drawer
+} from 'antd';
 import {
 	TrophyOutlined,
 	ClockCircleOutlined,
@@ -42,6 +49,7 @@ import * as datasetAPI from 'src/api/dataset'
 import * as visualizeAPI from 'src/api/visualize'
 import * as projectAPI from 'src/api/project'
 import LiteConfig from 'src/pages/project/build/LiteConfig'
+import Papa from 'papaparse'
 import { validateFilesForPrediction } from 'src/utils/file'
 import {
 	ResponsiveContainer,
@@ -54,6 +62,9 @@ import {
 	Legend,
 } from 'recharts'
 import { SparklesIcon } from '@heroicons/react/24/solid'
+import axios from 'axios'
+import { useMemo } from 'react';
+
 
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
@@ -139,7 +150,14 @@ const ProjectInfo = () => {
 	const [isGeneratingUI, setIsGeneratingUI] = useState(false)
 	const fileInputRef = useRef(null)
 
-	const object = LiteConfig[projectInfo?.task_type]
+	const [recentPredictions, setRecentPredictions] = useState([]);
+    const [isLoadingPredictions, setIsLoadingPredictions] = useState(false);
+    const [predictionError, setPredictionError] = useState(null);
+
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [selectedPredictionContent, setSelectedPredictionContent] = useState(null)
+    const [isJsonLoading, setIsJsonLoading] = useState(false)
+    const object = LiteConfig[projectInfo?.task_type]
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -167,11 +185,12 @@ const ProjectInfo = () => {
 			projectInfo?.task_type
 		)
 
-		console.log('uploadedFiles', validFiles)
-		setUploadedFiles((prevFiles) =>
-			prevFiles ? [...prevFiles, ...validFiles] : validFiles
-		)
-		setUploading(true)
+        console.log('uploadedFiles', validFiles)
+        setUploadedFiles((prevFiles) =>
+            prevFiles ? [...prevFiles, ...validFiles] : validFiles
+        )
+        console.log('Valid files:', uploadedFiles)
+        setUploading(true)
 
 		// Wait for deployment to complete if no model is deployed
 		let currentModelDeploy = modelDeploy
@@ -288,11 +307,12 @@ const ProjectInfo = () => {
 		setIsShowUpload(true)
 	}
 
-	const handleClearAll = () => {
-		setPredictResult(null)
-		setUploadedFiles(null)
-		message.success('All predictions cleared', 2)
-	}
+    const handleClearAll = () => {
+        setPredictResult(null)
+        setUploadedFiles(null)
+        message.success('All predictions cleared', 2)
+    }
+    
 
 	const handleGenUI = async () => {
 		setIsGeneratingUI(true)
@@ -415,22 +435,73 @@ const ProjectInfo = () => {
 
 			await visualizeAPI.saveMetadata(projectInfo.id, metadata)
 
-			const url = PATHS.PROJECT_DEMO(projectInfo.id)
-			console.log('Opening generated UI at:', url)
-			window.open(url, '_blank', 'noopener,noreferrer')
-		} catch (error) {
-			console.error('Error generating UI:', error)
-			message.error({
-				content:
-					error.response?.data?.detail ||
-					'Failed to generate UI. Please try again.',
-				key: 'genui',
-				duration: 3,
-			})
-		} finally {
-			setIsGeneratingUI(false)
-		}
-	}
+            const url = PATHS.PROJECT_DEMO(projectInfo.id)
+            console.log('Opening generated UI at:', url)
+            window.open(url, '_blank', 'noopener,noreferrer')
+        } catch (error) {
+            console.error('Error generating UI:', error)
+            message.error({
+                content:
+                    error.response?.data?.detail ||
+                    'Failed to generate UI. Please try again.',
+                key: 'genui',
+                duration: 3,
+            })
+        } finally {
+            setIsGeneratingUI(false)
+        }
+    }
+
+    const handleCloseModal = () => {
+        setIsModalVisible(false);
+        setSelectedPredictionContent(null); 
+    };
+    const handleViewPrediction = async (prediction) => {
+        setIsModalVisible(true)
+        setIsJsonLoading(true)
+        setSelectedPredictionContent(null)
+        
+        try {
+            const s3_key = prediction.predict_data_url
+            const downloadJsonContentPresignedUrl = await datasetAPI.createDownPresignedUrls(s3_key)
+            //console.log("Presigned URL response:", downloadJsonContentPresignedUrl);
+            const predictUrl = downloadJsonContentPresignedUrl.data.url
+            //console.log("Predict URL:", predictUrl);
+            if (!downloadJsonContentPresignedUrl) {
+                throw new Error("Không nhận được Presigned URL.");
+            }
+            const jsonResponse = await axios.get(predictUrl)
+            console.log("Prediction content:", jsonResponse.data);
+            const predictContent = jsonResponse.data
+            setSelectedPredictionContent(predictContent)
+            
+            //download file của ngta tải lên
+            const dataUrl = `${prediction.data_url}test.csv`
+            console.log("Data URL:", dataUrl);
+            const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
+            const fileDownloadUrl = fileUrl.data.url
+            const fileContentResponse = await axios.get(fileDownloadUrl)
+            const fileContent = fileContentResponse.data
+            const parsedCsv = Papa.parse(fileContent, {header: true})
+
+            const inputData = parsedCsv.data.filter(row => 
+            // Điều kiện: Giữ lại dòng nếu có ít nhất một giá trị không phải là chuỗi rỗng
+            Object.values(row).some(value => value !== '' && value !== null)
+        );
+            const combinedData = inputData.map((row, index) => ({
+                ...row,
+                ...(predictContent[index] || {}) 
+            }));
+            console.log("File content:", fileContent);
+            setSelectedPredictionContent(combinedData);
+        } catch (error) {
+            console.error('Error fetching prediction content:', error)
+            message.error('Failed to load prediction content. Please try again.')
+            setSelectedPredictionContent({ error: "Download failed.", details: error.message });
+        } finally {
+            setIsJsonLoading(false)
+        }
+    }
 
 	// 1) Lấy experimentId theo projectInfo.id
 	useEffect(() => {
@@ -576,18 +647,44 @@ const ProjectInfo = () => {
 		fetchConfig()
 	}, [experimentId])
 
-	// Format created_at
-	const formattedDate = new Date(projectInfo?.created_at).toLocaleString(
-		'en-US',
-		{
-			weekday: 'short',
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		}
-	)
+	// Fetch recent predictions history
+	useEffect(() => {
+        if (!projectInfo?.id) return;
+
+        const fetchRecentPredictions = async () => {
+            setIsLoadingPredictions(true); 
+            setPredictionError(null);    
+            try {
+                const response = await projectAPI.getAllDeployData(projectInfo.id);
+                
+                if (response.status === 200) {
+                    setRecentPredictions(response.data);
+					console.log("Recent predictions:", response.data);
+                }
+            } catch (error) {
+                console.error("Can't fetch recent predictions:", error);
+                setPredictionError("Can't fetch recent predictions.");
+            } finally {
+                setIsLoadingPredictions(false);
+            }
+        };
+
+        fetchRecentPredictions();
+
+    }, [projectInfo?.id]); 
+
+    // Format created_at
+    const formattedDate = new Date(projectInfo?.created_at).toLocaleString(
+        'en-US',
+        {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        }
+    )
 
 	const hasTraining = (experiment?.actual_training_time || 0) > 0
 
@@ -621,9 +718,146 @@ const ProjectInfo = () => {
 		</div>
 	)
 
-	return (
-		<>
-			<style>{`
+
+
+
+    const SimpleDataModal = ({ isOpen, onClose, data, isLoading }) => {
+        const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+        
+        const [allColumns, setAllColumns] = useState([]);
+
+        const [visibleColumns, setVisibleColumns] = useState([]);
+
+        const [filterText, setFilterText] = useState('');
+
+        
+        useEffect(() => {
+            if (data && data.length > 0 && typeof data[0] === 'object') {
+                const keys = Object.keys(data[0]).filter(key => key.toLowerCase() !== 'key');
+                setAllColumns(keys);
+                setVisibleColumns(keys);
+            } else {
+                setAllColumns([]);
+                setVisibleColumns([]);
+            }
+        }, [data]);
+
+        const handleColumnToggle = (columnKey) => {
+            setVisibleColumns(prev => 
+                prev.includes(columnKey) 
+                    ? prev.filter(key => key !== columnKey) 
+                    : [...prev, columnKey]
+            );
+        };
+
+        const tableColumns = useMemo(() => {
+            if (!data || data.length === 0) return [];
+
+            const specialColumns = ['class', 'prediction', 'confidence', 'probability'];
+            
+            const scrollableCols = allColumns
+                .filter(key => visibleColumns.includes(key) && !specialColumns.includes(key.toLowerCase()))
+                .map(key => ({
+                    title: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+                    dataIndex: key,
+                    key: key,
+                    width: 180,
+                }));
+
+            const fixedCols = allColumns
+                .filter(key => visibleColumns.includes(key) && specialColumns.includes(key.toLowerCase()))
+                .map(key => ({
+                    title: key.charAt(0).toUpperCase() + key.slice(1),
+                    dataIndex: key,
+                    key: key,
+                    fixed: 'right', 
+                    width: 150,     // Set chiều rộng cố định
+                    render: (text) => {
+                        if (key.toLowerCase() === 'class' || key.toLowerCase() === 'prediction') {
+                            const color = String(text).toLowerCase().includes('positive') ? 'green' : 'volcano';
+                            return <Tag color={color}>{String(text).toUpperCase()}</Tag>;
+                        }
+                        if (key.toLowerCase() === 'confidence' || key.toLowerCase() === 'probability') {
+                            const num = parseFloat(text);
+                            return !isNaN(num) ? `${(num * 100).toFixed(2)}%` : text;
+                        }
+                        return text;
+                    }
+                }));
+
+            return [...scrollableCols, ...fixedCols];
+        }, [allColumns, visibleColumns, data]);
+
+        // Lọc danh sách cột để hiển thị trong Drawer dựa trên filterText
+        const filteredDrawerColumns = allColumns.filter(col => 
+            col.toLowerCase().includes(filterText.toLowerCase())
+        );
+
+        return (
+            <>
+                <Modal
+                    title="Prediction Results"
+                    open={isOpen}
+                    onCancel={onClose}
+                    width="90%"
+                    style={{ top: 20 }} // Đẩy modal lên cao hơn một chút
+                    footer={[
+                        <Button key="settings" icon={<SettingOutlined />} onClick={() => setIsDrawerOpen(true)}>
+                            Columns Settings
+                        </Button>,
+                        <Button key="close" type="primary" onClick={onClose}>
+                            Close
+                        </Button>,
+                    ]}
+                >
+                    {isLoading ? (
+                        <div style={{ textAlign: 'center', padding: '50px' }}>
+                            <Spin size="large" />
+                        </div>
+                    ) : data && data.length > 0 ? (
+                        <Table
+                            columns={tableColumns}
+                            dataSource={data}
+                            rowKey={(record, index) => record.key ?? index}
+                            scroll={{ x: 'max-content', y: 'calc(100vh - 200px)' }} // Thêm cuộn dọc
+                            pagination={{ pageSize: 15 }}
+                        />
+                    ) : (
+                        <Empty description="No data available" />
+                    )}
+                </Modal>
+
+                <Drawer
+                    title="Column Settings"
+                    placement="right"
+                    onClose={() => setIsDrawerOpen(false)}
+                    open={isDrawerOpen}
+                >
+                    <Input.Search
+                        placeholder="Search column name"
+                        onChange={(e) => setFilterText(e.target.value)}
+                        style={{ marginBottom: 16 }}
+                    />
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                        {filteredDrawerColumns.map(columnKey => (
+                            <div key={columnKey} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '8px', borderRadius: '4px', background: '#f5f5f5' }}>
+                                <span style={{ fontWeight: 500 }}>{columnKey}</span>
+                                <Switch
+                                    checked={visibleColumns.includes(columnKey)}
+                                    onChange={() => handleColumnToggle(columnKey)}
+                                />
+                            </div>
+                        ))}
+                    </Space>
+                </Drawer>
+            </>
+        );
+    };
+    
+
+    return (
+        <>
+            <style>{`
 	body, html {
 		background-color: var(--surface) !important;
 	}
@@ -1061,186 +1295,245 @@ const ProjectInfo = () => {
 									</Row>
 								</Card>
 
-								{/* Prediction Results */}
-								{!uploading &&
-									predictResult &&
-									projectInfo &&
-									object && (
-										<div className="mt-6">
-											{(() => {
-												const PredictComponent =
-													object.predictView
-												return (
-													<PredictComponent
-														predictResult={
-															predictResult
-														}
-														uploadedFiles={
-															uploadedFiles
-														}
-														projectInfo={
-															projectInfo
-														}
-														// handleUploadFiles={
-														//     handleUploadFiles
-														// }
-														model={model}
-														onClearAll={
-															handleClearAll
-														}
-													/>
-												)
-											})()}
-										</div>
-									)}
-							</div>
-						)}
+                                {/* Prediction Results */}
+                                {!uploading &&
+                                    predictResult &&
+                                    projectInfo &&
+                                    object && (
+                                        <div className="mt-6">
+                                            {(() => {
+                                                const PredictComponent =
+                                                    object.predictView
+                                                return (
+                                                    <PredictComponent
+                                                        predictResult={
+                                                            predictResult
+                                                        }
+                                                        uploadedFiles={
+                                                            uploadedFiles
+                                                        }
+                                                        projectInfo={
+                                                            projectInfo
+                                                        }
+                                                        // handleUploadFiles={
+                                                        //     handleUploadFiles
+                                                        // }
+                                                        model={model}
+                                                        onClearAll={
+                                                            handleClearAll
+                                                        }
+                                                    />
+                                                )
+                                            })()}
+                                        </div>
+                                    )}
+                            </div>
+                        )}
 
-						{/* Training history chart - only show when no prediction results */}
-						{!predictResult &&
-						(isChartLoading ||
-							(Array.isArray(chartData) &&
-								chartData.length > 0)) ? (
-							<div className="p-6 rounded-xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
-								<h2
-									className="text-xl font-bold mb-4"
-									style={{ color: 'var(--text)' }}
-								>
-									Training History
-								</h2>
-								<div style={{ width: '100%', height: 300 }}>
-									{isChartLoading ? (
-										<div className="w-full h-full">
-											<Skeleton
-												active
-												paragraph={{ rows: 6 }}
-												title={false}
-											/>
-										</div>
-									) : (
-										<ResponsiveContainer
-											width="100%"
-											height="100%"
-										>
-											<AreaChart
-												data={
-													Array.isArray(chartData)
-														? chartData.map(
-																(d) => ({
-																	...d,
-																	score: Math.abs(
-																		Number(
-																			d?.score ??
-																				0
-																		)
-																	),
-																})
-															)
-														: []
-												}
-												margin={{
-													top: 10,
-													right: 30,
-													left: 0,
-													bottom: 0,
-												}}
-											>
-												<defs>
-													<linearGradient
-														id="colorAccuracy"
-														x1="0"
-														y1="0"
-														x2="0"
-														y2="1"
-													>
-														<stop
-															offset="5%"
-															stopColor="#60a5fa"
-															stopOpacity={0.8}
-														/>
-														<stop
-															offset="95%"
-															stopColor="#22d3ee"
-															stopOpacity={0.1}
-														/>
-													</linearGradient>
-												</defs>
-												<CartesianGrid
-													strokeDasharray="3 3"
-													stroke="#334155"
-												/>
-												<XAxis
-													dataKey="step"
-													tick={{
-														fontSize: 12,
-														fill: '#94a3b8',
-													}}
-													domain={[0, 'auto']}
-												/>
-												<YAxis
-													tick={{
-														fontSize: 12,
-														fill: '#94a3b8',
-													}}
-													domain={[0, 'auto']}
-												/>
-												<RechartsTooltip
-													formatter={(value) => [
-														`${Math.abs(value).toFixed(2)}`,
-														valMetric,
-													]}
-													labelFormatter={(label) =>
-														`Epoch: ${label} step`
-													}
-													contentStyle={{
-														backgroundColor:
-															'rgba(15, 23, 42, 0.95)',
-														borderRadius: '8px',
-														boxShadow:
-															'0 4px 20px rgba(0,0,0,0.5)',
-														border: '1px solid var(--border)',
-														color: '#e2e8f0',
-													}}
-												/>
-												<Legend />
-												<Area
-													type="monotone"
-													dataKey="score"
-													stroke="#60a5fa"
-													strokeWidth={3}
-													fillOpacity={1}
-													fill="url(#colorAccuracy)"
-													name={`Validation ${valMetric}`}
-												/>
-											</AreaChart>
-										</ResponsiveContainer>
-									)}
-								</div>
-							</div>
-						) : !predictResult ? (
-							<div className="p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
-								<Empty
-									description="No training history yet"
-									image={Empty.PRESENTED_IMAGE_SIMPLE}
-								/>
-							</div>
-						) : null}
-					</div>
-				</div>
-			</div>
-			<UpDataDeploy
-				isOpen={isShowUpload}
-				onClose={hideUpload}
-				projectId={projectInfo?.id}
-				taskType={projectInfo?.task_type}
-				featureColumns={
-					datasetInfo?.data.ls_project.meta_data.text_columns
-				}
-				onUploadStart={handleUploadStartBackground}
-				onUploadComplete={handleUploadFiles}
-			/>
-		</>
-	)
+                        {/* Recent Predictions */}
+                        <div className="mt-8">
+                            <Card
+                                title={
+                                    <Space>
+                                        <ClockCircleOutlined />
+                                        <span style={{ color: 'var(--text)' }}>
+                                            Recent Predictions
+                                        </span>
+                                    </Space>
+                                }
+                                // ... các style khác của Card
+                            >
+                                {/* Xử lý loading, error, empty state... */}
+                                {!isLoadingPredictions && !predictionError && (
+                                    <List
+                                        dataSource={recentPredictions}
+                                        renderItem={(prediction) => (
+                                            <List.Item
+                                                style={{ borderBottom: '1px solid var(--border)' }}
+                                                actions={[
+                                                    <Button
+                                                        type="primary"
+                                                        onClick={() => handleViewPrediction(prediction)}
+                                                    >
+                                                        View
+                                                    </Button>
+                                                ]}
+                                            >
+                                                <List.Item.Meta
+                                                    avatar={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+                                                    title={
+                                                        <span style={{ color: 'var(--text)' }}>
+                                                            {`ID: ${prediction.id.substring(0, 8)}...`}
+                                                        </span>
+                                                    }
+                                                    description={
+                                                        <span style={{ color: 'var(--secondary-text)' }}>
+                                                            {`Created at: ${new Date(prediction.created_at).toLocaleString('vi-VN')}`}
+                                                        </span>
+                                                    }
+                                                />
+                                            </List.Item>
+                                        )}
+                                    />
+                                )}
+                            </Card>
+                        </div>
+
+                        {/* Training history chart - only show when no prediction results */}
+                        {!predictResult &&
+                            (isChartLoading ||
+                                (Array.isArray(chartData) &&
+                                    chartData.length > 0)) ? (
+                            <div className="p-6 rounded-xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl">
+                                <h2
+                                    className="text-xl font-bold mb-4"
+                                    style={{ color: 'var(--text)' }}
+                                >
+                                    Training History
+                                </h2>
+                                <div style={{ width: '100%', height: 300 }}>
+                                    {isChartLoading ? (
+                                        <div className="w-full h-full">
+                                            <Skeleton
+                                                active
+                                                paragraph={{ rows: 6 }}
+                                                title={false}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <ResponsiveContainer
+                                            width="100%"
+                                            height="100%"
+                                        >
+                                            <AreaChart
+                                                data={
+                                                    Array.isArray(chartData)
+                                                        ? chartData.map(
+                                                            (d) => ({
+                                                                ...d,
+                                                                score: Math.abs(
+                                                                    Number(
+                                                                        d?.score ??
+                                                                        0
+                                                                    )
+                                                                ),
+                                                            })
+                                                        )
+                                                        : []
+                                                }
+                                                margin={{
+                                                    top: 10,
+                                                    right: 30,
+                                                    left: 0,
+                                                    bottom: 0,
+                                                }}
+                                            >
+                                                <defs>
+                                                    <linearGradient
+                                                        id="colorAccuracy"
+                                                        x1="0"
+                                                        y1="0"
+                                                        x2="0"
+                                                        y2="1"
+                                                    >
+                                                        <stop
+                                                            offset="5%"
+                                                            stopColor="#60a5fa"
+                                                            stopOpacity={0.8}
+                                                        />
+                                                        <stop
+                                                            offset="95%"
+                                                            stopColor="#22d3ee"
+                                                            stopOpacity={0.1}
+                                                        />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid
+                                                    strokeDasharray="3 3"
+                                                    stroke="#334155"
+                                                />
+                                                <XAxis
+                                                    dataKey="step"
+                                                    tick={{
+                                                        fontSize: 12,
+                                                        fill: '#94a3b8',
+                                                    }}
+                                                    domain={[0, 'auto']}
+                                                />
+                                                <YAxis
+                                                    tick={{
+                                                        fontSize: 12,
+                                                        fill: '#94a3b8',
+                                                    }}
+                                                    domain={[0, 'auto']}
+                                                />
+                                                <RechartsTooltip
+                                                    formatter={(value) => [
+                                                        `${Math.abs(value).toFixed(2)}`,
+                                                        valMetric,
+                                                    ]}
+                                                    labelFormatter={(label) =>
+                                                        `Epoch: ${label} step`
+                                                    }
+                                                    contentStyle={{
+                                                        backgroundColor:
+                                                            'rgba(15, 23, 42, 0.95)',
+                                                        borderRadius: '8px',
+                                                        boxShadow:
+                                                            '0 4px 20px rgba(0,0,0,0.5)',
+                                                        border: '1px solid var(--border)',
+                                                        color: '#e2e8f0',
+                                                    }}
+                                                />
+                                                <Legend />
+                                                <Area
+                                                    type="monotone"
+                                                    dataKey="score"
+                                                    stroke="#60a5fa"
+                                                    strokeWidth={3}
+                                                    fillOpacity={1}
+                                                    fill="url(#colorAccuracy)"
+                                                    name={`Validation ${valMetric}`}
+                                                />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    )}
+                                </div>
+                            </div>
+                        ) : !predictResult ? (
+                            <div className="p-6 rounded-3xl border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl flex items-center justify-center">
+                                <Empty
+                                    description="No training history yet"
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                />
+                            </div>
+                        ) : null}
+                    </div>
+                </div>
+            </div>
+
+            <SimpleDataModal
+            isOpen={isModalVisible}
+            onClose={handleCloseModal}
+            data={selectedPredictionContent}
+            isLoading={isJsonLoading}
+            />
+            <UpDataDeploy
+                isOpen={isShowUpload}
+                onClose={hideUpload}
+                projectId={projectInfo?.id}
+                taskType={projectInfo?.task_type}
+                featureColumns={
+                    datasetInfo?.data.ls_project.meta_data.text_columns
+                }
+                onUploadStart={handleUploadStartBackground}
+                onUploadComplete={handleUploadFiles}
+            />
+        </>
+    )
 }
 
+
+
 export default ProjectInfo
+

@@ -32,4 +32,5 @@ export const API_URL = {
         `${API_BASE_URL}/experiments/model/${experimentName}`,
     get_dataset_preview: (projectID, page, pageSize) =>
         `${API_BASE_URL}/projects/${projectID}/dataset_preview?&page=${page}&page_size=${pageSize}`,
-}
+    get_all_deploy_data: (projectID) => `${API_BASE_URL}/api/service/users/projects/${projectID}/deployData`,
+};
