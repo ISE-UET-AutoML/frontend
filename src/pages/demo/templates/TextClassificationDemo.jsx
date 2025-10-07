@@ -127,10 +127,10 @@ const TextClassificationDemo = ({ metadata }) => {
 				{/* Header */}
 				<div className="text-center space-y-3 mb-8">
 					<h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-						Text Classification
+						{metadata.projectName}
 					</h1>
 					<p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-						{metadata.description}
+						{metadata.projectDescription || metadata.description}
 					</p>
 				</div>
 

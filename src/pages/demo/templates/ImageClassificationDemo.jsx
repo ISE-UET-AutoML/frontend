@@ -245,10 +245,11 @@ const ImageClassificationDemo = ({ metadata }) => {
 					<div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
 						<div className="text-center space-y-3 p-8 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-blue-900/30">
 							<h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
-								Image Classification
+								{metadata.projectName}
 							</h1>
 							<p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-								{metadata.description}
+								{metadata.projectDescription ||
+									metadata.description}
 							</p>
 						</div>
 
