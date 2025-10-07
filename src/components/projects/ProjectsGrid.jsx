@@ -1,6 +1,8 @@
 import React from 'react'
 import { Row, Col, Empty, Space, Typography, Button } from 'antd'
+import { Link } from 'react-router-dom'
 import ProjectCard from 'src/pages/projects/card'
+import { PATHS } from 'src/constants/paths'
 
 const { Text } = Typography
 
@@ -51,7 +53,16 @@ const ProjectsGrid = ({ projects, getProjects, onCreateProject }) => {
 		<Row gutter={[16, 16]} className="">
 			{projects.map((project) => (
 				<Col xs={24} sm={12} xl={8} key={project.id}>
-					<ProjectCard project={project} getProjects={getProjects} />
+					<Link
+						to={PATHS.PROJECT_INFO(project.id)}
+						className="block"
+						style={{ textDecoration: 'none' }}
+					>
+						<ProjectCard
+							project={project}
+							getProjects={getProjects}
+						/>
+					</Link>
 				</Col>
 			))}
 		</Row>

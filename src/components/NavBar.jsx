@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { PATHS } from 'src/constants/paths'
 import useAuth from 'src/hooks/useAuth'
 import clsx from 'clsx'
@@ -102,12 +102,17 @@ const NavBar = () => {
 				<div className="flex justify-between items-center h-16">
 					{/* Left: ASTRAL Logo */}
 					<div className="flex-shrink-0">
-						<img
-							src={logoSrc}
-							alt="ASTRAL"
-							className="h-10 w-auto cursor-pointer transition-transform duration-300 hover:scale-105"
-							onClick={() => navigate('/')}
-						/>
+						<Link
+							to="/"
+							aria-label="Go to homepage"
+							className="inline-flex"
+						>
+							<img
+								src={logoSrc}
+								alt="ASTRAL"
+								className="h-10 w-auto cursor-pointer transition-transform duration-300 hover:scale-105"
+							/>
+						</Link>
 					</div>
 
 					{/* Center: Navigation Items */}

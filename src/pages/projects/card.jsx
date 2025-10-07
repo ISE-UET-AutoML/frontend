@@ -101,7 +101,11 @@ export default function ProjectCard({ project, getProjects }) {
 		IconComponent = ArrowTrendingUpIcon
 	}
 
-	const handleCardClick = async () => {
+	const handleCardClick = async (event) => {
+		if (event) {
+			event.preventDefault()
+			event.stopPropagation()
+		}
 		const experimentsRes = await experimentAPI.getAllExperiments(
 			project?.id
 		)
