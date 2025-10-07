@@ -411,12 +411,18 @@ const ProjectInfo = () => {
 				projectInfo.description || `A model for ${taskType}`
 			const labels = model.metadata.labels
 			const apiEndpoint = currentModelDeploy.api_base_url
+			let sampleData = projectInfo.metadata.sample_data
+
+			if (taskType === 'Image Classification') {
+				sampleData = []
+			}
 
 			console.log('Calling genUI API with:', {
 				taskType,
 				taskDescription,
 				labels,
 				apiEndpoint,
+				// sampleData,
 			})
 
 			const response = await visualizeAPI.genUI(
@@ -424,6 +430,7 @@ const ProjectInfo = () => {
 				taskDescription,
 				labels,
 				apiEndpoint
+				// sampleData
 			)
 
 			console.log('GenUI API response:', response.data)
