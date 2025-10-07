@@ -11,7 +11,7 @@ import ContentContainer from 'src/components/ContentContainer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import Pager from 'src/components/Pager'
 import CreateProjectModal from 'src/components/projects/CreateProjectModal'
-import create_project from 'src/assets/images/create_project.png'
+import create_project from 'src/assets/images/create_project.jpeg'
 
 // Hooks
 import { useProjects } from 'src/hooks'
