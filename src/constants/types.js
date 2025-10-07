@@ -45,10 +45,10 @@ const TASK_TYPES = {
 📋 Requirements:
 • File must be in .csv and .xslx(excel) format.
 • Must have a header row (column names).
-• The label column must be the LAST COLUMN.
+• The category column must be the LAST COLUMN.
 
 💡 Example format:
-text,label
+text,category
 "This is a positive review","positive"
 "Great product, highly recommend","positive"
 "Poor quality, disappointed","negative"
@@ -70,14 +70,13 @@ text,label
 📋 Requirements:
 • File must be in .csv/.xslx format.
 • Must have a header row (column names).
-• The label column must be the LAST COLUMN.
-• Labels in the last column must be separated by "; " (a semicolon followed by a space).
+• The categories column must be the LAST COLUMN.
+• Categories in the last column must be separated by "; " (a semicolon followed by a space).
 
 💡 Example format:
-text,                              label
-"UET is a member of VNU",          "uet; vnu"
-"ULIS is a great university",      "ulis; vnu"
-"UEB has many majors",             "ueb; vnu"
+Movie Summary |                                                       Genres
+A superhero fights to save the world from a deadly threat |          Action; Sci-Fi
+A heartwarming tale of friendship and romance |                      Romance; Comedy; Drama
 
 ✅ Guidelines:
 • UTF-8 encoding.`,
@@ -99,13 +98,13 @@ text,                              label
 📋 Requirements:
 • File must be in .csv/.xslx(excel) format.
 • Must have a header row (column names).
-• The target/label column must be the LAST COLUMN.
+• The category column must be the LAST COLUMN.
 
 💡 Example format:
-age,income,education,approved
-25,50000,bachelor,1
-35,75000,master,1
-22,30000,high_school,0
+Age | Salary | Balance | Prediction
+35 | 50,000 | 75,000 | Churn
+42 | 62,000 | 12,000 | No Churn
+29 | 48,000 | 90,000 | No Churn
 
 ✅ Guidelines:
 • Handle missing values (use empty cells or 'NULL').
@@ -132,10 +131,11 @@ age,income,education,approved
 • ❗️ Important: Values in the target column must be floating-point numbers (e.g., 1.5, 25.0, 105.7).
 
 💡 Example format:
-square_feet,num_bedrooms,age,price
-1500,3,10,300.5
-2200,4,5,450.0
-800,2,25,150.75`,
+Square Footage | Bedrooms | Location | Predicted Price ($ M)
+80 | 2 | Suburban | 1,2
+120 | 3 | Suburban | 1,8
+100 | 3 | Downtown | 3
+150 | 4 | Downtown | 4,5`,
 	exampleFile: '/data_example/tabular_regression.xlsx'
 	},
 	MULTILABEL_TABULAR_CLASSIFICATION: {
@@ -154,14 +154,14 @@ square_feet,num_bedrooms,age,price
 📋 Requirements:
 • File must be in .csv/.xslx format.
 • Must have a header row (column names).
-• The label column must be the LAST COLUMN.
-• Labels in the last column must be SEPARATED by "; " (a semicolon followed by a space).
+• The categories column must be the LAST COLUMN.
+• Categories in the last column must be SEPARATED by "; " (a semicolon followed by a space).
 
 💡 Example format:
-movie_summary,                                                   genres
-"A young wizard discovers his magical heritage...",              "adventure; fantasy"
-"A group of thieves attempts a final heist...",                  "crime; thriller; drama"
-"Two strangers meet on a train and talk all night...",           "romance; drama"`,
+Movie Title | Year | Genres
+Avengers: Endgame | 2019 | action; adventure
+Titanic | 1997 | romance; disaster; historical
+The Hangover | 2019 | thriller; comedy; drama; social commentary`,
 	exampleFile: '/data_example/multilabel_tabular_classification.xlsx',
 	},
 	MULTIMODAL_CLASSIFICATION: {
