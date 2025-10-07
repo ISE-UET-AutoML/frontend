@@ -92,17 +92,9 @@ const ProjectDemo = () => {
 	return (
 		<>
 			{metadata.taskType === 'Image Classification' ? (
-				<ImageClassificationDemo
-					metadata={metadata}
-					projectId={projectId}
-					s3Url={''}
-				/>
+				<ImageClassificationDemo metadata={metadata} />
 			) : metadata.taskType === 'Text Classification' ? (
-				<TextClassificationDemo
-					metadata={metadata}
-					projectId={projectId}
-					s3Url={''}
-				/>
+				<TextClassificationDemo metadata={metadata} />
 			) : (
 				<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
 					<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-12 max-w-lg text-center">

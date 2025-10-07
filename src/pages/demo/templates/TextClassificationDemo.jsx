@@ -13,7 +13,7 @@ import {
 } from '@heroicons/react/24/outline'
 import * as modelServiceAPI from 'src/api/model'
 
-const TextClassificationDemo = ({ metadata, projectId, s3Url }) => {
+const TextClassificationDemo = ({ metadata }) => {
 	const [currentIndex, setCurrentIndex] = useState(null)
 	const [incorrectPredictions, setIncorrectPredictions] = useState([])
 	const [textInputs, setTextInputs] = useState([])
@@ -53,12 +53,8 @@ const TextClassificationDemo = ({ metadata, projectId, s3Url }) => {
 			const formData = new FormData()
 			formData.append('file', blob, 'input.csv')
 			formData.append('api_base_url', metadata.apiUrl)
-			formData.append('s3_url', s3Url)
 
-			const response = await modelServiceAPI.modelPredict(
-				formData,
-				projectId
-			)
+			const response = await modelServiceAPI.predictGenUI(formData)
 
 			if (response.status !== 200) {
 				let errorMessage = 'Prediction failed'

@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/24/outline'
 import * as modelServiceAPI from 'src/api/model'
 
-const ImageClassificationDemo = ({ metadata, projectId, s3Url }) => {
+const ImageClassificationDemo = ({ metadata }) => {
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [incorrectPredictions, setIncorrectPredictions] = useState([])
 	const [uploadedFiles, setUploadedFiles] = useState([])
@@ -138,12 +138,8 @@ const ImageClassificationDemo = ({ metadata, projectId, s3Url }) => {
 			console.log('Sending request to API with', files.length, 'file(s)')
 
 			formData.append('api_base_url', metadata.apiUrl)
-			formData.append('s3_url', s3Url)
 
-			const response = await modelServiceAPI.modelPredict(
-				formData,
-				projectId
-			)
+			const response = await modelServiceAPI.predictGenUI(formData)
 
 			if (response.status !== 200) {
 				let errorMessage = 'Prediction failed'
