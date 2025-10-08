@@ -7,8 +7,8 @@ const genUI = (
 	taskType,
 	taskDescription,
 	labels,
-	apiEndpoint
-	// sampleData = null
+	apiEndpoint,
+	sampleData = null
 ) => {
 	const payload = {
 		task_type: taskType,
@@ -17,17 +17,17 @@ const genUI = (
 		api_endpoint: apiEndpoint,
 	}
 
-	// if (sampleData !== null && sampleData !== undefined) {
-	// 	const hasContent = Array.isArray(sampleData)
-	// 		? sampleData.length > 0
-	// 		: typeof sampleData === 'object'
-	// 			? Object.keys(sampleData).length > 0
-	// 			: Boolean(sampleData)
+	if (sampleData !== null && sampleData !== undefined) {
+		const hasContent = Array.isArray(sampleData)
+			? sampleData.length > 0
+			: typeof sampleData === 'object'
+				? Object.keys(sampleData).length > 0
+				: Boolean(sampleData)
 
-	// 	if (hasContent) {
-	// 		payload.sample_data = sampleData
-	// 	}
-	// }
+		if (hasContent) {
+			payload.sample_data = sampleData
+		}
+	}
 
 	return instance.post(`${proxyURL}/gen-ui`, payload)
 }

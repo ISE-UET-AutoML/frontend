@@ -36,6 +36,83 @@ const MultilabelTextClassificationDemo = ({ metadata }) => {
 	}
 
 	// API call to predict text
+	const getReadableLabels = (prediction) => {
+		const classResult = prediction.class
+		const labelNames = prediction.label
+		let readableLabels = []
+
+		if (Array.isArray(classResult) && Array.isArray(labelNames)) {
+			readableLabels = classResult
+				.map((value, idx) => {
+					if (!labelNames[idx]) return null
+
+					if (typeof value === 'number') {
+						return value > 0 ? labelNames[idx] : null
+					}
+
+					if (typeof value === 'boolean') {
+						return value ? labelNames[idx] : null
+					}
+
+					if (typeof value === 'string') {
+						return value !== '0' ? labelNames[idx] : null
+					}
+
+					return null
+				})
+				.filter(Boolean)
+		} else if (
+			typeof classResult === 'string' &&
+			classResult.trim().length > 0
+		) {
+			readableLabels = [classResult]
+		} else if (
+			classResult &&
+			typeof classResult === 'object' &&
+			!Array.isArray(classResult)
+		) {
+			readableLabels = Object.entries(classResult)
+				.filter(([, value]) => Boolean(value))
+				.map(([label]) => label)
+		}
+
+		return readableLabels
+	}
+
+	const buildDisplayLabel = (prediction) => {
+		const readableLabels = getReadableLabels(prediction)
+
+		if (readableLabels.length > 0) {
+			return {
+				...prediction,
+				readableLabels,
+				displayLabel: readableLabels.join(', '),
+			}
+		}
+
+		if (typeof prediction.class === 'string') {
+			return {
+				...prediction,
+				readableLabels,
+				displayLabel: prediction.class,
+			}
+		}
+
+		if (Array.isArray(prediction.label) && prediction.label.length > 0) {
+			return {
+				...prediction,
+				readableLabels,
+				displayLabel: 'No labels predicted',
+			}
+		}
+
+		return {
+			...prediction,
+			readableLabels,
+			displayLabel: 'Unknown',
+		}
+	}
+
 	const predictText = async (text) => {
 		setIsLoading(true)
 		setError(null)
@@ -55,6 +132,8 @@ const MultilabelTextClassificationDemo = ({ metadata }) => {
 			formData.append('api_base_url', metadata.apiUrl)
 
 			const response = await modelServiceAPI.predictGenUI(formData)
+
+			console.log(response)
 
 			if (response.status !== 200) {
 				let errorMessage = 'Prediction failed'
@@ -80,12 +159,19 @@ const MultilabelTextClassificationDemo = ({ metadata }) => {
 				predictions = [{ class: 'Unknown', confidence: 0 }]
 			}
 
-			setTextInputs((prev) => [...prev, text])
+			const enhancedPredictions = predictions.map((prediction) =>
+				buildDisplayLabel(prediction)
+			)
+
+			setTextInputs((prev) => {
+				const updated = [...prev, text]
+				setCurrentIndex(updated.length - 1)
+				return updated
+			})
 			setPredictResult((prev) =>
-				prev ? [...prev, ...predictions] : predictions
+				prev ? [...prev, ...enhancedPredictions] : enhancedPredictions
 			)
 			setCurrentText('')
-			setCurrentIndex(textInputs.length)
 		} catch (err) {
 			const errorMsg =
 				err instanceof Error ? err.message : 'Failed to predict text'
@@ -294,19 +380,48 @@ const MultilabelTextClassificationDemo = ({ metadata }) => {
 											</div>
 											<div className="flex-1">
 												<p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
-													Label:
+													{currentPrediction
+														.readableLabels
+														?.length > 1
+														? 'Labels:'
+														: 'Label:'}
 												</p>
-												<p
-													className={`text-2xl sm:text-3xl font-bold uppercase ${
-														incorrectPredictions.includes(
-															currentIndex
+												<div className="flex flex-wrap gap-2">
+													{currentPrediction
+														.readableLabels
+														?.length > 0 ? (
+														currentPrediction.readableLabels.map(
+															(label) => (
+																<span
+																	key={label}
+																	className={`text-xs sm:text-sm font-semibold tracking-wide px-3 py-2 rounded-lg uppercase shadow-sm ${
+																		incorrectPredictions.includes(
+																			currentIndex
+																		)
+																			? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-700'
+																			: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700'
+																	}`}
+																>
+																	{label}
+																</span>
+															)
 														)
-															? 'text-red-600 dark:text-red-400'
-															: 'text-green-600 dark:text-green-400'
-													}`}
-												>
-													{currentPrediction.class}
-												</p>
+													) : (
+														<span
+															className={`text-2xl sm:text-3xl font-bold uppercase ${
+																incorrectPredictions.includes(
+																	currentIndex
+																)
+																	? 'text-red-600 dark:text-red-400'
+																	: 'text-green-600 dark:text-green-400'
+															}`}
+														>
+															{
+																currentPrediction.displayLabel
+															}
+														</span>
+													)}
+												</div>
 											</div>
 										</div>
 
@@ -402,14 +517,42 @@ const MultilabelTextClassificationDemo = ({ metadata }) => {
 																index
 															] && (
 																<div className="flex items-center gap-2">
-																	<span className="text-xs font-semibold px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
-																		{
-																			predictResult[
+																	{predictResult[
+																		index
+																	]
+																		?.readableLabels
+																		?.length >
+																	0 ? (
+																		<div className="flex flex-wrap gap-2">
+																			{predictResult[
 																				index
-																			]
-																				.class
-																		}
-																	</span>
+																			].readableLabels.map(
+																				(
+																					label
+																				) => (
+																					<span
+																						key={
+																							label
+																						}
+																						className="text-xs font-semibold px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-600 dark:text-purple-400 rounded-xl"
+																					>
+																						{
+																							label
+																						}
+																					</span>
+																				)
+																			)}
+																		</div>
+																	) : (
+																		<span className="text-xs font-semibold px-2 py-1 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
+																			{
+																				predictResult[
+																					index
+																				]
+																					?.displayLabel
+																			}
+																		</span>
+																	)}
 																	<span className="text-xs text-gray-500 dark:text-gray-400">
 																		{Math.round(
 																			predictResult[
