@@ -248,7 +248,6 @@ const ManualCreationModal = ({
 	onSetCreatingProjectInfo,
 }) => {
 	const [form] = Form.useForm()
-	const [hoverTaskIndex, setHoverTaskIndex] = React.useState(null)
 
 	// Dark mode flag not used here
 
@@ -257,8 +256,7 @@ const ManualCreationModal = ({
 		: -1
 	// const selectedProjectType = selectedIndex !== -1 ? projType[selectedIndex] : null
 	const selectedTask = selectedIndex !== -1 ? taskCards[selectedIndex] : null
-	const displayTask =
-		hoverTaskIndex !== null ? taskCards[hoverTaskIndex] : selectedTask
+	const displayTask = selectedTask
 
 	React.useEffect(() => {
 		if (open || isStep) {
@@ -461,12 +459,6 @@ const ManualCreationModal = ({
 													)
 												}
 											}}
-											onMouseEnter={() =>
-												setHoverTaskIndex(projTypeIndex)
-											}
-											onMouseLeave={() =>
-												setHoverTaskIndex(null)
-											}
 											tabIndex={0}
 											role="button"
 											aria-label={`Select ${task.title} task type`}
@@ -747,118 +739,6 @@ const ManualCreationModal = ({
 											</Text>
 										</div>
 									)}
-								</div>
-							)}
-
-							{displayTask.useCases && (
-								<div style={{ marginBottom: '24px' }}>
-									<Title
-										level={5}
-										style={{
-											margin: '0 0 12px 0',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-										}}
-									>
-										Common Use Cases
-									</Title>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'column',
-											gap: '8px',
-										}}
-									>
-										{displayTask.useCases.map(
-											(useCase, i) => (
-												<div
-													key={i}
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-													}}
-												>
-													<div
-														style={{
-															width: '6px',
-															height: '6px',
-															borderRadius: '50%',
-															background:
-																'var(--accent-text)',
-														}}
-													/>
-													<Text
-														style={{
-															color: 'var(--text)',
-															fontSize: '13px',
-															fontFamily:
-																'Poppins, sans-serif',
-															lineHeight: '1.4',
-														}}
-													>
-														{useCase}
-													</Text>
-												</div>
-											)
-										)}
-									</div>
-								</div>
-							)}
-
-							{displayTask.benefits && (
-								<div style={{ marginBottom: '24px' }}>
-									<Title
-										level={5}
-										style={{
-											margin: '0 0 12px 0',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-										}}
-									>
-										Key Benefits
-									</Title>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'column',
-											gap: '8px',
-										}}
-									>
-										{displayTask.benefits.map(
-											(benefit, i) => (
-												<div
-													key={i}
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-													}}
-												>
-													<div
-														style={{
-															width: '6px',
-															height: '6px',
-															borderRadius: '50%',
-															background:
-																'var(--accent-text)',
-														}}
-													/>
-													<Text
-														style={{
-															color: 'var(--text)',
-															fontSize: '13px',
-															fontFamily:
-																'Poppins, sans-serif',
-															lineHeight: '1.4',
-														}}
-													>
-														{benefit}
-													</Text>
-												</div>
-											)
-										)}
-									</div>
 								</div>
 							)}
 
