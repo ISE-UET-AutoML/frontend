@@ -388,7 +388,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950 py-6 sm:py-8">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6">
+			<div className="mx-auto px-4 sm:px-6">
 				{/* Header */}
 				<div className="text-center space-y-3 mb-8">
 					<h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
@@ -525,9 +525,9 @@ const TabularClassificationDemo = ({ metadata }) => {
 
 							<div className="overflow-x-auto">
 								<table className="w-full">
-									<thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+									<thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
 										<tr>
-											<th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider w-20 sticky left-0 bg-gray-50 dark:bg-gray-900/50 z-10">
+											<th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider w-20 sticky left-0 bg-gray-50 dark:bg-gray-900 z-[110]">
 												#
 											</th>
 											{finalTable.length > 0 &&
@@ -567,7 +567,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 												predictedColumnName
 											) && (
 												<th
-													className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider min-w-[144px] max-w-[144px] sticky bg-gray-50 dark:bg-gray-900/50 z-10 border-gray-300 dark:border-gray-600"
+													className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider min-w-[144px] max-w-[144px] sticky bg-gray-50 dark:bg-gray-900 z-[110] border-gray-300 dark:border-gray-600"
 													style={{
 														right: visibleColumns.includes(
 															'Confidence'
@@ -582,7 +582,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 											{visibleColumns.includes(
 												'Confidence'
 											) && (
-												<th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider min-w-[144px] max-w-[144px] sticky right-0 bg-gray-50 dark:bg-gray-900/50 z-10 border-gray-300 dark:border-gray-600">
+												<th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider min-w-[144px] max-w-[144px] sticky right-0 bg-gray-50 dark:bg-gray-900 z-[110] border-gray-300 dark:border-gray-600">
 													Confidence
 												</th>
 											)}
@@ -599,9 +599,9 @@ const TabularClassificationDemo = ({ metadata }) => {
 											return (
 												<tr
 													key={globalIndex}
-													className="group/row hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
+													className="group/row hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
 												>
-													<td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 sticky left-0 bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-900/30 z-10 transition-colors">
+													<td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 sticky left-0 bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-800 z-[110] transition-colors">
 														{globalIndex + 1}
 													</td>
 													{Object.entries(row)
@@ -668,7 +668,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 														predictedColumnName
 													) && (
 														<td
-															className="px-6 py-4 sticky bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-900/30 z-10 border-gray-300 dark:border-gray-600 min-w-[144px] max-w-[144px] transition-colors"
+															className="px-6 py-4 sticky bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-800 z-[110] border-gray-300 dark:border-gray-600 min-w-[144px] max-w-[144px] transition-colors"
 															style={{
 																right: visibleColumns.includes(
 																	'Confidence'
@@ -753,7 +753,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 													{visibleColumns.includes(
 														'Confidence'
 													) && (
-														<td className="px-6 py-4 sticky right-0 bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-900/30 z-10 border-gray-300 dark:border-gray-600 min-w-[144px] max-w-[144px] transition-colors">
+														<td className="px-6 py-4 sticky right-0 bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-800 z-[110] border-gray-300 dark:border-gray-600 min-w-[144px] max-w-[144px] transition-colors">
 															<div className="flex items-center justify-center whitespace-nowrap">
 																<span className="text-sm font-bold text-blue-600 dark:text-blue-400">
 																	{row.Confidence !==
@@ -776,7 +776,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 							</div>
 
 							{totalPages > 1 && (
-								<div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
+								<div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex items-center justify-between">
 									<div className="text-sm text-gray-600 dark:text-gray-400">
 										Showing{' '}
 										{(currentPage - 1) * pageSize + 1} to{' '}
