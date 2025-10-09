@@ -246,8 +246,10 @@ const ManualCreationModal = ({
 	isSelected,
 	onSelectType,
 	onSetCreatingProjectInfo,
+	onFormChange,
 }) => {
 	const [form] = Form.useForm()
+	const [hasFormChanged, setHasFormChanged] = React.useState(false)
 
 	// Dark mode flag not used here
 
@@ -268,6 +270,21 @@ const ManualCreationModal = ({
 				license: initialLicense,
 				expected_accuracy: initialExpectedAccuracy,
 			})
+			// Only reset form change state if there's no initial data
+			// (meaning it's a fresh modal, not coming back from next step)
+			const hasInitialData = initialProjectName || initialDescription
+			if (!hasInitialData) {
+				setHasFormChanged(false)
+				if (onFormChange) {
+					onFormChange(false)
+				}
+			} else {
+				// If there's initial data, mark as changed
+				setHasFormChanged(true)
+				if (onFormChange) {
+					onFormChange(true)
+				}
+			}
 		}
 	}, [
 		open,
@@ -280,6 +297,19 @@ const ManualCreationModal = ({
 		initialLicense,
 		initialExpectedAccuracy,
 	])
+
+	// Track form changes
+	const handleFieldsChange = () => {
+		const values = form.getFieldsValue()
+		const hasChanges =
+			values.name !== initialProjectName ||
+			values.description !== initialDescription
+
+		setHasFormChanged(hasChanges)
+		if (onFormChange) {
+			onFormChange(hasChanges)
+		}
+	}
 
 	const handleSubmit = (values) => {
 		if (isStep) {
@@ -299,6 +329,7 @@ const ManualCreationModal = ({
 			form={form}
 			layout="vertical"
 			onFinish={handleSubmit}
+			onFieldsChange={handleFieldsChange}
 			className="theme-form theme-manual-form"
 			style={{
 				height: '95%',

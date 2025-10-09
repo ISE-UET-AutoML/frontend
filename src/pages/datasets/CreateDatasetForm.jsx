@@ -47,6 +47,7 @@ export default function CreateDatasetForm({
 	initialCsvMetadata = null,
 	disableFields = [],
 	hideFields = [],
+	onFormChange,
 }) {
 	const [form] = Form.useForm()
 	const [hasFormErrors, setHasFormErrors] = useState(false)
@@ -98,6 +99,14 @@ export default function CreateDatasetForm({
 			imagePreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
 		}
 	}, [imagePreviews])
+
+	// Track if user has uploaded files
+	useEffect(() => {
+		const hasChanges = files.length > 0
+		if (onFormChange) {
+			onFormChange(hasChanges)
+		}
+	}, [files, onFormChange])
 
 	// whenever initial props change (when coming back), refresh states
 	useEffect(() => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, Steps, message, Spin } from 'antd'
+import { ExclamationCircleOutlined } from '@ant-design/icons'
 import ManualCreationModal from './ManualCreationModal'
 import CreateDatasetForm from 'src/pages/datasets/CreateDatasetForm'
 import { TASK_TYPES } from 'src/constants/types'
@@ -35,6 +36,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 	const [isSelected, setIsSelected] = useState(
 		projType.map((_, index) => index === 0)
 	)
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 	const navigate = useNavigate()
 
 	// Lấy hàm addPending từ Zustand store
@@ -61,11 +63,63 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 	}
 
 	const handleCancel = () => {
-		setCurrent(0)
-		setProjectData(null)
-		setDatasetData(null)
-		setIsSelected(projType.map((_, index) => index === 0))
-		onCancel()
+		// Check if there's any unsaved data (from current state OR from previous steps)
+		const hasData = hasUnsavedChanges || projectData || datasetData
+
+		if (hasData) {
+			Modal.confirm({
+				title: (
+					<span style={{ fontSize: '20px', fontWeight: 600 }}>
+						Are you sure you want to exit?
+					</span>
+				),
+				icon: (
+					<ExclamationCircleOutlined
+						style={{ fontSize: '24px', color: '#faad14' }}
+					/>
+				),
+				content: (
+					<div style={{ fontSize: '15px', marginTop: '12px' }}>
+						You have unsaved data. If you exit, all data will be
+						lost.
+					</div>
+				),
+				okText: 'Exit',
+				cancelText: 'Continue Working',
+				okType: 'danger',
+				centered: true,
+				width: 520,
+				okButtonProps: {
+					style: {
+						fontSize: '15px',
+						height: '40px',
+						fontWeight: 500,
+					},
+				},
+				cancelButtonProps: {
+					style: {
+						fontSize: '15px',
+						height: '40px',
+						fontWeight: 500,
+					},
+				},
+				onOk: () => {
+					setCurrent(0)
+					setProjectData(null)
+					setDatasetData(null)
+					setIsSelected(projType.map((_, index) => index === 0))
+					setHasUnsavedChanges(false)
+					onCancel()
+				},
+			})
+		} else {
+			setCurrent(0)
+			setProjectData(null)
+			setDatasetData(null)
+			setIsSelected(projType.map((_, index) => index === 0))
+			setHasUnsavedChanges(false)
+			onCancel()
+		}
 	}
 
 	const pollExportStatus = (taskId) => {
@@ -109,6 +163,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 
 	const handleSubmit = async (values) => {
 		setIsLoading(true)
+		setHasUnsavedChanges(false) // Clear unsaved changes flag when submitting
 		message.loading({
 			content: 'Submitting project and data...',
 			key: 'submit',
@@ -353,6 +408,8 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 				destroyOnClose
 				className="theme-create-project-modal"
 				style={{ top: 30 }}
+				maskClosable={false}
+				closable={true}
 			>
 				<style>{`
                     .theme-create-project-modal .ant-modal-content {
@@ -507,10 +564,26 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 							initialExpectedAccuracy={
 								projectData?.expected_accuracy || 75
 							}
+							onFormChange={(hasChanges) =>
+								setHasUnsavedChanges(hasChanges)
+							}
 						/>
 					)}
 					{current === 1 && (
-						<div className="dataset-step" style={{ display: 'flex', flexDirection: 'column', flex: 1, position: 'relative', zIndex: 1, height: 'calc(85vh - 180px)', overflow: 'hidden', scrollbarWidth: 'thin', scrollbarColor: '#94a3b8 transparent' }}>
+						<div
+							className="dataset-step"
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								flex: 1,
+								position: 'relative',
+								zIndex: 1,
+								height: 'calc(85vh - 180px)',
+								overflow: 'hidden',
+								scrollbarWidth: 'thin',
+								scrollbarColor: '#94a3b8 transparent',
+							}}
+						>
 							<CreateDatasetForm
 								isStep={true}
 								onNext={handleSubmit}
@@ -529,6 +602,9 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 								disableFields={['title', 'description', 'type']}
 								hideFields={['service', 'bucket_name']}
 								stickyFooter={true}
+								onFormChange={(hasChanges) =>
+									setHasUnsavedChanges(hasChanges)
+								}
 							/>
 						</div>
 					)}
