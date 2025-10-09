@@ -18,7 +18,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 	const [uploadedFile, setUploadedFile] = useState(null)
 	const fileInputRef = useRef(null)
 
-	const [predictResult, setPredictResult] = useState([])
+	const [finalTable, setFinalTable] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [error, setError] = useState(null)
 	const [currentPage, setCurrentPage] = useState(1)
@@ -27,7 +27,21 @@ const TabularClassificationDemo = ({ metadata }) => {
 
 	const pageSize = 10
 
-	// API call to predict text
+	const predictedColumnName =
+		metadata?.modelInfo?.metadata?.label_column || 'Predicted Class'
+
+	useEffect(() => {
+		if (showColumnDrawer) {
+			document.body.style.overflow = 'hidden'
+		} else {
+			document.body.style.overflow = 'unset'
+		}
+
+		return () => {
+			document.body.style.overflow = 'unset'
+		}
+	}, [showColumnDrawer])
+
 	const getReadableLabels = (prediction) => {
 		const classResult = prediction.class
 		const labelNames = prediction.label
@@ -187,7 +201,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 		setError(null)
 
 		try {
-			// Read and parse the CSV file first
+			// Step 1: Read and parse the CSV file (upload)
 			const fileText = await file.text()
 			const parsedData = parseCSV(fileText)
 
@@ -199,11 +213,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 			setCsvData(parsedData)
 			setUploadedFile(file)
 
-			// Initialize visible columns with CSV columns + prediction columns
-			const csvColumns = Object.keys(parsedData[0])
-			setVisibleColumns([...csvColumns, 'Predicted Class', 'Confidence'])
-
-			// Now make the API call with the file
+			// Step 2: Fetch prediction results
 			const formData = new FormData()
 			formData.append('file', file)
 			formData.append('api_base_url', metadata.apiUrl)
@@ -234,7 +244,32 @@ const TabularClassificationDemo = ({ metadata }) => {
 			const enhancedPredictions = predictions.map((prediction) =>
 				buildDisplayLabel(prediction)
 			)
-			setPredictResult(enhancedPredictions)
+
+			// Step 3: Merge original CSV data with prediction results
+			const mergedTable = parsedData.map((row, index) => {
+				const prediction = enhancedPredictions[index] || {}
+				return {
+					...row, // Original CSV columns
+					[predictedColumnName]: prediction.displayLabel || '-',
+					Confidence:
+						prediction.confidence !== undefined
+							? prediction.confidence
+							: null,
+					_predictionData: prediction, // Store full prediction for rendering
+				}
+			})
+
+			// Step 4: Set final table
+			setFinalTable(mergedTable)
+
+			// Initialize visible columns with all columns from merged table
+			const csvColumns = Object.keys(parsedData[0])
+			setVisibleColumns([
+				...csvColumns,
+				predictedColumnName,
+				'Confidence',
+			])
+
 			setCurrentPage(1)
 		} catch (err) {
 			const errorMsg =
@@ -249,7 +284,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 	// Clear all inputs and predictions
 	const handleClearAll = () => {
 		setCsvData([])
-		setPredictResult([])
+		setFinalTable([])
 		setUploadedFile(null)
 		setError(null)
 		setCurrentPage(1)
@@ -261,21 +296,27 @@ const TabularClassificationDemo = ({ metadata }) => {
 
 	// Handle download functionality
 	const handleDownload = () => {
-		if (!csvData.length) return
+		if (!finalTable.length) return
 
 		const headers = []
-		const csvColumns = Object.keys(csvData[0])
+		// Get original CSV columns (exclude internal fields)
+		const csvColumns = Object.keys(finalTable[0]).filter(
+			(col) =>
+				col !== '_predictionData' &&
+				col !== predictedColumnName &&
+				col !== 'Confidence'
+		)
 
 		csvColumns.forEach((col) => {
 			if (visibleColumns.includes(col)) headers.push(col)
 		})
-		if (visibleColumns.includes('Predicted Class'))
-			headers.push('Predicted Class')
+		if (visibleColumns.includes(predictedColumnName))
+			headers.push(predictedColumnName)
 		if (visibleColumns.includes('Confidence')) headers.push('Confidence')
 
 		const csvContent = [
 			headers.join(','),
-			...csvData.map((row, idx) => {
+			...finalTable.map((row) => {
 				const values = []
 				csvColumns.forEach((col) => {
 					if (visibleColumns.includes(col)) {
@@ -285,14 +326,13 @@ const TabularClassificationDemo = ({ metadata }) => {
 					}
 				})
 
-				const prediction = predictResult[idx]
-				if (visibleColumns.includes('Predicted Class')) {
-					values.push(`"${prediction?.displayLabel || '-'}"`)
+				if (visibleColumns.includes(predictedColumnName)) {
+					values.push(`"${row[predictedColumnName] || '-'}"`)
 				}
 				if (visibleColumns.includes('Confidence')) {
 					values.push(
-						prediction?.confidence
-							? (prediction.confidence * 100).toFixed(2)
+						row.Confidence !== null
+							? (row.Confidence * 100).toFixed(2)
 							: '-'
 					)
 				}
@@ -332,17 +372,19 @@ const TabularClassificationDemo = ({ metadata }) => {
 
 	const displayData = useMemo(() => {
 		const start = (currentPage - 1) * pageSize
-		const pageItems = csvData.slice(start, start + pageSize)
+		const pageItems = finalTable.slice(start, start + pageSize)
 		return pageItems
-	}, [csvData, currentPage])
+	}, [finalTable, currentPage])
 
-	const totalPages = Math.ceil(csvData.length / pageSize)
+	const totalPages = Math.ceil(finalTable.length / pageSize)
 
 	const allColumns = useMemo(() => {
-		if (csvData.length === 0) return []
-		const csvColumns = Object.keys(csvData[0])
-		return [...csvColumns, 'Predicted Class', 'Confidence']
-	}, [csvData])
+		if (finalTable.length === 0) return []
+		const allKeys = Object.keys(finalTable[0]).filter(
+			(col) => col !== '_predictionData' // Exclude internal fields
+		)
+		return allKeys
+	}, [finalTable])
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950 py-6 sm:py-8">
@@ -357,8 +399,8 @@ const TabularClassificationDemo = ({ metadata }) => {
 					</p>
 				</div>
 
-				<div className="space-y-6">
-					<div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+				<div className="">
+					<div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden mb-8">
 						<div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-gray-800/50 dark:to-blue-900/30">
 							<h2 className="text-xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
 								<div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
@@ -441,7 +483,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 						</div>
 					</div>
 
-					{csvData.length > 0 ? (
+					{finalTable.length > 0 ? (
 						<div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
 							<div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-gray-800/50 dark:to-purple-900/30">
 								<div className="flex items-center justify-between">
@@ -451,7 +493,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 										</div>
 										Prediction Results
 										<span className="text-sm font-normal px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">
-											{csvData.length} rows
+											{finalTable.length} rows
 										</span>
 									</h2>
 									<div className="flex gap-2">
@@ -485,34 +527,62 @@ const TabularClassificationDemo = ({ metadata }) => {
 								<table className="w-full">
 									<thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
 										<tr>
-											<th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-12">
+											<th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider w-20 sticky left-0 bg-gray-50 dark:bg-gray-900/50 z-10">
 												#
 											</th>
-											{csvData.length > 0 &&
-												Object.keys(csvData[0]).map(
-													(column) =>
-														visibleColumns.includes(
+											{finalTable.length > 0 &&
+												Object.keys(finalTable[0])
+													.filter(
+														(col) =>
+															col !==
+															'_predictionData'
+													)
+													.map((column) => {
+														// Skip predicted column and Confidence - they'll be added separately
+														if (
+															column ===
+																predictedColumnName ||
+															column ===
+																'Confidence'
+														) {
+															return null
+														}
+
+														return visibleColumns.includes(
 															column
-														) && (
+														) ? (
 															<th
 																key={column}
-																className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+																className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider"
+																style={{
+																	minWidth:
+																		'250px',
+																}}
 															>
 																{column}
 															</th>
-														)
-												)}
+														) : null
+													})}
 											{visibleColumns.includes(
-												'Predicted Class'
+												predictedColumnName
 											) && (
-												<th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-48">
-													Predicted Class
+												<th
+													className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider min-w-[144px] max-w-[144px] sticky bg-gray-50 dark:bg-gray-900/50 z-10 border-gray-300 dark:border-gray-600"
+													style={{
+														right: visibleColumns.includes(
+															'Confidence'
+														)
+															? '144px'
+															: '0',
+													}}
+												>
+													{predictedColumnName}
 												</th>
 											)}
 											{visibleColumns.includes(
 												'Confidence'
 											) && (
-												<th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider w-32">
+												<th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wider min-w-[144px] max-w-[144px] sticky right-0 bg-gray-50 dark:bg-gray-900/50 z-10 border-gray-300 dark:border-gray-600">
 													Confidence
 												</th>
 											)}
@@ -524,97 +594,177 @@ const TabularClassificationDemo = ({ metadata }) => {
 												(currentPage - 1) * pageSize +
 												idx
 											const prediction =
-												predictResult[globalIndex]
+												row._predictionData
 
 											return (
 												<tr
 													key={globalIndex}
-													className="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
+													className="group/row hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
 												>
-													<td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+													<td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 sticky left-0 bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-900/30 z-10 transition-colors">
 														{globalIndex + 1}
 													</td>
-													{Object.entries(row).map(
-														([column, value]) =>
-															visibleColumns.includes(
-																column
-															) && (
-																<td
-																	key={column}
-																	className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100"
-																>
-																	<div
-																		className="max-w-md"
-																		title={String(
-																			value
-																		)}
+													{Object.entries(row)
+														.filter(
+															([column]) =>
+																column !==
+																	'_predictionData' &&
+																column !==
+																	predictedColumnName &&
+																column !==
+																	'Confidence'
+														)
+														.map(
+															([
+																column,
+																value,
+															]) => {
+																const stringValue =
+																	String(
+																		value
+																	)
+																const isTruncated =
+																	stringValue.length >
+																	50
+
+																return visibleColumns.includes(
+																	column
+																) ? (
+																	<td
+																		key={
+																			column
+																		}
+																		className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap group/cell relative"
+																		style={{
+																			maxWidth:
+																				'250px',
+																		}}
 																	>
-																		{truncateText(
-																			String(
-																				value
-																			)
+																		<span
+																			className="block overflow-hidden text-ellipsis"
+																			title={
+																				isTruncated
+																					? stringValue
+																					: undefined
+																			}
+																		>
+																			{truncateText(
+																				stringValue
+																			)}
+																		</span>
+																		{isTruncated && (
+																			<div className="hidden group-hover/cell:block absolute left-0 top-full mt-1 z-[100] bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg px-3 py-2 shadow-xl max-w-md whitespace-normal break-words pointer-events-none">
+																				{
+																					stringValue
+																				}
+																				<div className="absolute bottom-full left-6 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900 dark:border-b-gray-700"></div>
+																			</div>
+																		)}
+																	</td>
+																) : null
+															}
+														)}
+													{visibleColumns.includes(
+														predictedColumnName
+													) && (
+														<td
+															className="px-6 py-4 sticky bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-900/30 z-10 border-gray-300 dark:border-gray-600 min-w-[144px] max-w-[144px] transition-colors"
+															style={{
+																right: visibleColumns.includes(
+																	'Confidence'
+																)
+																	? '144px'
+																	: '0',
+															}}
+														>
+															<div className="flex items-center justify-center group/predicted relative">
+																{prediction
+																	?.readableLabels
+																	?.length >
+																0 ? (
+																	<div className="flex flex-wrap gap-2 justify-center">
+																		{prediction.readableLabels.map(
+																			(
+																				label
+																			) => {
+																				const isLabelLong =
+																					label.length >
+																					15
+																				return (
+																					<div
+																						key={
+																							label
+																						}
+																						className="relative inline-block group/label"
+																					>
+																						<span
+																							className="text-xs font-semibold px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700 inline-block overflow-hidden text-ellipsis max-w-[140px] whitespace-nowrap"
+																							title={
+																								label
+																							}
+																						>
+																							{
+																								label
+																							}
+																						</span>
+																						{isLabelLong && (
+																							<div className="invisible group-hover/label:visible absolute left-0 top-full mt-1 z-[100] bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg px-3 py-2 shadow-xl min-w-max max-w-md whitespace-normal break-words">
+																								{
+																									label
+																								}
+																								<div className="absolute bottom-full left-6 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900 dark:border-b-gray-700"></div>
+																							</div>
+																						)}
+																					</div>
+																				)
+																			}
 																		)}
 																	</div>
-																</td>
-															)
-													)}
-													{visibleColumns.includes(
-														'Predicted Class'
-													) && (
-														<td className="px-6 py-4">
-															{prediction
-																?.readableLabels
-																?.length > 0 ? (
-																<div className="flex flex-wrap gap-2">
-																	{prediction.readableLabels.map(
-																		(
-																			label
-																		) => (
-																			<span
-																				key={
-																					label
-																				}
-																				className="text-xs font-semibold px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700"
-																			>
-																				{
-																					label
-																				}
-																			</span>
-																		)
-																	)}
-																</div>
-															) : (
-																<span className="text-sm font-semibold px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-																	{prediction?.displayLabel ||
-																		'-'}
-																</span>
-															)}
+																) : (
+																	<div className="relative inline-block">
+																		<span className="text-sm font-semibold px-3 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 inline-block overflow-hidden text-ellipsis max-w-[160px] whitespace-nowrap">
+																			{row[
+																				predictedColumnName
+																			] ||
+																				'-'}
+																		</span>
+																		{row[
+																			predictedColumnName
+																		] &&
+																			row[
+																				predictedColumnName
+																			]
+																				.length >
+																				20 && (
+																				<div className="invisible group-hover/predicted:visible absolute left-0 top-full mt-1 z-[100] bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg px-3 py-2 shadow-xl max-w-md whitespace-normal break-words">
+																					{
+																						row[
+																							predictedColumnName
+																						]
+																					}
+																					<div className="absolute bottom-full left-6 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900 dark:border-b-gray-700"></div>
+																				</div>
+																			)}
+																	</div>
+																)}
+															</div>
 														</td>
 													)}
 													{visibleColumns.includes(
 														'Confidence'
 													) && (
-														<td className="px-6 py-4">
-															<div className="flex items-center gap-2">
+														<td className="px-6 py-4 sticky right-0 bg-white dark:bg-gray-800 group-hover/row:bg-gray-50 dark:group-hover/row:bg-gray-900/30 z-10 border-gray-300 dark:border-gray-600 min-w-[144px] max-w-[144px] transition-colors">
+															<div className="flex items-center justify-center whitespace-nowrap">
 																<span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-																	{prediction?.confidence
+																	{row.Confidence !==
+																	null
 																		? Math.round(
-																				prediction.confidence *
+																				row.Confidence *
 																					100
 																			)
 																		: '-'}
 																	%
 																</span>
-																{prediction?.confidence && (
-																	<div className="flex-1 max-w-[80px] bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-																		<div
-																			className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
-																			style={{
-																				width: `${Math.round(prediction.confidence * 100)}%`,
-																			}}
-																		/>
-																	</div>
-																)}
 															</div>
 														</td>
 													)}
@@ -632,9 +782,9 @@ const TabularClassificationDemo = ({ metadata }) => {
 										{(currentPage - 1) * pageSize + 1} to{' '}
 										{Math.min(
 											currentPage * pageSize,
-											csvData.length
+											finalTable.length
 										)}{' '}
-										of {csvData.length} rows
+										of {finalTable.length} rows
 									</div>
 									<div className="flex gap-2">
 										<button
@@ -723,8 +873,8 @@ const TabularClassificationDemo = ({ metadata }) => {
 								className="absolute inset-0 bg-black/50"
 								onClick={() => setShowColumnDrawer(false)}
 							/>
-							<div className="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto">
-								<div className="p-6 border-b border-gray-200 dark:border-gray-700">
+							<div className="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-2xl flex flex-col">
+								<div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
 									<h3 className="text-lg font-bold text-gray-900 dark:text-white">
 										Column Visibility
 									</h3>
@@ -732,7 +882,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 										Select which columns to display
 									</p>
 								</div>
-								<div className="p-6 space-y-4">
+								<div className="flex-1 overflow-y-auto p-6 space-y-4">
 									{allColumns.map((column) => (
 										<div
 											key={column}
@@ -743,7 +893,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 													{column}
 												</span>
 												{(column ===
-													'Predicted Class' ||
+													predictedColumnName ||
 													column ===
 														'Confidence') && (
 													<span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
@@ -776,7 +926,7 @@ const TabularClassificationDemo = ({ metadata }) => {
 										</div>
 									))}
 								</div>
-								<div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+								<div className="flex-shrink-0 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
 									<button
 										onClick={() =>
 											setShowColumnDrawer(false)

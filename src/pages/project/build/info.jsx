@@ -442,6 +442,7 @@ const ProjectInfo = () => {
 				description: response.data.description,
 				apiUrl: response.data.apiUrl,
 				samples: response.data.samples,
+				modelInfo: model,
 			}
 
 			await visualizeAPI.saveMetadata(projectInfo.id, metadata)
