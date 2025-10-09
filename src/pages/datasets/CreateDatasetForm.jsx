@@ -583,7 +583,7 @@ export default function CreateDatasetForm({
 							display: 'flex',
 							justifyContent: 'center',
 							alignItems: 'center',
-							height: '180px',
+							height: '29vh',
 							border: '2px dashed var(--upload-border)',
 							borderRadius: '12px',
 							cursor: 'pointer',
@@ -991,43 +991,6 @@ export default function CreateDatasetForm({
 					</Row>
 
 					{renderPreparingInstructions()}
-
-					{disableFields.includes('description') ? (
-						<div style={{ marginBottom: '24px' }}>
-							<Text
-								style={{
-									display: 'block',
-									marginBottom: '8px',
-									color: 'var(--form-label-color)',
-									fontFamily: 'Poppins, sans-serif',
-									fontWeight: 600,
-									fontSize: '14px',
-								}}
-							>
-								Description
-							</Text>
-							<div
-								style={{
-									padding: '8px 12px',
-									background: 'var(--upload-bg)',
-									borderRadius: '8px',
-									border: '1px solid var(--border-color)',
-									color: 'var(--text)',
-									fontFamily: 'Poppins, sans-serif',
-									fontSize: '14px',
-									minHeight: '60px',
-									display: 'flex',
-									alignItems: 'flex-start',
-								}}
-							>
-								{initialValues?.description || '-'}
-							</div>
-						</div>
-					) : (
-						<Form.Item name="description" label="Description">
-							<TextArea rows={2} maxLength={500} showCount />
-						</Form.Item>
-					)}
 
 					{!hideFields.includes('service') &&
 						!hideFields.includes('bucket_name') && (
