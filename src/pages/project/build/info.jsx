@@ -409,7 +409,8 @@ const ProjectInfo = () => {
 				TASK_TYPES[projectInfo.task_type]?.type || projectInfo.task_type
 			const taskDescription =
 				projectInfo.description || `A model for ${taskType}`
-			const labels = model.metadata.labels
+			const labelsName = model.metadata.label_column
+			const labelValues = model.metadata.labels
 			const apiEndpoint = currentModelDeploy.api_base_url
 			let sampleData = model.metadata.sample_data
 
@@ -420,7 +421,8 @@ const ProjectInfo = () => {
 			console.log('Calling genUI API with:', {
 				taskType,
 				taskDescription,
-				labels,
+				labelsName,
+				labelValues,
 				apiEndpoint,
 				sampleData,
 			})
@@ -428,7 +430,8 @@ const ProjectInfo = () => {
 			const response = await visualizeAPI.genUI(
 				taskType,
 				taskDescription,
-				labels,
+				labelsName,
+				labelValues,
 				apiEndpoint,
 				sampleData
 			)

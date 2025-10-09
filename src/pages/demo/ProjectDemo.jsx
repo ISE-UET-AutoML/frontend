@@ -4,6 +4,7 @@ import ImageClassificationDemo from 'src/pages/demo/templates/ImageClassificatio
 import TextClassificationDemo from 'src/pages/demo/templates/TextClassificationDemo'
 import MultilabelTextClassificationDemo from 'src/pages/demo/templates/MultilabelTextClassificationDemo'
 import TabularClassificationDemo from 'src/pages/demo/templates/TabularClassificationDemo'
+import TabularRegressionDemo from 'src/pages/demo/templates/TabularRegressionDemo'
 
 const ProjectDemo = () => {
 	const { projectId } = useParams()
@@ -101,6 +102,8 @@ const ProjectDemo = () => {
 				<MultilabelTextClassificationDemo metadata={metadata} />
 			) : metadata.taskType === 'Tabular Classification' ? (
 				<TabularClassificationDemo metadata={metadata} />
+			) : metadata.taskType === 'Tabular Regression' ? (
+				<TabularRegressionDemo metadata={metadata} />
 			) : (
 				<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
 					<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-12 max-w-lg text-center">

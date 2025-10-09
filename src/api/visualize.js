@@ -6,14 +6,16 @@ const proxyURL = `${API_BASE_URL}/api/service/visualize`
 const genUI = (
 	taskType,
 	taskDescription,
-	labels,
+	labelsName = null,
+	labelValues = null,
 	apiEndpoint,
 	sampleData = null
 ) => {
 	const payload = {
 		task_type: taskType,
 		task_description: taskDescription,
-		labels: labels,
+		labelsName: labelsName,
+		labelValues: labelValues,
 		api_endpoint: apiEndpoint,
 	}
 
