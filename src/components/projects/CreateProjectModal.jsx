@@ -176,7 +176,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 
 	const handleSubmit = async (values) => {
 		setIsLoading(true)
-		setHasUnsavedChanges(false) // Clear unsaved changes flag when submitting
+		setHasUnsavedChanges(false) // Clear warning immediately when user clicks Submit
 		message.loading({
 			content: 'Submitting project and data...',
 			key: 'submit',
@@ -379,13 +379,34 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 					trainingResult.experimentId
 				) {
 					setIsLoading(false)
-					navigate(
-						`/app/project/${projectInfo.id}/build/training?experimentName=${trainingResult.experimentName}&experimentId=${trainingResult.experimentId}`,
-						{ replace: true }
-					)
+					// Close modal and clear all states before navigating
+					setCurrent(0)
+					setProjectData(null)
+					setDatasetData(null)
+					setIsSelected(projType.map((_, index) => index === 0))
+					setHasUnsavedChanges(false)
+					onCancel() // Close the modal
+
+					// Small delay to ensure modal is closed before navigation
+					setTimeout(() => {
+						navigate(
+							`/app/project/${projectInfo.id}/build/training?experimentName=${trainingResult.experimentName}&experimentId=${trainingResult.experimentId}`,
+							{ replace: true }
+						)
+					}, 100)
 				} else {
 					message.error('Training result is invalid!')
-					navigate(`/app/project`, { replace: true })
+					// Clear states before navigating
+					setCurrent(0)
+					setProjectData(null)
+					setDatasetData(null)
+					setIsSelected(projType.map((_, index) => index === 0))
+					setHasUnsavedChanges(false)
+					onCancel()
+
+					setTimeout(() => {
+						navigate(`/app/project`, { replace: true })
+					}, 100)
 				}
 			} catch (error) {
 				console.error('Error exporting labels to S3:', error)
@@ -396,8 +417,14 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 
 			message.success('Project submitted! Starting training...')
 
+			// Clear states and close modal
+			setCurrent(0)
+			setProjectData(null)
+			setDatasetData(null)
+			setIsSelected(projType.map((_, index) => index === 0))
+			setHasUnsavedChanges(false)
 			onCreate() // Callback to refresh project list
-			handleCancel()
+			onCancel() // Close modal without confirmation
 		} catch (error) {
 			console.error('Failed to create project pipeline:', error)
 			message.error(
