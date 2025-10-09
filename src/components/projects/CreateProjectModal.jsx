@@ -69,7 +69,13 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 		if (hasData) {
 			Modal.confirm({
 				title: (
-					<span style={{ fontSize: '20px', fontWeight: 600 }}>
+					<span
+						style={{
+							fontSize: '20px',
+							fontWeight: 600,
+							color: 'var(--text)',
+						}}
+					>
 						Are you sure you want to exit?
 					</span>
 				),
@@ -79,7 +85,13 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 					/>
 				),
 				content: (
-					<div style={{ fontSize: '15px', marginTop: '12px' }}>
+					<div
+						style={{
+							fontSize: '15px',
+							marginTop: '12px',
+							color: 'var(--text)',
+						}}
+					>
 						You have unsaved data. If you exit, all data will be
 						lost.
 					</div>
@@ -89,6 +101,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 				okType: 'danger',
 				centered: true,
 				width: 520,
+				className: 'theme-confirm-modal',
 				okButtonProps: {
 					style: {
 						fontSize: '15px',
@@ -412,6 +425,32 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 				closable={true}
 			>
 				<style>{`
+                    /* Confirm Modal Theme */
+                    .theme-confirm-modal .ant-modal-content {
+                        background: var(--modal-bg) !important;
+                        border-radius: 16px !important;
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+                        border: 1px solid var(--modal-border) !important;
+                    }
+
+                    .theme-confirm-modal .ant-modal-body {
+                        background: var(--modal-bg) !important;
+                        color: var(--text) !important;
+                    }
+
+                    .theme-confirm-modal .ant-modal-confirm-body {
+                        background: transparent !important;
+                    }
+
+                    .theme-confirm-modal .ant-modal-confirm-title {
+                        color: var(--text) !important;
+                    }
+
+                    .theme-confirm-modal .ant-modal-confirm-content {
+                        color: var(--text) !important;
+                    }
+
+                    /* Create Project Modal */
                     .theme-create-project-modal .ant-modal-content {
                         background: var(--modal-bg) !important;
                         border-radius: 16px !important;
