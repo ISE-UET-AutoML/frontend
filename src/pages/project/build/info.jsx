@@ -948,6 +948,16 @@ const ProjectInfo = () => {
 		animation: wave 1.5s ease-in-out infinite;
 		display: inline-block;
 	}
+
+	/* New simple dots animation for Generating... */
+	@keyframes dotPulse {
+		0%, 20% { opacity: 0.2; }
+		50% { opacity: 1; }
+		100% { opacity: 0.2; }
+	}
+
+	.generate-dots { display: inline-flex; gap: 2px; margin-left: 6px; }
+	.generate-dots .dot { animation: dotPulse 1s infinite; }
 `}</style>
 			<div
 				className="min-h-screen"
@@ -1277,22 +1287,34 @@ const ProjectInfo = () => {
 									</div>
 
 									{isGeneratingUI ? (
-										<span className="text-violet-500 font-bold text-xl tracking-wide flex">
-											{[...'Generating...'].map(
-												(char, i) => (
-													<span
-														key={i}
-														className={`inline-block animate-wave`}
-														style={{
-															animationDelay: `${i * 0.1}s`,
-														}}
-													>
-														{char === ' '
-															? '\u00A0'
-															: char}
-													</span>
-												)
-											)}
+										<span className="text-violet-500 font-bold text-xl tracking-wide">
+											Generating
+											<span className="generate-dots">
+												<span
+													className="dot"
+													style={{
+														animationDelay: '0ms',
+													}}
+												>
+													.
+												</span>
+												<span
+													className="dot"
+													style={{
+														animationDelay: '200ms',
+													}}
+												>
+													.
+												</span>
+												<span
+													className="dot"
+													style={{
+														animationDelay: '400ms',
+													}}
+												>
+													.
+												</span>
+											</span>
 										</span>
 									) : (
 										<span className="text-violet-500 font-bold text-xl tracking-wide">
