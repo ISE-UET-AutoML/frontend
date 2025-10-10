@@ -65,6 +65,9 @@ import {
 import { SparklesIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import { useMemo } from 'react'
+import { formatDistanceToNow, format } from 'date-fns';
+
+
 
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
@@ -180,7 +183,8 @@ const ProjectInfo = () => {
 	// Live predict file upload handler
 	const handleUploadFiles = async (files, s3_url) => {
 		console.log('Files: ', files)
-
+		const fileName = files[0]?.name || 'unknown'
+		console.log('File name:', fileName)
 		const validFiles = validateFilesForPrediction(
 			files,
 			projectInfo?.task_type
@@ -263,6 +267,7 @@ const ProjectInfo = () => {
 		console.log('Fetch prediction start')
 		formData.append('s3_url', s3_url)
 		formData.append('api_base_url', currentModelDeploy.api_base_url)
+		formData.append('file_name', fileName)
 		try {
 			// Make predictions
 			const predictRequest = await modelServiceAPI.modelPredict(
@@ -489,10 +494,19 @@ const ProjectInfo = () => {
 			const jsonResponse = await axios.get(predictUrl)
 			console.log('Prediction content:', jsonResponse.data)
 			const predictContent = jsonResponse.data
-			setSelectedPredictionContent(predictContent)
-
+			
+			if (projectInfo.task_type.includes('IMAGE')) {
+				const imageUrlResponse = await datasetAPI.getPresignedUrlsForImages(prediction.data_url)
+				const imageUrl = imageUrlResponse.data.data
+				const combinedImageData = predictContent.map((item, index) => ({
+					...pred,
+					imageUrl : imageUrl[index]
+				}))
+				console.log('Combined image data:', combinedImageData)
+				setSelectedPredictionContent(combinedImageData)
+			}
 			//download file của ngta tải lên
-			const dataUrl = `${prediction.data_url}test.csv`
+			const dataUrl = prediction.data_url + prediction.file_name
 			console.log('Data URL:', dataUrl)
 			const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
 			const fileDownloadUrl = fileUrl.data.url
@@ -927,6 +941,68 @@ const ProjectInfo = () => {
 			</>
 		)
 	}
+	const ImageHistoryViewer = ({ data }) => {
+		const [currentIndex, setCurrentIndex] = useState(0);
+
+		// data bây giờ là mảng: [{ key, class, confidence, imageUrl }, ...]
+		if (!data || data.length === 0) {
+			return <Empty description="Không có dữ liệu dự đoán." />;
+		}
+
+		const currentPrediction = data[currentIndex] || {};
+
+		return (
+			<div style={{ padding: '24px' }}>
+				{/* Khu vực điều hướng */}
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+					<Button icon={<LeftOutlined />} onClick={() => setCurrentIndex(p => p - 1)} disabled={currentIndex === 0}>
+						Previous
+					</Button>
+					<Title level={4}>Image {currentIndex + 1} of {data.length}</Title>
+					<Button onClick={() => setCurrentIndex(p => p + 1)} disabled={currentIndex === data.length - 1}>
+						Next <RightOutlined />
+					</Button>
+				</div>
+
+				{/* Khu vực hiển thị chính */}
+				<Row gutter={[24, 24]}>
+					<Col xs={24} md={14}>
+						<Title level={5}>Original Image</Title>
+						{/* Sử dụng trực tiếp imageUrl từ data */}
+						<img
+							src={currentPrediction.imageUrl}
+							alt={`Prediction for item ${currentPrediction.key}`}
+							style={{ width: '100%', borderRadius: '8px', border: '1px solid #f0f0f0' }}
+						/>
+					</Col>
+					{/* ... (Phần hiển thị kết quả không thay đổi) ... */}
+				</Row>
+
+				{/* Khu vực ảnh thu nhỏ (Thumbnail) */}
+				<div style={{ marginTop: '24px' }}>
+					<Title level={5}>Image Gallery</Title>
+					<div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '10px 0' }}>
+						{data.map((pred, index) => (
+							<div key={index} onClick={() => setCurrentIndex(index)} style={{ cursor: 'pointer' }}>
+								{/* Sử dụng trực tiếp imageUrl từ data */}
+								<img
+									src={pred.imageUrl}
+									alt={`Thumbnail for item ${pred.key}`}
+									style={{
+										width: '80px',
+										height: '80px',
+										objectFit: 'cover',
+										borderRadius: '8px',
+										border: currentIndex === index ? '3px solid #1890ff' : '3px solid transparent',
+									}}
+								/>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	};
 
 	return (
 		<>
@@ -1414,60 +1490,62 @@ const ProjectInfo = () => {
 										</span>
 									</Space>
 								}
-								// ... các style khác của Card
+								className="border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+								style={{
+									background: livePredictGradient,
+									borderRadius: '12px',
+								}}
 							>
-								{/* Xử lý loading, error, empty state... */}
+								
 								{!isLoadingPredictions && !predictionError && (
 									<List
 										dataSource={recentPredictions}
-										renderItem={(prediction) => (
-											<List.Item
-												style={{
-													borderBottom:
-														'1px solid var(--border)',
-												}}
-												actions={[
-													<Button
-														type="primary"
-														onClick={() =>
-															handleViewPrediction(
-																prediction
-															)
+										renderItem={(prediction) => {
+											
+											const filename = prediction.file_name
+
+											
+											const dateObject = new Date(prediction.created_at);
+
+											//  (ví dụ: "about an hour ago")
+											const timeAgo = formatDistanceToNow(dateObject, {
+												addSuffix: true,
+												// locale: vi, 
+											});
+
+											// 4. (ví dụ: "21:29:58, 09/10/2025")
+											const exactTime = format(dateObject, 'HH:mm:ss, dd/MM/yyyy');
+
+											return (
+												<List.Item
+													style={{ borderBottom: '1px solid var(--border)' }}
+													actions={[
+														<Button
+															type="primary"
+															onClick={() => handleViewPrediction(prediction)}
+														>
+															View
+														</Button>
+													]}
+												>
+													<List.Item.Meta
+														avatar={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+														title={
+															<span style={{ color: 'var(--text)' }}>
+																{`File: ${filename}`}
+															</span>
 														}
-													>
-														View
-													</Button>,
-												]}
-											>
-												<List.Item.Meta
-													avatar={
-														<CheckCircleOutlined
-															style={{
-																color: '#52c41a',
-															}}
-														/>
-													}
-													title={
-														<span
-															style={{
-																color: 'var(--text)',
-															}}
-														>
-															{`ID: ${prediction.id.substring(0, 8)}...`}
-														</span>
-													}
-													description={
-														<span
-															style={{
-																color: 'var(--secondary-text)',
-															}}
-														>
-															{`Created at: ${new Date(prediction.created_at).toLocaleString('vi-VN')}`}
-														</span>
-													}
-												/>
-											</List.Item>
-										)}
+														description={
+															<Tooltip title={`Exact time: ${exactTime}`}>
+																<span style={{ color: 'var(--secondary-text)', cursor: 'help' }}>
+																	{`Predicted ${timeAgo}`}
+																</span>
+															</Tooltip>
+														}
+													/>
+												</List.Item>
+											);
+										}}
 									/>
 								)}
 							</Card>

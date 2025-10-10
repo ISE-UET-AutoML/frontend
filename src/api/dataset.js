@@ -82,6 +82,11 @@ const createDownPresignedUrlsForFolder = async (projectId, version = 1) => {
     return instance.get(`${URL_SERVICE}/presigned-urls/download-folder?${params.toString()}`, options)
 }
 
+const getPresignedUrlsForImages = async (s3_key) => {
+    return instance.get(`${URL_SERVICE}/presignUrl-images`, { params: { s3_key } })
+}
+
+
 const createDownZipPU = async (datasetTitle) => {
     const options = {
         headers: { 'Content-Type': 'application/json' },
@@ -149,5 +154,6 @@ export {
     createDownZipPU,
     initializeDataset,
     finalizeDataset,
-    verifyUpload
+    verifyUpload,
+    getPresignedUrlsForImages
 }
