@@ -30,6 +30,7 @@ import {
 	Spin,
 	List,
 	Switch,
+	Typography,
 	Drawer,
 } from 'antd'
 import {
@@ -40,6 +41,7 @@ import {
 	CheckCircleOutlined,
 	ThunderboltOutlined,
 	LeftOutlined,
+	RightOutlined,
 } from '@ant-design/icons'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
@@ -66,6 +68,7 @@ import { SparklesIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import { useMemo } from 'react'
 import { formatDistanceToNow, format } from 'date-fns';
+const { Title } = Typography;
 
 
 
@@ -499,7 +502,7 @@ const ProjectInfo = () => {
 				const imageUrlResponse = await datasetAPI.getPresignedUrlsForImages(prediction.data_url)
 				const imageUrl = imageUrlResponse.data.data
 				const combinedImageData = predictContent.map((item, index) => ({
-					...pred,
+					...item,
 					imageUrl : imageUrl[index]
 				}))
 				console.log('Combined image data:', combinedImageData)
@@ -944,15 +947,15 @@ const ProjectInfo = () => {
 	const ImageHistoryViewer = ({ data }) => {
 		const [currentIndex, setCurrentIndex] = useState(0);
 
-		// data bây giờ là mảng: [{ key, class, confidence, imageUrl }, ...]
+		// data bây giờ là một mảng: [{ key, class, confidence, imageUrl }, ...]
 		if (!data || data.length === 0) {
-			return <Empty description="Không có dữ liệu dự đoán." />;
+			return <Empty description="Don't have any predictions." />;
 		}
 
 		const currentPrediction = data[currentIndex] || {};
 
 		return (
-			<div style={{ padding: '24px' }}>
+			<div style={{ padding: '24px', maxHeight: '80vh', overflowY: 'auto' }}>
 				{/* Khu vực điều hướng */}
 				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
 					<Button icon={<LeftOutlined />} onClick={() => setCurrentIndex(p => p - 1)} disabled={currentIndex === 0}>
@@ -968,14 +971,25 @@ const ProjectInfo = () => {
 				<Row gutter={[24, 24]}>
 					<Col xs={24} md={14}>
 						<Title level={5}>Original Image</Title>
-						{/* Sử dụng trực tiếp imageUrl từ data */}
 						<img
 							src={currentPrediction.imageUrl}
 							alt={`Prediction for item ${currentPrediction.key}`}
 							style={{ width: '100%', borderRadius: '8px', border: '1px solid #f0f0f0' }}
 						/>
 					</Col>
-					{/* ... (Phần hiển thị kết quả không thay đổi) ... */}
+					<Col xs={24} md={10}>
+						<Title level={5}>Prediction Results</Title>
+						<Card>
+							<p>Predicted Class:</p>
+							<Title level={3}>
+								<Tag color="blue" style={{ fontSize: '20px', padding: '6px 12px' }}>
+									{currentPrediction.class?.toUpperCase()}
+								</Tag>
+							</Title>
+							<p style={{ marginTop: '16px' }}>Confidence Score:</p>
+							<Title level={3}>{(currentPrediction.confidence * 100).toFixed(2)}%</Title>
+						</Card>
+					</Col>
 				</Row>
 
 				{/* Khu vực ảnh thu nhỏ (Thumbnail) */}
@@ -984,7 +998,6 @@ const ProjectInfo = () => {
 					<div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '10px 0' }}>
 						{data.map((pred, index) => (
 							<div key={index} onClick={() => setCurrentIndex(index)} style={{ cursor: 'pointer' }}>
-								{/* Sử dụng trực tiếp imageUrl từ data */}
 								<img
 									src={pred.imageUrl}
 									alt={`Thumbnail for item ${pred.key}`}
@@ -1684,12 +1697,6 @@ const ProjectInfo = () => {
 				</div>
 			</div>
 
-			<SimpleDataModal
-				isOpen={isModalVisible}
-				onClose={handleCloseModal}
-				data={selectedPredictionContent}
-				isLoading={isJsonLoading}
-			/>
 			<UpDataDeploy
 				isOpen={isShowUpload}
 				onClose={hideUpload}
@@ -1701,6 +1708,33 @@ const ProjectInfo = () => {
 				onUploadStart={handleUploadStartBackground}
 				onUploadComplete={handleUploadFiles}
 			/>
+
+			<Modal
+				title="Recent Prediction Details"
+				open={isModalVisible}
+				onCancel={handleCloseModal}
+				width="80%"
+				style={{ top: 20 }}
+				footer={[
+					<Button key="close" type="primary" onClick={handleCloseModal}>
+						Close
+					</Button>,
+				]}
+			>
+				{isJsonLoading ? (
+					<div style={{ textAlign: 'center', padding: '50px' }}>
+						<Spin size="large" />
+					</div>
+				) : (
+					projectInfo.task_type.includes('IMAGE') ? (
+						<ImageHistoryViewer data={selectedPredictionContent} />
+					) : (
+						<SimpleDataModal 
+							data={selectedPredictionContent}
+						/>
+					)
+				)}
+			</Modal>
 		</>
 	)
 }
