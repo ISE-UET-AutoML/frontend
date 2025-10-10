@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
 	CubeTransparentIcon,
@@ -12,6 +12,8 @@ import {
 	ArrowPathIcon,
 	CheckCircleIcon,
 	ClockIcon,
+	PlayCircleIcon,
+	LockClosedIcon
 } from '@heroicons/react/24/outline'
 import { Spin } from 'antd'
 import dayjs from 'dayjs'
@@ -140,6 +142,22 @@ export default function ProjectCard({ project, getProjects }) {
 		projectStatus = 'Completed'
 		statusIcon = <CheckCircleIcon className="h-4 w-4 text-green-500" />
 		statusColor = 'text-green-500'
+	}
+
+	// Usage status
+	const usageStatus = project?.deployStatus
+	let usageStatusIcon = <ClockIcon className="h-4 w-4 text-gray-500" />
+	let usageStatusColor = 'text-gray-500'
+
+	if (usageStatus === 'Ready') {
+		usageStatusIcon = <CheckCircleIcon className="h-4 w-4 text-green-500" />
+		usageStatusColor = 'text-green-500'
+	} else if (usageStatus === 'In Use') {
+		usageStatusIcon = <PlayCircleIcon className="h-4 w-4 text-blue-500" />
+		usageStatusColor = 'text-blue-500'
+	} else if (usageStatus == 'Unavailable') {
+		usageStatusIcon = <LockClosedIcon className="h-4 w-4 text-red-500"/>
+		usageStatusColor = 'text-red-500'
 	}
 
 	return (
@@ -275,7 +293,7 @@ export default function ProjectCard({ project, getProjects }) {
 					/>
 
 					{/* Meta Info */}
-					<div className="grid grid-cols-2 gap-3 text-sm">
+					<div className="grid grid-cols-3 gap-3 text-sm">
 						<div className="flex flex-col">
 							<span style={{ color: 'var(--secondary-text)' }}>
 								Created
@@ -293,12 +311,25 @@ export default function ProjectCard({ project, getProjects }) {
 							<span style={{ color: 'var(--secondary-text)' }}>
 								Status
 							</span>
-							<div className="flex items-center gap-1.5">
+							<div className="flex items-center gap-1">
 								{statusIcon}
 								<span
 									className={`font-semibold ${statusColor}`}
 								>
 									{projectStatus}
+								</span>
+							</div>
+						</div>
+						<div>
+							<span style={{ color: 'var(--secondary-text)' }}>
+								Usage Status
+							</span>
+							<div className="flex items-center gap-1">
+								{usageStatusIcon}
+								<span
+									className={`font-semibold ${usageStatusColor}`}
+								>
+									{usageStatus}
 								</span>
 							</div>
 						</div>
