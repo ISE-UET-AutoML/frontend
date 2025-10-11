@@ -375,7 +375,7 @@ const UploadData = () => {
 			const presignUrl = await createDownZipPU(selectedProject.dataset_id)
 			const payload = {
 				cost: 0.5,
-				trainingTime: 3600,
+				trainingTime: 86.400,
 				presets: 'medium_quality',
 				datasetUrl: presignUrl.data,
 				datasetLabelUrl: 'hello',
