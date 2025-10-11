@@ -10,6 +10,6 @@ const UploadTypes = Object.freeze({
 	CSV_TIMESERIES: 'CSV_TIMESERIES',
 });
 
-const IMG_NUM_IN_ZIP = 10
+const IMG_NUM_IN_ZIP = 1000
 
 export { UploadTypes, ALLOWED_FILE_EXTENSIONS, IMG_NUM_IN_ZIP };

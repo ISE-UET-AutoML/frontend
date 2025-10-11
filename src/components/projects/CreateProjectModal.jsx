@@ -6,23 +6,13 @@ import CreateDatasetForm from 'src/pages/datasets/CreateDatasetForm'
 import { TASK_TYPES } from 'src/constants/types'
 import * as projectAPI from 'src/api/project'
 import * as datasetAPI from 'src/api/dataset'
-import * as labelProjectAPI from 'src/api/labelProject'
 import JSZip from 'jszip'
 import { createChunks, organizeFiles, extractCSVMetaData } from 'src/utils/file'
 import { uploadToS3 } from 'src/utils/s3'
 import { IMG_NUM_IN_ZIP } from 'src/constants/file'
 import { usePollingStore } from 'src/store/pollingStore' // Import polling store
-import { WaitForPollingSuccess } from './WaitForPollingSuccess'
-import {
-    createLbProject,
-    getLbProjByTask,
-    startExport,
-    getExportStatus,
-} from 'src/api/labelProject'
 import { useNavigate } from 'react-router-dom'
 import { trainCloudModel } from 'src/api/mlService'
-import { createDownZipPU } from 'src/api/dataset'
-import { is } from '@react-spring/shared'
 
 const { Step } = Steps
 
@@ -133,45 +123,6 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
             setHasUnsavedChanges(false)
             onCancel()
         }
-    }
-
-    const pollExportStatus = (taskId) => {
-        return new Promise((resolve, reject) => {
-            const intervalId = setInterval(async () => {
-                try {
-                    const response = await getExportStatus(taskId)
-                    const { status, result, error } = response.data
-
-                    console.log(
-                        `[pollExportStatus] Task ${taskId} → status: ${status}`
-                    )
-
-                    if (status === 'SUCCESS') {
-                        clearInterval(intervalId)
-                        console.log(
-                            `[pollExportStatus] Task ${taskId} completed. Result:`,
-                            result
-                        )
-                        resolve(result)
-                    } else if (status === 'FAILURE') {
-                        clearInterval(intervalId)
-                        console.error(
-                            `[pollExportStatus] Task ${taskId} failed. Error:`,
-                            error
-                        )
-                        reject(new Error(error || 'Export task failed.'))
-                    }
-                    // Nếu là PENDING thì tiếp tục chờ
-                } catch (err) {
-                    clearInterval(intervalId)
-                    console.error(
-                        `[pollExportStatus] Error checking task ${taskId}:`,
-                        err?.message || err
-                    )
-                    reject(err)
-                }
-            }, 5000) // Hỏi lại mỗi 5 giây
-        })
     }
 
     const handleSubmit = async (values) => {
@@ -333,37 +284,13 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
             addPending({ dataset: createdDataset, labelProjectValues })
 
             try {
-                const datasetSucess = await WaitForPollingSuccess(
-                    createdDataset.id
-                )
-                console.log('Dataset processing completed:', datasetSucess)
-                const getedDatasetRes = await datasetAPI.getDataset(
-                    createdDataset.id
-                )
-                const getedDataset = getedDatasetRes.data
-                console.log('Geted dataset: ', getedDataset)
-                const ls_project_id = getedDataset.ls_project.label_studio_id
-                const dataset_id = getedDataset.id
-                const meta_data = getedDataset.ls_project.meta_data
-                const is_binary_class = meta_data.is_binary_class
-                const startResponse = await startExport(ls_project_id)
-                const { task_id } = startResponse.data
-                console.log('Export started, task ID:', startResponse)
-
-                const finalResult = await pollExportStatus(task_id)
-                console.log('Export completed successfully:', finalResult)
-                message.success('Data prepared successfully!')
-
-                const presignUrl = await createDownZipPU(dataset_id)
                 const payload = {
-                    cost: 0.5,
+                    cost: 3,
                     trainingTime: 86400,
                     presets: 'medium_quality',
-                    datasetUrl: presignUrl.data,
                     datasetLabelUrl: 'hello',
-                    problemType: is_binary_class ? 'BINARY' : 'MULTICLASS',
                     framework: 'autogluon',
-                    datasetMetadata: meta_data,
+                    datasetID: datasetID,
                 }
                 console.log('Train payload: ', payload)
                 const trainingRequest = await trainCloudModel(
