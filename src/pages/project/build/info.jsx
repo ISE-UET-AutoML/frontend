@@ -585,16 +585,15 @@ const ProjectInfo = () => {
 
 		const fetchModelDeploy = async () => {
 			try {
-				const res = await deployServiceAPI.getDeployedModel(model.id)
-				if (res.status === 200) {
-					const deploy = res.data[0]
-					setModelDeploy(deploy)
-					console.log('Model deploy details:', deploy)
+				const deployRes = await deployServiceAPI.getRunningDeployedModel(model.id) // only get actual running deploy
+				const deploys = deployRes.data
+				const deploy = deploys[0]
+				setModelDeploy(deploy)
+				console.log('Model deploy details:', deploy)
 
-					// keep polling if not ONLINE or not null
-					if (deploy && deploy.status !== 'ONLINE') {
-						timeoutId = setTimeout(fetchModelDeploy, 30000)
-					}
+				// keep polling if not ONLINE or not null
+				if (deploy && deploy.status !== 'ONLINE') {
+					timeoutId = setTimeout(fetchModelDeploy, 30000)
 				}
 			} catch (error) {
 				console.log('Error in fetching model deploy details', error)
