@@ -206,9 +206,7 @@ const UpDataDeploy = ({
 			// Build presign request for predict endpoint: flatten keys and set version
 			const filesToUpload = imageFiles.map((f) => {
 				let baseName = f.name
-				if(taskType !== 'IMAGE_CLASSIFICATION') {
-					baseName = "test.csv"
-				}
+				
 				const type =
 					f.type ||
 					(baseName.toLowerCase().endsWith('.png') ||
@@ -227,7 +225,7 @@ const UpDataDeploy = ({
 					version,
 					files: filesToUpload,
 				})
-			console.log('Presigned response:', presignedUrlResponse)
+			//console.log('Presigned response:', presignedUrlResponse)
 			if (
 				!Array.isArray(presignedUrlResponse) ||
 				presignedUrlResponse.length === 0
@@ -247,9 +245,9 @@ const UpDataDeploy = ({
 			await Promise.all(
 				filesToUpload.map(async (item, idx) => {
 					// item.key is baseName; look up by basename mapping
-					console.log('Uploading item', item, 'index', idx)
+					//console.log('Uploading item', item, 'index', idx)
 					const url = keyToUrl.get(item.key)
-					console.log('Uploading', item.key, 'to', url)
+					//console.log('Uploading', item.key, 'to', url)
 					if (!url) throw new Error(`Missing URL for ${item.key}`)
 					const fileObj =
 						imageFiles[idx].originFileObj || imageFiles[idx]

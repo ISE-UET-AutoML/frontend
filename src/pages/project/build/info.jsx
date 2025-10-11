@@ -31,6 +31,7 @@ import {
 	List,
 	Switch,
 	Drawer,
+	Typography,
 } from 'antd'
 import {
 	TrophyOutlined,
@@ -40,7 +41,10 @@ import {
 	CheckCircleOutlined,
 	ThunderboltOutlined,
 	LeftOutlined,
+	RightOutlined,
 } from '@ant-design/icons'
+import ImageHistoryViewer from 'src/components/RecentPredictView/ImageHistoryViewer'
+import TextHistoryViewer from 'src/components/RecentPredictView/TextHistoryViewer'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
 import instance from 'src/api/axios'
@@ -65,6 +69,10 @@ import {
 import { SparklesIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import { useMemo } from 'react'
+import { formatDistanceToNow, format } from 'date-fns';
+const { Title } = Typography;
+
+
 
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
@@ -160,6 +168,8 @@ const ProjectInfo = () => {
 	const [isJsonLoading, setIsJsonLoading] = useState(false)
 	const object = LiteConfig[projectInfo?.task_type]
 
+	const simpleDataModalRef = useRef(null);
+
 	const hideUpload = () => {
 		setIsShowUpload(false)
 	}
@@ -180,7 +190,8 @@ const ProjectInfo = () => {
 	// Live predict file upload handler
 	const handleUploadFiles = async (files, s3_url) => {
 		console.log('Files: ', files)
-
+		const fileName = files[0]?.name || 'unknown'
+		console.log('File name:', fileName)
 		const validFiles = validateFilesForPrediction(
 			files,
 			projectInfo?.task_type
@@ -263,6 +274,7 @@ const ProjectInfo = () => {
 		console.log('Fetch prediction start')
 		formData.append('s3_url', s3_url)
 		formData.append('api_base_url', currentModelDeploy.api_base_url)
+		formData.append('file_name', fileName)
 		try {
 			// Make predictions
 			const predictRequest = await modelServiceAPI.modelPredict(
@@ -489,29 +501,38 @@ const ProjectInfo = () => {
 			const jsonResponse = await axios.get(predictUrl)
 			console.log('Prediction content:', jsonResponse.data)
 			const predictContent = jsonResponse.data
-			// setSelectedPredictionContent(predictContent)
+			
+			if (projectInfo.task_type.includes('IMAGE')) {
+				const imageUrlResponse = await datasetAPI.getPresignedUrlsForImages(prediction.data_url)
+				const imageUrl = imageUrlResponse.data.data
+				const combinedImageData = predictContent.map((item, index) => ({
+					...item,
+					imageUrl : imageUrl[index]
+				}))
+				console.log('Combined image data:', combinedImageData)
+				setSelectedPredictionContent(combinedImageData)
+			} else {
+				const dataUrl = prediction.data_url + prediction.file_name
+				console.log('Data URL:', dataUrl)
+				const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
+				const fileDownloadUrl = fileUrl.data.url
+				const fileContentResponse = await axios.get(fileDownloadUrl)
+				const fileContent = fileContentResponse.data
+				const parsedCsv = Papa.parse(fileContent, { header: true })
 
-			//download file của ngta tải lên
-			const dataUrl = `${prediction.data_url}test.csv`
-			console.log('Data URL:', dataUrl)
-			const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
-			const fileDownloadUrl = fileUrl.data.url
-			const fileContentResponse = await axios.get(fileDownloadUrl)
-			const fileContent = fileContentResponse.data
-			const parsedCsv = Papa.parse(fileContent, { header: true })
-
-			const inputData = parsedCsv.data.filter((row) =>
-				// Điều kiện: Giữ lại dòng nếu có ít nhất một giá trị không phải là chuỗi rỗng
-				Object.values(row).some(
-					(value) => value !== '' && value !== null
+				const inputData = parsedCsv.data.filter((row) =>
+					// Điều kiện: Giữ lại dòng nếu có ít nhất một giá trị không phải là chuỗi rỗng
+					Object.values(row).some(
+						(value) => value !== '' && value !== null
+					)
 				)
-			)
-			const combinedData = inputData.map((row, index) => ({
-				...row,
-				...(predictContent[index] || {}),
-			}))
-			console.log('File content:', fileContent)
-			setSelectedPredictionContent(combinedData)
+				const combinedData = inputData.map((row, index) => ({
+					...row,
+					...(predictContent[index] || {}),
+				}))
+				console.log('File content:', combinedData)
+				setSelectedPredictionContent(combinedData)
+			}
 		} catch (error) {
 			console.error('Error fetching prediction content:', error)
 			message.error(
@@ -740,192 +761,6 @@ const ProjectInfo = () => {
 			</span>
 		</div>
 	)
-
-	const SimpleDataModal = ({ isOpen, onClose, data, isLoading }) => {
-		const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-
-		const [allColumns, setAllColumns] = useState([])
-
-		const [visibleColumns, setVisibleColumns] = useState([])
-
-		const [filterText, setFilterText] = useState('')
-
-		useEffect(() => {
-			if (data && data.length > 0 && typeof data[0] === 'object') {
-				const keys = Object.keys(data[0]).filter(
-					(key) => key.toLowerCase() !== 'key'
-				)
-				setAllColumns(keys)
-				setVisibleColumns(keys)
-			} else {
-				setAllColumns([])
-				setVisibleColumns([])
-			}
-		}, [data])
-
-		const handleColumnToggle = (columnKey) => {
-			setVisibleColumns((prev) =>
-				prev.includes(columnKey)
-					? prev.filter((key) => key !== columnKey)
-					: [...prev, columnKey]
-			)
-		}
-
-		const tableColumns = useMemo(() => {
-			if (!data || data.length === 0) return []
-
-			const specialColumns = [
-				'class',
-				'prediction',
-				'confidence',
-				'probability',
-			]
-
-			const scrollableCols = allColumns
-				.filter(
-					(key) =>
-						visibleColumns.includes(key) &&
-						!specialColumns.includes(key.toLowerCase())
-				)
-				.map((key) => ({
-					title:
-						key.charAt(0).toUpperCase() +
-						key.slice(1).replace(/_/g, ' '),
-					dataIndex: key,
-					key: key,
-					width: 180,
-				}))
-
-			const fixedCols = allColumns
-				.filter(
-					(key) =>
-						visibleColumns.includes(key) &&
-						specialColumns.includes(key.toLowerCase())
-				)
-				.map((key) => ({
-					title: key.charAt(0).toUpperCase() + key.slice(1),
-					dataIndex: key,
-					key: key,
-					fixed: 'right',
-					width: 150, // Set chiều rộng cố định
-					render: (text) => {
-						if (
-							key.toLowerCase() === 'class' ||
-							key.toLowerCase() === 'prediction'
-						) {
-							const color = String(text)
-								.toLowerCase()
-								.includes('positive')
-								? 'green'
-								: 'volcano'
-							return (
-								<Tag color={color}>
-									{String(text).toUpperCase()}
-								</Tag>
-							)
-						}
-						if (
-							key.toLowerCase() === 'confidence' ||
-							key.toLowerCase() === 'probability'
-						) {
-							const num = parseFloat(text)
-							return !isNaN(num)
-								? `${(num * 100).toFixed(2)}%`
-								: text
-						}
-						return text
-					},
-				}))
-
-			return [...scrollableCols, ...fixedCols]
-		}, [allColumns, visibleColumns, data])
-
-		// Lọc danh sách cột để hiển thị trong Drawer dựa trên filterText
-		const filteredDrawerColumns = allColumns.filter((col) =>
-			col.toLowerCase().includes(filterText.toLowerCase())
-		)
-
-		return (
-			<>
-				<Modal
-					title="Prediction Results"
-					open={isOpen}
-					onCancel={onClose}
-					width="90%"
-					style={{ top: 20 }} // Đẩy modal lên cao hơn một chút
-					footer={[
-						<Button
-							key="settings"
-							icon={<SettingOutlined />}
-							onClick={() => setIsDrawerOpen(true)}
-						>
-							Columns Settings
-						</Button>,
-						<Button key="close" type="primary" onClick={onClose}>
-							Close
-						</Button>,
-					]}
-				>
-					{isLoading ? (
-						<div style={{ textAlign: 'center', padding: '50px' }}>
-							<Spin size="large" />
-						</div>
-					) : data && data.length > 0 ? (
-						<Table
-							columns={tableColumns}
-							dataSource={data}
-							rowKey={(record, index) => record.key ?? index}
-							scroll={{
-								x: 'max-content',
-								y: 'calc(100vh - 200px)',
-							}} // Thêm cuộn dọc
-							pagination={{ pageSize: 15 }}
-						/>
-					) : (
-						<Empty description="No data available" />
-					)}
-				</Modal>
-
-				<Drawer
-					title="Column Settings"
-					placement="right"
-					onClose={() => setIsDrawerOpen(false)}
-					open={isDrawerOpen}
-				>
-					<Input.Search
-						placeholder="Search column name"
-						onChange={(e) => setFilterText(e.target.value)}
-						style={{ marginBottom: 16 }}
-					/>
-					<Space direction="vertical" style={{ width: '100%' }}>
-						{filteredDrawerColumns.map((columnKey) => (
-							<div
-								key={columnKey}
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									width: '100%',
-									padding: '8px',
-									borderRadius: '4px',
-									background: '#f5f5f5',
-								}}
-							>
-								<span style={{ fontWeight: 500 }}>
-									{columnKey}
-								</span>
-								<Switch
-									checked={visibleColumns.includes(columnKey)}
-									onChange={() =>
-										handleColumnToggle(columnKey)
-									}
-								/>
-							</div>
-						))}
-					</Space>
-				</Drawer>
-			</>
-		)
-	}
 
 	return (
 		<>
@@ -1435,60 +1270,62 @@ const ProjectInfo = () => {
 										</span>
 									</Space>
 								}
-								// ... các style khác của Card
+								className="border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+								style={{
+									background: livePredictGradient,
+									borderRadius: '12px',
+								}}
 							>
-								{/* Xử lý loading, error, empty state... */}
+								
 								{!isLoadingPredictions && !predictionError && (
 									<List
 										dataSource={recentPredictions}
-										renderItem={(prediction) => (
-											<List.Item
-												style={{
-													borderBottom:
-														'1px solid var(--border)',
-												}}
-												actions={[
-													<Button
-														type="primary"
-														onClick={() =>
-															handleViewPrediction(
-																prediction
-															)
+										renderItem={(prediction) => {
+											
+											const filename = prediction.file_name
+
+											
+											const dateObject = new Date(prediction.created_at);
+
+											//  (ví dụ: "about an hour ago")
+											const timeAgo = formatDistanceToNow(dateObject, {
+												addSuffix: true,
+												// locale: vi, 
+											});
+
+											// 4. (ví dụ: "21:29:58, 09/10/2025")
+											const exactTime = format(dateObject, 'HH:mm:ss, dd/MM/yyyy');
+
+											return (
+												<List.Item
+													style={{ borderBottom: '1px solid var(--border)' }}
+													actions={[
+														<Button
+															type="primary"
+															onClick={() => handleViewPrediction(prediction)}
+														>
+															View
+														</Button>
+													]}
+												>
+													<List.Item.Meta
+														avatar={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+														title={
+															<span style={{ color: 'var(--text)' }}>
+																{`File: ${filename}`}
+															</span>
 														}
-													>
-														View
-													</Button>,
-												]}
-											>
-												<List.Item.Meta
-													avatar={
-														<CheckCircleOutlined
-															style={{
-																color: '#52c41a',
-															}}
-														/>
-													}
-													title={
-														<span
-															style={{
-																color: 'var(--text)',
-															}}
-														>
-															{`ID: ${prediction.id.substring(0, 8)}...`}
-														</span>
-													}
-													description={
-														<span
-															style={{
-																color: 'var(--secondary-text)',
-															}}
-														>
-															{`Created at: ${new Date(prediction.created_at).toLocaleString('vi-VN')}`}
-														</span>
-													}
-												/>
-											</List.Item>
-										)}
+														description={
+															<Tooltip title={`Exact time: ${exactTime}`}>
+																<span style={{ color: 'var(--secondary-text)', cursor: 'help' }}>
+																	{`Predicted ${timeAgo}`}
+																</span>
+															</Tooltip>
+														}
+													/>
+												</List.Item>
+											);
+										}}
 									/>
 								)}
 							</Card>
@@ -1626,13 +1463,6 @@ const ProjectInfo = () => {
 					</div>
 				</div>
 			</div>
-
-			<SimpleDataModal
-				isOpen={isModalVisible}
-				onClose={handleCloseModal}
-				data={selectedPredictionContent}
-				isLoading={isJsonLoading}
-			/>
 			<UpDataDeploy
 				isOpen={isShowUpload}
 				onClose={hideUpload}
@@ -1644,6 +1474,39 @@ const ProjectInfo = () => {
 				onUploadStart={handleUploadStartBackground}
 				onUploadComplete={handleUploadFiles}
 			/>
+
+			<Modal
+                title="Recent Prediction Details"
+                open={isModalVisible}
+                onCancel={handleCloseModal}
+                width="90%"
+                style={{ top: 20 }}
+                footer={[
+                    // << 3. Cập nhật footer
+                    !projectInfo.task_type.includes('IMAGE') && (
+                        <Button
+                            key="settings"
+                            icon={<SettingOutlined />}
+                            onClick={() => simpleDataModalRef.current?.openDrawer()}
+                        >
+                            Columns Settings
+                        </Button>
+                    ),
+                    <Button key="close" type="primary" onClick={handleCloseModal}>
+                        Close
+                    </Button>,
+                ]}
+            >
+                {isJsonLoading ? (
+                    <div style={{ textAlign: 'center', padding: '50px' }}>
+                        <Spin size="large" />
+                    </div>
+                ) : projectInfo.task_type.includes('IMAGE') ? (
+                    <ImageHistoryViewer data={selectedPredictionContent} />
+                ) : (
+                    <TextHistoryViewer data={selectedPredictionContent} ref={simpleDataModalRef} />
+                )}
+            </Modal>
 		</>
 	)
 }
