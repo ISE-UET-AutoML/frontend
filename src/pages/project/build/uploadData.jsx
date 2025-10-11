@@ -375,7 +375,7 @@ const UploadData = () => {
             const presignUrl = await createDownZipPU(selectedProject.dataset_id)
             const payload = {
                 cost: 0.5,
-                trainingTime: 3600,
+                trainingTime: 86400,
                 presets: 'medium_quality',
                 datasetUrl: presignUrl.data,
                 datasetLabelUrl: 'hello',
@@ -445,8 +445,8 @@ const UploadData = () => {
     const renderServiceTag = (service) => (
         <span
             className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${service === 'AWS_S3'
-                    ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
-                    : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                 }`}
         >
             {service === 'AWS_S3' ? 'AWS' : 'Google Cloud'}
@@ -456,8 +456,8 @@ const UploadData = () => {
     const renderLabeledTag = (isLabeled) => (
         <span
             className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${isLabeled
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                    : 'bg-gray-500/10 text-gray-500 border-gray-500/20'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : 'bg-gray-500/10 text-gray-500 border-gray-500/20'
                 }`}
         >
             {isLabeled ? 'Yes' : 'No (Disabled)'}
