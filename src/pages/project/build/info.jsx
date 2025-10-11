@@ -69,10 +69,8 @@ import {
 import { SparklesIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import { useMemo } from 'react'
-import { formatDistanceToNow, format } from 'date-fns';
-const { Title } = Typography;
-
-
+import { formatDistanceToNow, format } from 'date-fns'
+const { Title } = Typography
 
 const getAccuracyStatus = (score) => {
 	if (score >= 0.9) {
@@ -156,6 +154,7 @@ const ProjectInfo = () => {
 	const [uploadedFiles, setUploadedFiles] = useState(null)
 	const [isWaitingForDeployment, setIsWaitingForDeployment] = useState(false)
 	const [isGeneratingUI, setIsGeneratingUI] = useState(false)
+	const [isDeploymentChecked, setIsDeploymentChecked] = useState(false)
 	const fileInputRef = useRef(null)
 
 	const [recentPredictions, setRecentPredictions] = useState([])
@@ -168,7 +167,7 @@ const ProjectInfo = () => {
 	const [isJsonLoading, setIsJsonLoading] = useState(false)
 	const object = LiteConfig[projectInfo?.task_type]
 
-	const simpleDataModalRef = useRef(null);
+	const simpleDataModalRef = useRef(null)
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -439,24 +438,34 @@ const ProjectInfo = () => {
 				sampleData,
 			})
 
-			const response = await visualizeAPI.genUI(
-				taskType,
-				taskDescription,
-				labelsName,
-				labelValues,
-				apiEndpoint,
-				sampleData
-			)
+			// const response = await visualizeAPI.genUI(
+			// 	taskType,
+			// 	taskDescription,
+			// 	labelsName,
+			// 	labelValues,
+			// 	apiEndpoint,
+			// 	sampleData
+			// )
 
-			console.log('GenUI API response:', response.data)
+			// console.log('GenUI API response:', response.data)
+
+			// const metadata = {
+			// 	projectName: projectName,
+			// 	projectDescription: projectDescription,
+			// 	taskType: taskType,
+			// 	description: response.data.description,
+			// 	apiUrl: response.data.apiUrl,
+			// 	samples: response.data.samples,
+			// 	modelInfo: model,
+			// }
 
 			const metadata = {
 				projectName: projectName,
 				projectDescription: projectDescription,
 				taskType: taskType,
-				description: response.data.description,
-				apiUrl: response.data.apiUrl,
-				samples: response.data.samples,
+				description: '',
+				apiUrl: modelDeploy.api_base_url,
+				samples: [],
 				modelInfo: model,
 			}
 
@@ -501,20 +510,24 @@ const ProjectInfo = () => {
 			const jsonResponse = await axios.get(predictUrl)
 			console.log('Prediction content:', jsonResponse.data)
 			const predictContent = jsonResponse.data
-			
+
 			if (projectInfo.task_type.includes('IMAGE')) {
-				const imageUrlResponse = await datasetAPI.getPresignedUrlsForImages(prediction.data_url)
+				const imageUrlResponse =
+					await datasetAPI.getPresignedUrlsForImages(
+						prediction.data_url
+					)
 				const imageUrl = imageUrlResponse.data.data
 				const combinedImageData = predictContent.map((item, index) => ({
 					...item,
-					imageUrl : imageUrl[index]
+					imageUrl: imageUrl[index],
 				}))
 				console.log('Combined image data:', combinedImageData)
 				setSelectedPredictionContent(combinedImageData)
 			} else {
 				const dataUrl = prediction.data_url + prediction.file_name
 				console.log('Data URL:', dataUrl)
-				const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
+				const fileUrl =
+					await datasetAPI.createDownPresignedUrls(dataUrl)
 				const fileDownloadUrl = fileUrl.data.url
 				const fileContentResponse = await axios.get(fileDownloadUrl)
 				const fileContent = fileContentResponse.data
@@ -606,10 +619,12 @@ const ProjectInfo = () => {
 
 		const fetchModelDeploy = async () => {
 			try {
-				const deployRes = await deployServiceAPI.getRunningDeployedModel(model.id) // only get actual running deploy
+				const deployRes =
+					await deployServiceAPI.getRunningDeployedModel(model.id) // only get actual running deploy
 				const deploys = deployRes.data
 				const deploy = deploys[0]
 				setModelDeploy(deploy)
+				setIsDeploymentChecked(true)
 				console.log('Model deploy details:', deploy)
 
 				// keep polling if not ONLINE or not null
@@ -618,6 +633,7 @@ const ProjectInfo = () => {
 				}
 			} catch (error) {
 				console.log('Error in fetching model deploy details', error)
+				setIsDeploymentChecked(true)
 			}
 		}
 
@@ -1106,9 +1122,15 @@ const ProjectInfo = () => {
 
 							{/* Gen UI Button */}
 							<Card
-								className={`border border-gray-300 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ease-in-out hover:opacity-90 relative group overflow-hidden rounded-xl font-poppins bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200 ${isGeneratingUI ? 'cursor-wait opacity-75' : 'cursor-pointer'}`}
+								className={`border border-gray-300 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ease-in-out hover:opacity-90 relative group overflow-hidden rounded-xl font-poppins bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200 ${
+									!isDeploymentChecked || isGeneratingUI
+										? 'cursor-not-allowed'
+										: 'cursor-pointer'
+								}`}
 								onClick={
-									isGeneratingUI ? undefined : handleGenUI
+									!isDeploymentChecked || isGeneratingUI
+										? undefined
+										: handleGenUI
 								}
 								style={{ background: cardGradient }}
 							>
@@ -1276,55 +1298,85 @@ const ProjectInfo = () => {
 									borderRadius: '12px',
 								}}
 							>
-								
 								{!isLoadingPredictions && !predictionError && (
 									<List
 										dataSource={recentPredictions}
 										renderItem={(prediction) => {
-											
-											const filename = prediction.file_name
+											const filename =
+												prediction.file_name
 
-											
-											const dateObject = new Date(prediction.created_at);
+											const dateObject = new Date(
+												prediction.created_at
+											)
 
 											//  (ví dụ: "about an hour ago")
-											const timeAgo = formatDistanceToNow(dateObject, {
-												addSuffix: true,
-												// locale: vi, 
-											});
+											const timeAgo = formatDistanceToNow(
+												dateObject,
+												{
+													addSuffix: true,
+													// locale: vi,
+												}
+											)
 
 											// 4. (ví dụ: "21:29:58, 09/10/2025")
-											const exactTime = format(dateObject, 'HH:mm:ss, dd/MM/yyyy');
+											const exactTime = format(
+												dateObject,
+												'HH:mm:ss, dd/MM/yyyy'
+											)
 
 											return (
 												<List.Item
-													style={{ borderBottom: '1px solid var(--border)' }}
+													style={{
+														borderBottom:
+															'1px solid var(--border)',
+													}}
 													actions={[
 														<Button
 															type="primary"
-															onClick={() => handleViewPrediction(prediction)}
+															onClick={() =>
+																handleViewPrediction(
+																	prediction
+																)
+															}
 														>
 															View
-														</Button>
+														</Button>,
 													]}
 												>
 													<List.Item.Meta
-														avatar={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+														avatar={
+															<CheckCircleOutlined
+																style={{
+																	color: '#52c41a',
+																}}
+															/>
+														}
 														title={
-															<span style={{ color: 'var(--text)' }}>
+															<span
+																style={{
+																	color: 'var(--text)',
+																}}
+															>
 																{`File: ${filename}`}
 															</span>
 														}
 														description={
-															<Tooltip title={`Exact time: ${exactTime}`}>
-																<span style={{ color: 'var(--secondary-text)', cursor: 'help' }}>
+															<Tooltip
+																title={`Exact time: ${exactTime}`}
+															>
+																<span
+																	style={{
+																		color: 'var(--secondary-text)',
+																		cursor: 'help',
+																	}}
+																>
 																	{`Predicted ${timeAgo}`}
 																</span>
 															</Tooltip>
 														}
 													/>
 												</List.Item>
-											);
+											)
 										}}
 									/>
 								)}
@@ -1476,37 +1528,46 @@ const ProjectInfo = () => {
 			/>
 
 			<Modal
-                title="Recent Prediction Details"
-                open={isModalVisible}
-                onCancel={handleCloseModal}
-                width="90%"
-                style={{ top: 20 }}
-                footer={[
-                    // << 3. Cập nhật footer
-                    !projectInfo.task_type.includes('IMAGE') && (
-                        <Button
-                            key="settings"
-                            icon={<SettingOutlined />}
-                            onClick={() => simpleDataModalRef.current?.openDrawer()}
-                        >
-                            Columns Settings
-                        </Button>
-                    ),
-                    <Button key="close" type="primary" onClick={handleCloseModal}>
-                        Close
-                    </Button>,
-                ]}
-            >
-                {isJsonLoading ? (
-                    <div style={{ textAlign: 'center', padding: '50px' }}>
-                        <Spin size="large" />
-                    </div>
-                ) : projectInfo.task_type.includes('IMAGE') ? (
-                    <ImageHistoryViewer data={selectedPredictionContent} />
-                ) : (
-                    <TextHistoryViewer data={selectedPredictionContent} ref={simpleDataModalRef} />
-                )}
-            </Modal>
+				title="Recent Prediction Details"
+				open={isModalVisible}
+				onCancel={handleCloseModal}
+				width="90%"
+				style={{ top: 20 }}
+				footer={[
+					// << 3. Cập nhật footer
+					!projectInfo.task_type.includes('IMAGE') && (
+						<Button
+							key="settings"
+							icon={<SettingOutlined />}
+							onClick={() =>
+								simpleDataModalRef.current?.openDrawer()
+							}
+						>
+							Columns Settings
+						</Button>
+					),
+					<Button
+						key="close"
+						type="primary"
+						onClick={handleCloseModal}
+					>
+						Close
+					</Button>,
+				]}
+			>
+				{isJsonLoading ? (
+					<div style={{ textAlign: 'center', padding: '50px' }}>
+						<Spin size="large" />
+					</div>
+				) : projectInfo.task_type.includes('IMAGE') ? (
+					<ImageHistoryViewer data={selectedPredictionContent} />
+				) : (
+					<TextHistoryViewer
+						data={selectedPredictionContent}
+						ref={simpleDataModalRef}
+					/>
+				)}
+			</Modal>
 		</>
 	)
 }
