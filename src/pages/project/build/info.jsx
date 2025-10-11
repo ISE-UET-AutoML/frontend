@@ -489,7 +489,7 @@ const ProjectInfo = () => {
 			const jsonResponse = await axios.get(predictUrl)
 			console.log('Prediction content:', jsonResponse.data)
 			const predictContent = jsonResponse.data
-			setSelectedPredictionContent(predictContent)
+			// setSelectedPredictionContent(predictContent)
 
 			//download file của ngta tải lên
 			const dataUrl = `${prediction.data_url}test.csv`
