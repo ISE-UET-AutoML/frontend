@@ -285,7 +285,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
 
             try {
                 const payload = {
-                    cost: 0.5,
+                    cost: 3,
                     trainingTime: 86400,
                     presets: 'medium_quality',
                     datasetLabelUrl: 'hello',
