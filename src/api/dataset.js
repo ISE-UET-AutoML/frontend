@@ -83,7 +83,7 @@ const createDownPresignedUrlsForFolder = async (projectId, version = 1) => {
 }
 
 const getPresignedUrlsForImages = async (s3_key) => {
-    return instance.get(`${URL_SERVICE}/presignUrl-images`, { params: { s3_key } })
+    return instance.get(`${URL_SERVICE}/s3/presignUrl-images`, { params: { s3_key } })
 }
 
 

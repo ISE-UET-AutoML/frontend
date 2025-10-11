@@ -31,6 +31,7 @@ import {
 	List,
 	Switch,
 	Drawer,
+	Typography,
 } from 'antd'
 import {
 	TrophyOutlined,
@@ -40,7 +41,10 @@ import {
 	CheckCircleOutlined,
 	ThunderboltOutlined,
 	LeftOutlined,
+	RightOutlined,
 } from '@ant-design/icons'
+import ImageHistoryViewer from 'src/components/RecentPredictView/ImageHistoryViewer'
+import TextHistoryViewer from 'src/components/RecentPredictView/TextHistoryViewer'
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
 import instance from 'src/api/axios'
@@ -66,6 +70,7 @@ import { SparklesIcon } from '@heroicons/react/24/solid'
 import axios from 'axios'
 import { useMemo } from 'react'
 import { formatDistanceToNow, format } from 'date-fns';
+const { Title } = Typography;
 
 
 
@@ -162,6 +167,8 @@ const ProjectInfo = () => {
 		useState(null)
 	const [isJsonLoading, setIsJsonLoading] = useState(false)
 	const object = LiteConfig[projectInfo?.task_type]
+
+	const simpleDataModalRef = useRef(null);
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -499,33 +506,33 @@ const ProjectInfo = () => {
 				const imageUrlResponse = await datasetAPI.getPresignedUrlsForImages(prediction.data_url)
 				const imageUrl = imageUrlResponse.data.data
 				const combinedImageData = predictContent.map((item, index) => ({
-					...pred,
+					...item,
 					imageUrl : imageUrl[index]
 				}))
 				console.log('Combined image data:', combinedImageData)
 				setSelectedPredictionContent(combinedImageData)
-			}
-			//download file của ngta tải lên
-			const dataUrl = prediction.data_url + prediction.file_name
-			console.log('Data URL:', dataUrl)
-			const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
-			const fileDownloadUrl = fileUrl.data.url
-			const fileContentResponse = await axios.get(fileDownloadUrl)
-			const fileContent = fileContentResponse.data
-			const parsedCsv = Papa.parse(fileContent, { header: true })
+			} else {
+				const dataUrl = prediction.data_url + prediction.file_name
+				console.log('Data URL:', dataUrl)
+				const fileUrl = await datasetAPI.createDownPresignedUrls(dataUrl)
+				const fileDownloadUrl = fileUrl.data.url
+				const fileContentResponse = await axios.get(fileDownloadUrl)
+				const fileContent = fileContentResponse.data
+				const parsedCsv = Papa.parse(fileContent, { header: true })
 
-			const inputData = parsedCsv.data.filter((row) =>
-				// Điều kiện: Giữ lại dòng nếu có ít nhất một giá trị không phải là chuỗi rỗng
-				Object.values(row).some(
-					(value) => value !== '' && value !== null
+				const inputData = parsedCsv.data.filter((row) =>
+					// Điều kiện: Giữ lại dòng nếu có ít nhất một giá trị không phải là chuỗi rỗng
+					Object.values(row).some(
+						(value) => value !== '' && value !== null
+					)
 				)
-			)
-			const combinedData = inputData.map((row, index) => ({
-				...row,
-				...(predictContent[index] || {}),
-			}))
-			console.log('File content:', fileContent)
-			setSelectedPredictionContent(combinedData)
+				const combinedData = inputData.map((row, index) => ({
+					...row,
+					...(predictContent[index] || {}),
+				}))
+				console.log('File content:', combinedData)
+				setSelectedPredictionContent(combinedData)
+			}
 		} catch (error) {
 			console.error('Error fetching prediction content:', error)
 			message.error(
@@ -755,254 +762,6 @@ const ProjectInfo = () => {
 			</span>
 		</div>
 	)
-
-	const SimpleDataModal = ({ isOpen, onClose, data, isLoading }) => {
-		const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-
-		const [allColumns, setAllColumns] = useState([])
-
-		const [visibleColumns, setVisibleColumns] = useState([])
-
-		const [filterText, setFilterText] = useState('')
-
-		useEffect(() => {
-			if (data && data.length > 0 && typeof data[0] === 'object') {
-				const keys = Object.keys(data[0]).filter(
-					(key) => key.toLowerCase() !== 'key'
-				)
-				setAllColumns(keys)
-				setVisibleColumns(keys)
-			} else {
-				setAllColumns([])
-				setVisibleColumns([])
-			}
-		}, [data])
-
-		const handleColumnToggle = (columnKey) => {
-			setVisibleColumns((prev) =>
-				prev.includes(columnKey)
-					? prev.filter((key) => key !== columnKey)
-					: [...prev, columnKey]
-			)
-		}
-
-		const tableColumns = useMemo(() => {
-			if (!data || data.length === 0) return []
-
-			const specialColumns = [
-				'class',
-				'prediction',
-				'confidence',
-				'probability',
-			]
-
-			const scrollableCols = allColumns
-				.filter(
-					(key) =>
-						visibleColumns.includes(key) &&
-						!specialColumns.includes(key.toLowerCase())
-				)
-				.map((key) => ({
-					title:
-						key.charAt(0).toUpperCase() +
-						key.slice(1).replace(/_/g, ' '),
-					dataIndex: key,
-					key: key,
-					width: 180,
-				}))
-
-			const fixedCols = allColumns
-				.filter(
-					(key) =>
-						visibleColumns.includes(key) &&
-						specialColumns.includes(key.toLowerCase())
-				)
-				.map((key) => ({
-					title: key.charAt(0).toUpperCase() + key.slice(1),
-					dataIndex: key,
-					key: key,
-					fixed: 'right',
-					width: 150, // Set chiều rộng cố định
-					render: (text) => {
-						if (
-							key.toLowerCase() === 'class' ||
-							key.toLowerCase() === 'prediction'
-						) {
-							const color = String(text)
-								.toLowerCase()
-								.includes('positive')
-								? 'green'
-								: 'volcano'
-							return (
-								<Tag color={color}>
-									{String(text).toUpperCase()}
-								</Tag>
-							)
-						}
-						if (
-							key.toLowerCase() === 'confidence' ||
-							key.toLowerCase() === 'probability'
-						) {
-							const num = parseFloat(text)
-							return !isNaN(num)
-								? `${(num * 100).toFixed(2)}%`
-								: text
-						}
-						return text
-					},
-				}))
-
-			return [...scrollableCols, ...fixedCols]
-		}, [allColumns, visibleColumns, data])
-
-		// Lọc danh sách cột để hiển thị trong Drawer dựa trên filterText
-		const filteredDrawerColumns = allColumns.filter((col) =>
-			col.toLowerCase().includes(filterText.toLowerCase())
-		)
-
-		return (
-			<>
-				<Modal
-					title="Prediction Results"
-					open={isOpen}
-					onCancel={onClose}
-					width="90%"
-					style={{ top: 20 }} // Đẩy modal lên cao hơn một chút
-					footer={[
-						<Button
-							key="settings"
-							icon={<SettingOutlined />}
-							onClick={() => setIsDrawerOpen(true)}
-						>
-							Columns Settings
-						</Button>,
-						<Button key="close" type="primary" onClick={onClose}>
-							Close
-						</Button>,
-					]}
-				>
-					{isLoading ? (
-						<div style={{ textAlign: 'center', padding: '50px' }}>
-							<Spin size="large" />
-						</div>
-					) : data && data.length > 0 ? (
-						<Table
-							columns={tableColumns}
-							dataSource={data}
-							rowKey={(record, index) => record.key ?? index}
-							scroll={{
-								x: 'max-content',
-								y: 'calc(100vh - 200px)',
-							}} // Thêm cuộn dọc
-							pagination={{ pageSize: 15 }}
-						/>
-					) : (
-						<Empty description="No data available" />
-					)}
-				</Modal>
-
-				<Drawer
-					title="Column Settings"
-					placement="right"
-					onClose={() => setIsDrawerOpen(false)}
-					open={isDrawerOpen}
-				>
-					<Input.Search
-						placeholder="Search column name"
-						onChange={(e) => setFilterText(e.target.value)}
-						style={{ marginBottom: 16 }}
-					/>
-					<Space direction="vertical" style={{ width: '100%' }}>
-						{filteredDrawerColumns.map((columnKey) => (
-							<div
-								key={columnKey}
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									width: '100%',
-									padding: '8px',
-									borderRadius: '4px',
-									background: '#f5f5f5',
-								}}
-							>
-								<span style={{ fontWeight: 500 }}>
-									{columnKey}
-								</span>
-								<Switch
-									checked={visibleColumns.includes(columnKey)}
-									onChange={() =>
-										handleColumnToggle(columnKey)
-									}
-								/>
-							</div>
-						))}
-					</Space>
-				</Drawer>
-			</>
-		)
-	}
-	const ImageHistoryViewer = ({ data }) => {
-		const [currentIndex, setCurrentIndex] = useState(0);
-
-		// data bây giờ là mảng: [{ key, class, confidence, imageUrl }, ...]
-		if (!data || data.length === 0) {
-			return <Empty description="Không có dữ liệu dự đoán." />;
-		}
-
-		const currentPrediction = data[currentIndex] || {};
-
-		return (
-			<div style={{ padding: '24px' }}>
-				{/* Khu vực điều hướng */}
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-					<Button icon={<LeftOutlined />} onClick={() => setCurrentIndex(p => p - 1)} disabled={currentIndex === 0}>
-						Previous
-					</Button>
-					<Title level={4}>Image {currentIndex + 1} of {data.length}</Title>
-					<Button onClick={() => setCurrentIndex(p => p + 1)} disabled={currentIndex === data.length - 1}>
-						Next <RightOutlined />
-					</Button>
-				</div>
-
-				{/* Khu vực hiển thị chính */}
-				<Row gutter={[24, 24]}>
-					<Col xs={24} md={14}>
-						<Title level={5}>Original Image</Title>
-						{/* Sử dụng trực tiếp imageUrl từ data */}
-						<img
-							src={currentPrediction.imageUrl}
-							alt={`Prediction for item ${currentPrediction.key}`}
-							style={{ width: '100%', borderRadius: '8px', border: '1px solid #f0f0f0' }}
-						/>
-					</Col>
-					{/* ... (Phần hiển thị kết quả không thay đổi) ... */}
-				</Row>
-
-				{/* Khu vực ảnh thu nhỏ (Thumbnail) */}
-				<div style={{ marginTop: '24px' }}>
-					<Title level={5}>Image Gallery</Title>
-					<div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '10px 0' }}>
-						{data.map((pred, index) => (
-							<div key={index} onClick={() => setCurrentIndex(index)} style={{ cursor: 'pointer' }}>
-								{/* Sử dụng trực tiếp imageUrl từ data */}
-								<img
-									src={pred.imageUrl}
-									alt={`Thumbnail for item ${pred.key}`}
-									style={{
-										width: '80px',
-										height: '80px',
-										objectFit: 'cover',
-										borderRadius: '8px',
-										border: currentIndex === index ? '3px solid #1890ff' : '3px solid transparent',
-									}}
-								/>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		);
-	};
 
 	return (
 		<>
@@ -1683,13 +1442,6 @@ const ProjectInfo = () => {
 					</div>
 				</div>
 			</div>
-
-			<SimpleDataModal
-				isOpen={isModalVisible}
-				onClose={handleCloseModal}
-				data={selectedPredictionContent}
-				isLoading={isJsonLoading}
-			/>
 			<UpDataDeploy
 				isOpen={isShowUpload}
 				onClose={hideUpload}
@@ -1701,6 +1453,39 @@ const ProjectInfo = () => {
 				onUploadStart={handleUploadStartBackground}
 				onUploadComplete={handleUploadFiles}
 			/>
+
+			<Modal
+                title="Recent Prediction Details"
+                open={isModalVisible}
+                onCancel={handleCloseModal}
+                width="90%"
+                style={{ top: 20 }}
+                footer={[
+                    // << 3. Cập nhật footer
+                    !projectInfo.task_type.includes('IMAGE') && (
+                        <Button
+                            key="settings"
+                            icon={<SettingOutlined />}
+                            onClick={() => simpleDataModalRef.current?.openDrawer()}
+                        >
+                            Columns Settings
+                        </Button>
+                    ),
+                    <Button key="close" type="primary" onClick={handleCloseModal}>
+                        Close
+                    </Button>,
+                ]}
+            >
+                {isJsonLoading ? (
+                    <div style={{ textAlign: 'center', padding: '50px' }}>
+                        <Spin size="large" />
+                    </div>
+                ) : projectInfo.task_type.includes('IMAGE') ? (
+                    <ImageHistoryViewer data={selectedPredictionContent} />
+                ) : (
+                    <TextHistoryViewer data={selectedPredictionContent} ref={simpleDataModalRef} />
+                )}
+            </Modal>
 		</>
 	)
 }
