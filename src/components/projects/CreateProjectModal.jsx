@@ -333,37 +333,38 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
             addPending({ dataset: createdDataset, labelProjectValues })
 
             try {
-                const datasetSucess = await WaitForPollingSuccess(
-                    createdDataset.id
-                )
-                console.log('Dataset processing completed:', datasetSucess)
-                const getedDatasetRes = await datasetAPI.getDataset(
-                    createdDataset.id
-                )
-                const getedDataset = getedDatasetRes.data
-                console.log('Geted dataset: ', getedDataset)
-                const ls_project_id = getedDataset.ls_project.label_studio_id
-                const dataset_id = getedDataset.id
-                const meta_data = getedDataset.ls_project.meta_data
-                const is_binary_class = meta_data.is_binary_class
-                const startResponse = await startExport(ls_project_id)
-                const { task_id } = startResponse.data
-                console.log('Export started, task ID:', startResponse)
+                // const datasetSucess = await WaitForPollingSuccess(
+                //     createdDataset.id
+                // )
+                // console.log('Dataset processing completed:', datasetSucess)
+                // const getedDatasetRes = await datasetAPI.getDataset(
+                //     createdDataset.id
+                // )
+                // const getedDataset = getedDatasetRes.data
+                // console.log('Geted dataset: ', getedDataset)
+                // const ls_project_id = getedDataset.ls_project.label_studio_id
+                // const dataset_id = getedDataset.id
+                // const meta_data = getedDataset.ls_project.meta_data
+                // const is_binary_class = meta_data.is_binary_class
+                // const startResponse = await startExport(ls_project_id)
+                // const { task_id } = startResponse.data
+                // console.log('Export started, task ID:', startResponse)
 
-                const finalResult = await pollExportStatus(task_id)
-                console.log('Export completed successfully:', finalResult)
-                message.success('Data prepared successfully!')
+                // const finalResult = await pollExportStatus(task_id)
+                // console.log('Export completed successfully:', finalResult)
+                // message.success('Data prepared successfully!')
 
-                const presignUrl = await createDownZipPU(dataset_id)
+                // const presignUrl = await createDownZipPU(dataset_id)
                 const payload = {
                     cost: 0.5,
                     trainingTime: 86400,
                     presets: 'medium_quality',
-                    datasetUrl: presignUrl.data,
+                    // datasetUrl: presignUrl.data,
                     datasetLabelUrl: 'hello',
-                    problemType: is_binary_class ? 'BINARY' : 'MULTICLASS',
+                    // problemType: is_binary_class ? 'BINARY' : 'MULTICLASS',
                     framework: 'autogluon',
-                    datasetMetadata: meta_data,
+                    // datasetMetadata: meta_data,
+                    datasetID: datasetID,
                 }
                 console.log('Train payload: ', payload)
                 const trainingRequest = await trainCloudModel(
