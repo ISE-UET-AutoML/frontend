@@ -81,13 +81,6 @@ const UpDataDeploy = ({
 
 					const cols = Object.keys(data[0] || {})
 
-					if (cols.length === 1) {
-						resolve({
-							isValid: true,
-							message: 'Single-column CSV is valid.',
-						})
-						return
-					}
 
 					if (
 						cols.length !== featureColumns.length ||
