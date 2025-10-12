@@ -81,7 +81,6 @@ const UpDataDeploy = ({
 
 					const cols = Object.keys(data[0] || {})
 
-
 					if (
 						cols.length !== featureColumns.length ||
 						!featureColumns.every((c) => cols.includes(c))
@@ -206,7 +205,7 @@ const UpDataDeploy = ({
 			// Build presign request for predict endpoint: flatten keys and set version
 			const filesToUpload = imageFiles.map((f) => {
 				let baseName = f.name
-				
+
 				const type =
 					f.type ||
 					(baseName.toLowerCase().endsWith('.png') ||
