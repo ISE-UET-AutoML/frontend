@@ -42,9 +42,13 @@ import {
 	ThunderboltOutlined,
 	LeftOutlined,
 	RightOutlined,
+	DownloadOutlined,
 } from '@ant-design/icons'
+
 import ImageHistoryViewer from 'src/components/RecentPredictView/ImageHistoryViewer'
 import TextHistoryViewer from 'src/components/RecentPredictView/TextHistoryViewer'
+import MultilabelHistoryViewer from 'src/components/RecentPredictView/MultilabelHistoryViewer'
+
 import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import UpDataDeploy from './upDataDeploy'
 import instance from 'src/api/axios'
@@ -168,6 +172,7 @@ const ProjectInfo = () => {
 	const object = LiteConfig[projectInfo?.task_type]
 
 	const simpleDataModalRef = useRef(null)
+	const multilabelModalRef = useRef(null);
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -324,6 +329,14 @@ const ProjectInfo = () => {
 		setUploadedFiles(null)
 		message.success('All predictions cleared', 2)
 	}
+
+	const handleDownloadHistory = () => {
+        if (projectInfo.task_type.includes('MULTILABEL')) {
+            multilabelModalRef.current?.downloadCsv();
+        } else {
+            simpleDataModalRef.current?.downloadCsv();
+        }
+    };
 
 	const handleGenUI = async () => {
 		setIsGeneratingUI(true)
@@ -1410,6 +1423,104 @@ const ProjectInfo = () => {
 								/>
 							</div>
 						) : null}
+						{/* Recent Predictions */}
+						<div className="mt-8">
+							<Card
+								title={
+									<Space>
+										<ClockCircleOutlined />
+										<span style={{ color: 'var(--text)' }}>
+											Recent Predictions
+										</span>
+									</Space>
+								}
+								className="border-[var(--border)] border-white/10 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-xl shadow-2xl"
+								style={{
+									background: livePredictGradient,
+									borderRadius: '12px',
+								}}
+							>
+								{!isLoadingPredictions && !predictionError && (
+									<List
+										dataSource={recentPredictions}
+										renderItem={(prediction) => {
+											const filename =
+												prediction.file_name
+
+											const dateObject = new Date(
+												prediction.created_at
+											)
+
+											const timeAgo = formatDistanceToNow(
+												dateObject,
+												{
+													addSuffix: true,
+												}
+											)
+
+											const exactTime = format(
+												dateObject,
+												'HH:mm:ss, dd/MM/yyyy'
+											)
+
+											return (
+												<List.Item
+													style={{
+														borderBottom:
+															'1px solid var(--border)',
+													}}
+													actions={[
+														<Button
+															type="primary"
+															onClick={() =>
+																handleViewPrediction(
+																	prediction
+																)
+															}
+														>
+															View
+														</Button>,
+													]}
+												>
+													<List.Item.Meta
+														avatar={
+															<CheckCircleOutlined
+																style={{
+																	color: '#52c41a',
+																}}
+															/>
+														}
+														title={
+															<span
+																style={{
+																	color: 'var(--text)',
+																}}
+															>
+																{`File: ${filename}`}
+															</span>
+														}
+														description={
+															<Tooltip
+																title={`Exact time: ${exactTime}`}
+															>
+																<span
+																	style={{
+																		color: 'var(--secondary-text)',
+																		cursor: 'help',
+																	}}
+																>
+																	{`Predicted ${timeAgo}`}
+																</span>
+															</Tooltip>
+														}
+													/>
+												</List.Item>
+											)
+										}}
+									/>
+								)}
+							</Card>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -1432,7 +1543,6 @@ const ProjectInfo = () => {
 				width="90%"
 				style={{ top: 20 }}
 				footer={[
-					// << 3. Cập nhật footer
 					!projectInfo.task_type.includes('IMAGE') && (
 						<Button
 							key="settings"
@@ -1442,6 +1552,16 @@ const ProjectInfo = () => {
 							}
 						>
 							Columns Settings
+						</Button>
+					),
+					!projectInfo.task_type.includes('IMAGE') && (
+						<Button
+							key="download"
+							icon={<DownloadOutlined />}
+							onClick={handleDownloadHistory}
+							disabled={!selectedPredictionContent}
+						>
+							Download as CSV
 						</Button>
 					),
 					<Button
@@ -1454,17 +1574,18 @@ const ProjectInfo = () => {
 				]}
 			>
 				{isJsonLoading ? (
-					<div style={{ textAlign: 'center', padding: '50px' }}>
-						<Spin size="large" />
-					</div>
-				) : projectInfo.task_type.includes('IMAGE') ? (
-					<ImageHistoryViewer data={selectedPredictionContent} />
-				) : (
-					<TextHistoryViewer
-						data={selectedPredictionContent}
-						ref={simpleDataModalRef}
-					/>
-				)}
+                    <div style={{ textAlign: 'center', padding: '50px' }}> <Spin size="large" /> </div>
+                ) : (
+                    (() => {
+                        if (projectInfo.task_type.includes('IMAGE')) {
+                            return <ImageHistoryViewer data={selectedPredictionContent} />;
+                        }
+                        if (projectInfo.task_type.includes('MULTILABEL')) {
+                            return <MultilabelHistoryViewer data={selectedPredictionContent} ref={multilabelModalRef} />;
+                        }
+                        return <TextHistoryViewer data={selectedPredictionContent} ref={simpleDataModalRef} />;
+                    })()
+                )}
 			</Modal>
 		</>
 	)
