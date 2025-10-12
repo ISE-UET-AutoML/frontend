@@ -464,7 +464,7 @@ const ProjectInfo = () => {
 				projectDescription: projectDescription,
 				taskType: taskType,
 				description: '',
-				apiUrl: modelDeploy.api_base_url,
+				apiUrl: currentModelDeploy.api_base_url,
 				samples: [],
 				modelInfo: model,
 			}
