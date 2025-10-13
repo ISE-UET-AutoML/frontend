@@ -127,8 +127,9 @@ export const useProjects = () => {
                     (exp) => exp.status === 'TRAINING'
                 ).length
                 const setting_experiments = experiments.filter(
-                    (exp) => exp.status === 'SETTING_UP' 
+                    (exp) => exp.status === 'PREPARING_DATA' 
                     || exp.status === 'CREATING_INSTANCE' 
+					|| exp.status === 'SETTING_UP' 
                     || exp.status === 'DOWNLOADING_DEPENDENCIES' 
                     || exp.status === 'DOWNLOADING_DATA' 
                 ).length
