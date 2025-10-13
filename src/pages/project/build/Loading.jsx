@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import {
-	artificialIntelligence,
-	Aipoweredmarketingtoolsabstract,
-	LiveChatbot,
-	SandyLoading,
-	ChatGif1,
-	LiquidLoading,
-} from 'src/assets/gif'
 import { Button } from 'antd'
 import { PATHS } from 'src/constants/paths'
 import { HomeOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
+
 export default function Loading({ currentStep }) {
 	const navigate = useNavigate()
 	const iframes = [
@@ -24,27 +17,38 @@ export default function Loading({ currentStep }) {
 	const [index, setIndex] = useState(0)
 
 	useEffect(() => {
+		if (currentStep === -1) return
 		const interval = setInterval(() => {
 			setIndex((prev) => (prev + 1) % iframes.length)
 		}, 10000)
 
 		return () => clearInterval(interval)
-	}, [iframes.length])
+	}, [iframes.length, currentStep])
+
+	const isFailed = currentStep === -1
+
 	return (
 		<div
 			className="flex flex-col items-center justify-center py-8 gap-6 overflow-hidden"
 			style={{ marginTop: '-20px' }}
 		>
-			<div className="relative w-full max-w-2xl h-[350px] overflow-hidden">
-				{iframes.map((src, i) => (
+			<div className="relative w-full max-w-2xl h-[350px] overflow-hidden flex items-center justify-center">
+				{isFailed ? (
 					<iframe
-						key={i}
-						src={src}
-						className={`absolute top-0 left-0 w-full h-full border-0 transition-opacity duration-1000 ${
-							i === index ? 'opacity-100' : 'opacity-0'
-						}`}
+						src="https://lottie.host/embed/3f5c8f0e-2b1e-4a7b-9f3e-1e2d1f6f6e5c/1gkXKXWv7M.lottie"
+						className='absolute top-0 left-0 w-full h-full border-0 transition-opacity duration-1000'
 					></iframe>
-				))}
+				) : (
+					iframes.map((src, i) => (
+						<iframe
+							key={i}
+							src={src}
+							className={`absolute top-0 left-0 w-full h-full border-0 transition-opacity duration-1000 ${
+								i === index ? 'opacity-100' : 'opacity-0'
+							}`}
+						></iframe>
+					))
+				)}
 			</div>
 
 			<p
@@ -57,26 +61,33 @@ export default function Loading({ currentStep }) {
 					lineHeight: '1.6',
 				}}
 			>
-				It may take a while, you can exit and come back later.
+				{isFailed
+					? "It's failed, you can try again with another project."
+					: 'It may take a while, you can exit and come back later.'}
 			</p>
+
 			<Button
 				type="primary"
 				icon={<HomeOutlined style={{ fontSize: '18px' }} />}
 				size="large"
 				className="mt-2 transition-all duration-300 hover:scale-105"
 				style={{
-					background: 'linear-gradient(135deg, #3b82f6, #22d3ee)',
+					background: isFailed
+						? 'linear-gradient(135deg, #f43f5e, #ef4444)'
+						: 'linear-gradient(135deg, #3b82f6, #22d3ee)',
 					border: 'none',
 					borderRadius: '12px',
 					padding: '14px 40px',
 					height: 'auto',
 					fontSize: '17px',
 					fontWeight: '600',
-					boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)',
+					boxShadow: isFailed
+						? '0 8px 24px rgba(244, 63, 94, 0.3)'
+						: '0 8px 24px rgba(59, 130, 246, 0.3)',
 				}}
 				onClick={() => navigate(PATHS.PROJECTS)}
 			>
-				Back to Home
+				{isFailed ? 'Try Again' : 'Back to Home'}
 			</Button>
 		</div>
 	)

@@ -10,6 +10,7 @@ import {
 	DashboardOutlined,
 	CheckCircleTwoTone,
 	LoadingOutlined,
+	ClusterOutlined,
 } from '@ant-design/icons'
 import { useSpring, animated } from '@react-spring/web'
 import { PATHS } from 'src/constants/paths'
@@ -38,16 +39,19 @@ const Training = () => {
 
 	const getCurrentStep = (status) => {
 		switch (status) {
-			case 'SELECTING_INSTANCE':
+			case 'PREPARING_DATA':
 				return 0
+			case 'CREATING_INSTANCE':
 			case 'SETTING_UP':
+			case 'DOWNLOADING_DEPENDENCIES':
 				return 1
 			case 'DOWNLOADING_DATA':
-				return 2
 			case 'TRAINING':
-				return 3
+				return 2
 			case 'DONE':
-				return 4
+				return 3
+			case 'FAILED':
+				return -1
 			default:
 				return 0
 		}
@@ -58,7 +62,7 @@ const Training = () => {
 
 		const fetchExperiment = async () => {
 			if (!experimentId || experimentId === 'loading') {
-				setStatus('SELECTING_INSTANCE')
+				setStatus('PREPARING_DATA')
 				setCurrentStep(0)
 				setLoading(false)
 				return
@@ -97,19 +101,14 @@ const Training = () => {
 
 	const stepItems = [
 		{
-			key: 'creating',
-			title: 'Creating Instance',
-			icon: <DatabaseOutlined style={{ fontSize: 28, color: textColor }}  />,
+			key: 'preparing',
+			title: 'Preparing Data',
+			icon: <DatabaseOutlined style={{ fontSize: 28, color: textColor }} />,
 		},
 		{
 			key: 'setup',
-			title: 'Setup Env',
+			title: 'Setting Up',
 			icon: <SettingOutlined style={{ fontSize: 28, color: textColor }} />,
-		},
-		{
-			key: 'data',
-			title: 'Downloading Data',
-			icon: <CloudDownloadOutlined style={{ fontSize: 28, color: textColor }} />,
 		},
 		{
 			key: 'training',
@@ -161,6 +160,13 @@ const Training = () => {
 			)
 		}
 
+		const descriptions = [
+			'Preparing dataset...',
+			'Setting up environment...',
+			'Training model...',
+			'Completed!',
+		]
+
 		return {
 			title: (
 				<div className="flex items-center">
@@ -173,15 +179,7 @@ const Training = () => {
 			icon: iconEl,
 			description: (
 				<span style={{ color: textColor }}>
-					{index === currentStep
-						? {
-								0: 'Setting up...',
-								1: 'Installing packages...',
-								2: 'Fetching dataset...',
-								3: 'Model training in progress...',
-								4: 'Completed!',
-							}[index]
-						: ''}
+					{index === currentStep ? descriptions[index] : ''}
 				</span>
 			),
 		}
