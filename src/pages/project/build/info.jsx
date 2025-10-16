@@ -43,6 +43,7 @@ import {
 	LeftOutlined,
 	RightOutlined,
 	DownloadOutlined,
+	ExportOutlined,
 } from '@ant-design/icons'
 
 import ImageHistoryViewer from 'src/components/RecentPredictView/ImageHistoryViewer'
@@ -159,6 +160,8 @@ const ProjectInfo = () => {
 	const [isWaitingForDeployment, setIsWaitingForDeployment] = useState(false)
 	const [isGeneratingUI, setIsGeneratingUI] = useState(false)
 	const [isDeploymentChecked, setIsDeploymentChecked] = useState(false)
+	const [isUIGenerated, setIsUIGenerated] = useState(false)
+	const [isCheckingUIStatus, setIsCheckingUIStatus] = useState(true)
 	const fileInputRef = useRef(null)
 
 	const [recentPredictions, setRecentPredictions] = useState([])
@@ -172,7 +175,7 @@ const ProjectInfo = () => {
 	const object = LiteConfig[projectInfo?.task_type]
 
 	const simpleDataModalRef = useRef(null)
-	const multilabelModalRef = useRef(null);
+	const multilabelModalRef = useRef(null)
 
 	const hideUpload = () => {
 		setIsShowUpload(false)
@@ -331,18 +334,33 @@ const ProjectInfo = () => {
 	}
 
 	const handleDownloadHistory = () => {
-        if (projectInfo.task_type.includes('MULTILABEL')) {
-            multilabelModalRef.current?.downloadCsv();
-        } else {
-            simpleDataModalRef.current?.downloadCsv();
-        }
-    };
+		if (projectInfo.task_type.includes('MULTILABEL')) {
+			multilabelModalRef.current?.downloadCsv()
+		} else {
+			simpleDataModalRef.current?.downloadCsv()
+		}
+	}
 
 	const handleGenUI = async () => {
+		if (isUIGenerated) {
+			const url = PATHS.PROJECT_DEMO(projectInfo.id)
+			window.open(url, '_blank', 'noopener,noreferrer')
+			return
+		}
+
 		setIsGeneratingUI(true)
 
+		const generatingData = {
+			isGenerating: true,
+			startedAt: Date.now(),
+		}
+		localStorage.setItem(
+			`ui_generating_${projectInfo.id}`,
+			JSON.stringify(generatingData)
+		)
+
 		try {
-			// Check if model is deployed and online
+			// Step 1: Check if model is deployed and online
 			let currentModelDeploy = modelDeploy
 			if (
 				!currentModelDeploy?.api_base_url ||
@@ -482,7 +500,24 @@ const ProjectInfo = () => {
 				modelInfo: model,
 			}
 
+			// Step 3: Save metadata to backend
 			await visualizeAPI.saveMetadata(projectInfo.id, metadata)
+
+			// Step 4: Save to localStorage with 1-hour expiration
+			const uiGeneratedData = {
+				isGenerated: true,
+				timestamp: Date.now(),
+				expiresAt: Date.now() + 60 * 60 * 1000,
+			}
+			localStorage.setItem(
+				`ui_generated_${projectInfo.id}`,
+				JSON.stringify(uiGeneratedData)
+			)
+			// Clear the generating state
+			localStorage.removeItem(`ui_generating_${projectInfo.id}`)
+
+			// Mark UI as generated in state
+			setIsUIGenerated(true)
 
 			const url = PATHS.PROJECT_DEMO(projectInfo.id)
 			console.log('Opening generated UI at:', url)
@@ -496,6 +531,8 @@ const ProjectInfo = () => {
 				key: 'genui',
 				duration: 3,
 			})
+			// Clear generating state on error
+			localStorage.removeItem(`ui_generating_${projectInfo.id}`)
 		} finally {
 			setIsGeneratingUI(false)
 		}
@@ -633,14 +670,70 @@ const ProjectInfo = () => {
 		const fetchModelDeploy = async () => {
 			try {
 				const deployRes =
-					await deployServiceAPI.getRunningDeployedModel(model.id) // only get actual running deploy
+					await deployServiceAPI.getRunningDeployedModel(model.id)
 				const deploys = deployRes.data
 				const deploy = deploys[0]
 				setModelDeploy(deploy)
 				setIsDeploymentChecked(true)
 				console.log('Model deploy details:', deploy)
 
-				// keep polling if not ONLINE or not null
+				// If deployment is ONLINE and we're currently generating UI
+				if (deploy && deploy.status === 'ONLINE' && isGeneratingUI) {
+					try {
+						// Prepare metadata
+						const projectName = projectInfo?.name
+						const projectDescription = projectInfo?.description
+						const taskType =
+							TASK_TYPES[projectInfo?.task_type]?.type ||
+							projectInfo?.task_type
+						const metadata = {
+							projectName: projectName,
+							projectDescription: projectDescription,
+							taskType: taskType,
+							description: '',
+							apiUrl: deploy.api_base_url,
+							samples: [],
+							modelInfo: model,
+						}
+
+						// Save metadata to backend
+						await visualizeAPI.saveMetadata(
+							projectInfo.id,
+							metadata
+						)
+
+						// Save to localStorage with 1-hour expiration
+						const uiGeneratedData = {
+							isGenerated: true,
+							timestamp: Date.now(),
+							expiresAt: Date.now() + 60 * 60 * 1000,
+						}
+						localStorage.setItem(
+							`ui_generated_${projectInfo?.id}`,
+							JSON.stringify(uiGeneratedData)
+						)
+						// Clear the generating state
+						localStorage.removeItem(
+							`ui_generating_${projectInfo?.id}`
+						)
+
+						// Mark UI as generated
+						setIsUIGenerated(true)
+						setIsGeneratingUI(false)
+
+						// Open the generated UI
+						const url = PATHS.PROJECT_DEMO(projectInfo.id)
+						window.open(url, '_blank', 'noopener,noreferrer')
+					} catch (error) {
+						console.error(
+							'❌ Error saving metadata after deployment:',
+							error
+						)
+						setIsGeneratingUI(false)
+					}
+				}
+
+				// Keep polling if not ONLINE
 				if (deploy && deploy.status !== 'ONLINE') {
 					timeoutId = setTimeout(fetchModelDeploy, 30000)
 				}
@@ -653,7 +746,15 @@ const ProjectInfo = () => {
 		fetchModelDeploy()
 
 		return () => clearTimeout(timeoutId)
-	}, [model, pollFlag])
+	}, [
+		model,
+		pollFlag,
+		isGeneratingUI,
+		projectInfo?.id,
+		projectInfo?.name,
+		projectInfo?.description,
+		projectInfo?.task_type,
+	])
 
 	// 3) Lấy metrics
 	useEffect(() => {
@@ -718,6 +819,80 @@ const ProjectInfo = () => {
 		}
 		fetchConfig()
 	}, [experimentId])
+
+	// Check localStorage on page visit to see if UI is already generated
+	useEffect(() => {
+		if (!projectInfo?.id) return
+
+		const checkUIGenerationStatus = () => {
+			setIsCheckingUIStatus(true)
+
+			try {
+				// Step 1: Check if UI is currently being generated
+				const generatingKey = `ui_generating_${projectInfo.id}`
+				const generatingData = localStorage.getItem(generatingKey)
+
+				if (generatingData) {
+					try {
+						const genData = JSON.parse(generatingData)
+						const elapsedMinutes = Math.floor(
+							(Date.now() - genData.startedAt) / (60 * 1000)
+						)
+
+						// Set generating state - deployment polling will handle completion
+						setIsGeneratingUI(true)
+						setIsUIGenerated(false)
+						setIsCheckingUIStatus(false)
+						return
+					} catch (e) {
+						// Corrupted data, remove it
+						localStorage.removeItem(generatingKey)
+					}
+				}
+
+				// Step 2: Check if UI is already generated (completed)
+				const generatedKey = `ui_generated_${projectInfo.id}`
+				const generatedData = localStorage.getItem(generatedKey)
+
+				if (!generatedData) {
+					// Not found in localStorage -> UI not generated
+					setIsUIGenerated(false)
+					setIsGeneratingUI(false)
+					setIsCheckingUIStatus(false)
+					return
+				}
+
+				// Parse the stored data
+				const uiData = JSON.parse(generatedData)
+				const currentTime = Date.now()
+
+				// Check if the data has expired (more than 1 hour)
+				if (currentTime > uiData.expiresAt) {
+					// Expired -> remove from localStorage and set as not generated
+					localStorage.removeItem(generatedKey)
+					setIsUIGenerated(false)
+					setIsGeneratingUI(false)
+				} else {
+					// Still valid -> UI is generated
+					const remainingMinutes = Math.floor(
+						(uiData.expiresAt - currentTime) / (60 * 1000)
+					)
+					setIsUIGenerated(true)
+					setIsGeneratingUI(false)
+				}
+			} catch (error) {
+				// Error parsing or data is corrupted -> treat as not generated
+				localStorage.removeItem(`ui_generated_${projectInfo.id}`)
+				localStorage.removeItem(`ui_generating_${projectInfo.id}`)
+				setIsUIGenerated(false)
+				setIsGeneratingUI(false)
+			} finally {
+				setIsCheckingUIStatus(false)
+			}
+		}
+
+		checkUIGenerationStatus()
+	}, [projectInfo?.id])
 
 	// Fetch recent predictions history
 	useEffect(() => {
@@ -1136,12 +1311,16 @@ const ProjectInfo = () => {
 							{/* Gen UI Button */}
 							<Card
 								className={`border border-gray-300 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ease-in-out hover:opacity-90 relative group overflow-hidden rounded-xl font-poppins bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200 ${
-									!isDeploymentChecked || isGeneratingUI
+									!isDeploymentChecked ||
+									isGeneratingUI ||
+									isCheckingUIStatus
 										? 'cursor-not-allowed'
 										: 'cursor-pointer'
 								}`}
 								onClick={
-									!isDeploymentChecked || isGeneratingUI
+									!isDeploymentChecked ||
+									isGeneratingUI ||
+									isCheckingUIStatus
 										? undefined
 										: handleGenUI
 								}
@@ -1152,10 +1331,47 @@ const ProjectInfo = () => {
 								<div className="relative flex flex-row items-center justify-center gap-3 py-4">
 									<div className="relative">
 										<div className="absolute inset-0 bg-violet-500/30 blur-xl rounded-full"></div>
-										<SparklesIcon className="relative w-8 h-8 text-violet-500" />
+										{isUIGenerated ? (
+											<ExportOutlined
+												className="relative w-8 h-8 text-green-600"
+												style={{ fontSize: '1.8rem' }}
+											/>
+										) : (
+											<SparklesIcon className="relative w-8 h-8 text-violet-500" />
+										)}
 									</div>
 
-									{isGeneratingUI ? (
+									{isCheckingUIStatus ? (
+										<span className="text-violet-500 font-bold text-xl tracking-wide">
+											Checking
+											<span className="generate-dots">
+												<span
+													className="dot"
+													style={{
+														animationDelay: '0ms',
+													}}
+												>
+													.
+												</span>
+												<span
+													className="dot"
+													style={{
+														animationDelay: '200ms',
+													}}
+												>
+													.
+												</span>
+												<span
+													className="dot"
+													style={{
+														animationDelay: '400ms',
+													}}
+												>
+													.
+												</span>
+											</span>
+										</span>
+									) : isGeneratingUI ? (
 										<span className="text-violet-500 font-bold text-xl tracking-wide">
 											Generating
 											<span className="generate-dots">
@@ -1184,6 +1400,10 @@ const ProjectInfo = () => {
 													.
 												</span>
 											</span>
+										</span>
+									) : isUIGenerated ? (
+										<span className="text-green-600 font-bold text-xl tracking-wide">
+											Your App is Ready
 										</span>
 									) : (
 										<span className="text-violet-500 font-bold text-xl tracking-wide">
@@ -1574,18 +1794,35 @@ const ProjectInfo = () => {
 				]}
 			>
 				{isJsonLoading ? (
-                    <div style={{ textAlign: 'center', padding: '50px' }}> <Spin size="large" /> </div>
-                ) : (
-                    (() => {
-                        if (projectInfo.task_type.includes('IMAGE')) {
-                            return <ImageHistoryViewer data={selectedPredictionContent} />;
-                        }
-                        if (projectInfo.task_type.includes('MULTILABEL')) {
-                            return <MultilabelHistoryViewer data={selectedPredictionContent} ref={multilabelModalRef} />;
-                        }
-                        return <TextHistoryViewer data={selectedPredictionContent} ref={simpleDataModalRef} />;
-                    })()
-                )}
+					<div style={{ textAlign: 'center', padding: '50px' }}>
+						{' '}
+						<Spin size="large" />{' '}
+					</div>
+				) : (
+					(() => {
+						if (projectInfo.task_type.includes('IMAGE')) {
+							return (
+								<ImageHistoryViewer
+									data={selectedPredictionContent}
+								/>
+							)
+						}
+						if (projectInfo.task_type.includes('MULTILABEL')) {
+							return (
+								<MultilabelHistoryViewer
+									data={selectedPredictionContent}
+									ref={multilabelModalRef}
+								/>
+							)
+						}
+						return (
+							<TextHistoryViewer
+								data={selectedPredictionContent}
+								ref={simpleDataModalRef}
+							/>
+						)
+					})()
+				)}
 			</Modal>
 		</>
 	)
