@@ -8,6 +8,19 @@ const MultilabelHistoryViewer = forwardRef(({ data }, ref) => {
     const [visibleColumns, setVisibleColumns] = useState([]);
     const [filterText, setFilterText] = useState('');
 
+    const getConfidenceStyles = (confidence) => {
+        const num = parseFloat(confidence);
+        if (isNaN(num)) return { color: 'grey' };
+        
+        if (num > 0.7) {
+            return { color: 'green' };
+        }
+        if (num > 0.4) {
+            return { color: 'gold' };
+        }
+        return { color: 'red' };
+    };
+
     const getPredictedLabels = (prediction) => {
         if (!prediction || !prediction.class || !prediction.label) {
             return [];
@@ -97,6 +110,10 @@ const MultilabelHistoryViewer = forwardRef(({ data }, ref) => {
                 key: key,
                 width: 180,
                 render: (text) => {
+                    if (key.toLowerCase() === 'confidence' || key.toLowerCase() === 'probability') {
+                        const num = parseFloat(text);
+                        return !isNaN(num) ? `${(num * 100).toFixed(2)}%` : text;
+                    }
                     const isTruncated = isTextTruncated(text);
                     
                     return (
@@ -115,14 +132,15 @@ const MultilabelHistoryViewer = forwardRef(({ data }, ref) => {
             fixed: 'right',
             width: 200,
             render: (record) => { // 'record' là toàn bộ object của một dòng
+                const { color } = getConfidenceStyles(record.confidence);
                 const predictedLabels = getPredictedLabels(record);
                 if (predictedLabels.length === 0) {
-                    return <Tag>No prediction</Tag>;
+                    return <Tag color={color}>No prediction</Tag>;
                 }
                 return (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                         {predictedLabels.map((label, idx) => (
-                            <Tag key={idx} color="purple">
+                            <Tag key={idx} color={color}>
                                 {label}
                             </Tag>
                         ))}

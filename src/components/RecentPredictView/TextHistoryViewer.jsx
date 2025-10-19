@@ -28,6 +28,18 @@ const TextHistoryViewer = forwardRef(({ data }, ref) => {
             setVisibleColumns([]);
         }
     }, [data]);
+    const getConfidenceStyles = (confidence) => {
+        const num = parseFloat(confidence);
+        if (isNaN(num)) return { color: 'grey' }; 
+        
+        if (num > 0.7) {
+            return { color: 'green' }; 
+        }
+        if (num > 0.4) {
+            return { color: 'gold' }; 
+        }
+        return { color: 'red' }; 
+    };
 
     const handleColumnToggle = (columnKey) => {
         setVisibleColumns((prev) =>
@@ -92,10 +104,15 @@ const TextHistoryViewer = forwardRef(({ data }, ref) => {
                 key: key,
                 fixed: 'right',
                 width: 150,
-                render: (text) => {
+                render: (text, record) => {
                     if (key.toLowerCase() === 'class' || key.toLowerCase() === 'prediction') {
-                        const color = String(text).toLowerCase().includes('positive') ? 'green' : 'volcano';
-                        return <Tag color={color}>{String(text).toUpperCase()}</Tag>;
+                        const confidence = record.confidence;
+                        const {color} = getConfidenceStyles(confidence);
+                        return (
+                            <Tag color={color}>
+                                {String(text).toUpperCase()}
+                            </Tag>
+                        );
                     }
                     if (key.toLowerCase() === 'confidence' || key.toLowerCase() === 'probability') {
                         const num = parseFloat(text);
