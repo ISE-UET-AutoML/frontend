@@ -16,6 +16,8 @@ import {
 	Typography,
 	Image,
 	Spin,
+	Card,
+	Statistic,
 } from 'antd'
 import {
 	FolderOutlined,
@@ -26,11 +28,15 @@ import {
 	CheckCircleOutlined,
 	CloseCircleOutlined,
 	ReloadOutlined,
-} from '@ant-design/icons'
+} from '@ant-design/icons';
+
+import { Column } from '@ant-design/plots';
+
 import { TASK_TYPES, DATASET_TYPES } from 'src/constants/types'
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
+import { DISTINCT_COLORS_100 } from 'src/utils/colorsForChart'
 
 const { Option } = Select
 const { TextArea } = Input
@@ -72,6 +78,10 @@ export default function CreateDatasetForm({
 	const [isMultilabelFormatValid, setIsMultilabelFormatValid] = useState(null)
 	const [isValidating, setIsValidating] = useState(false)
 	const [csvContainsNaN, setCsvContainsNaN] = useState(null)
+
+	// States for data profiling
+	const [isProcessingFile, setIsProcessingFile] = useState(false);
+    const [profilingResult, setProfilingResult] = useState(null);
 
 	const fileInputRef = useRef(null)
 
@@ -268,179 +278,160 @@ export default function CreateDatasetForm({
 		setIsRegressionTargetValid(null)
 		setIsMultilabelFormatValid(null)
 		setCsvContainsNaN(null)
+		setProfilingResult(null);
 		setImagePreviews((prev) => {
 			prev.forEach((p) => URL.revokeObjectURL(p.url))
 			return []
 		})
 		message.info('Form has been reset.')
 	}
-	const handleFileChange = async (event) => {
-		setImageStructureValid(null)
-		setCsvPreview(null)
-		setCsvHasHeader(null)
-		setIsRegressionTargetValid(null)
-		setIsMultilabelFormatValid(null)
-		setImagePreviews((prev) => {
-			prev.forEach((p) => URL.revokeObjectURL(p.url))
-			return []
-		})
 
-		const uploadedFiles = Array.from(event.target.files || [])
+    const handleFileChange = async (event) => {
+        // Reset states
+        setImageStructureValid(null);
+        setCsvPreview(null);
+        setCsvHasHeader(null);
+        setIsRegressionTargetValid(null);
+        setIsMultilabelFormatValid(null);
+        setProfilingResult(null);
+        setImagePreviews((prev) => {
+            prev.forEach((p) => URL.revokeObjectURL(p.url));
+            return [];
+        });
 
-		if (!datasetType) {
-			message.error(
-				'Please select a dataset type before uploading files.'
-			)
-			return
-		}
+        const uploadedFiles = Array.from(event.target.files || []);
+        if (!datasetType) {
+            message.error('Please select a dataset type before uploading files.');
+            return;
+        }
 
-		const validatedFiles = validateFiles(uploadedFiles, datasetType)
+        const validatedFiles = validateFiles(uploadedFiles, datasetType);
+        if (validatedFiles.length !== uploadedFiles.length) {
+            message.warning('Some files were ignored due to incompatible types.');
+        }
+        let valid = true;
 
-		if (validatedFiles.length !== uploadedFiles.length) {
-			message.warning(
-				'Some files were ignored due to incompatible types.'
-			)
-		}
-		let valid = true
+        if (datasetType === 'IMAGE') {
+            setIsProcessingFile(true);
+            const isValidStructure = validateImageFolderStructure(validatedFiles);
+            setImageStructureValid(isValidStructure);
+            if (!isValidStructure) {
+                message.error('The folder structure is incorrect. Please ensure all images are inside labeled subdirectories.', 5);
+                valid = false;
+            }
+            
+            const imageFiles = validatedFiles.filter((f) => f.type.startsWith('image/')).map((f) => ({ path: f.webkitRelativePath, fileObject: f }));
+            const groupedByLabel = organizeFiles(imageFiles);
 
-		if (datasetType === 'IMAGE') {
-			const isValidStructure =
-				validateImageFolderStructure(validatedFiles)
-			setImageStructureValid(isValidStructure)
-			if (!isValidStructure) {
-				message.error(
-					'The folder structure is incorrect. Please ensure all images are inside labeled subdirectories.',
-					5
-				)
-				valid = false
-			}
-			const imageFiles = validatedFiles
-				.filter((f) => f.type.startsWith('image/'))
-				.map((f) => ({ path: f.webkitRelativePath, fileObject: f }))
-			const groupedByLabel = organizeFiles(imageFiles)
-			const previews = []
-			for (const [label, filesInLabel] of groupedByLabel.entries()) {
-				if (filesInLabel.length > 0) {
-					previews.push({
-						url: URL.createObjectURL(filesInLabel[0].fileObject),
-						label: label,
-					})
-				}
-			}
-			setImagePreviews(previews.slice(0, 8))
-		}
+            // Logic profiling cho ảnh
+            let totalSamples = 0;
+            const labelDistribution = [];
+            for (const [label, filesInLabel] of groupedByLabel.entries()) {
+                const count = filesInLabel.length;
+                totalSamples += count;
+                labelDistribution.push({ label, count });
+            }
+            setProfilingResult({ totalSamples, totalLabels: groupedByLabel.size, labelDistribution });
+            
+            // Logic preview ảnh
+            const previews = [];
+            for (const [label, filesInLabel] of groupedByLabel.entries()) {
+                if (filesInLabel.length > 0) {
+                    previews.push({
+                        url: URL.createObjectURL(filesInLabel[0].fileObject),
+                        label: label,
+                    });
+                }
+            }
+            setImagePreviews(previews.slice(0, 8));
+            setIsProcessingFile(false);
+        }
 
-		const csvFile = validatedFiles.find((file) =>
-			(file.webkitRelativePath || file.name || '')
-				.toLowerCase()
-				.endsWith('.csv')
-		)
-		const excelFile = validatedFiles.find(
-			(file) =>
-				(file.name || '').toLowerCase().endsWith('.xlsx') ||
-				(file.name || '').toLowerCase().endsWith('.xls')
-		)
+        const csvFile = validatedFiles.find((file) => (file.webkitRelativePath || file.name || '').toLowerCase().endsWith('.csv'));
+        const excelFile = validatedFiles.find((file) => (file.name || '').toLowerCase().endsWith('.xlsx') || (file.name || '').toLowerCase().endsWith('.xls'));
+        let effectiveCsvFile = csvFile;
 
-		let effectiveCsvFile = csvFile
+        if (excelFile) {
+            try {
+                const data = await excelFile.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const csvString = XLSX.utils.sheet_to_csv(sheet);
+                const csvBlob = new Blob([csvString], { type: 'text/csv' });
+                effectiveCsvFile = new File([csvBlob], excelFile.name.replace(/\.(xlsx|xls)$/i, '.csv'), { type: 'text/csv' });
+            } catch (err) {
+                message.error('Failed to convert Excel file to CSV.');
+                valid = false;
+            }
+        }
 
-		if (excelFile) {
-			try {
-				const data = await excelFile.arrayBuffer()
-				const workbook = XLSX.read(data, { type: 'array' })
-				const sheetName = workbook.SheetNames[0]
-				const sheet = workbook.Sheets[sheetName]
+        if ((datasetType === 'TEXT' || datasetType === 'TABULAR' || datasetType === 'MULTIMODAL') && effectiveCsvFile) {
+            setIsProcessingFile(true);
+            Papa.parse(effectiveCsvFile, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    const { data, meta } = results;
+                    if (data.length > 0 && meta.fields && meta.fields.length > 0) {
+                        setCsvHasHeader(true);
+                        setCsvPreview(data.slice(0, 3));
+                        const targetColumn = meta.fields[meta.fields.length - 1];
 
-				// Convert sheet to CSV
-				const csvString = XLSX.utils.sheet_to_csv(sheet)
+                        if (taskType === 'TABULAR_REGRESSION') {
+                            setIsRegressionTargetValid(data.every(row => !isNaN(parseFloat(row[targetColumn]))));
+                        }
+                        if (taskType.includes('MULTILABEL')) {
+                            setIsMultilabelFormatValid(true);
+                        }
 
-				// Create a Blob and wrap in File so Papa.parse có thể xử lý
-				const csvBlob = new Blob([csvString], { type: 'text/csv' })
-				effectiveCsvFile = new File(
-					[csvBlob],
-					excelFile.name.replace(/\.(xlsx|xls)$/i, '.csv'),
-					{ type: 'text/csv' }
-				)
+                        const counts = {};
+                        data.forEach(row => {
+                            const label = row[targetColumn];
+                            if (label) {
+                                const labels = String(label).split(';').map(l => l.trim());
+                                labels.forEach(l => {
+                                    if(l) counts[l] = (counts[l] || 0) + 1;
+                                });
+                            }
+                        });
+                        const labelDistribution = Object.entries(counts).map(([label, count]) => ({ label, count }));
+                        setProfilingResult({ totalSamples: data.length, totalLabels: Object.keys(counts).length, labelDistribution });
+                    } else {
+                        setCsvHasHeader(false);
+                    }
+                    setIsProcessingFile(false);
+                },
+                error: (err) => {
+                    message.error('Could not parse the CSV file.');
+                    setIsProcessingFile(false);
+                }
+            });
+        }
 
-				//message.success(`Converted Excel file "${excelFile.name}" to CSV for validation.`);
-			} catch (err) {
-				console.error('Excel to CSV conversion failed:', err)
-				message.error('Failed to convert Excel file to CSV.')
-				valid = false
-			}
-		}
-		if (
-			(datasetType === 'TEXT' ||
-				datasetType === 'TABULAR' ||
-				datasetType === 'MULTIMODAL') &&
-			effectiveCsvFile
-		) {
-			previewCsv(effectiveCsvFile, taskType) // Corrected: Pass the File object directly
-			setIsValidating(true)
-			const isFullyValid = await validateFullCsv(
-				effectiveCsvFile,
-				taskType
-			)
-			if (taskType === 'TABULAR_REGRESSION') {
-				setIsRegressionTargetValid(isFullyValid)
-			}
-			if (taskType.includes('MULTILABEL')) {
-				setIsMultilabelFormatValid(true)
-			}
-			setIsValidating(false)
-		}
+        const fileMetadata = validatedFiles.map((file) => ({ path: file.webkitRelativePath || file.name, fileObject: file }));
+        const fileMap = organizeFiles(fileMetadata);
+        const labels = Array.from(fileMap.keys()).filter((label) => label !== 'unlabeled');
+        setDetectedLabels(labels);
 
-		const hasImageFolder = validatedFiles.some(
-			(file) =>
-				file.webkitRelativePath &&
-				file.webkitRelativePath.includes('/images/')
-		)
-		const hasCSVFile = !!csvFile
+        if (effectiveCsvFile) {
+            try {
+                const metadata = await extractCSVMetaData(effectiveCsvFile);
+                setCsvMetadata(metadata);
+            } catch (err) {
+                message.error('Failed to analyze CSV file');
+                valid = false;
+            }
+        }
 
-		if (datasetType === 'MULTIMODAL' && (!hasImageFolder || !hasCSVFile)) {
-			message.error(
-				'For MULTIMODAL datasets, upload a folder with an "images" subfolder and a CSV file.'
-			)
-			valid = false
-			return
-		}
-
-		const totalSize = validatedFiles.reduce(
-			(sum, file) => sum + (file.size || 0),
-			0
-		)
-		const totalSizeInKB =
-			totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00'
-
-		const fileMetadata = validatedFiles.map((file) => ({
-			path: file.webkitRelativePath || file.name,
-			fileObject: file,
-		}))
-
-		const fileMap = organizeFiles(fileMetadata)
-		const labels = Array.from(fileMap.keys()).filter(
-			(label) => label !== 'unlabeled'
-		)
-		setDetectedLabels(labels)
-
-		if (effectiveCsvFile) {
-			try {
-				const metadata = await extractCSVMetaData(effectiveCsvFile)
-				setCsvMetadata(metadata)
-			} catch (err) {
-				message.error('Failed to analyze CSV file')
-				valid = false
-			}
-		}
-
-		setFiles(fileMetadata)
-		setTotalKbytes(totalSizeInKB)
-
-		if (fileMetadata.length > 0 && valid) {
-			setIsDataValid(true)
-		} else {
-			setIsDataValid(false)
-		}
-	}
+        setFiles(fileMetadata);
+        setTotalKbytes(calcSizeKB(validatedFiles));
+        if (fileMetadata.length > 0 && valid) {
+            setIsDataValid(true);
+        } else {
+            setIsDataValid(false);
+        }
+    };
 
 	const handleDeleteFile = (filePath) => {
 		const updatedFiles = files.filter((file) => file.path !== filePath)
@@ -859,407 +850,480 @@ export default function CreateDatasetForm({
 				style={{
 					display: 'flex',
 					flexDirection: 'column',
-					maxHeight: '70vh',
+					height: '75vh',
 				}}
 			>
-				<div
-					style={{
-						flex: 1,
-						overflowY: 'auto',
-						minHeight: 0,
-						paddingRight: 8,
-					}}
-				>
-					<Row gutter={16}>
-						<Col span={12}>
-							{disableFields.includes('title') ? (
-								<div style={{ marginBottom: '24px' }}>
-									<Text
-										style={{
-											display: 'block',
-											marginBottom: '8px',
-											color: 'var(--form-label-color)',
-											fontFamily: 'Poppins, sans-serif',
-											fontWeight: 600,
-											fontSize: '14px',
-										}}
-									>
-										Project Name
-									</Text>
-									<div
-										style={{
-											padding: '8px 12px',
-											background: 'var(--upload-bg)',
-											borderRadius: '8px',
-											border: '1px solid var(--border-color)',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-											fontSize: '14px',
-											minHeight: '40px',
-											display: 'flex',
-											alignItems: 'center',
-										}}
-									>
-										{initialValues?.title || '-'}
-									</div>
-								</div>
-							) : (
-								<Form.Item
-									label="Title"
-									name="title"
-									validateTrigger={['onChange', 'onBlur']}
-									rules={[
-										{
-											required: true,
-											message: 'Please enter a title',
-										},
-										{
-											pattern: /^[\p{L}0-9 _-]+$/u,
-											message:
-												'Only letters, numbers, spaces, _ and - are allowed.',
-										},
-									]}
-								>
-									<Input placeholder="Enter dataset title" />
-								</Form.Item>
-							)}
-						</Col>
-						<Col span={12}>
-							{disableFields.includes('type') ? (
-								<div style={{ marginBottom: '24px' }}>
-									<Text
-										style={{
-											display: 'block',
-											marginBottom: '8px',
-											color: 'var(--form-label-color)',
-											fontFamily: 'Poppins, sans-serif',
-											fontWeight: 600,
-											fontSize: '14px',
-										}}
-									>
-										Type
-									</Text>
-									<div
-										style={{
-											padding: '8px 12px',
-											background: 'var(--upload-bg)',
-											borderRadius: '8px',
-											border: '1px solid var(--border-color)',
-											color: 'var(--text)',
-											fontFamily: 'Poppins, sans-serif',
-											fontSize: '14px',
-											minHeight: '40px',
-											display: 'flex',
-											alignItems: 'center',
-										}}
-									>
-										{initialValues?.dataset_type
-											? DATASET_TYPES[
-													initialValues.dataset_type
-												]?.type
-											: '-'}
-									</div>
-								</div>
-							) : (
-								<Form.Item
-									label="Type"
-									name="dataset_type"
-									rules={[
-										{
-											required: true,
-											message: 'Please select a type',
-										},
-									]}
-								>
-									<Select
-										placeholder="Select dataset type"
-										onChange={(value) => {
-											setDatasetType(value)
-										}}
-									>
-										{Object.entries(DATASET_TYPES).map(
-											([key, value]) => (
-												<Option key={key} value={key}>
-													{value.type}
-												</Option>
-											)
-										)}
-									</Select>
-								</Form.Item>
-							)}
-						</Col>
-					</Row>
-
-					{renderPreparingInstructions()}
-
-					{!hideFields.includes('service') &&
-						!hideFields.includes('bucket_name') && (
-							<Row gutter={16}>
-								<Col span={7}>
-									<Form.Item label="Storage Provider">
-										<Radio.Group
-											value={service}
-											onChange={(e) =>
-												setService(e.target.value)
-											}
-										>
-											<Radio value="AWS_S3">AWS S3</Radio>
-											<Radio value="GCP_STORAGE">
-												Google Cloud Storage
-											</Radio>
-										</Radio.Group>
-									</Form.Item>
-								</Col>
-								<Col span={17}>
-									<Form.Item label="Bucket Name">
-										<Select
-											value={bucketName}
-											onChange={(value) =>
-												setBucketName(value)
-											}
-										>
-											<Option value="user-private-dataset">
-												user-private-dataset
-											</Option>
-											<Option value="bucket-2">
-												bucket-2
-											</Option>
-										</Select>
-									</Form.Item>
-								</Col>
-							</Row>
-						)}
-
-					<Tabs defaultActiveKey="file" items={tabItems} />
-					{/* Validation and Preview Section */}
-					{isValidating && (
-						<div className="text-center my-4">
-							<Spin tip="Validating full file..." />
-						</div>
-					)}
-
-					{/* Validation and Preview Section */}
-					{imageStructureValid !== null && (
-						<Alert
-							message={
-								<span className="font-semibold">
-									Image Folder Structure Check
-								</span>
-							}
-							description={
-								imageStructureValid
-									? 'The folder structure appears to be correct for image classification.'
-									: "Incorrect structure. Images should be organized in subfolders named after their labels (e.g., 'cats/cat1.jpg')."
-							}
-							type={imageStructureValid ? 'success' : 'error'}
-							showIcon
-							icon={
-								imageStructureValid ? (
-									<CheckCircleOutlined />
-								) : (
-									<CloseCircleOutlined />
-								)
-							}
-							className="mt-4"
-						/>
-					)}
-
-					{csvHasHeader !== null && (
-						<Alert
-							message={
-								<span className="font-semibold">
-									Header Check
-								</span>
-							}
-							description={
-								csvHasHeader
-									? 'The file appears to have a valid header row.'
-									: 'A header row could not be detected. Please ensure the first row of your file contains column names.'
-							}
-							type={csvHasHeader ? 'success' : 'warning'}
-							showIcon
-							icon={
-								csvHasHeader ? (
-									<CheckCircleOutlined />
-								) : (
-									<InfoCircleOutlined />
-								)
-							}
-							className="mt-4"
-						/>
-					)}
-					{isRegressionTargetValid !== null && (
-						<Alert
-							message="Tabular Regression - Target Column Check"
-							description={
-								isRegressionTargetValid
-									? 'Target column values appear to be valid numbers.'
-									: 'Warning: Some values in the target column are not numbers (float).'
-							}
-							type={isRegressionTargetValid ? 'success' : 'error'}
-							showIcon
-							className="mt-4"
-						/>
-					)}
-					{isMultilabelFormatValid !== null && (
-						<Alert
-							message="Multi-label - Label Column Check"
-							description={
-								isMultilabelFormatValid
-									? 'Labels appear to be correctly formatted.'
-									: "Warning: Labels should be separated by '; '."
-							}
-							type={
-								isMultilabelFormatValid ? 'success' : 'warning'
-							}
-							showIcon
-							className="mt-4"
-						/>
-					)}
-					{csvPreview && (
-						<div className="mt-4">
-							<Text strong style={{ color: 'var(--text)' }}>
-								File Preview (First 3 rows):
-							</Text>
-							<div
-								style={{
-									overflowX: 'auto',
-									border: '1px solid #f0f0f0',
-									borderRadius: '8px',
-									marginTop: '8px',
-								}}
-							>
-								<Table
-									dataSource={csvPreview}
-									columns={getCsvPreviewColumns()}
-									pagination={false}
-									size="small"
-									bordered
-									scroll={{ x: 'max-content' }}
-								/>
-							</div>
-						</div>
-					)}
-					{imagePreviews.length > 0 && (
+				{/* Sử dụng Row để tạo layout 2 cột */}
+				<Row gutter={24} style={{ flex: 1, overflow: 'hidden' }}>
+					
+					{/* ===== CỘT TRÁI: FORM NHẬP LIỆU ===== */}
+					<Col 
+						span={isProcessingFile || profilingResult ? 14 : 24} 
+						style={{ 
+							height: '100%', 
+							display: 'flex', 
+							flexDirection: 'column',
+							transition: 'all 0.3s ease'
+						}}
+					>
 						<div
-							className="mt-4"
 							style={{
-								background: 'var(--upload-bg)',
-								borderRadius: '8px',
-								padding: '16px',
-								border: '1px solid var(--border-color)',
+								flex: 1,
+								overflowY: 'auto',
+								minHeight: 0,
+								paddingRight: 12,
+								paddingBottom: '50px'
 							}}
 						>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									marginBottom: '12px',
-									gap: '8px',
-								}}
-							>
-								<FileOutlined
-									style={{
-										fontSize: '16px',
-										color: 'var(--primary-color)',
-									}}
-								/>
-								<Text
-									strong
-									style={{
-										fontSize: '15px',
-										color: 'var(--text)',
-									}}
-								>
-									Image Preview ({imagePreviews.length}{' '}
-									folders detected)
-								</Text>
-							</div>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns:
-										'repeat(auto-fill, minmax(140px, 1fr))',
-									gap: '16px',
-								}}
-							>
-								<Image.PreviewGroup>
-									{imagePreviews.map((preview, index) => (
-										<div
-											key={index}
-											style={{
-												textAlign: 'center',
-												background: 'var(--surface)',
-												borderRadius: '8px',
-												padding: '12px',
-												boxShadow:
-													'0 2px 8px rgba(0, 0, 0, 0.08)',
-												transition: 'all 0.3s ease',
-												cursor: 'pointer',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.transform =
-													'translateY(-4px)'
-												e.currentTarget.style.boxShadow =
-													'0 4px 16px rgba(0, 0, 0, 0.12)'
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.transform =
-													'translateY(0)'
-												e.currentTarget.style.boxShadow =
-													'0 2px 8px rgba(0, 0, 0, 0.08)'
-											}}
-										>
-											<Image
-												width={116}
-												height={116}
-												src={preview.url}
-												alt={`preview ${preview.label}`}
+							<Row gutter={16}>
+								<Col span={12}>
+									{disableFields.includes('title') ? (
+										<div style={{ marginBottom: '24px' }}>
+											<Text
 												style={{
-													objectFit: 'cover',
-													borderRadius: '6px',
-													border: '2px solid var(--border-color)',
+													display: 'block',
+													marginBottom: '8px',
+													color: 'var(--form-label-color)',
+													fontFamily: 'Poppins, sans-serif',
+													fontWeight: 600,
+													fontSize: '14px',
 												}}
-												preview={{
-													mask: (
-														<div
-															style={{
-																fontSize:
-																	'12px',
-															}}
-														>
-															Click to preview
-														</div>
-													),
-												}}
-											/>
+											>
+												Project Name
+											</Text>
 											<div
 												style={{
-													marginTop: '8px',
-													padding: '4px 8px',
-													background:
-														'var(--upload-bg)',
-													borderRadius: '4px',
-													fontSize: '13px',
-													fontWeight: '500',
+													padding: '8px 12px',
+													background: 'var(--upload-bg)',
+													borderRadius: '8px',
+													border: '1px solid var(--border-color)',
 													color: 'var(--text)',
-													overflow: 'hidden',
-													textOverflow: 'ellipsis',
-													whiteSpace: 'nowrap',
-													fontFamily:
-														'Poppins, sans-serif',
+													fontFamily: 'Poppins, sans-serif',
+													fontSize: '14px',
+													minHeight: '40px',
+													display: 'flex',
+													alignItems: 'center',
 												}}
-												title={preview.label}
 											>
-												{preview.label}
+												{initialValues?.title || '-'}
 											</div>
 										</div>
-									))}
-								</Image.PreviewGroup>
-							</div>
+									) : (
+										<Form.Item
+											label="Title"
+											name="title"
+											validateTrigger={['onChange', 'onBlur']}
+											rules={[
+												{
+													required: true,
+													message: 'Please enter a title',
+												},
+												{
+													pattern: /^[\p{L}0-9 _-]+$/u,
+													message:
+														'Only letters, numbers, spaces, _ and - are allowed.',
+												},
+											]}
+										>
+											<Input placeholder="Enter dataset title" />
+										</Form.Item>
+									)}
+								</Col>
+								<Col span={12}>
+									{disableFields.includes('type') ? (
+										<div style={{ marginBottom: '24px' }}>
+											<Text
+												style={{
+													display: 'block',
+													marginBottom: '8px',
+													color: 'var(--form-label-color)',
+													fontFamily: 'Poppins, sans-serif',
+													fontWeight: 600,
+													fontSize: '14px',
+												}}
+											>
+												Type
+											</Text>
+											<div
+												style={{
+													padding: '8px 12px',
+													background: 'var(--upload-bg)',
+													borderRadius: '8px',
+													border: '1px solid var(--border-color)',
+													color: 'var(--text)',
+													fontFamily: 'Poppins, sans-serif',
+													fontSize: '14px',
+													minHeight: '40px',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												{initialValues?.dataset_type
+													? DATASET_TYPES[
+															initialValues.dataset_type
+														]?.type
+													: '-'}
+											</div>
+										</div>
+									) : (
+										<Form.Item
+											label="Type"
+											name="dataset_type"
+											rules={[
+												{
+													required: true,
+													message: 'Please select a type',
+												},
+											]}
+										>
+											<Select
+												placeholder="Select dataset type"
+												onChange={(value) => {
+													setDatasetType(value)
+												}}
+											>
+												{Object.entries(DATASET_TYPES).map(
+													([key, value]) => (
+														<Option key={key} value={key}>
+															{value.type}
+														</Option>
+													)
+												)}
+											</Select>
+										</Form.Item>
+									)}
+								</Col>
+							</Row>
+
+							{renderPreparingInstructions()}
+
+							{!hideFields.includes('service') &&
+								!hideFields.includes('bucket_name') && (
+									<Row gutter={16}>
+										<Col span={7}>
+											<Form.Item label="Storage Provider">
+												<Radio.Group
+													value={service}
+													onChange={(e) =>
+														setService(e.target.value)
+													}
+												>
+													<Radio value="AWS_S3">AWS S3</Radio>
+													<Radio value="GCP_STORAGE">
+														Google Cloud Storage
+													</Radio>
+												</Radio.Group>
+											</Form.Item>
+										</Col>
+										<Col span={17}>
+											<Form.Item label="Bucket Name">
+												<Select
+													value={bucketName}
+													onChange={(value) =>
+														setBucketName(value)
+													}
+												>
+													<Option value="user-private-dataset">
+														user-private-dataset
+													</Option>
+													<Option value="bucket-2">
+														bucket-2
+													</Option>
+												</Select>
+											</Form.Item>
+										</Col>
+									</Row>
+								)}
+
+							<Tabs defaultActiveKey="file" items={tabItems} />
+
+							{/* Validation and Preview Section */}
+							{imageStructureValid !== null && (
+								<Alert
+									message={
+										<span className="font-semibold">
+											Image Folder Structure Check
+										</span>
+									}
+									description={
+										imageStructureValid
+											? 'The folder structure appears to be correct for image classification.'
+											: "Incorrect structure. Images should be organized in subfolders named after their labels (e.g., 'cats/cat1.jpg')."
+									}
+									type={imageStructureValid ? 'success' : 'error'}
+									showIcon
+									icon={
+										imageStructureValid ? (
+											<CheckCircleOutlined />
+										) : (
+											<CloseCircleOutlined />
+										)
+									}
+									className="mt-4"
+								/>
+							)}
+
+							{csvHasHeader !== null && (
+								<Alert
+									message={
+										<span className="font-semibold">
+											Header Check
+										</span>
+									}
+									description={
+										csvHasHeader
+											? 'The file appears to have a valid header row.'
+											: 'A header row could not be detected. Please ensure the first row of your file contains column names.'
+									}
+									type={csvHasHeader ? 'success' : 'warning'}
+									showIcon
+									icon={
+										csvHasHeader ? (
+											<CheckCircleOutlined />
+										) : (
+											<InfoCircleOutlined />
+										)
+									}
+									className="mt-4"
+								/>
+							)}
+							{isRegressionTargetValid !== null && (
+								<Alert
+									message="Tabular Regression - Target Column Check"
+									description={
+										isRegressionTargetValid
+											? 'Target column values appear to be valid numbers.'
+											: 'Warning: Some values in the target column are not numbers (float).'
+									}
+									type={isRegressionTargetValid ? 'success' : 'error'}
+									showIcon
+									className="mt-4"
+								/>
+							)}
+							{isMultilabelFormatValid !== null && (
+								<Alert
+									message="Multi-label - Label Column Check"
+									description={
+										isMultilabelFormatValid
+											? 'Labels appear to be correctly formatted.'
+											: "Warning: Labels should be separated by '; '."
+									}
+									type={
+										isMultilabelFormatValid ? 'success' : 'warning'
+									}
+									showIcon
+									className="mt-4"
+								/>
+							)}
+
+							{csvPreview && (
+								<div className="mt-4">
+									<Text strong style={{ color: 'var(--text)' }}>
+										File Preview (First 3 rows):
+									</Text>
+									<div
+										style={{
+											overflowX: 'auto',
+											border: '1px solid #f0f0f0',
+											borderRadius: '8px',
+											marginTop: '8px',
+										}}
+									>
+										<Table
+											dataSource={csvPreview}
+											columns={getCsvPreviewColumns()}
+											pagination={false}
+											size="small"
+											bordered
+											scroll={{ x: 'max-content' }}
+										/>
+									</div>
+								</div>
+							)}
+							
+
+							{imagePreviews.length > 0 && (
+								<div
+									className="mt-4"
+									style={{
+										background: 'var(--upload-bg)',
+										borderRadius: '8px',
+										padding: '16px',
+										border: '1px solid var(--border-color)',
+									}}
+								>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											marginBottom: '12px',
+											gap: '8px',
+										}}
+									>
+										<FileOutlined
+											style={{
+												fontSize: '16px',
+												color: 'var(--primary-color)',
+											}}
+										/>
+										<Text
+											strong
+											style={{
+												fontSize: '15px',
+												color: 'var(--text)',
+											}}
+										>
+											Image Preview ({imagePreviews.length}{' '}
+											folders detected)
+										</Text>
+									</div>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns:
+												'repeat(auto-fill, minmax(140px, 1fr))',
+											gap: '16px',
+										}}
+									>
+										<Image.PreviewGroup>
+											{imagePreviews.map((preview, index) => (
+												<div
+													key={index}
+													style={{
+														textAlign: 'center',
+														background: 'var(--surface)',
+														borderRadius: '8px',
+														padding: '12px',
+														boxShadow:
+															'0 2px 8px rgba(0, 0, 0, 0.08)',
+														transition: 'all 0.3s ease',
+														cursor: 'pointer',
+													}}
+													onMouseEnter={(e) => {
+														e.currentTarget.style.transform =
+															'translateY(-4px)'
+														e.currentTarget.style.boxShadow =
+															'0 4px 16px rgba(0, 0, 0, 0.12)'
+													}}
+													onMouseLeave={(e) => {
+														e.currentTarget.style.transform =
+															'translateY(0)'
+														e.currentTarget.style.boxShadow =
+															'0 2px 8px rgba(0, 0, 0, 0.08)'
+													}}
+												>
+													<Image
+														width={116}
+														height={116}
+														src={preview.url}
+														alt={`preview ${preview.label}`}
+														style={{
+															objectFit: 'cover',
+															borderRadius: '6px',
+															border: '2px solid var(--border-color)',
+														}}
+														preview={{
+															mask: (
+																<div
+																	style={{
+																		fontSize:
+																			'12px',
+																	}}
+																>
+																	Click to preview
+																</div>
+															),
+														}}
+													/>
+													<div
+														style={{
+															marginTop: '8px',
+															padding: '4px 8px',
+															background:
+																'var(--upload-bg)',
+															borderRadius: '4px',
+															fontSize: '13px',
+															fontWeight: '500',
+															color: 'var(--text)',
+															overflow: 'hidden',
+															textOverflow: 'ellipsis',
+															whiteSpace: 'nowrap',
+															fontFamily:
+																'Poppins, sans-serif',
+														}}
+														title={preview.label}
+													>
+														{preview.label}
+													</div>
+												</div>
+											))}
+										</Image.PreviewGroup>
+									</div>
+								</div>
+							)}
 						</div>
+					</Col>
+
+					{/* ===== CỘT PHẢI: DATA PROFILING ===== */}
+					{(isProcessingFile || profilingResult) && (
+						<Col 
+							span={10} 
+							style={{ 
+								height: '100%', 
+								overflowY: 'auto', 
+								borderLeft: '1px solid var(--divider-color)', 
+								paddingLeft: '24px',
+								paddingRight: '12px'
+							}}
+						>
+							{isProcessingFile ? (
+								<div style={{ 
+									display: 'flex', 
+									alignItems: 'center', 
+									justifyContent: 'center', 
+									height: '100%' 
+								}}>
+									<Spin tip="Profiling data..." size="large" />
+								</div>
+							) : (
+								<Card 
+									title="Data Profile" 
+									bordered={false}
+									style={{
+										boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+									}}
+								>
+									<Row gutter={16}>
+										<Col span={12}>
+											<Statistic 
+												title="Total Samples" 
+												value={profilingResult.totalSamples} 
+											/>
+										</Col>
+										<Col span={12}>
+											<Statistic 
+												title="Total Labels" 
+												value={profilingResult.totalLabels} 
+											/>
+										</Col>
+									</Row>
+									<div className="mt-6">
+										<Typography.Title level={5}>Label Distribution</Typography.Title>
+										<Column 
+											data={profilingResult.labelDistribution}
+											xField='label'
+											yField='count'
+											height={250}
+											xAxis={{ label: { autoRotate: true, autoHide: false } }}
+											meta={{ label: { alias: 'Label' }, count: { alias: 'Number of Samples' } }}
+											colorField='label'
+										/>
+									</div>
+								</Card>
+							)}
+						</Col>
 					)}
-				</div>
+				</Row>
 
 				{/* Footer buttons fixed at the bottom of modal body */}
 				<Form.Item
