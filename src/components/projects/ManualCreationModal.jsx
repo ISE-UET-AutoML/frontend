@@ -676,10 +676,6 @@ const ManualCreationModal = ({
 							>
 								{projType.map(
 									(type, idx) => (
-										console.log(
-											'isSelected array:',
-											isSelected
-										),
 										(
 											<Card
 												key={type}

@@ -33,6 +33,10 @@ import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { message } from 'antd'
 import { useTheme } from 'src/theme/ThemeProvider'
 import BuildPager from './BuildPager'
+import create_project from 'src/assets/images/create_project.png'
+import CreateDatasetModal from 'src/pages/datasets/CreateDatasetModal'
+import { usePollingStore } from 'src/store/pollingStore'
+
 // Simple SVG icons
 const CloudUploadIcon = ({ className, ...props }) => (
 	<svg
@@ -221,7 +225,21 @@ const UploadData = () => {
 	const [isModalVisible, setIsModalVisible] = useState(false)
 	const [isExporting, setIsExporting] = useState(false)
 	const [currentPage, setCurrentPage] = useState(1)
+	const [showCreateDatasetModal, setShowCreateDatasetModal] = useState(false)
 	const pageSize = 8
+
+	const handleCreateDataset = async (createdDataset, labelProjectValues) => {
+		try {
+			message.success('Dataset created successfully!')
+			setShowCreateDatasetModal(false)
+			usePollingStore
+				.getState()
+				.addPending({ dataset: createdDataset, labelProjectValues })
+			await fetchProjects()
+		} catch (error) {
+			console.error('Error handling created dataset:', error)
+		}
+	}
 
 	const pollExportStatus = (taskId) => {
 		return new Promise((resolve, reject) => {
@@ -319,6 +337,8 @@ const UploadData = () => {
 	const totalItems = filteredProjects.length
 	const startIndex = (currentPage - 1) * pageSize
 	const paginatedProjects = filteredProjects.slice(startIndex, startIndex + pageSize)
+
+	const hasProjects = (labelProjects || []).length > 0
 
 	const handleContinue = async () => {
 		const selectedProject = filteredProjects.find(
@@ -880,165 +900,207 @@ const UploadData = () => {
 													creation...
 												</span>
 											</div>
-										) : (
-											<div className="overflow-x-auto">
-												<Table>
-													<TableHeader>
-														<TableRow>
-															<TableHead
-																className="font-semibold text-left py-4"
-																style={{
-																	background:
-																		'var(--table-header-bg)',
-																	color: 'var(--table-header-color)',
-																	borderBottom:
-																		'1px solid var(--table-header-border)',
-																}}
-															>
-																Title
-															</TableHead>
-															<TableHead
-																className="font-semibold text-center py-4"
-																style={{
-																	background:
-																		'var(--table-header-bg)',
-																	color: 'var(--table-header-color)',
-																	borderBottom:
-																		'1px solid var(--table-header-border)',
-																}}
-															>
-																Service
-															</TableHead>
-															<TableHead
-																className="font-semibold text-center py-4"
-																style={{
-																	background:
-																		'var(--table-header-bg)',
-																	color: 'var(--table-header-color)',
-																	borderBottom:
-																		'1px solid var(--table-header-border)',
-																}}
-															>
-																Bucket
-															</TableHead>
-															<TableHead
-																className="font-semibold text-center py-4"
-																style={{
-																	background:
-																		'var(--table-header-bg)',
-																	color: 'var(--table-header-color)',
-																	borderBottom:
-																		'1px solid var(--table-header-border)',
-																}}
-															>
-																Labeled
-															</TableHead>
-														</TableRow>
-													</TableHeader>
-													<TableBody>
-														{filteredProjects.length ===
-														0 ? (
+										) : hasProjects ? (
+												<div className="overflow-x-auto">
+													<Table>
+														<TableHeader>
 															<TableRow>
-																<TableCell
-																	colSpan={4}
-																	className="text-center py-16"
+																<TableHead
+																	className="font-semibold text-left py-4"
+																	style={{
+																		background:
+																			'var(--table-header-bg)',
+																		color: 'var(--table-header-color)',
+																		borderBottom:
+																			'1px solid var(--table-header-border)',
+																	}}
 																>
-																	<div
-																		style={{
-																			color: 'var(--secondary-text)',
-																		}}
-																	>
-																		<CloudUploadIcon className="h-16 w-16 mx-auto mb-4 opacity-30" />
-																		<p className="text-lg">
-																			No
-																			label
-																			projects
-																			match
-																			your
-																			current
-																			filters
-																		</p>
-																	</div>
-																</TableCell>
+																	Title
+																</TableHead>
+																<TableHead
+																	className="font-semibold text-center py-4"
+																	style={{
+																		background:
+																			'var(--table-header-bg)',
+																		color: 'var(--table-header-color)',
+																		borderBottom:
+																			'1px solid var(--table-header-border)',
+																	}}
+																>
+																	Service
+																</TableHead>
+																<TableHead
+																	className="font-semibold text-center py-4"
+																	style={{
+																		background:
+																			'var(--table-header-bg)',
+																		color: 'var(--table-header-color)',
+																		borderBottom:
+																			'1px solid var(--table-header-border)',
+																	}}
+																>
+																	Bucket
+																</TableHead>
+																<TableHead
+																	className="font-semibold text-center py-4"
+																	style={{
+																		background:
+																			'var(--table-header-bg)',
+																		color: 'var(--table-header-color)',
+																		borderBottom:
+																			'1px solid var(--table-header-border)',
+																	}}
+																>
+																	Labeled
+																</TableHead>
 															</TableRow>
-														) : (
-															paginatedProjects.map(
-																(project) => (
-																	<TableRow
-																		key={
-																			project.project_id
-																		}
-																		className={`transition-all duration-200 ${project.isLabeled ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
-																		style={{
-																			background:
-																				selectedRowKeys ===
-																				project.project_id
-																					? 'var(--selection-bg)'
-																					: 'transparent',
-																		}}
-																		onClick={() => {
-																			if (
-																				project.isLabeled
-																			) {
-																				setSelectedRowKeys(
-																					project.project_id
-																				)
-																			}
-																		}}
+														</TableHeader>
+														<TableBody>
+															{filteredProjects.length ===
+															0 ? (
+																<TableRow>
+																	<TableCell
+																		colSpan={4}
+																		className="text-center py-16"
 																	>
-																		<TableCell
-																			className="font-medium py-4"
-																			style={{
-																				color: 'var(--text)',
-																			}}
-																		>
-																			{
-																				project.title
-																			}
-																		</TableCell>
-																		<TableCell className="text-center py-4">
-																			{renderServiceTag(
-																				project.service
-																			)}
-																		</TableCell>
-																		<TableCell
-																			className="text-center py-4"
+																		<div
 																			style={{
 																				color: 'var(--secondary-text)',
 																			}}
 																		>
-																			{
-																				project.bucketName
+																			<CloudUploadIcon className="h-16 w-16 mx-auto mb-4 opacity-30" />
+																			<p className="text-lg">
+																				No label projects match your current filters
+																			</p>
+																		</div>
+																	</TableCell>
+																</TableRow>
+															) : (
+																paginatedProjects.map(
+																	(project) => (
+																		<TableRow
+																			key={
+																				project.project_id
 																			}
-																		</TableCell>
-																		<TableCell className="text-center py-4">
-																			{project.isLabeled ? (
-																				renderLabeledTag(
+																			className={`transition-all duration-200 ${project.isLabeled ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+																			style={{
+																				background:
+																					selectedRowKeys ===
+																					project.project_id
+																						? 'var(--selection-bg)'
+																						: 'transparent',
+																			}}
+																			onClick={() => {
+																				if (
 																					project.isLabeled
-																				)
-																			) : (
-																				<Tooltip title="This project has no labeled data and cannot be selected">
-																					{renderLabeledTag(
+																				) {
+																					setSelectedRowKeys(
+																						project.project_id
+																					)
+																				}
+																			}}
+																		>
+																			<TableCell
+																				className="font-medium py-4"
+																				style={{
+																					color: 'var(--text)',
+																				}}
+																			>
+																				{
+																					project.title
+																				}
+																			</TableCell>
+																			<TableCell className="text-center py-4">
+																				{renderServiceTag(
+																					project.service
+																				)}
+																			</TableCell>
+																			<TableCell
+																				className="text-center py-4"
+																				style={{
+																					color: 'var(--secondary-text)',
+																				}}
+																			>
+																				{
+																					project.bucketName
+																				}
+																			</TableCell>
+																			<TableCell className="text-center py-4">
+																				{project.isLabeled ? (
+																					renderLabeledTag(
 																						project.isLabeled
-																					)}
-																				</Tooltip>
-																			)}
-																		</TableCell>
-																	</TableRow>
+																					)
+																				) : (
+																					<Tooltip title="This project has no labeled data and cannot be selected">
+																						{renderLabeledTag(
+																							project.isLabeled
+																						)}
+																					</Tooltip>
+																				)}
+																			</TableCell>
+																		</TableRow>
+																	)
 																)
-															)
-														)}
-													</TableBody>
-												</Table>
-											</div>
-										)}
+															)}
+														</TableBody>
+													</Table>
+												</div>
+											) : (
+												<div
+													style={{
+														display: 'flex',
+														flexDirection: 'column',
+														alignItems: 'center',
+														justifyContent: 'center',
+														padding: '48px 0',
+													}}
+												>
+													<img
+														src={create_project}
+														alt="Create project"
+														style={{
+															width: '300px',
+															maxWidth: '90%',
+															cursor: 'pointer',
+															filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.25))',
+														}}
+														onClick={() => setShowCreateDatasetModal(true)}
+													/>
+													<div
+														style={{
+															marginTop: 24,
+															textAlign: 'center',
+														}}
+													>
+														<div
+															className="font-poppins"
+															style={{
+																color: 'var(--text)',
+																fontSize: 24,
+																fontWeight: 600,
+															}}
+														>
+															No Label Projects Yet
+														</div>
+														<div
+															className="font-poppins"
+															style={{
+																color: 'var(--secondary-text)',
+																marginTop: 6,
+															}}
+														>
+															Start by creating your Label Projects
+														</div>
+													</div>
+												</div>
+											)}
 									</CardContent>
 								</Card>
 								<div className="mt-6">
 									<BuildPager currentPage={currentPage} totalItems={totalItems} pageSize={pageSize} onPageChange={setCurrentPage} />
 								</div>
 
-								{/* Create New Project Card */}
+								{/* Create New Project Card
 								<Card
 									className="rounded-2xl shadow-2xl transition-all duration-300 cursor-pointer group"
 									style={{
@@ -1070,7 +1132,7 @@ const UploadData = () => {
 											to create a new label project
 										</p>
 									</CardContent>
-								</Card>
+								</Card> */}
 							</div>
 						</div>
 
@@ -1194,6 +1256,11 @@ const UploadData = () => {
 						</div>
 					</div>
 				)}
+				<CreateDatasetModal
+					visible={showCreateDatasetModal}
+					onCancel={() => setShowCreateDatasetModal(false)}
+					onCreate={handleCreateDataset}
+				/>
 			</div>
 		</>
 	)
