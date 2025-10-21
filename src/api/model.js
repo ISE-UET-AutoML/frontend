@@ -1,6 +1,5 @@
 import { API_BASE_URL, API_URL } from "src/constants/api";
 import instance from "./axios";
-import axios from "axios"
 
 const URL = `${API_BASE_URL}/api/service/ml`
 const AGGREGATE_URL = `${API_BASE_URL}/api/ml`
@@ -21,8 +20,11 @@ const deployModel = (modelId) => {
     return instance.post(`${AGGREGATE_URL}/model/${modelId}/deploy`)
 }
 
-const modelPredict = (base_url, formData) => {
-    return axios.post(`${base_url}/predict`, formData)
+const modelPredict = (formData, modelId) => {
+    return instance.post(
+        `${AGGREGATE_URL}/model/${modelId}/predict`,
+        formData
+    )
 }
 
 export {

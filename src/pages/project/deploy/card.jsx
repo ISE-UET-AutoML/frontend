@@ -155,6 +155,14 @@ const getStatusConfig = (status) => {
                 icon: <SettingIcon className="h-6 w-6" />,
                 badge: 'Setting Up'
             }
+        case 'SELECTING_INSTANCE':
+            return {
+                color: 'text-orange-400',
+                bgColor: 'bg-orange-500/10',
+                borderColor: 'border-orange-500/20',
+                icon: <SettingIcon className="h-6 w-6" />,
+                badge: 'Selecting Instance'
+            }
         case 'DOWNLOADING_MODEL':
             return {
                 color: 'text-blue-400',
@@ -162,6 +170,14 @@ const getStatusConfig = (status) => {
                 borderColor: 'border-blue-500/20',
                 icon: <DeploymentUnitIcon className="h-6 w-6" />,
                 badge: 'Downloading'
+            }
+        case 'FAILED':
+            return {
+                color: 'text-red-400',
+                bgColor: 'bg-red-500/10',
+                borderColor: 'border-red-500/20',
+                icon: <DeploymentUnitIcon className="h-6 w-6" />,
+                badge: 'Failed'
             }
         default:
             return {
@@ -184,6 +200,10 @@ export default function DeployedModelCard({ deployedModel }) {
 
     // Handle card click
     const handleCardClick = () => {
+        if (status === 'FAILED') {
+            window.alert("Cannot use failed deployment!")
+            return;
+        }
         navigate(
             (status === 'ONLINE' || status === 'OFFLINE')
                 ? PATHS.MODEL_DEPLOY_VIEW(projectId, deploy_id)

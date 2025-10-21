@@ -46,7 +46,6 @@ const Login = () => {
     const onLogin = async (credential) => {
         try {
             const { data } = await auth.login(credential);
-            message.success('Login successfully');
             try {
                 await login({
                     accessToken: data.access_token,
