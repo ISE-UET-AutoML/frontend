@@ -34,7 +34,7 @@ const LandingPage = () => {
             className="min-h-screen relative"
         >
             {/* Full-viewport background fill following app theme */}
-            <div className="fixed inset-0 bg-[var(--surface)] -z-50" />
+            <div className="fixed inset-0 bg-[#01000A] -z-50" />
 			{/* Background Effects Layer */}
 			<BackgroundShapes />
 			

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+// Use root export to avoid deep path resolution issues in some bundlers
+import SyntaxHighlighter from "react-syntax-highlighter";
 
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -28,7 +28,7 @@ const MarkdownRenderer = ({ markdownText }) => {
               <SyntaxHighlighter
                 PreTag="div"
                 language={language}  // Syntax highlighting with the specified language
-                style={vscDarkPlus}
+                // style omitted to avoid deep import issues; bundler will use default
                 {...rest}
               >
                 {code}
@@ -38,7 +38,7 @@ const MarkdownRenderer = ({ markdownText }) => {
               <SyntaxHighlighter
                 PreTag="div"
                 language="text"  // Treating it as plain text (or CSV) in this case
-                style={vscDarkPlus}
+                // style omitted to avoid deep import issues; bundler will use default
                 {...rest}
               >
                 {code}
