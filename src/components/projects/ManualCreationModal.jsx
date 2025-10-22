@@ -19,7 +19,7 @@ import time_series_forecasting from 'src/assets/images/time_series_forecasting.j
 const { Title, Text } = Typography
 // const { TextArea } = Input
 
-// Only include the 8 non-technical task types
+
 const projType = [
 	'image_classification',
 	'text_classification',
@@ -28,7 +28,9 @@ const projType = [
 	'tabular_regression',
 	'multilabel_tabular_classification',
 	'multimodal_classification',
-	'multilabel_image_classification',
+	'object_detection',
+	'semantic_segmentation',
+	'time_series_forecasting',
 ]
 
 // const tagIcons = { ...unused icon map removed }
@@ -227,6 +229,39 @@ For example:
 		difficulty: 'Advanced',
 		timeToTrain: '25-45 minutes',
 	},
+	{
+		id: 'object_detection',
+		title: 'Object Detection',
+		subtitle: 'Identify and locate objects within images',
+		description: 'Ideal for surveillance, inventory management, and autonomous vehicles. Detect multiple objects and their positions in a single image.',
+		icon: '🎯',
+		explain: `📌 **This example shows how Object Detection works.**`,
+		image: object_detection,
+		difficulty: 'Advanced',
+		timeToTrain: '30-60 minutes',
+	},
+	{
+		id: 'semantic_segmentation',
+		title: 'Semantic Segmentation',
+		subtitle: 'Classify each pixel in an image into a category',
+		description: 'Perfect for medical imaging, autonomous driving, and image editing. Understand the context of each pixel for detailed analysis.',
+		icon: '🖼️',
+		explain: `📌 **This example shows how Semantic Segmentation works.**`,
+		image: semantic_segmentation,
+		difficulty: 'Advanced',
+		timeToTrain: '40-70 minutes',
+	},
+	{
+		id: 'time_series_forecasting',
+		title: 'Time Series Forecasting',
+		subtitle: 'Predict future values based on historical time-stamped data',
+		description: 'Essential for sales forecasting, stock price prediction, and resource planning. Analyze trends and seasonal patterns to make informed decisions.',
+		icon: '⏳',
+		explain: `📌 **This example shows how Time Series Forecasting works.**`,
+		image: time_series_forecasting,
+		difficulty: 'Advanced',
+		timeToTrain: '30-60 minutes',
+	}
 ]
 
 // const getImageByProjectType = (selectedProjectType) => projectTypeImages[selectedProjectType] || image_classification
@@ -816,8 +851,6 @@ const ManualCreationModal = ({
 				justify="end"
 				style={{
 					marginTop: 'auto',
-					paddingTop: 16,
-					borderTop: '1px solid var(--border)',
 					position: 'sticky',
 					bottom: 0,
 					background: 'transparent',
@@ -1100,7 +1133,6 @@ const ManualCreationModal = ({
 				onCancel={onCancel}
 				footer={null}
 				width="90vw"
-				style={{ maxWidth: '1000px' }}
 				destroyOnClose
 				centered
 				className="theme-manual-modal fixed-size-modal"
@@ -1112,7 +1144,7 @@ const ManualCreationModal = ({
 						border: '1px solid var(--modal-border)',
 						overflow: 'hidden',
 						backdropFilter: 'blur(20px)',
-						maxHeight: '85vh',
+						maxHeight: '90vh',
 					},
 					header: {
 						background: 'var(--modal-header-bg)',
@@ -1125,7 +1157,7 @@ const ManualCreationModal = ({
 						background: 'transparent',
 						padding: '20px',
 						borderRadius: '0 0 24px 24px',
-						maxHeight: 'calc(85vh - 100px)',
+						maxHeight: 'calc(90vh - 100px)',
 						overflowY: 'auto',
 					},
 				}}
