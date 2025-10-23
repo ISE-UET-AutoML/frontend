@@ -1,40 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import useAuth from 'src/hooks/useAuth';
-import { useLocation, Navigate } from 'react-router-dom';
-import Loading from 'src/components/Loading';
-import { PATHS } from 'src/constants/paths';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import useAuth from 'src/hooks/useAuth'
+import { useLocation, Navigate } from 'react-router-dom'
+import Loading from 'src/components/Loading'
+import { PATHS } from 'src/constants/paths'
+import { Outlet } from 'react-router-dom'
 
 export default function NonAuthed() {
-    const { authed, refresh } = useAuth();
-    const location = useLocation();
+	const { authed, refresh } = useAuth()
+	const location = useLocation()
 
-    const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const refreshAuth = async () => {
-            await refresh();
-            setLoading(false);
-        };
+	useEffect(() => {
+		const refreshAuth = async () => {
+			await refresh()
+			setLoading(false)
+		}
 
-        refreshAuth();
+		refreshAuth()
 
-        return () => {
-            setLoading(true);
-        };
-    }, []);
+		return () => {
+			setLoading(true)
+		}
+	}, [])
 
-    if (loading) {
-        return <Loading />;
-    }
+	if (loading) {
+		return <Loading />
+	}
 
-    if (authed) {
-        return <Navigate
-            to={PATHS.PROJECTS}
-            replace
-            state={{ path: location.pathname }}
-        />;
-    }
+	const isDemoRoute = location.pathname.startsWith('/demo')
 
-    return <Outlet className="outlet" />;
+	if (authed && !isDemoRoute) {
+		return (
+			<Navigate
+				to={PATHS.PROJECTS}
+				replace
+				state={{ path: location.pathname }}
+			/>
+		)
+	}
+
+	return <Outlet className="outlet" />
 }
