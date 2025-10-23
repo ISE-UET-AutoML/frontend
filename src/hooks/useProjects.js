@@ -34,7 +34,7 @@ export const useProjects = () => {
 	const [license, setLicense] = useState('MIT')
 	const [expectedAccuracy, setExpectedAccuracy] = useState(75)
 	const [jsonSumm, setJsonSumm] = useState('')
-	const [selectedSort, setSelectedSort] = useState('created_at')
+	const [selectedSort, setSelectedSort] = useState('latest')
 	const [searchValue, setSearchValue] = useState('')
 	const [isReset, setIsReset] = useState(false)
 
@@ -43,22 +43,36 @@ export const useProjects = () => {
 	const resetFilters = () => {
 		setSearchValue('')
 		setSelectedTrainingTask(null)
-		setSelectedSort('created_at')
+		setSelectedSort('latest')
 		setIsReset(true)
 	}
 
 	// Sort projects
-	const sortProjects = (projects, sortKey = selectedSort) => {
-		if (sortKey === 'name') {
-			return [...projects].sort((a, b) =>
-				(a.name || '').localeCompare(b.name || '')
-			)
-		} else if (sortKey === 'created_at') {
-			return [...projects].sort(
-				(a, b) => new Date(b.created_at) - new Date(a.created_at)
-			)
+	const sortProjects = (projects, sortKey) => {
+		switch (sortKey) {
+			case 'name_asc':
+				return [...projects].sort((a, b) =>
+					(a.name || '').localeCompare(b.name || '')
+				)
+
+			case 'name_desc':
+				return [...projects].sort((a, b) =>
+					(b.name || '').localeCompare(a.name || '')
+				)
+
+			case 'latest':
+				return [...projects].sort(
+					(a, b) => new Date(b.created_at) - new Date(a.created_at)
+				)
+
+			case 'oldest':
+				return [...projects].sort(
+					(a, b) => new Date(a.created_at) - new Date(b.created_at)
+				)
+
+			default:
+				return projects
 		}
-		return projects
 	}
 
 	// Apply filters + sort
@@ -165,36 +179,6 @@ export const useProjects = () => {
 
 		return allProjects
 	}
-
-	// const handleCreateProject = async (event) => {
-	//     event.preventDefault()
-
-	//     const formData = new FormData(event.target)
-	//     const data = Object.fromEntries(formData)
-	//     isSelected.forEach((el, idx) => {
-	//         if (el) data.task_type = projType[idx]
-	//     })
-
-	//     if (jsonSumm) {
-	//         const givenJson = JSON.parse(jsonSumm)
-	//         const metricsExplain = givenJson.metrics_explain
-	//         if (metricsExplain) data.metrics_explain = JSON.stringify(metricsExplain)
-	//     }
-
-	//     try {
-	//         const response = await instance.post(API_URL.all_projects, data, {
-	//             headers: {
-	//                 'Content-Type': 'application/json',
-	//             },
-	//         })
-
-	//         if (response.status === 200) {
-	//             navigate(PATHS.PROJECT_BUILD(response.data.id))
-	//         }
-	//     } catch (error) {
-	//         message.error('Project already existed')
-	//     }
-	// }
 
 	// KHÔNG cần event.preventDefault nữa
 	const handleCreateProject = async (values) => {
