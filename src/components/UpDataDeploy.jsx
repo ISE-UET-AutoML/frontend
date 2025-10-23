@@ -169,7 +169,7 @@ const UpDataDeploy = ({
             }
 
             // Tính version động theo deploy_data hiện có
-            const version = await getNextVersion(projectId)
+            const version = await getNextVersion(`${projectId}_predict/`)
 
             // Build presign request for predict endpoint: flatten keys and set version
             const filesToUpload = imageFiles.map((f) => {
