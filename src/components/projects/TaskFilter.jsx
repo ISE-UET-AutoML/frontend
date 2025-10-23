@@ -87,64 +87,96 @@ const TaskFilter = ({
 					border: '1px solid var(--filter-border)',
 				}}
 			>
-				<div>
-					<span
-						className="text-sm font-poppins font-medium block mb-2"
-						style={{ color: 'var(--secondary-text)' }}
-					>
-						Search:
-					</span>
-					<ProjectSearchBar onSearch={onSearch} isReset={isReset} />
-				</div>
-				<Row align="middle" gutter={[16, 16]}>
-					<Col xs={24} sm={8}>
-						<span
-							className="text-sm font-poppins font-medium block mb-2"
-							style={{ color: 'var(--secondary-text)' }}
-						>
-							Sort by:
-						</span>
-						<SortDropdown
-							selectedSort={selectedSort}
-							onSortChange={onSortChange}
+				<Row align="bottom" gutter={[12, 12]} wrap>
+					{/* Search */}
+					<Col xs={24} md={10} lg={12}>
+						<ProjectSearchBar
+							onSearch={onSearch}
+							isReset={isReset}
+							compact
+							searchValue={searchValue}
 						/>
 					</Col>
 					{/* Task Type Filter */}
-					<Col flex="auto">
-						<span
-							className="text-sm font-poppins font-medium block mb-2"
-							style={{ color: 'var(--secondary-text)' }}
-						>
-							Type:
-						</span>
-						<Select
-							key="task"
-							options={trainingTaskOptions}
-							value={selectedTrainingTask}
-							placeholder={
-								<span
-									className="font-poppins"
-									style={{ color: 'var(--secondary-text)' }}
-								>
-									Select task type
-								</span>
-							}
-							className="w-full theme-select"
-							onChange={onTaskChange}
-							allowClear
-							dropdownStyle={{
-								background: 'var(--filter-dropdown-bg)',
-								border: '1px solid var(--filter-dropdown-border)',
-								borderRadius: '12px',
-								backdropFilter: 'blur(10px)',
+					<Col xs={12} md={7} lg={7}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
 							}}
-							popupClassName="theme-select-dropdown"
-						/>
+						>
+							<span
+								className="text-sm font-poppins font-medium"
+								style={{
+									color: 'var(--title-project)',
+									whiteSpace: 'nowrap',
+									textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+								}}
+							>
+								Type:
+							</span>
+							<div style={{ flex: 1 }}>
+								<Select
+									key="task"
+									options={trainingTaskOptions}
+									value={selectedTrainingTask}
+									placeholder={
+										<span
+											className="font-poppins"
+											style={{
+												color: 'var(--secondary-text)',
+											}}
+										>
+											Select task type
+										</span>
+									}
+									className="w-full theme-select"
+									onChange={onTaskChange}
+									allowClear
+									dropdownStyle={{
+										background: 'var(--filter-dropdown-bg)',
+										border: '1px solid var(--filter-dropdown-border)',
+										borderRadius: '12px',
+										backdropFilter: 'blur(10px)',
+									}}
+									popupClassName="theme-select-dropdown"
+									style={{ height: 40 }}
+								/>
+							</div>
+						</div>
+					</Col>
+					{/* Sort */}
+					<Col xs={12} md={7} lg={5}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
+							}}
+						>
+							<span
+								className="text-sm font-poppins font-medium"
+								style={{
+									color: 'var(--title-project)',
+									whiteSpace: 'nowrap',
+									textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+								}}
+							>
+								Sort by:
+							</span>
+							<div style={{ flex: 1 }}>
+								<SortDropdown
+									selectedSort={selectedSort}
+									onSortChange={onSortChange}
+								/>
+							</div>
+						</div>
 					</Col>
 				</Row>
 				{(selectedTrainingTask ||
 					searchValue !== '' ||
-					selectedSort !== 'created_at') && (
+					selectedSort !== 'latest') && (
 					<div className="flex justify-end pt-2">
 						<button
 							onClick={onReset}

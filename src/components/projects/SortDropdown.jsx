@@ -53,42 +53,51 @@ const themeSelectStyles = `
 `
 
 const SORT_OPTIONS = [
-  { value: 'created_at', label: 'Latest' },
-  { value: 'name', label: 'Name' },
+	{ value: 'latest', label: 'Latest' },
+	{ value: 'oldest', label: 'Oldest' },
+	{ value: 'name_asc', label: 'Name (A-Z)' },
+	{ value: 'name_desc', label: 'Name (Z-A)' }
 ]
 
 export default function SortDropdown({ selectedSort, onSortChange }) {
-  return (
-    <>
-      <style>{themeSelectStyles}</style>
-      <Select
-        options={SORT_OPTIONS.map(opt => ({
-          ...opt,
-          label: (
-            <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
-              {opt.label}
-            </span>
-          )
-        }))}
-        value={selectedSort || 'created_at'}
-        placeholder={
-          <span className="font-poppins" style={{ color: 'var(--secondary-text)' }}>
-            Sort by
-          </span>
-        }
-        className="w-full theme-select"
-        onChange={onSortChange}
-        dropdownStyle={{
-          background: 'var(--filter-dropdown-bg)',
-          border: '1px solid var(--filter-dropdown-border)',
-          borderRadius: '12px',
-          backdropFilter: 'blur(10px)',
-        }}
-        style={{
-          minWidth: 140,
-        }}
-        popupClassName="theme-select-dropdown"
-      />
-    </>
-  )
+	return (
+		<>
+			<style>{themeSelectStyles}</style>
+			<Select
+				options={SORT_OPTIONS.map((opt) => ({
+					...opt,
+					label: (
+						<span
+							className="font-poppins font-medium"
+							style={{ color: 'var(--text)' }}
+						>
+							{opt.label}
+						</span>
+					),
+				}))}
+				value={selectedSort || 'latest'}
+				placeholder={
+					<span
+						className="font-poppins"
+						style={{ color: 'var(--secondary-text)' }}
+					>
+						Sort by
+					</span>
+				}
+				className="w-full theme-select"
+				onChange={onSortChange}
+				dropdownStyle={{
+					background: 'var(--filter-dropdown-bg)',
+					border: '1px solid var(--filter-dropdown-border)',
+					borderRadius: '12px',
+					backdropFilter: 'blur(10px)',
+				}}
+				style={{
+					minWidth: 140,
+					height: 40,
+				}}
+				popupClassName="theme-select-dropdown"
+			/>
+		</>
+	)
 }
