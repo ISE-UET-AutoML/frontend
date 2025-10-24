@@ -8,6 +8,11 @@ const themeSelectStyles = `
     background: var(--filter-input-bg) !important;
     border: 1px solid var(--filter-input-border) !important;
     color: var(--text) !important;
+    height: 40px !important;
+    display: flex;
+    align-items: center;
+    border-radius: 8px !important;
+    padding: 0 10px !important;
 }
 
 .theme-select .ant-select-selection-item {
@@ -31,6 +36,7 @@ const themeSelectStyles = `
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
 }
 
+/* Dropdown options styling */
 .theme-select-dropdown .ant-select-item {
     color: var(--text) !important;
     background: transparent !important;
@@ -55,6 +61,11 @@ const themeSelectStyles = `
     background: var(--filter-input-bg) !important;
     border: 1px solid var(--filter-input-border) !important;
     color: var(--text) !important;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 8px !important;
 }
 
 .theme-search-input:hover {
@@ -104,6 +115,10 @@ const DatasetFilter = ({
   sortBy,
   onSortChange,
 }) => {
+  console.log('selectedStatus', selectedStatus)
+  console.log('sortBy', sortBy)
+  console.log('selectedType', selectedType)
+  console.log('searchTerm', searchTerm)
   return (
     <>
       <style>{themeSelectStyles}</style>
@@ -111,74 +126,45 @@ const DatasetFilter = ({
         className="mb-6 p-4 rounded-xl backdrop-blur-sm"
         style={{
           background: 'var(--filter-bg)',
-          border: '1px solid var(--filter-border)'
+          border: '1px solid var(--filter-border)',
+          borderRadius: 12,
         }}
       >
-        <div className="space-y-4">
-          {/* Search Bar */}
-          <div>
-            <span
-              className="text-sm font-poppins font-medium block mb-2"
-              style={{ color: 'var(--secondary-text)' }}
-            >
-              Search:
-            </span>
-            <input
-              type="text"
-              placeholder="Search datasets..."
-              value={searchTerm || ''}
-              onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-300 theme-search-input"
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                borderRadius: '6px'
-              }}
-            />
-          </div>
+        {/* Row chứa tất cả filter */}
+        <Row gutter={[12, 12]} align="middle">
+          {/* Search */}
+          <Col xs={24} md={10} lg={12}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span
+                className="text-sm font-poppins font-medium"
+                style={{ color: 'var(--secondary-text)', whiteSpace: 'nowrap' }}
+              >
+                Search:
+              </span>
+              <input
+                type="text"
+                placeholder="Search datasets..."
+                value={searchTerm || ''}
+                onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+                className="w-full theme-search-input"
+                style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  borderRadius: '8px',
+                }}
+              />
+            </div>
+          </Col>
 
-          {/* Sort and Filter Controls */}
-          <Row gutter={[16, 16]} align="middle">
-            {/* Sort Control */}
-            <Col xs={24} sm={8}>
-              <div className="space-y-2">
-                <span
-                  className="text-sm font-poppins font-medium"
-                  style={{ color: 'var(--secondary-text)' }}
-                >
-                  Sort by:
-                </span>
-                <Select
-                  options={sortOptions.map(option => ({
-                    ...option,
-                    label: (
-                      <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
-                        {option.label}
-                      </span>
-                    )
-                  }))}
-                  value={sortBy || 'latest'}
-                  className="w-full theme-select"
-                  onChange={(value) => onSortChange && onSortChange(value)}
-                  dropdownStyle={{
-                    background: 'var(--filter-dropdown-bg)',
-                    border: '1px solid var(--filter-dropdown-border)',
-                    borderRadius: '12px',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  popupClassName="theme-select-dropdown"
-                />
-              </div>
-            </Col>
-
-            {/* Type Filter Control */}
-            <Col xs={24} sm={8}>
-              <div className="space-y-2">
-                <span
-                  className="text-sm font-poppins font-medium"
-                  style={{ color: 'var(--secondary-text)' }}
-                >
-                  Type:
-                </span>
+          {/* Type */}
+          <Col xs={12} md={7} lg={7}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: '40px' }}>
+              <span
+                className="text-sm font-poppins font-medium"
+                style={{ color: 'var(--secondary-text)', whiteSpace: 'nowrap' }}
+              >
+                Type:
+              </span>
+              <div style={{ flex: 1, height: '40px' }}>
                 <Select
                   options={typeFilterOptions.map(option => ({
                     ...option,
@@ -200,19 +186,21 @@ const DatasetFilter = ({
                   popupClassName="theme-select-dropdown"
                 />
               </div>
-            </Col>
+            </div>
+          </Col>
 
-            {/* Status Filter */}
-            <Col xs={24} sm={8}>
-              <div className="space-y-2">
-                <span
-                  className="text-sm font-poppins font-medium"
-                  style={{ color: 'var(--secondary-text)' }}
-                >
-                  Status:
-                </span>
+          {/* Sort */}
+          <Col xs={12} md={7} lg={5}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'flex-end', height: '40px' }}>
+              <span
+                className="text-sm font-poppins font-medium"
+                style={{ color: 'var(--secondary-text)', whiteSpace: 'nowrap' }}
+              >
+                Sort by:
+              </span>
+              <div style={{ width: 140, height: '40px' }}>
                 <Select
-                  options={statusOptions.map(option => ({
+                  options={sortOptions.map(option => ({
                     ...option,
                     label: (
                       <span className="font-poppins font-medium" style={{ color: 'var(--text)' }}>
@@ -220,10 +208,9 @@ const DatasetFilter = ({
                       </span>
                     )
                   }))}
-                  value={selectedStatus}
+                  value={sortBy || 'latest'}
                   className="w-full theme-select"
-                  onChange={onStatusChange}
-                  allowClear
+                  onChange={(value) => onSortChange && onSortChange(value)}
                   dropdownStyle={{
                     background: 'var(--filter-dropdown-bg)',
                     border: '1px solid var(--filter-dropdown-border)',
@@ -233,30 +220,30 @@ const DatasetFilter = ({
                   popupClassName="theme-select-dropdown"
                 />
               </div>
-            </Col>
-          </Row>
-
-          {/* Reset Button */}
-          {(selectedStatus || searchTerm || sortBy !== 'latest' || selectedType !== 'none') && (
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={onReset}
-                className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  background: 'var(--hover-bg)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text)'
-                }}
-                onMouseEnter={(e) => e.target.style.background = 'var(--active-bg)'}
-                onMouseLeave={(e) => e.target.style.background = 'var(--hover-bg)'}
-              >
-                <XMarkIcon className="h-4 w-4" />
-                Reset Filters
-              </button>
             </div>
-          )}
-        </div>
+          </Col>
+        </Row>
+
+        {/* Reset Button */}
+        {(selectedStatus || searchTerm !== '' || sortBy !== 'latest' || selectedType !== null) && (
+          <div className="flex justify-end pt-4">
+            <button
+              onClick={onReset}
+              className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                background: 'var(--hover-bg)',
+                border: '1px solid var(--border)',
+                color: 'var(--text)'
+              }}
+              onMouseEnter={(e) => e.target.style.background = 'var(--active-bg)'}
+              onMouseLeave={(e) => e.target.style.background = 'var(--hover-bg)'}
+            >
+              <XMarkIcon className="h-4 w-4" />
+              Reset Filters
+            </button>
+          </div>
+        )}
       </div>
     </>
   )
