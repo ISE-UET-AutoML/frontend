@@ -18,6 +18,7 @@ import { useTheme } from 'src/theme/ThemeProvider'
 
 // APIs
 import * as datasetAPI from 'src/api/dataset'
+import * as labelProjectAPI from 'src/api/labelProject'
 import { POLL_DATASET_PROCESSING_STATUS_TIME } from 'src/constants/time'
 import { usePollingStore } from 'src/store/pollingStore'
 
@@ -128,9 +129,13 @@ export default function Datasets() {
 		try {
 			message.success('Dataset created successfully!')
 			updateDataState({ showCreator: false })
-			usePollingStore
-				.getState()
-				.addPending({ dataset: createdDataset, labelProjectValues })
+			labelProjectAPI.pollingToCreateLabelProject(
+				createdDataset.id,
+				labelProjectValues
+			)
+			// usePollingStore
+			// 	.getState()
+			// 	.addPending({ dataset: createdDataset, labelProjectValues })
 			await getDatasets(1)
 		} catch (error) {
 			console.error('Error handling created dataset:', error)

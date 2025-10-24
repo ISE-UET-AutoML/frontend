@@ -119,3 +119,11 @@ export const getExportStatus = async (taskID) => {
     }
     return instance.get(`${URL_SERVICE}/ls-projects/export-status/${taskID}`, options)
 }
+
+export const pollingToCreateLabelProject = (datasetId, labelProjectValues) => {
+    return instance.post(`${URL}/polling-create-label-project`, {
+        datasetId: datasetId,
+        labelProjectValues: labelProjectValues,
+    })
+}
+    
