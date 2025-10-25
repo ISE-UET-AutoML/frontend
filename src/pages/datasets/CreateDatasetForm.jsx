@@ -54,23 +54,24 @@ export default function CreateDatasetForm({
     hideFields = [],
     onFormChange,
 }) {
-    const [form] = Form.useForm()
-    const [hasFormErrors, setHasFormErrors] = useState(false)
-    const [files, setFiles] = useState(initialFiles)
-    const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
-    const [service, setService] = useState(initialValues?.service || 'AWS_S3')
-    const [bucketName, setBucketName] = useState(
-        initialValues?.bucket_name || 'user-private-dataset'
-    )
-    const [datasetType, setDatasetType] = useState(initialValues?.dataset_type)
-    const fileRefs = useRef(new Map())
-    const taskType = initialValues?.task_type
-    // States for validation and preview
-    const [imageStructureValid, setImageStructureValid] = useState(null)
-    const [csvPreview, setCsvPreview] = useState(null)
-    const [csvHasHeader, setCsvHasHeader] = useState(null)
-    const [isDataValid, setIsDataValid] = useState(false)
-    const [imagePreviews, setImagePreviews] = useState([]) // State mới cho image preview
+	const [form] = Form.useForm()
+	const [hasFormErrors, setHasFormErrors] = useState(false)
+	const [files, setFiles] = useState(initialFiles)
+	const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url')
+	const [service, setService] = useState(initialValues?.service || 'AWS_S3')
+	const [bucketName, setBucketName] = useState(
+		initialValues?.bucket_name || 'user-private-dataset'
+	)
+	const [datasetType, setDatasetType] = useState(initialValues?.dataset_type)
+	const fileRefs = useRef(new Map())
+	const taskType = initialValues?.task_type
+    const [isDragging, setIsDragging] = useState(false);
+	// States for validation and preview
+	const [imageStructureValid, setImageStructureValid] = useState(null)
+	const [csvPreview, setCsvPreview] = useState(null)
+	const [csvHasHeader, setCsvHasHeader] = useState(null)
+	const [isDataValid, setIsDataValid] = useState(false)
+	const [imagePreviews, setImagePreviews] = useState([]) // State mới cho image preview
 
     // States for task-specific validation
     const [isRegressionTargetValid, setIsRegressionTargetValid] = useState(null)
@@ -82,7 +83,7 @@ export default function CreateDatasetForm({
     const [isProcessingFile, setIsProcessingFile] = useState(false);
     const [profilingResult, setProfilingResult] = useState(null);
 
-    const fileInputRef = useRef(null)
+	const fileInputRef = useRef(null)
 
     const calcSizeKB = (fileArr) => {
         const totalSize = fileArr.reduce(
@@ -165,106 +166,14 @@ export default function CreateDatasetForm({
             labelFolders.add(parentFolder)
         }
 
-        return labelFolders.size >= 2
-    }
-
-    const validateFullCsv = (csvFile, currentTaskType) => {
-        return new Promise((resolve) => {
-            let isValid = true
-            let labelColumn = ''
-
-            Papa.parse(csvFile, {
-                header: true,
-                skipEmptyLines: true,
-                step: (results, parser) => {
-                    if (!labelColumn) {
-                        labelColumn =
-                            results.meta.fields[results.meta.fields.length - 1]
-                    }
-                    const labelValue = results.data[labelColumn]
-
-                    if (currentTaskType === 'TABULAR_REGRESSION') {
-                        if (labelValue && isNaN(parseFloat(labelValue))) {
-                            isValid = false
-                            parser.abort() // Stop parsing on first error
-                        }
-                    } else if (
-                        currentTaskType === 'MULTILABEL_TEXT_CLASSIFICATION' ||
-                        currentTaskType === 'MULTILABEL_TABULAR_CLASSIFICATION'
-                    ) {
-                        if (labelValue) {
-                            if (
-                                labelValue.includes(',') ||
-                                labelValue.includes('|')
-                            ) {
-                                isValid = false
-                                parser.abort()
-                            }
-
-                            const labels = labelValue.includes(';')
-                                ? labelValue.split(';')
-                                : [labelValue] // coi là single-label
-
-                            if (labels.some((l) => l.trim() === '')) {
-                                isValid = false
-                                parser.abort()
-                            }
-                        }
-                    }
-                },
-                complete: () => {
-                    resolve(isValid)
-                },
-                error: () => {
-                    resolve(false)
-                },
-            })
-        })
-    }
-
-    const previewCsv = (csvFile, currentTaskType) => {
-        Papa.parse(csvFile, {
-            header: true,
-            preview: 10,
-            skipEmptyLines: true,
-            complete: (results) => {
-                const { data, meta } = results
-                if (data.length > 0 && meta.fields && meta.fields.length > 0) {
-                    setCsvHasHeader(true)
-                    setCsvPreview(data.slice(0, 3))
-                    const labelColumn = meta.fields[meta.fields.length - 1]
-
-                    // Task-specific validations
-                    /*switch (currentTaskType) {
-                        case 'TABULAR_REGRESSION':
-                            const allAreFloats = data.every(row => !isNaN(parseFloat(row[labelColumn])));
-                            setIsRegressionTargetValid(allAreFloats);
-                            break;
-                        case 'MULTILABEL_TEXT_CLASSIFICATION':
-                        case 'MULTILABEL_TABULAR_CLASSIFICATION':
-                            const someHaveSeparator = data.some(row => typeof row[labelColumn] === 'string' && row[labelColumn].includes(';'));
-                            setIsMultilabelFormatValid(someHaveSeparator);
-                            break;
-                        default:
-                            break;
-                    }*/
-                } else {
-                    setCsvHasHeader(false)
-                    setCsvPreview(null)
-                }
-            },
-            error: () => {
-                setCsvHasHeader(false)
-                setCsvPreview(null)
-                message.error('Could not parse the CSV file.')
-            },
-        })
-    }
-    const handleReset = () => {
-        // Clear file input visually
-        if (fileInputRef.current) {
-            fileInputRef.current.value = null
-        }
+		return labelFolders.size >= 2
+	}
+    
+	const handleReset = () => {
+		// Clear file input visually
+		if (fileInputRef.current) {
+			fileInputRef.current.value = null
+		}
 
         // Reset all states
         setFiles([])
@@ -378,12 +287,38 @@ export default function CreateDatasetForm({
                         const targetColumn = meta.fields[meta.fields.length - 1];
 
                         if (taskType === 'TABULAR_REGRESSION') {
-                            setIsRegressionTargetValid(data.every(row => !isNaN(parseFloat(row[targetColumn]))));
+                            const isValid = data.every(row => {
+                                const val = row[targetColumn];
+                                return val === null || val === undefined || val.trim() === '' || !isNaN(parseFloat(val));
+                            });
+                            setIsRegressionTargetValid(isValid);
                         }
-                        if (taskType.includes('MULTILABEL')) {
-                            setIsMultilabelFormatValid(true);
+                        if (
+                            taskType === 'MULTILABEL_TEXT_CLASSIFICATION' ||
+                            taskType === 'MULTILABEL_TABULAR_CLASSIFICATION'
+                        ) {
+                            let isMultilabelValid = true;
+                            for (const row of data) {
+                                const labelValue = row[targetColumn];
+                                if (labelValue) { 
+                                    if (String(labelValue).includes(',') || String(labelValue).includes('|')) {
+                                        isMultilabelValid = false;
+                                        break; 
+                                    }
+                                    
+                                    // Kiểm tra các label rỗng nếu split bằng ;
+                                    const labels = String(labelValue).includes(';')
+                                        ? String(labelValue).split(';')
+                                        : [String(labelValue)];
+                                        
+                                    if (labels.some((l) => l.trim() === '')) {
+                                        isMultilabelValid = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            setIsMultilabelFormatValid(isMultilabelValid);
                         }
-
                         const counts = {};
                         data.forEach(row => {
                             const label = row[targetColumn];
@@ -424,7 +359,7 @@ export default function CreateDatasetForm({
         }
 
         setFiles(fileMetadata);
-        setTotalKbytes(calcSizeKB(validatedFiles));
+        setTotalKbytes(calcSizeKB(fileMetadata));
         if (fileMetadata.length > 0 && valid) {
             setIsDataValid(true);
         } else {
@@ -442,19 +377,70 @@ export default function CreateDatasetForm({
         setDetectedLabels(labels)
         setTotalKbytes(calcSizeKB(updatedFiles))
 
-        const csvFile = updatedFiles.find((file) =>
-            file.path.toLowerCase().endsWith('.csv')
-        )
-        if (csvFile) {
-            extractCSVMetaData(csvFile.fileObject)
-                .then(setCsvMetadata)
-                .catch(() => setCsvMetadata(null))
-        } else {
-            setCsvMetadata(null)
-            setCsvPreview(null)
-            setCsvHasHeader(null)
+		const csvFile = updatedFiles.find((file) =>
+			file.path.toLowerCase().endsWith('.csv')
+		)
+		if (csvFile) {
+			extractCSVMetaData(csvFile.fileObject)
+				.then(setCsvMetadata)
+				.catch(() => setCsvMetadata(null))
+		} else {
+			setCsvMetadata(null)
+			setCsvPreview(null)
+			setCsvHasHeader(null)
+		}
+	}
+
+    const handleDragEnter = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        // Chỉ bật state khi kéo file vào
+        if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+            setIsDragging(true);
         }
-    }
+    };
+
+    const handleDragLeave = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        // Tắt state khi kéo file ra khỏi vùng <label>
+        // Kiểm tra relatedTarget để tránh lỗi flickering khi di qua các element con
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault(); // <-- Rất quan trọng, cho phép thả file
+        event.stopPropagation();
+        setIsDragging(true); // Giữ state true khi vẫn còn đang kéo trên vùng
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault(); // <-- Ngăn trình duyệt mở file
+        event.stopPropagation();
+        setIsDragging(false); // Tắt state khi đã thả file
+
+        const files = event.dataTransfer.files;
+        
+        if (files && files.length > 0) {
+            // Tạo một object sự kiện "giả"
+            // vì hàm handleFileChange đang chờ `event.target.files`
+            const simulatedEvent = {
+                target: {
+                    files: files
+                }
+            };
+            
+            // Gán file vào ref (giúp reset hoạt động)
+            if(fileInputRef.current) {
+                fileInputRef.current.files = files;
+            }
+            
+            // Gọi hàm xử lý file đã có
+            handleFileChange(simulatedEvent);
+        }
+    };
 
     const renderPreparingInstructions = () => {
         const currentType = TASK_TYPES[taskType]
@@ -546,131 +532,164 @@ export default function CreateDatasetForm({
             },
         ]
 
-        return (
-            <Collapse
-                items={items}
-                size="small"
-                ghost
-                style={{
-                    marginBottom: '16px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.97)',
-                    border: `1px solid ${currentType.card.border}40`,
-                    borderRadius: '6px',
-                }}
-                className="preparing-instructions-collapse"
-            />
-        )
+		return (
+			<Collapse
+				items={items}
+				size="small"
+				ghost
+				style={{
+					marginBottom: '16px',
+					backgroundColor: 'rgba(255, 255, 255, 0.97)',
+					border: `1px solid ${currentType.card.border}40`,
+					borderRadius: '6px',
+				}}
+				className="preparing-instructions-collapse"
+			/>
+		)
+	}
+    
+    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL';
+    const fileInputProps = {
+        ref: fileInputRef,
+        type: 'file',
+        name: 'file',
+        id: 'file',
+        multiple: true,
+        style: { display: 'none' },
+        onChange: handleFileChange,
     }
-    const tabItems = [
-        {
-            key: 'file',
-            label: 'File Upload',
-            children: (
-                <>
-                    <label
-                        htmlFor="file"
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: '29vh',
-                            border: '2px dashed var(--upload-border)',
-                            borderRadius: '12px',
-                            cursor: 'pointer',
-                            marginBottom: '16px',
-                            background: 'var(--upload-bg)',
-                            transition: 'all 0.3s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                            const target = e.currentTarget
-                            target.style.borderColor =
-                                'var(--modal-close-hover)'
-                            target.style.background = 'var(--hover-bg)'
-                        }}
-                        onMouseLeave={(e) => {
-                            const target = e.currentTarget
-                            target.style.borderColor = 'var(--upload-border)'
-                            target.style.background = 'var(--upload-bg)'
-                        }}
-                    >
-                        <div
-                            style={{
-                                textAlign: 'center',
-                                background: 'transparent',
-                            }}
-                        >
-                            <FolderOutlined
-                                style={{
-                                    fontSize: '64px',
-                                    color: 'var(--upload-icon)',
-                                }}
-                            />
-                            <p
-                                style={{
-                                    marginTop: '12px',
-                                    color: 'var(--upload-text)',
-                                    fontFamily: 'Poppins, sans-serif',
-                                    fontSize: '16px',
-                                    fontWeight: '500',
-                                }}
-                            >
-                                Drag and drop a folder or click to upload
-                            </p>
-                        </div>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            name="file"
-                            id="file"
-                            webkitdirectory=""
-                            directory=""
-                            multiple
-                            style={{ display: 'none' }}
-                            onChange={handleFileChange}
-                        />
-                    </label>
-                    {files.length > 0 && (
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                marginBottom: '12px',
-                            }}
-                        >
-                            <Button
-                                icon={<ReloadOutlined />}
-                                onClick={handleReset}
-                                size="middle"
-                                style={{
-                                    fontFamily: 'Poppins',
-                                    fontWeight: '500',
-                                    borderRadius: '6px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    backgroundColor: '#ff4d4f',
-                                    borderColor: '#ff4d4f',
-                                    color: '#fff',
-                                    height: '32px',
-                                    padding: '4px 15px',
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor =
-                                        '#ff7875'
-                                    e.currentTarget.style.borderColor =
-                                        '#ff7875'
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor =
-                                        '#ff4d4f'
-                                    e.currentTarget.style.borderColor =
-                                        '#ff4d4f'
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        </div>
-                    )}
+    if (isFolderUpload) {
+        fileInputProps.webkitdirectory = ''
+        fileInputProps.directory = ''
+    } else if (datasetType){
+        const allowedExtensions = {
+            TEXT: '.csv,.xlsx,.xls',
+            TABULAR: '.csv,.xlsx,.xls',
+            TIME_SERIES: '.csv,.xlsx,.xls',
+        };
+        fileInputProps.accept = allowedExtensions[datasetType] || ''
+    }
+	const tabItems = [
+		{
+			key: 'file',
+			label: 'File Upload',
+			children: (
+				<>
+					<label
+						htmlFor="file"
+						style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							height: '29vh',
+							border: isDragging 
+                                ? '2px dashed var(--modal-close-hover)' 
+                                : '2px dashed var(--upload-border)',
+							background: isDragging 
+                                ? 'var(--hover-bg)' 
+                                : 'var(--upload-bg)',
+							borderRadius: '12px',
+							cursor: 'pointer',
+							marginBottom: '16px',
+							transition: 'all 0.3s ease',
+						}}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+						onMouseEnter={(e) => {
+							const target = e.currentTarget
+							target.style.borderColor =
+								'var(--modal-close-hover)'
+							target.style.background = 'var(--hover-bg)'
+						}}
+						onMouseLeave={(e) => {
+							const target = e.currentTarget
+							target.style.borderColor = 'var(--upload-border)'
+							target.style.background = 'var(--upload-bg)'
+						}}
+					>
+						<div
+							style={{
+								textAlign: 'center',
+								background: 'transparent',
+							}}
+						>
+							{isFolderUpload ? (
+								<FolderOutlined
+									style={{
+										fontSize: '64px',
+										color: 'var(--upload-icon)',
+									}}
+								/>
+							) : (
+								<FileOutlined
+									style={{
+										fontSize: '64px',
+										color: 'var(--upload-icon)',
+									}}
+								/>
+							)}
+							<p
+								style={{
+									marginTop: '12px',
+									color: 'var(--upload-text)',
+									fontFamily: 'Poppins, sans-serif',
+									fontSize: '16px',
+									fontWeight: '500',
+								}}
+							>
+								{isFolderUpload
+									? 'Drag and drop a folder or click to upload'
+									: 'Drag and drop files or click to upload'}
+							</p>
+						</div>
+						<input
+							{...fileInputProps}
+						/>
+					</label>
+					{files.length > 0 && (
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'flex-end',
+								marginBottom: '12px',
+							}}
+						>
+							<Button
+								icon={<ReloadOutlined />}
+								onClick={handleReset}
+								size="middle"
+								style={{
+									fontFamily: 'Poppins',
+									fontWeight: '500',
+									borderRadius: '6px',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '6px',
+									backgroundColor: '#ff4d4f',
+									borderColor: '#ff4d4f',
+									color: '#fff',
+									height: '32px',
+									padding: '4px 15px',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor =
+										'#ff7875'
+									e.currentTarget.style.borderColor =
+										'#ff7875'
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor =
+										'#ff4d4f'
+									e.currentTarget.style.borderColor =
+										'#ff4d4f'
+								}}
+							>
+								Reset
+							</Button>
+						</div>
+					)}
 
                     <div
                         style={{
@@ -831,168 +850,169 @@ export default function CreateDatasetForm({
         onNext(payload)
     }
 
-    return (
-        <>
-            <style>{/*... CSS styles from previous turn ...*/}</style>
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={initialValues}
-                onFinish={handleSubmit}
-                onFieldsChange={() => {
-                    const hasErrors = form
-                        .getFieldsError()
-                        .some((f) => (f.errors || []).length > 0)
-                    setHasFormErrors(hasErrors)
-                }}
-                className="theme-form"
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '75vh',
-                }}
-            >
-                {/* Sử dụng Row để tạo layout 2 cột */}
-                <Row gutter={24} style={{ flex: 1, overflow: 'hidden' }}>
-
-                    {/* ===== CỘT TRÁI: FORM NHẬP LIỆU ===== */}
-                    <Col
-                        span={isProcessingFile || profilingResult ? 14 : 24}
-                        style={{
-                            height: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        <div
-                            style={{
-                                flex: 1,
-                                overflowY: 'auto',
-                                minHeight: 0,
-                                paddingRight: 12,
-                                paddingBottom: '50px'
-                            }}
-                        >
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    {disableFields.includes('title') ? (
-                                        <div style={{ marginBottom: '24px' }}>
-                                            <Text
-                                                style={{
-                                                    display: 'block',
-                                                    marginBottom: '8px',
-                                                    color: 'var(--form-label-color)',
-                                                    fontFamily: 'Poppins, sans-serif',
-                                                    fontWeight: 600,
-                                                    fontSize: '14px',
-                                                }}
-                                            >
-                                                Project Name
-                                            </Text>
-                                            <div
-                                                style={{
-                                                    padding: '8px 12px',
-                                                    background: 'var(--upload-bg)',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    color: 'var(--text)',
-                                                    fontFamily: 'Poppins, sans-serif',
-                                                    fontSize: '14px',
-                                                    minHeight: '40px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                {initialValues?.title || '-'}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <Form.Item
-                                            label="Title"
-                                            name="title"
-                                            validateTrigger={['onChange', 'onBlur']}
-                                            rules={[
-                                                {
-                                                    required: true,
-                                                    message: 'Please enter a title',
-                                                },
-                                                {
-                                                    pattern: /^[\p{L}0-9 _-]+$/u,
-                                                    message:
-                                                        'Only letters, numbers, spaces, _ and - are allowed.',
-                                                },
-                                            ]}
-                                        >
-                                            <Input placeholder="Enter dataset title" />
-                                        </Form.Item>
-                                    )}
-                                </Col>
-                                <Col span={12}>
-                                    {disableFields.includes('type') ? (
-                                        <div style={{ marginBottom: '24px' }}>
-                                            <Text
-                                                style={{
-                                                    display: 'block',
-                                                    marginBottom: '8px',
-                                                    color: 'var(--form-label-color)',
-                                                    fontFamily: 'Poppins, sans-serif',
-                                                    fontWeight: 600,
-                                                    fontSize: '14px',
-                                                }}
-                                            >
-                                                Type
-                                            </Text>
-                                            <div
-                                                style={{
-                                                    padding: '8px 12px',
-                                                    background: 'var(--upload-bg)',
-                                                    borderRadius: '8px',
-                                                    border: '1px solid var(--border-color)',
-                                                    color: 'var(--text)',
-                                                    fontFamily: 'Poppins, sans-serif',
-                                                    fontSize: '14px',
-                                                    minHeight: '40px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                }}
-                                            >
-                                                {initialValues?.dataset_type
-                                                    ? DATASET_TYPES[
-                                                        initialValues.dataset_type
-                                                    ]?.type
-                                                    : '-'}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <Form.Item
-                                            label="Type"
-                                            name="dataset_type"
-                                            rules={[
-                                                {
-                                                    required: true,
-                                                    message: 'Please select a type',
-                                                },
-                                            ]}
-                                        >
-                                            <Select
-                                                placeholder="Select dataset type"
-                                                onChange={(value) => {
-                                                    setDatasetType(value)
-                                                }}
-                                            >
-                                                {Object.entries(DATASET_TYPES).map(
-                                                    ([key, value]) => (
-                                                        <Option key={key} value={key}>
-                                                            {value.type}
-                                                        </Option>
-                                                    )
-                                                )}
-                                            </Select>
-                                        </Form.Item>
-                                    )}
-                                </Col>
-                            </Row>
+	return (
+		<>
+			<style>{/*... CSS styles from previous turn ...*/}</style>
+			<Form
+				form={form}
+				layout="vertical"
+				initialValues={initialValues}
+				onFinish={handleSubmit}
+				onFieldsChange={() => {
+					const hasErrors = form
+						.getFieldsError()
+						.some((f) => (f.errors || []).length > 0)
+					setHasFormErrors(hasErrors)
+				}}
+				className="theme-form"
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					height: '75vh',
+				}}
+			>
+				{/* Sử dụng Row để tạo layout 2 cột */}
+				<Row gutter={24} style={{ flex: 1, overflow: 'hidden' }}>
+					
+					{/* ===== CỘT TRÁI: FORM NHẬP LIỆU ===== */}
+					<Col 
+						span={isProcessingFile || profilingResult ? 14 : 24} 
+						style={{ 
+							height: '100%', 
+							display: 'flex', 
+							flexDirection: 'column',
+							transition: 'all 0.3s ease'
+						}}
+					>
+						<div
+							style={{
+								flex: 1,
+								overflowY: 'auto',
+								minHeight: 0,
+								paddingRight: 12,
+								paddingBottom: '50px'
+							}}
+						>
+							<Row gutter={16}>
+								<Col span={12}>
+									{disableFields.includes('title') ? (
+										<div style={{ marginBottom: '24px' }}>
+											<Text
+												style={{
+													display: 'block',
+													marginBottom: '8px',
+													color: 'var(--form-label-color)',
+													fontFamily: 'Poppins, sans-serif',
+													fontWeight: 600,
+													fontSize: '14px',
+												}}
+											>
+												Project Name
+											</Text>
+											<div
+												style={{
+													padding: '8px 12px',
+													background: 'var(--upload-bg)',
+													borderRadius: '8px',
+													border: '1px solid var(--border-color)',
+													color: 'var(--text)',
+													fontFamily: 'Poppins, sans-serif',
+													fontSize: '14px',
+													minHeight: '40px',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												{initialValues?.title || '-'}
+											</div>
+										</div>
+									) : (
+										<Form.Item
+											label="Title"
+											name="title"
+											validateTrigger={['onChange', 'onBlur']}
+											rules={[
+												{
+													required: true,
+													message: 'Please enter a title',
+												},
+												{
+													pattern: /^[\p{L}0-9 _-]+$/u,
+													message:
+														'Only letters, numbers, spaces, _ and - are allowed.',
+												},
+											]}
+										>
+											<Input placeholder="Enter dataset title" />
+										</Form.Item>
+									)}
+								</Col>
+								<Col span={12}>
+									{disableFields.includes('type') ? (
+										<div style={{ marginBottom: '24px' }}>
+											<Text
+												style={{
+													display: 'block',
+													marginBottom: '8px',
+													color: 'var(--form-label-color)',
+													fontFamily: 'Poppins, sans-serif',
+													fontWeight: 600,
+													fontSize: '14px',
+												}}
+											>
+												Type
+											</Text>
+											<div
+												style={{
+													padding: '8px 12px',
+													background: 'var(--upload-bg)',
+													borderRadius: '8px',
+													border: '1px solid var(--border-color)',
+													color: 'var(--text)',
+													fontFamily: 'Poppins, sans-serif',
+													fontSize: '14px',
+													minHeight: '40px',
+													display: 'flex',
+													alignItems: 'center',
+												}}
+											>
+												{initialValues?.dataset_type
+													? DATASET_TYPES[
+															initialValues.dataset_type
+														]?.type
+													: '-'}
+											</div>
+										</div>
+									) : (
+										<Form.Item
+											label="Type"
+											name="dataset_type"
+											rules={[
+												{
+													required: true,
+													message: 'Please select a type',
+												},
+											]}
+										>
+											<Select
+												placeholder="Select dataset type"
+												onChange={(value) => {
+													setDatasetType(value)
+                                                    handleReset();
+												}}
+											>
+												{Object.entries(DATASET_TYPES).map(
+													([key, value]) => (
+														<Option key={key} value={key}>
+															{value.type}
+														</Option>
+													)
+												)}
+											</Select>
+										</Form.Item>
+									)}
+								</Col>
+							</Row>
 
                             {renderPreparingInstructions()}
 
