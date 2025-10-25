@@ -37,6 +37,7 @@ import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import { DISTINCT_COLORS_100 } from 'src/utils/colorsForChart'
+import { file } from 'jszip';
 
 const { Option } = Select
 const { TextArea } = Input
@@ -66,6 +67,7 @@ export default function CreateDatasetForm({
 	const [datasetType, setDatasetType] = useState(initialValues?.dataset_type)
 	const fileRefs = useRef(new Map())
 	const taskType = initialValues?.task_type
+    const [isDragging, setIsDragging] = useState(false);
 	// States for validation and preview
 	const [imageStructureValid, setImageStructureValid] = useState(null)
 	const [csvPreview, setCsvPreview] = useState(null)
@@ -82,6 +84,7 @@ export default function CreateDatasetForm({
 	// States for data profiling
 	const [isProcessingFile, setIsProcessingFile] = useState(false);
     const [profilingResult, setProfilingResult] = useState(null);
+    
 
 	const fileInputRef = useRef(null)
 
@@ -168,99 +171,7 @@ export default function CreateDatasetForm({
 
 		return labelFolders.size >= 2
 	}
-
-	const validateFullCsv = (csvFile, currentTaskType) => {
-		return new Promise((resolve) => {
-			let isValid = true
-			let labelColumn = ''
-
-			Papa.parse(csvFile, {
-				header: true,
-				skipEmptyLines: true,
-				step: (results, parser) => {
-					if (!labelColumn) {
-						labelColumn =
-							results.meta.fields[results.meta.fields.length - 1]
-					}
-					const labelValue = results.data[labelColumn]
-
-					if (currentTaskType === 'TABULAR_REGRESSION') {
-						if (labelValue && isNaN(parseFloat(labelValue))) {
-							isValid = false
-							parser.abort() // Stop parsing on first error
-						}
-					} else if (
-						currentTaskType === 'MULTILABEL_TEXT_CLASSIFICATION' ||
-						currentTaskType === 'MULTILABEL_TABULAR_CLASSIFICATION'
-					) {
-						if (labelValue) {
-							if (
-								labelValue.includes(',') ||
-								labelValue.includes('|')
-							) {
-								isValid = false
-								parser.abort()
-							}
-
-							const labels = labelValue.includes(';')
-								? labelValue.split(';')
-								: [labelValue] // coi là single-label
-
-							if (labels.some((l) => l.trim() === '')) {
-								isValid = false
-								parser.abort()
-							}
-						}
-					}
-				},
-				complete: () => {
-					resolve(isValid)
-				},
-				error: () => {
-					resolve(false)
-				},
-			})
-		})
-	}
-
-	const previewCsv = (csvFile, currentTaskType) => {
-		Papa.parse(csvFile, {
-			header: true,
-			preview: 10,
-			skipEmptyLines: true,
-			complete: (results) => {
-				const { data, meta } = results
-				if (data.length > 0 && meta.fields && meta.fields.length > 0) {
-					setCsvHasHeader(true)
-					setCsvPreview(data.slice(0, 3))
-					const labelColumn = meta.fields[meta.fields.length - 1]
-
-					// Task-specific validations
-					/*switch (currentTaskType) {
-                        case 'TABULAR_REGRESSION':
-                            const allAreFloats = data.every(row => !isNaN(parseFloat(row[labelColumn])));
-                            setIsRegressionTargetValid(allAreFloats);
-                            break;
-                        case 'MULTILABEL_TEXT_CLASSIFICATION':
-                        case 'MULTILABEL_TABULAR_CLASSIFICATION':
-                            const someHaveSeparator = data.some(row => typeof row[labelColumn] === 'string' && row[labelColumn].includes(';'));
-                            setIsMultilabelFormatValid(someHaveSeparator);
-                            break;
-                        default:
-                            break;
-                    }*/
-				} else {
-					setCsvHasHeader(false)
-					setCsvPreview(null)
-				}
-			},
-			error: () => {
-				setCsvHasHeader(false)
-				setCsvPreview(null)
-				message.error('Could not parse the CSV file.')
-			},
-		})
-	}
+    
 	const handleReset = () => {
 		// Clear file input visually
 		if (fileInputRef.current) {
@@ -379,12 +290,38 @@ export default function CreateDatasetForm({
                         const targetColumn = meta.fields[meta.fields.length - 1];
 
                         if (taskType === 'TABULAR_REGRESSION') {
-                            setIsRegressionTargetValid(data.every(row => !isNaN(parseFloat(row[targetColumn]))));
+                            const isValid = data.every(row => {
+                                const val = row[targetColumn];
+                                return val === null || val === undefined || val.trim() === '' || !isNaN(parseFloat(val));
+                            });
+                            setIsRegressionTargetValid(isValid);
                         }
-                        if (taskType.includes('MULTILABEL')) {
-                            setIsMultilabelFormatValid(true);
+                        if (
+                            taskType === 'MULTILABEL_TEXT_CLASSIFICATION' ||
+                            taskType === 'MULTILABEL_TABULAR_CLASSIFICATION'
+                        ) {
+                            let isMultilabelValid = true;
+                            for (const row of data) {
+                                const labelValue = row[targetColumn];
+                                if (labelValue) { 
+                                    if (String(labelValue).includes(',') || String(labelValue).includes('|')) {
+                                        isMultilabelValid = false;
+                                        break; 
+                                    }
+                                    
+                                    // Kiểm tra các label rỗng nếu split bằng ;
+                                    const labels = String(labelValue).includes(';')
+                                        ? String(labelValue).split(';')
+                                        : [String(labelValue)];
+                                        
+                                    if (labels.some((l) => l.trim() === '')) {
+                                        isMultilabelValid = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            setIsMultilabelFormatValid(isMultilabelValid);
                         }
-
                         const counts = {};
                         data.forEach(row => {
                             const label = row[targetColumn];
@@ -425,7 +362,7 @@ export default function CreateDatasetForm({
         }
 
         setFiles(fileMetadata);
-        setTotalKbytes(calcSizeKB(validatedFiles));
+        setTotalKbytes(calcSizeKB(fileMetadata));
         if (fileMetadata.length > 0 && valid) {
             setIsDataValid(true);
         } else {
@@ -456,6 +393,57 @@ export default function CreateDatasetForm({
 			setCsvHasHeader(null)
 		}
 	}
+
+    const handleDragEnter = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        // Chỉ bật state khi kéo file vào
+        if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+            setIsDragging(true);
+        }
+    };
+
+    const handleDragLeave = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        // Tắt state khi kéo file ra khỏi vùng <label>
+        // Kiểm tra relatedTarget để tránh lỗi flickering khi di qua các element con
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault(); // <-- Rất quan trọng, cho phép thả file
+        event.stopPropagation();
+        setIsDragging(true); // Giữ state true khi vẫn còn đang kéo trên vùng
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault(); // <-- Ngăn trình duyệt mở file
+        event.stopPropagation();
+        setIsDragging(false); // Tắt state khi đã thả file
+
+        const files = event.dataTransfer.files;
+        
+        if (files && files.length > 0) {
+            // Tạo một object sự kiện "giả"
+            // vì hàm handleFileChange đang chờ `event.target.files`
+            const simulatedEvent = {
+                target: {
+                    files: files
+                }
+            };
+            
+            // Gán file vào ref (giúp reset hoạt động)
+            if(fileInputRef.current) {
+                fileInputRef.current.files = files;
+            }
+            
+            // Gọi hàm xử lý file đã có
+            handleFileChange(simulatedEvent);
+        }
+    };
 
 	const renderPreparingInstructions = () => {
 		const currentType = TASK_TYPES[taskType]
@@ -562,6 +550,28 @@ export default function CreateDatasetForm({
 			/>
 		)
 	}
+    
+    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL';
+    const fileInputProps = {
+        ref: fileInputRef,
+        type: 'file',
+        name: 'file',
+        id: 'file',
+        multiple: true,
+        style: { display: 'none' },
+        onChange: handleFileChange,
+    }
+    if (isFolderUpload) {
+        fileInputProps.webkitdirectory = ''
+        fileInputProps.directory = ''
+    } else if (datasetType){
+        const allowedExtensions = {
+            TEXT: '.csv,.xlsx,.xls',
+            TABULAR: '.csv,.xlsx,.xls',
+            TIME_SERIES: '.csv,.xlsx,.xls',
+        };
+        fileInputProps.accept = allowedExtensions[datasetType] || ''
+    }
 	const tabItems = [
 		{
 			key: 'file',
@@ -575,13 +585,21 @@ export default function CreateDatasetForm({
 							justifyContent: 'center',
 							alignItems: 'center',
 							height: '29vh',
-							border: '2px dashed var(--upload-border)',
+							border: isDragging 
+                                ? '2px dashed var(--modal-close-hover)' 
+                                : '2px dashed var(--upload-border)',
+							background: isDragging 
+                                ? 'var(--hover-bg)' 
+                                : 'var(--upload-bg)',
 							borderRadius: '12px',
 							cursor: 'pointer',
 							marginBottom: '16px',
-							background: 'var(--upload-bg)',
 							transition: 'all 0.3s ease',
 						}}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
 						onMouseEnter={(e) => {
 							const target = e.currentTarget
 							target.style.borderColor =
@@ -600,12 +618,21 @@ export default function CreateDatasetForm({
 								background: 'transparent',
 							}}
 						>
-							<FolderOutlined
-								style={{
-									fontSize: '64px',
-									color: 'var(--upload-icon)',
-								}}
-							/>
+							{isFolderUpload ? (
+								<FolderOutlined
+									style={{
+										fontSize: '64px',
+										color: 'var(--upload-icon)',
+									}}
+								/>
+							) : (
+								<FileOutlined
+									style={{
+										fontSize: '64px',
+										color: 'var(--upload-icon)',
+									}}
+								/>
+							)}
 							<p
 								style={{
 									marginTop: '12px',
@@ -615,19 +642,13 @@ export default function CreateDatasetForm({
 									fontWeight: '500',
 								}}
 							>
-								Drag and drop a folder or click to upload
+								{isFolderUpload
+									? 'Drag and drop a folder or click to upload'
+									: 'Drag and drop files or click to upload'}
 							</p>
 						</div>
 						<input
-							ref={fileInputRef}
-							type="file"
-							name="file"
-							id="file"
-							webkitdirectory=""
-							directory=""
-							multiple
-							style={{ display: 'none' }}
-							onChange={handleFileChange}
+							{...fileInputProps}
 						/>
 					</label>
 					{files.length > 0 && (
@@ -980,6 +1001,7 @@ export default function CreateDatasetForm({
 												placeholder="Select dataset type"
 												onChange={(value) => {
 													setDatasetType(value)
+                                                    handleReset();
 												}}
 											>
 												{Object.entries(DATASET_TYPES).map(
