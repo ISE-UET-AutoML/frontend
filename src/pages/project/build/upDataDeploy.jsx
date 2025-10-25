@@ -13,6 +13,7 @@ import { createPresignedUrlsPredict } from 'src/api/dataset'
 import { createDownPresignedUrlsForFolder } from 'src/api/dataset'
 import instance from 'src/api/axios'
 import Papa from 'papaparse'
+import * as XLSX from 'xlsx'
 
 const { Dragger } = Upload
 
@@ -45,63 +46,138 @@ const UpDataDeploy = ({
 			return { isValid: true, message: 'Image files are valid.' }
 		}
 
-		if (
-			files.length !== 1 ||
-			!files[0].name.toLowerCase().endsWith('.csv')
-		) {
+		if (files.length !== 1 || !/\.(csv|xls|xlsx)$/i.test(files[0].name.toLowerCase())) 	
+			{
+			console.log("jskflkasfkjfl");
 			return {
 				isValid: false,
 				message:
 					'Please upload exactly one CSV file for this task type.',
 			}
+			
 		}
 
 		const file = files[0].originFileObj || files[0]
+		const fileName = file.name.toLowerCase()
+		console.log(fileName, file, 'kfkfksf')
 		return new Promise((resolve) => {
-			Papa.parse(file, {
-				header: true,
-				skipEmptyLines: true,
-				delimiter: ',',
-				complete: (results) => {
-					const { data, errors } = results
-					if (errors.length > 0) {
+			if(fileName.endsWith('.csv')) {
+				Papa.parse(file, {
+					header: true,
+					skipEmptyLines: true,
+					delimiter: ',',
+					complete: (results) => {
+						const { data, errors } = results
+						if (errors.length > 0) {
+							resolve({
+								isValid: false,
+								message: 'CSV parse error: ' + errors[0].message,
+							})
+							return
+						}
+						if (data.length === 0) {
+							resolve({
+								isValid: false,
+								message: 'CSV file cannot be empty.',
+							})
+							return
+						}
+
+						const cols = Object.keys(data[0] || {})
+
+						if (
+							cols.length !== featureColumns.length ||
+							!featureColumns.every((c) => cols.includes(c))
+						) {
+							resolve({
+								isValid: false,
+								message:
+									'CSV columns must exactly match feature columns: ' +
+									featureColumns.join(', '),
+							})
+							return
+						}
+						resolve({ isValid: true, message: 'CSV data is valid.' })
+					},
+					error: (error) => {
 						resolve({
 							isValid: false,
-							message: 'CSV parse error: ' + errors[0].message,
+							message: 'Failed to parse CSV file: ' + error.message,
 						})
-						return
-					}
-					if (data.length === 0) {
+					},
+				})
+			}
+			else  {
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					try {
+						const data = e.target.result 
+						const workbook = XLSX.read(data, {type:'array'})
+						const sheetName = workbook.SheetNames[0]
+						if(!sheetName){
+							resolve({
+								isValid: false,
+								message: 'Excel file contains no sheets.',
+							})
+							return
+						}
+
+						const worksheet = workbook.Sheets[sheetName]
+						const jsonData = XLSX.utils.sheet_to_json(worksheet, {header :1 , defval: ''})
+						if (jsonData.length === 0) {
+							resolve({
+								isValid: false,
+								message: "Excel file's is empty.",
+							})
+							return
+						}
+						const cols = (jsonData[0] || []).map(String)
+						if (jsonData.length <= 1) {
+							resolve({
+								isValid: false,
+								message:
+									'Excel file contains headers but no data rows.',
+							})
+							return
+						}
+
+						if (
+							cols.length !== featureColumns.length ||
+							!featureColumns.every((c) => cols.includes(c))
+						) {
+							resolve({
+								isValid: false,
+								message:
+									'Excel columns must exactly match feature columns: ' +
+									featureColumns.join(', '),
+							})
+							return
+						}
 						resolve({
-							isValid: false,
-							message: 'CSV file cannot be empty.',
+							isValid: true,
+							message: 'Excel data is valid.',
 						})
-						return
-					}
 
-					const cols = Object.keys(data[0] || {})
-
-					if (
-						cols.length !== featureColumns.length ||
-						!featureColumns.every((c) => cols.includes(c))
-					) {
+					} catch (excelError) {
 						resolve({
 							isValid: false,
 							message:
-								'CSV columns must exactly match feature columns: ' +
-								featureColumns.join(', '),
+								'Failed to parse Excel file: ' +
+								excelError.message,
 						})
-						return
 					}
-					resolve({ isValid: true, message: 'CSV data is valid.' })
-				},
-				error: (error) => {
+				}
+				reader.onerror = (error) => {
 					resolve({
 						isValid: false,
-						message: 'Failed to parse CSV file: ' + error.message,
+						message: 'Failed to read file: ' + error.message,
 					})
-				},
-			})
+				}
+
+				// Đọc file dưới dạng ArrayBuffer cho xlsx
+				reader.readAsArrayBuffer(file)
+
+			}
 		})
 	}
 
@@ -168,6 +244,44 @@ const UpDataDeploy = ({
 		})
 		return { version: v, presigned: data }
 	}
+	const convertXlsxToCsv = async (file) => {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader()
+			reader.onload = (e) => {
+				try {
+					const data = e.target.result
+					const workbook = XLSX.read(data, { type: 'array' })
+					
+					// Lấy sheet đầu tiên
+					const sheetName = workbook.SheetNames[0]
+					if (!sheetName) {
+						reject(new Error('Excel file has no sheets.'))
+						return
+					}
+					const worksheet = workbook.Sheets[sheetName]
+					
+					// Chuyển sheet thành chuỗi CSV
+					const csvString = XLSX.utils.sheet_to_csv(worksheet)
+					
+					// Lấy tên file gốc, bỏ đuôi .xls/.xlsx
+					const baseName = file.name.replace(/\.(xls|xlsx)$/i, '')
+					const newFileName = `${baseName}.csv` // Tạo tên file .csv mới
+					
+					// Tạo một File object mới với nội dung CSV
+					const csvFile = new File([csvString], newFileName, {
+						type: 'text/csv',
+						lastModified: file.lastModified,
+					})
+					
+					resolve(csvFile) // Trả về file CSV mới
+				} catch (err) {
+					reject(err)
+				}
+			}
+			reader.onerror = (err) => reject(err)
+			reader.readAsArrayBuffer(file) // Đọc file dạng buffer
+		})
+	}
 
 	const handleStart = async () => {
 		try {
@@ -188,43 +302,76 @@ const UpDataDeploy = ({
 			// Không gọi deploy tại đây để ưu tiên upload dữ liệu trước
 
 			// Only allow image files and flatten to base filename
-			const allowed = ['.jpg', '.jpeg', '.png', '.csv']
-			const imageFiles = fileList.filter((f) => {
-				const name = (f.name || '').toLowerCase()
-				return allowed.some((ext) => name.endsWith(ext))
-			})
+			const allowed = ['.jpg', '.jpeg', '.png', '.csv', '.xls', '.xlsx']
+			
+            const presignPayload = [] // Mảng chứa { key, type } để lấy URL
+            const uploadableFiles = [] // Mảng chứa các File object (đã convert nếu cần)
 
-			if (imageFiles.length === 0) {
-				message.warning('No valid image files (.jpg, .jpeg, .png)')
+            // 2. Xử lý và chuyển đổi file (nếu cần)
+            for (const fileInfo of fileList) {
+                const file = fileInfo.originFileObj || fileInfo
+                const name = (file.name || '').toLowerCase()
+
+                if (!allowed.some((ext) => name.endsWith(ext))) {
+                    continue 
+                }
+
+                if (name.endsWith('.xls') || name.endsWith('.xlsx')) {
+                    try {
+                        const csvFile = await convertXlsxToCsv(file) // Gọi helper
+                        
+                        uploadableFiles.push(csvFile) // Thêm file CSV mới vào danh sách upload
+                        presignPayload.push({
+                            key: csvFile.name, 
+                            type: 'text/csv',
+                        })
+                    } catch (e) {
+                        console.error('Failed to convert Excel file:', e)
+                        message.error(`Failed to convert ${file.name}: ${e.message}`)
+                        setIsUploading(false)
+                        return // Dừng lại nếu lỗi convert
+                    }
+                } else {
+                    // Đây là file (JPG, PNG, CSV)
+                    uploadableFiles.push(file) // Thêm file gốc
+                    
+                    let baseName = file.name
+                    // Sửa lỗi type detection (code gốc của bạn)
+                    let detectedType = file.type
+                    if (!detectedType) {
+                        if (baseName.toLowerCase().endsWith('.csv')) {
+                            detectedType = 'text/csv'
+                        } else if (baseName.toLowerCase().endsWith('.png')) {
+                            detectedType = 'image/png'
+                        } else { // jpg, jpeg
+                            detectedType = 'image/jpeg'
+                        }
+                    }
+                    
+                    presignPayload.push({
+                        key: baseName,
+                        type: detectedType,
+                    })
+                }
+            }
+
+
+			if (uploadableFiles.length === 0) {
+				message.warning('No valid files to upload.')
+                setIsUploading(false)
 				return
 			}
 
-			// Tính version động theo deploy_data hiện có
 			const version = await getNextVersion(projectId)
 
-			// Build presign request for predict endpoint: flatten keys and set version
-			const filesToUpload = imageFiles.map((f) => {
-				let baseName = f.name
-
-				const type =
-					f.type ||
-					(baseName.toLowerCase().endsWith('.png') ||
-					baseName.toLowerCase().endsWith('.csv')
-						? 'image/png'
-						: 'image/jpeg')
-				return {
-					key: baseName,
-					type,
-				}
-			})
-
+			// 4. Build presign request bằng payload mới
 			const { data: presignedUrlResponse } =
 				await createPresignedUrlsPredict({
 					projectId,
 					version,
-					files: filesToUpload,
+					files: presignPayload, // Dùng payload đã xử lý
 				})
-			//console.log('Presigned response:', presignedUrlResponse)
+            
 			if (
 				!Array.isArray(presignedUrlResponse) ||
 				presignedUrlResponse.length === 0
@@ -232,7 +379,7 @@ const UpDataDeploy = ({
 				throw new Error('Failed to get presigned URLs')
 			}
 
-			// Map basename(key) -> url for upload (backend returns full S3 key with prefix)
+			// Map basename(key) -> url (như cũ)
 			const keyToUrl = new Map(
 				presignedUrlResponse.map((item) => [
 					(item.key || '').split('/').pop() || item.key,
@@ -240,17 +387,16 @@ const UpDataDeploy = ({
 				])
 			)
 
-			// Upload all files
+			// 5. Upload tất cả file (từ danh sách uploadableFiles)
 			await Promise.all(
-				filesToUpload.map(async (item, idx) => {
-					// item.key is baseName; look up by basename mapping
-					//console.log('Uploading item', item, 'index', idx)
-					const url = keyToUrl.get(item.key)
-					//console.log('Uploading', item.key, 'to', url)
+				uploadableFiles.map(async (fileObj, idx) => { // Dùng uploadableFiles
+                    const item = presignPayload[idx] // Lấy thông tin {key, type} tương ứng
+					const url = keyToUrl.get(item.key) // Tìm URL bằng key (ví dụ: 'ten_file.csv')
+					
 					if (!url) throw new Error(`Missing URL for ${item.key}`)
-					const fileObj =
-						imageFiles[idx].originFileObj || imageFiles[idx]
-					const resp = await fetch(url, {
+                    
+                    // fileObj ở đây đã là file CSV (nếu gốc là Excel)
+					const resp = await fetch(url, { 
 						method: 'PUT',
 						body: fileObj,
 						headers: { 'Content-Type': item.type },
@@ -260,23 +406,11 @@ const UpDataDeploy = ({
 				})
 			)
 
-			// Lưu prefix folder mới nhất lên user_service (deploy_data)
+			// 6. Lưu prefix (như cũ)
 			const prefixKey = `${projectId}_predict/v${version}/`
-			// try {
-			//     await instance.post(
-			//         `/api/service/users/projects/${projectId}/deployData`,
-			//         {
-			//             dataUrl: prefixKey,
-			//             predictDataUrl: prefixKey,
-			//         }
-			//     )
-			// } catch (e) {
-			//     console.error('Save deploy_data error:', e)
-			// }
 
-			const filesToPredict = imageFiles.map(
-				(file) => file.originFileObj || file
-			)
+            // 7. Tạo filesToPredict từ danh sách đã convert
+			const filesToPredict = uploadableFiles
 
 			setFileList([])
 			setFolderStructure([])
@@ -303,7 +437,7 @@ const UpDataDeploy = ({
 	const uploadProps = {
 		name: 'file',
 		multiple: true,
-		accept: '.jpg,.jpeg,.png,.csv, .zip',
+		accept: '.jpg,.jpeg,.png,.csv,.xls,.xlsx,.zip',
 		fileList,
 		showUploadList: false,
 		beforeUpload: (file) => {
@@ -316,6 +450,7 @@ const UpDataDeploy = ({
 		},
 		onChange: async (info) => {
 			const { fileList: newFileList } = info
+			console.log(info, 'dđ')
 			if (newFileList.length === 0) {
 				setFileList([])
 				setFolderStructure({})
@@ -337,6 +472,7 @@ const UpDataDeploy = ({
 				setFileList(newFileList)
 				setFolderStructure(createFolderStructure(newFileList))
 			} else {
+				console.error('File validation failed:', verificationResult.message)
 				setVerificationStatus('error')
 				setVerificationMessage(verificationResult.message)
 				setFileList([]) // Xóa file nếu không hợp lệ
