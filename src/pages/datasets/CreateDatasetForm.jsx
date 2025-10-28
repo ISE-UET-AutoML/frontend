@@ -45,6 +45,9 @@ export default function CreateDatasetForm({
     const [detectedLabels, setDetectedLabels] = useState(initialDetectedLabels);
     const [csvMetadata, setCsvMetadata] = useState(initialCsvMetadata);
 
+    const [isDragging, setIsDragging]  = useState(false);
+    const fileInputRef = useRef(null)
+
     // whenever initial props change (when coming back), refresh states
     useEffect(() => {
         if (initialFiles.length) {
@@ -154,6 +157,68 @@ export default function CreateDatasetForm({
         }, 0);
         setTotalKbytes(totalSize > 0 ? (totalSize / 1024).toFixed(2) : '0.00');
     };
+    const handleReset = () => {
+		// Clear file input visually
+		if (fileInputRef.current) {
+			fileInputRef.current.value = null
+		}
+
+		// Reset all states
+		setFiles([])
+		setTotalKbytes(0)
+		setDetectedLabels([])
+		setCsvMetadata(null)
+	}
+
+    const handleDragEnter = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+            setIsDragging(true);
+        }
+    };
+
+    const handleDragLeave = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        // Tắt state khi kéo file ra khỏi vùng <label>
+        // Kiểm tra relatedTarget để tránh lỗi flickering khi di qua các element con
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setIsDragging(false);
+        }
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault(); // <-- Rất quan trọng, cho phép thả file
+        event.stopPropagation();
+        setIsDragging(true); // Giữ state true khi vẫn còn đang kéo trên vùng
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault(); // <-- Ngăn trình duyệt mở file
+        event.stopPropagation();
+        setIsDragging(false); // Tắt state khi đã thả file
+
+        const files = event.dataTransfer.files;
+        
+        if (files && files.length > 0) {
+            // Tạo một object sự kiện "giả"
+            // vì hàm handleFileChange đang chờ `event.target.files`
+            const simulatedEvent = {
+                target: {
+                    files: files
+                }
+            };
+            
+            // Gán file vào ref (giúp reset hoạt động)
+            if(fileInputRef.current) {
+                fileInputRef.current.files = files;
+            }
+            
+            // Gọi hàm xử lý file đã có
+            handleFileChange(simulatedEvent);
+        }
+    };
 
     const renderPreparingInstructions = () => {
         const currentType = DATASET_TYPES[datasetType];
@@ -208,6 +273,28 @@ export default function CreateDatasetForm({
             />
         );
     };
+
+    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL';
+    const fileInputProps = {
+        ref: fileInputRef,
+        type: 'file',
+        name: 'file',
+        id: 'file',
+        multiple: true,
+        style: { display: 'none' },
+        onChange: handleFileChange,
+    }
+    if (isFolderUpload) {
+        fileInputProps.webkitdirectory = ''
+        fileInputProps.directory = ''
+    } else if (datasetType){
+        const allowedExtensions = {
+            TEXT: '.csv,.xlsx,.xls',
+            TABULAR: '.csv,.xlsx,.xls',
+            TIME_SERIES: '.csv,.xlsx,.xls',
+        };
+        fileInputProps.accept = allowedExtensions[datasetType] || ''
+    }
     const tabItems = [
         {
             key: 'file',
@@ -219,13 +306,22 @@ export default function CreateDatasetForm({
                         justifyContent: 'center',
                         alignItems: 'center',
                         height: '120px',
-                        border: '2px dashed var(--upload-border)',
+                        border: isDragging 
+                                ? '2px dashed var(--modal-close-hover)' 
+                                : '2px dashed var(--upload-border)',
+							background: isDragging 
+                                ? 'var(--hover-bg)' 
+                                : 'var(--upload-bg)',
                         borderRadius: '12px',
                         cursor: 'pointer',
                         marginBottom: '16px',
                         background: 'var(--upload-bg)',
                         transition: 'all 0.3s ease'
                     }}
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
                         onMouseEnter={(e) => {
                             e.target.style.borderColor = 'var(--modal-close-hover)'
                             e.target.style.background = 'var(--hover-bg)'
@@ -236,20 +332,29 @@ export default function CreateDatasetForm({
                         }}
                     >
                         <div style={{ textAlign: 'center', background: 'transparent' }}>
-                            <FolderOutlined style={{ fontSize: '48px', color: 'var(--upload-icon)' }} />
+                            {isFolderUpload ? (
+								<FolderOutlined
+									style={{
+										fontSize: '64px',
+										color: 'var(--upload-icon)',
+									}}
+								/>
+							) : (
+								<FileOutlined
+									style={{
+										fontSize: '64px',
+										color: 'var(--upload-icon)',
+									}}
+								/>
+							)}
                             <p style={{ marginTop: '8px', color: 'var(--upload-text)', fontFamily: 'Poppins, sans-serif' }}>
-                                Drag and drop a folder or click to upload
+                                {isFolderUpload
+									? 'Drag and drop a folder or click to upload'
+									: 'Drag and drop files or click to upload'}
                             </p>
                         </div>
                         <input
-                            type="file"
-                            name="file"
-                            id="file"
-                            webkitdirectory=""
-                            directory=""
-                            multiple
-                            style={{ display: 'none' }}
-                            onChange={handleFileChange}
+                            {...fileInputProps}
                         />
                     </label>
                     <div style={{ color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>
@@ -531,6 +636,7 @@ export default function CreateDatasetForm({
                                 placeholder="Select dataset type"
                                 onChange={(value) => {
                                     setDatasetType(value);
+                                    handleReset();
                                     // if (value === 'MULTIMODAL') {
                                     //     message.info('Upload folder with images and CSV for MULTIMODAL.');
                                     // }

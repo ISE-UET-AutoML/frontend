@@ -300,20 +300,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                     </div>
                 ) : (
                     <>
-                        <Steps
-                            current={currentStep}
-                            items={[
-                                {
-                                    title: 'Create Dataset',
-                                    description: 'Upload and configure your data'
-                                },
-                                {
-                                    title: 'Create Label Project',
-                                    description: 'Set up labeling configuration'
-                                }
-                            ]}
-                            style={{ marginBottom: 12 }}
-                        />
+                        
                         {currentStep === 0 ? (
                             <CreateDatasetForm
                                 onNext={handleNext}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from 'src/theme/ThemeProvider'
-const { Title, Text, Paragraph } = Typography
 import {
     Steps,
     Card,
@@ -32,6 +31,8 @@ import * as deployAPI from 'src/api/deploy'
 import { PATHS } from 'src/constants/paths'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { useSpring, animated } from '@react-spring/web'
+
+const { Title, Text, Paragraph } = Typography
 const settingUpProgress = [
     {
         title: (
