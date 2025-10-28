@@ -73,7 +73,7 @@ const SignUp = () => {
             const response = await signup({ full_name, email, password });
 
             if (response) {
-                message.success('Đăng ký tài khoản thành công!');
+                message.success('Registration successful!');
                 console.log('Đăng ký thành công:', response);
                 navigate('/login', { replace: true });
             }
@@ -90,9 +90,9 @@ const SignUp = () => {
                             value: email
                         }
                     }));
-                    message.warning('Email này đã được sử dụng, vui lòng chọn email khác.');
-                } else {
-                    message.warning(error.response.data.error);
+                    message.warning('This email is already registered. Please choose another one.');
+                } else if (error.response.data.error === "Error while getting label studio token") {
+                    message.warning('This email is already registered. Please choose another one.');
                 }
             } else {
                 message.error('Có lỗi xảy ra, vui lòng thử lại sau.');
