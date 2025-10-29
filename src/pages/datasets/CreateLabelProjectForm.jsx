@@ -122,7 +122,7 @@ export default function CreateLabelProjectForm({
 				label_colors: labelColors,
 				series_column: selectedSeriesColumn,
 				text_columns: selectedTextColumn,
-				features_column: selectedFeaturesColumn,
+				feature_columns: selectedFeaturesColumn,
 			},
 		}
 		onSubmit(payload)
