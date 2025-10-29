@@ -5,6 +5,25 @@ const TASK_TYPES = {
 		allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
 		card: { bg: '#e6f4ff', text: '#1677ff', border: '#1677ff' },
 		dataType: 'IMAGE',
+		preparingInstructions: `📂 Organize your images into subfolders by label:
+
+💡 Example structure:
+├── cats/
+│   ├── cat1.jpg
+│   ├── cat2.png
+│   └── cat3.jpeg
+├── dogs/
+│   ├── dog1.jpg
+│   └── dog2.jpeg
+└── birds/
+    ├── bird1.jpg
+    └── bird2.png
+
+✅ Requirements:
+• Supported formats: JPEG, PNG, WebP
+• Recommended image size: 224x224px or higher
+• Maximum file size: 10MB per image`,
+	exampleFile: '/data_example/image_classification.zip'
 	},
 	TEXT_CLASSIFICATION: {
 		type: 'Text Classification',
@@ -12,6 +31,23 @@ const TASK_TYPES = {
 		allowedExtensions: ['csv'],
 		card: { bg: '#f6ffed', text: '#52c41a', border: '#52c41a' },
 		dataType: 'TEXT',
+		preparingInstructions: `📄 Prepare your text data in CSV/XSLX format:
+
+📋 Requirements:
+• File must be in .csv and .xslx(excel) format.
+• Must have a header row (column names).
+• The category column must be the LAST COLUMN.
+
+💡 Example format:
+text,category
+"This is a positive review","positive"
+"Great product, highly recommend","positive"
+"Poor quality, disappointed","negative"
+
+✅ Guidelines:
+• UTF-8 encoding.
+• A minimum of 100 samples is recommended for good results.`,
+	exampleFile: '/data_example/text_classification.xlsx'
 	},
 	MULTILABEL_TEXT_CLASSIFICATION: {
 		type: 'Multilabel Text Classification',
@@ -19,6 +55,22 @@ const TASK_TYPES = {
 		allowedExtensions: ['csv'],
 		card: { bg: '#f6ffed', text: '#237804', border: '#237804' },
 		dataType: 'TEXT',
+		preparingInstructions: `📄 Prepare your multi-label text data in CSV/XSLX format:
+
+📋 Requirements:
+• File must be in .csv/.xslx format.
+• Must have a header row (column names).
+• The categories column must be the LAST COLUMN.
+• Categories in the last column must be separated by "; " (a semicolon followed by a space).
+
+💡 Example format:
+Movie Summary |                                                       Genres
+A superhero fights to save the world from a deadly threat |          Action; Sci-Fi
+A heartwarming tale of friendship and romance |                      Romance; Comedy; Drama
+
+✅ Guidelines:
+• UTF-8 encoding.`,
+	exampleFile: '/data_example/multilabel_text_classification.xlsx'
 	},
 	TABULAR_CLASSIFICATION: {
 		type: 'Tabular Classification',
@@ -30,6 +82,23 @@ const TASK_TYPES = {
 			border: '#722ed1',
 		},
 		dataType: 'TABULAR',
+		preparingInstructions: `📊 Prepare your tabular data in CSV/XSLX format:
+
+📋 Requirements:
+• File must be in .csv/.xslx(excel) format.
+• Must have a header row (column names).
+• The category column must be the LAST COLUMN.
+
+💡 Example format:
+Age | Salary | Balance | Prediction
+35 | 50,000 | 75,000 | Churn
+42 | 62,000 | 12,000 | No Churn
+29 | 48,000 | 90,000 | No Churn
+
+✅ Guidelines:
+• Handle missing values (use empty cells or 'NULL').
+• Ensure consistent data types for each column.`,
+	exampleFile: '/data_example/tabular_classification.xlsx'
 	},
 	TABULAR_REGRESSION: {
 		type: 'Tabular Regression',
@@ -41,6 +110,21 @@ const TASK_TYPES = {
 			border: '#621d5cff',
 		},
 		dataType: 'TABULAR',
+		preparingInstructions: `📊 Prepare your data for tabular regression (CSV, EXCEL):
+
+📋 Requirements:
+• File must be in .csv/.xslx format.
+• Must have a header row (column names).
+• The target/label column must be the LAST COLUMN.
+• ❗️ Important: Values in the target column must be floating-point numbers (e.g., 1.5, 25.0, 105.7).
+
+💡 Example format:
+Square Footage | Bedrooms | Location | Predicted Price ($ M)
+80 | 2 | Suburban | 1,2
+120 | 3 | Suburban | 1,8
+100 | 3 | Downtown | 3
+150 | 4 | Downtown | 4,5`,
+	exampleFile: '/data_example/tabular_regression.xlsx'
 	},
 	MULTILABEL_TABULAR_CLASSIFICATION: {
 		type: 'Multilabel Tabular Classification',
@@ -52,6 +136,20 @@ const TASK_TYPES = {
 			border: '#391085ff',
 		},
 		dataType: 'TABULAR',
+		preparingInstructions: `📊 Prepare your multi-label tabular data in CSV/XSLX format:
+
+📋 Requirements:
+• File must be in .csv/.xslx format.
+• Must have a header row (column names).
+• The categories column must be the LAST COLUMN.
+• Categories in the last column must be SEPARATED by "; " (a semicolon followed by a space).
+
+💡 Example format:
+Movie Title | Year | Genres
+Avengers: Endgame | 2019 | action; adventure
+Titanic | 1997 | romance; disaster; historical
+The Hangover | 2019 | thriller; comedy; drama; social commentary`,
+	exampleFile: '/data_example/multilabel_tabular_classification.xlsx',
 	},
 	MULTIMODAL_CLASSIFICATION: {
 		type: 'Multimodal Classification',

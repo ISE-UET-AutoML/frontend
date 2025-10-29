@@ -16,7 +16,7 @@ import {
 import { FolderOutlined, FileOutlined, DeleteOutlined, InfoCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { DATASET_TYPES } from 'src/constants/types';
 import { organizeFiles, createChunks, extractCSVMetaData } from 'src/utils/file';
-
+import { DATASET_TASK_MAPPING, TASK_TYPE_INFO } from 'src/constants/dataset_task_mapping';
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -33,7 +33,8 @@ export default function CreateDatasetForm({
     const [selectedUrlOption, setSelectedUrlOption] = useState('remote-url');
     const [service, setService] = useState(initialValues?.service || 'AWS_S3');
     const [bucketName, setBucketName] = useState(initialValues?.bucket_name || 'user-private-dataset');
-    const [datasetType, setDatasetType] = useState(initialValues?.dataset_type || 'IMAGE_CLASSIFICATION');
+    const [datasetType, setDatasetType] = useState(initialValues?.dataset_type || null);
+    const [taskType, setTaskType] = useState(initialValues?.taskType || null);
     const fileRefs = useRef(new Map());
 
     const calcSizeKB = (fileArr) => {
@@ -219,10 +220,25 @@ export default function CreateDatasetForm({
             handleFileChange(simulatedEvent);
         }
     };
+    const getAvailableTaskTypes = () => {
+        const dataType = datasetType; // Sử dụng state datasetType
+        if (!dataType) {
+            return [];
+        }
+        
+        const availableTypes = DATASET_TASK_MAPPING[dataType] || [];
+        
+        const taskTypes = availableTypes.map(typeKey => ({
+            key: typeKey,
+            ...TASK_TYPE_INFO[typeKey]
+        }));
+        
+        return taskTypes;
+    };
 
     const renderPreparingInstructions = () => {
-        const currentType = DATASET_TYPES[datasetType];
-        if (!currentType || !currentType.preparingInstructions) {
+        const currentTaskInfo = TASK_TYPE_INFO[taskType];
+        if (!currentTaskInfo || !currentTaskInfo.preparingInstructions) {
             return null;
         }
 
@@ -237,7 +253,7 @@ export default function CreateDatasetForm({
                         fontWeight: '500'
                     }}>
                         <QuestionCircleOutlined style={{ marginRight: '8px' }} />
-                        Dataset Preparation Instructions
+                        Task Preparation Instructions ({currentTaskInfo.displayName})
                     </div>
                 ),
                 children: (
@@ -249,9 +265,9 @@ export default function CreateDatasetForm({
                         padding: '12px',
                         backgroundColor: 'rgba(0, 0, 0, 0.02)',
                         borderRadius: '6px',
-                        border: `1px solid ${currentType.card.border}20`
+                        border: `1px solid #ccc` // Màu border chung
                     }}>
-                        {currentType.preparingInstructions}
+                        {currentTaskInfo.preparingInstructions}
                     </div>
                 ),
             },
@@ -264,9 +280,8 @@ export default function CreateDatasetForm({
                 ghost
                 style={{
                     marginBottom: '16px',
-                    // backgroundColor: currentType.card.bg,
                     backgroundColor: 'rgba(255, 255, 255, 0.97)',
-                    border: `1px solid ${currentType.card.border}40`,
+                    border: `1px solid #ddd`, // Màu border chung
                     borderRadius: '6px',
                 }}
                 className="preparing-instructions-collapse"
@@ -612,40 +627,87 @@ export default function CreateDatasetForm({
                 onFinish={handleSubmit}
                 className="theme-form"
             >
+                {/* Hàng 1: Title */}
                 <Row gutter={16}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item
-                            label="Title"
-                            name="title"
-                            rules={[
-                                { required: true, message: 'Please enter a title' },
-                                {
-                                    pattern: /^[a-zA-Z0-9]+$/,
-                                    message: 'Title can only contain letters (a-z, A-Z) and numbers (0-9)'
-                                }
-                            ]}
+                        label="Title"
+                        name="title"
+                        rules={[
+                            { required: true, message: 'Please enter a title' },
+                            //{ pattern: /^[a-zA-Z0-9 _-]+$/, message: 'Title can only include letters, numbers, spaces, hyphens, and underscores' }
+                        ]}
                         >
-                            <Input placeholder="Enter dataset title (letters and numbers only)"
-                                style={{ borderRadius: '1px' }}
-                            />
+                        <Input
+                            placeholder="Enter dataset title (letters and numbers only)"
+                            style={{ borderRadius: '1px' }}
+                        />
                         </Form.Item>
                     </Col>
+                    </Row>
+
+                    {/* Hàng 2: Data Type và Task Type */}
+                    <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select a type' }]}>
-                            <Select
-                                placeholder="Select dataset type"
-                                onChange={(value) => {
-                                    setDatasetType(value);
-                                    handleReset();
-                                    // if (value === 'MULTIMODAL') {
-                                    //     message.info('Upload folder with images and CSV for MULTIMODAL.');
-                                    // }
-                                }}
-                            >
-                                {Object.entries(DATASET_TYPES).map(([key, value]) => (
-                                    <Option key={key} value={key}>{value.type}</Option>
-                                ))}
-                            </Select>
+                        <Form.Item
+                        label="Data Type"
+                        name="dataset_type"
+                        rules={[{ required: true, message: 'Please select a type' }]}
+                        >
+                        <Select
+                            placeholder="Select dataset type"
+                            onChange={(value) => {
+                            setDatasetType(value);
+                            setTaskType(null);
+                            form.setFieldsValue({ taskType: null });
+                            handleReset();
+                            }}
+                        >
+                            {Object.entries(DATASET_TYPES).map(([key, value]) => (
+                            <Option key={key} value={key}>
+                                {value.type}
+                            </Option>
+                            ))}
+                        </Select>
+                        </Form.Item>
+                    </Col>
+
+                    <Col span={12}>
+                        <Form.Item
+                        name="taskType"
+                        label="Task Type"
+                        rules={[{ required: true, message: 'Please select a task type' }]}
+                        >
+                        <Select
+                            placeholder="Select task type"
+                            onChange={(value) => {
+                            setTaskType(value);
+                            }}
+                            style={{ width: '100%' }}
+                            allowClear
+                            //disabled={!datasetType}
+                        >
+                            {!datasetType && (
+                            <Option key="__placeholder_task" value="" disabled>
+                                -- Select Data Type first --
+                            </Option>
+                            )}
+                            {datasetType &&
+                            getAvailableTaskTypes().map((task) => (
+                                <Option key={task.key} value={task.key}>
+                                {task.displayName}
+                                <span
+                                    style={{
+                                    fontSize: '0.8em',
+                                    color: 'var(--secondary-text)',
+                                    marginLeft: '8px',
+                                    }}
+                                >
+                                    ({task.description})
+                                </span>
+                                </Option>
+                            ))}
+                        </Select>
                         </Form.Item>
                     </Col>
                 </Row>

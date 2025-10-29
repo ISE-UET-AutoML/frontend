@@ -14,10 +14,8 @@ import {
 import { PlusOutlined } from '@ant-design/icons';
 import { getDatasets } from 'src/api/dataset';
 import { TASK_TYPES } from 'src/constants/types';
-import { DATASET_TASK_MAPPING, TASK_TYPE_INFO } from 'src/constants/dataset_task_mapping';
 
 const { Option } = Select;
-const { TextArea } = Input;
 
 export default function CreateLabelProjectForm({
     onSubmit,
@@ -27,7 +25,9 @@ export default function CreateLabelProjectForm({
     loading,
     detectedLabels = [],
     csvMetadata = null,
-    datasetType // IMAGE | TEXT | TABULAR | MULTIMODAL
+    datasetType, // IMAGE | TEXT | TABULAR | MULTIMODAL
+    taskType,
+    description
 }) {
     const [form] = Form.useForm();
     const [expectedLabels, setLabels] = useState([]);
@@ -38,7 +38,8 @@ export default function CreateLabelProjectForm({
     const [selectedTextColumn, setSelectedTextColumn] = useState(null); // State cho cột text
     const [labelColors, setLabelColors] = useState({});
     // watch task type selection
-    const selectedTaskType = Form.useWatch('taskType', form);
+    const selectedTaskType = taskType
+    console.log('Selected Task Type:', selectedTaskType);
     const isManualLabelTask = (taskType) =>
         ['SEMANTIC_SEGMENTATION', 'OBJECT_DETECTION'].includes(taskType);
 
@@ -102,6 +103,8 @@ export default function CreateLabelProjectForm({
         
         const payload = {
             ...values,
+            taskType: taskType,
+            description: description,
             expectedLabels,
             meta_data: {
                 "is_binary_class": is_binary_class,
@@ -114,28 +117,6 @@ export default function CreateLabelProjectForm({
         onSubmit(payload);
     };
 
-    // Lọc task types dựa vào dataset type
-    const getAvailableTaskTypes = () => {
-        const dataType = datasetType;
-        if (!dataType) {
-            return [];
-        }
-        
-        const availableTypes = DATASET_TASK_MAPPING[dataType] || [];
-        
-        const taskTypes = availableTypes.map(typeKey => ({
-            key: typeKey,
-            ...TASK_TYPE_INFO[typeKey]
-        }));
-        
-        return taskTypes;
-    };
-
-    // Log initial values
-    useEffect(() => {
-        // Recalculate when datasetType changes
-        getAvailableTaskTypes();
-    }, [datasetType]);
 
     return (
         <>
@@ -322,40 +303,6 @@ export default function CreateLabelProjectForm({
                                     />
                 </Form.Item>
 
-                <Form.Item name="description" label="Description">
-                    <TextArea rows={3} maxLength={500} showCount />
-                </Form.Item>
-
-                <Form.Item 
-                    name="taskType" 
-                    label="Task Type" 
-                    rules={[{ required: true }]}
-                >
-                    <Select 
-                        placeholder="Select task type"
-                        onChange={() => {
-                            // Reset labels when task type changes
-                            setLabels([]);
-                        }}
-                        style={{ width: '100%' }}
-                        allowClear
-                    >
-                        {/* Placeholder option */}
-                        {datasetType && (
-                            <Option key="__placeholder" value="" disabled>
-                                -- No option selected --
-                            </Option>
-                        )}
-                        {datasetType && getAvailableTaskTypes().map(task => (
-                            <Option key={task.key} value={task.key}>
-                                {task.displayName}
-                                <span style={{ fontSize: '0.8em', color: 'var(--secondary-text)', marginLeft: '8px' }}>
-                                    ({task.description})
-                                </span>
-                            </Option>
-                        ))}
-                    </Select>
-                </Form.Item>
 
                 {datasetType === 'TIME_SERIES' && (
                     <Form.Item label="Series Column" required>

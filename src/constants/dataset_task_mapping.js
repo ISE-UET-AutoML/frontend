@@ -43,6 +43,10 @@ export const TASK_TYPE_INFO = {
     TIME_SERIES_FORECASTING: {
         displayName: 'Time Series Forecasting',
         description: 'Predict future values based on historical time series data'
+    },
+    CLUSTERING: {
+        displayName: 'Clustering',
+        description: 'Group similar data points together without predefined labels'
     }
 };
 
@@ -55,7 +59,7 @@ export const DATASET_TASK_MAPPING = {
         'SEMANTIC_SEGMENTATION'
     ],
     TEXT: ['TEXT_CLASSIFICATION', 'MULTILABEL_TEXT_CLASSIFICATION'],
-    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION'],
+    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
     TIME_SERIES: ['TIME_SERIES_FORECASTING']
 };

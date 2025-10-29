@@ -18,7 +18,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
         setDatasetFormValues(values);
         setCurrentStep(1);
     };
-
+    
     const handleBack = () => {
         setCurrentStep(0);
     };
@@ -30,7 +30,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
         try {
             setIsLoading(true);
             console.log('handleSubmit called with labelProjectValues:', labelProjectValues);
-            const { files, totalKbytes, dataset_type, service, bucket_name, title, description } = datasetFormValues;
+            const { files, totalKbytes, dataset_type, service, bucket_name, title, description, taskType } = datasetFormValues;
         
             console.log('Initial dataset:', title);
             const initialDatasetPayload = {
@@ -317,6 +317,8 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                                 onCancel={handleCancel}
                                 loading={isLoading}
                                 datasetType={datasetFormValues?.dataset_type}
+                                taskType={datasetFormValues?.taskType}
+                                description={datasetFormValues?.description}
                                 initialValues={{ name: datasetFormValues?.title }}
                                 detectedLabels={datasetFormValues?.detectedLabels || []}
                                 csvMetadata={datasetFormValues?.csvMetadata}
