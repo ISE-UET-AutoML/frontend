@@ -227,6 +227,13 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             accent: '#7C3AED',
             progress: { from: '#A78BFA', to: '#7C3AED' },
         },
+        CLUSTERING: {
+            card: 'linear-gradient(135deg, #0B0B13 0%, #1A1533 50%, #261C4D 100%)',
+            tag: 'linear-gradient(135deg, #211644 0%, #32246C 50%, #291E57 100%)',
+            border: 'rgba(124, 58, 237, 0.35)',
+            accent: '#7C3AED',
+            progress: { from: '#A78BFA', to: '#7C3AED' },
+        }
     }
     const gradientTheme = TYPE_GRADIENT_MAP[familyKey] ||
         TYPE_GRADIENT_MAP[normalizedTypeKey] || {

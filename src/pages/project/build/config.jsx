@@ -84,6 +84,13 @@ const config = {
 		predictView: ImagePredict,
 		liveInferView: EmptyLiveInfer,
 	},
+	CLUSTERING: {
+		folder: UploadTypes.CSV_SINGLE,
+		afterUploadURL: 'selectInstance',
+		labelingView: LabelingTextClassification,
+		predictView: TabularClassificationPredict,
+		liveInferView: EmptyLiveInfer,
+	}
 }
 
 export default config

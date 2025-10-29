@@ -15,6 +15,7 @@ import multilabel_image_classification from 'src/assets/images/multilabel_image_
 import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
+import clustering from 'src/assets/images/clustering.jpeg'
 
 const { Title, Text } = Typography
 // const { TextArea } = Input
@@ -31,6 +32,7 @@ const projType = [
 	'object_detection',
 	'semantic_segmentation',
 	'time_series_forecasting',
+	'clustering'
 ]
 
 // const tagIcons = { ...unused icon map removed }
@@ -47,6 +49,7 @@ const imgArray = [
 	object_detection,
 	semantic_segmentation,
 	time_series_forecasting,
+	clustering
 ]
 
 const projectTypeImages = {}
@@ -261,7 +264,19 @@ For example:
 		image: time_series_forecasting,
 		difficulty: 'Advanced',
 		timeToTrain: '30-60 minutes',
+	},
+	{
+		id: 'clustering',
+		title: 'Clustering',
+		subtitle: 'Predict future values based on historical time-stamped data',
+		description: 'Essential for sales forecasting, stock price prediction, and resource planning. Analyze trends and seasonal patterns to make informed decisions.',
+		icon: '⏳',
+		explain: `📌 **This example shows how Clustering works.**`,
+		image: clustering,
+		difficulty: 'Advanced',
+		timeToTrain: '30-60 minutes',
 	}
+
 ]
 
 // const getImageByProjectType = (selectedProjectType) => projectTypeImages[selectedProjectType] || image_classification

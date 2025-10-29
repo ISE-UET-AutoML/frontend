@@ -191,6 +191,12 @@ The Hangover | 2019 | thriller; comedy; drama; social commentary`,
 		allowedExtensions: ['csv'],
 		dataType: 'TIME_SERIES',
 	},
+	CLUSTERING: {
+		type: 'Clustering',
+		description: 'We accept CSV text format',
+		allowedExtensions: ['csv'],
+		dataType: 'TABULAR',
+	},
 }
 
 const DATASET_TYPES = {
