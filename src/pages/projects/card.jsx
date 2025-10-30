@@ -77,8 +77,7 @@ export default function ProjectCard({ project, getProjects }) {
             MULTILABEL_TEXT_CLASSIFICATION: multilabel_text_classification,
             TABULAR_CLASSIFICATION: tabular_classification,
             TABULAR_REGRESSION: tabular_regression,
-            MULTILABEL_TABULAR_CLASSIFICATION:
-                multilabel_tabular_classification,
+            MULTILABEL_TABULAR_CLASSIFICATION:multilabel_tabular_classification,
             MULTIMODAL_CLASSIFICATION: multimodal_classification,
             MULTILABEL_IMAGE_CLASSIFICATION: multilabel_image_classification,
             OBJECT_DETECTION: object_detection,
