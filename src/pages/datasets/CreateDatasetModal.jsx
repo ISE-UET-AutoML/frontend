@@ -26,6 +26,10 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
         const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp'];
         return files.every((file) => allowedImageExtensions.includes(file.path.split('.').pop().toLowerCase()));
     };
+    const isAudioFolder = (files) => {
+        const allowedAudioExtensions = ['mp3', 'wav', 'ogg', 'm4a', 'flac'];
+        return files.every((file) => allowedAudioExtensions.includes(file.path.split('.').pop().toLowerCase()));
+    };
     const handleSubmit = async (labelProjectValues) => {
         try {
             setIsLoading(true);
@@ -55,11 +59,14 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
                 if (isImageFolder(folderFiles)) {
                     const folderChunk = createChunks(new Map([[label, folderFiles]]), IMG_NUM_IN_ZIP);
                     chunks.push(...folderChunk);
+                } else if (dataset_type === 'AUDIO' && isAudioFolder(folderFiles)) {
+                    const folderChunk = createChunks(new Map([[label, folderFiles]]), IMG_NUM_IN_ZIP);
+                    chunks.push(...folderChunk);
                 } else {
                     zips.push({
                         name: `chunk_unlabel_0.zip`,
                         files: folderFiles,
-                    })
+                    });
                 }
             }
 

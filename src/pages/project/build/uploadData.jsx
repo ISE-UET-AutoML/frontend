@@ -283,6 +283,7 @@ const UploadData = () => {
 	const fetchProjects = async () => {
 		setTableLoading(true)
 		try {
+			console.log('Fetching label projects for task type:', projectInfo)
 			const response = await getLbProjByTask(projectInfo.task_type)
 			setLabelProjects(
 				Array.isArray(response.data)

@@ -66,12 +66,14 @@ export default function CreateDatasetForm({
     const validateFiles = (files, datasetType) => {
         const allowedImageTypes = ['image/jpeg', 'image/png'];
         const allowedTextTypes = ['text/plain', 'text/csv', 'application/xml', 'text/xml'];
+        const allowedAudioTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/flac'];
         const allowedTypes = {
             IMAGE: [...allowedImageTypes, ...allowedTextTypes],
             TEXT: allowedTextTypes,
             TABULAR: allowedTextTypes,
             MULTIMODAL: [...allowedImageTypes, ...allowedTextTypes],
             TIME_SERIES: [...allowedTextTypes],
+            AUDIO: [...allowedAudioTypes, ...allowedTextTypes],
         };
         return files.filter((file) => file?.type && allowedTypes[datasetType]?.includes(file.type));
     };
@@ -289,7 +291,7 @@ export default function CreateDatasetForm({
         );
     };
 
-    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL';
+    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL'|| datasetType === 'AUDIO';
     const fileInputProps = {
         ref: fileInputRef,
         type: 'file',
@@ -307,6 +309,7 @@ export default function CreateDatasetForm({
             TEXT: '.csv,.xlsx,.xls',
             TABULAR: '.csv,.xlsx,.xls',
             TIME_SERIES: '.csv,.xlsx,.xls',
+            AUDIO: '.mp3,.wav,.ogg,.m4a,.flac,.csv,.xml'
         };
         fileInputProps.accept = allowedExtensions[datasetType] || ''
     }

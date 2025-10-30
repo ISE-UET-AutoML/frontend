@@ -48,7 +48,7 @@ export default function CreateLabelProjectForm({
 	useEffect(() => {
 		if (
 			detectedLabels?.length > 0 &&
-			selectedTaskType === 'IMAGE_CLASSIFICATION'
+			(selectedTaskType === 'IMAGE_CLASSIFICATION' || selectedTaskType === 'AUDIO_CLASSIFICATION')
 		) {
 			console.log(
 				'Setting detected labels from folder structure:',
@@ -407,7 +407,8 @@ export default function CreateLabelProjectForm({
 								placeholder="Select one or more feature columns"
 								value={selectedFeaturesColumn}
 								onChange={(vals) =>
-									setSelectedFeaturesColumn(vals)
+									setSelectedFeaturesColumn(vals) &
+									setLabels(vals)
 								}
 								allowClear
 								showSearch
@@ -587,7 +588,7 @@ export default function CreateLabelProjectForm({
 							type="primary"
 							htmlType="submit"
 							loading={loading}
-							disabled={expectedLabels.length === 0}
+							disabled={expectedLabels.length === 0 }
 						>
 							Create
 						</Button>

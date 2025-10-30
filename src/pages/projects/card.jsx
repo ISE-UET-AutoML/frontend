@@ -31,6 +31,7 @@ import multilabel_image_classification from 'src/assets/images/multilabel_image_
 import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
+import clustering from 'src/assets/images/clustering.jpeg'
 
 dayjs.extend(relativeTime)
 
@@ -83,6 +84,7 @@ export default function ProjectCard({ project, getProjects }) {
             OBJECT_DETECTION: object_detection,
             SEMANTIC_SEGMENTATION: semantic_segmentation,
             TIME_SERIES_FORECASTING: time_series_forecasting,
+            CLUSTERING: clustering
         }
         return imageMap[taskType] || image_classification
     }

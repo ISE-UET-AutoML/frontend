@@ -47,6 +47,10 @@ export const TASK_TYPE_INFO = {
     CLUSTERING: {
         displayName: 'Clustering',
         description: 'Group similar data points together without predefined labels'
+    },
+    AUDIO_CLASSIFICATION: {
+        displayName: 'Audio Classification',
+        description: 'Classify audio clips into predefined categories'
     }
 };
 
@@ -61,5 +65,6 @@ export const DATASET_TASK_MAPPING = {
     TEXT: ['TEXT_CLASSIFICATION', 'MULTILABEL_TEXT_CLASSIFICATION'],
     TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
-    TIME_SERIES: ['TIME_SERIES_FORECASTING']
+    TIME_SERIES: ['TIME_SERIES_FORECASTING'],
+    AUDIO: ['AUDIO_CLASSIFICATION']
 };
