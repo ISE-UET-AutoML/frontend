@@ -16,6 +16,7 @@ import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 import clustering from 'src/assets/images/clustering.jpeg'
+import audio_classification from 'src/assets/images/audio_classification.jpeg'
 
 const { Title, Text } = Typography
 // const { TextArea } = Input
@@ -32,7 +33,8 @@ const projType = [
 	'object_detection',
 	'semantic_segmentation',
 	'time_series_forecasting',
-	'clustering'
+	'clustering',
+	'audio_classification',
 ]
 
 // const tagIcons = { ...unused icon map removed }
@@ -49,7 +51,8 @@ const imgArray = [
 	object_detection,
 	semantic_segmentation,
 	time_series_forecasting,
-	clustering
+	clustering,
+	audio_classification
 ]
 
 const projectTypeImages = {}
@@ -270,9 +273,20 @@ For example:
 		title: 'Clustering',
 		subtitle: 'Predict future values based on historical time-stamped data',
 		description: 'Essential for sales forecasting, stock price prediction, and resource planning. Analyze trends and seasonal patterns to make informed decisions.',
-		icon: '⏳',
+		icon: '🧩',
 		explain: `📌 **This example shows how Clustering works.**`,
 		image: clustering,
+		difficulty: 'Advanced',
+		timeToTrain: '30-60 minutes',
+	},
+	{
+		id: 'audio_classification',
+		title: 'Audio Classification',
+		subtitle: 'Classify audio clips into predefined categories',
+		description: 'Ideal for speech recognition, music genre classification, and environmental sound detection. Analyze audio data to extract meaningful insights.',
+		icon: '🎵',
+		explain: `📌 **This example shows how Audio Classification works.**`,
+		image: audio_classification,
 		difficulty: 'Advanced',
 		timeToTrain: '30-60 minutes',
 	}

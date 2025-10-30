@@ -90,6 +90,13 @@ const config = {
 		labelingView: LabelingTextClassification,
 		predictView: TabularClassificationPredict,
 		liveInferView: EmptyLiveInfer,
+	},
+	AUDIO_CLASSIFICATION: {
+		afterUploadURL: 'selectInstance',
+		folder: UploadTypes.FOLDER,
+		labelingView: LabelingImageClassification,
+		predictView: ImagePredict,
+		liveInferView: EmptyLiveInfer,
 	}
 }
 
