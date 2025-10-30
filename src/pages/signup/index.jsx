@@ -73,8 +73,8 @@ const SignUp = () => {
             const response = await signup({ full_name, email, password });
 
             if (response) {
-                message.success('Đăng ký tài khoản thành công!');
-                console.log('Đăng ký thành công:', response);
+                message.success('Registration successful!');
+                //console.log('Đăng ký thành công:', response);
                 navigate('/login', { replace: true });
             }
         } catch (error) {
@@ -90,12 +90,12 @@ const SignUp = () => {
                             value: email
                         }
                     }));
-                    message.warning('Email này đã được sử dụng, vui lòng chọn email khác.');
+                    message.warning('This email is already registered. Please choose another one.');
                 } else {
                     message.warning(error.response.data.error);
                 }
             } else {
-                message.error('Có lỗi xảy ra, vui lòng thử lại sau.');
+                message.error('This email is already registered. Please choose another one.');
             }
             // Quan trọng: không throw lại error để tránh uncaught error
         }

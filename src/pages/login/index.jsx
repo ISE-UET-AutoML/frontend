@@ -96,7 +96,7 @@ const Login = () => {
            
         } catch (error) {
             console.error(error);
-            message.error(error.message || 'Login failed. Please try again.');
+            message.error("Invalid login email or password");
         }
     };
 
