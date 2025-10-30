@@ -16,6 +16,7 @@ import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 import clustering from 'src/assets/images/clustering.jpeg'
+import anomaly_detection from 'src/assets/images/anomaly_detection.png'
 
 const { Title, Text } = Typography
 // const { TextArea } = Input
@@ -32,7 +33,8 @@ const projType = [
 	'object_detection',
 	'semantic_segmentation',
 	'time_series_forecasting',
-	'clustering'
+	'clustering',
+	'anomaly_detection'
 ]
 
 // const tagIcons = { ...unused icon map removed }
@@ -49,7 +51,8 @@ const imgArray = [
 	object_detection,
 	semantic_segmentation,
 	time_series_forecasting,
-	clustering
+	clustering, 
+	anomaly_detection
 ]
 
 const projectTypeImages = {}
@@ -268,15 +271,25 @@ For example:
 	{
 		id: 'clustering',
 		title: 'Clustering',
-		subtitle: 'Predict future values based on historical time-stamped data',
-		description: 'Essential for sales forecasting, stock price prediction, and resource planning. Analyze trends and seasonal patterns to make informed decisions.',
-		icon: '⏳',
-		explain: `📌 **This example shows how Clustering works.**`,
+		subtitle: 'Group similar data points into distinct segments',
+		description: 'Essential for **market segmentation**, customer behavior analysis, and **anomaly detection**. Automatically discover inherent groupings in your unlabeled data for targeted insights.',
+		icon: '💡', // Icon for insight, grouping, or pattern discovery
+		explain: `📌 You supply unlabeled data, and the **algorithm groups similar items**. Common algorithms include K-Means, DBSCAN, and Hierarchical Clustering.`,
 		image: clustering,
-		difficulty: 'Advanced',
-		timeToTrain: '30-60 minutes',
+		difficulty: 'Intermediate',
+		timeToTrain: '10-30 minutes',
+	}, 
+	{
+		id: 'anomaly_detection',
+		title: 'Anomaly Detection',
+		subtitle: 'Identify unusual or unexpected data points',
+		description: 'Essential for **fraud detection**, system health monitoring, and **process optimization**. Automatically flag unexpected or abnormal data points for immediate attention and corrective action.',
+		icon: '🚨', // Icon for insight, grouping, or pattern discovery
+		explain: `📌 You supply unlabeled data, and the **algorithm identifies unusual or unexpected data points**. Common algorithms include Isolation Forest, One-Class SVM, and Local Outlier Factor.`,
+		image: anomaly_detection,
+		difficulty: 'Intermediate',
+		timeToTrain: '10-30 minutes',
 	}
-
 ]
 
 // const getImageByProjectType = (selectedProjectType) => projectTypeImages[selectedProjectType] || image_classification

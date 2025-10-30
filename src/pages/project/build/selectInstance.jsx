@@ -183,20 +183,36 @@ const SelectInstance = () => {
 		const cost = formData.cost * formData.trainingTime
 		console.log('Cost: ', cost)
 
-		const presignUrl = await createDownZipPU(selectedProject.dataset_id)
-		// const creating_instance_time = instanceInfoData.creating_time || 60
-		const payload = {
-			cost: cost,
-			trainingTime: time * 3600,
-			presets: 'medium_quality',
-			datasetUrl: presignUrl.data,
-			datasetLabelUrl: 'hello',
-			problemType: selectedProject.meta_data?.is_binary_class
-				? 'BINARY'
-				: 'MULTICLASS',
-			framework: 'autogluon',
-			datasetMetadata: selectedProject.meta_data,
-		}
+	const presignUrl = await createDownZipPU(selectedProject.dataset_id)
+	// const creating_instance_time = instanceInfoData.creating_time || 60
+	
+	// Determine problem type based on task
+	let problemType = 'MULTICLASS' // default
+	const taskType = projectInfo.task_type?.toLowerCase()
+	
+	if (taskType === 'clustering') {
+		problemType = 'CLUSTERING'
+	} else if (taskType === 'anomaly_detection') {
+		problemType = 'ANOMALY_DETECTION'
+	} else if (taskType === 'tabular_regression') {
+		problemType = 'REGRESSION'
+	} else {
+		// For classification tasks
+		problemType = selectedProject.meta_data?.is_binary_class
+			? 'BINARY'
+			: 'MULTICLASS'
+	}
+	
+	const payload = {
+		cost: cost,
+		trainingTime: time * 3600,
+		presets: 'medium_quality',
+		datasetUrl: presignUrl.data,
+		datasetLabelUrl: 'hello',
+		problemType: problemType,
+		framework: 'autogluon',
+		datasetMetadata: selectedProject.meta_data,
+	}
 		console.log('Train payload: ', payload)
 		const res1 = await trainCloudModel(projectInfo.id, payload)
 		const experimentName = res1.data.experimentName

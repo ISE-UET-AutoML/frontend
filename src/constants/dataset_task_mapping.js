@@ -47,6 +47,10 @@ export const TASK_TYPE_INFO = {
     CLUSTERING: {
         displayName: 'Clustering',
         description: 'Group similar data points together without predefined labels'
+    },
+    ANOMALY_DETECTION: {
+        displayName: 'Anomaly Detection',
+        description: 'Identify unusual or unexpected data points'
     }
 };
 
@@ -59,7 +63,7 @@ export const DATASET_TASK_MAPPING = {
         'SEMANTIC_SEGMENTATION'
     ],
     TEXT: ['TEXT_CLASSIFICATION', 'MULTILABEL_TEXT_CLASSIFICATION'],
-    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING'],
+    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING', 'ANOMALY_DETECTION'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
     TIME_SERIES: ['TIME_SERIES_FORECASTING']
 };
