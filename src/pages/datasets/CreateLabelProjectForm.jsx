@@ -48,7 +48,7 @@ export default function CreateLabelProjectForm({
 	useEffect(() => {
 		if (
 			detectedLabels?.length > 0 &&
-			(selectedTaskType === 'IMAGE_CLASSIFICATION' || selectedTaskType === 'AUDIO_CLASSIFICATION')
+			(selectedTaskType === 'IMAGE_CLASSIFICATION' || selectedTaskType === 'AUDIO_CLASSIFICATION'|| selectedTaskType === 'VIDEO_CLASSIFICATION')
 		) {
 			console.log(
 				'Setting detected labels from folder structure:',

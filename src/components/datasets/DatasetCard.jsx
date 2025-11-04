@@ -239,6 +239,11 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             tag: 'linear-gradient(135deg, #141821 0%, #0E1220 100%)',
             border: 'rgba(148, 163, 184, 0.25)',
         },
+        VIDEO_CLASSIFICATION: {
+            card: 'linear-gradient(135deg, #0B0B13 0%, #141821 50%, #0E1220 100%)',
+            tag: 'linear-gradient(135deg, #141821 0%, #0E1220 100%)',
+            border: 'rgba(148, 163, 184, 0.25)',
+        },
     }
     const gradientTheme = TYPE_GRADIENT_MAP[familyKey] ||
         TYPE_GRADIENT_MAP[normalizedTypeKey] || {

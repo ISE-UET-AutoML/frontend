@@ -97,7 +97,14 @@ const config = {
 		labelingView: LabelingImageClassification,
 		predictView: ImagePredict,
 		liveInferView: EmptyLiveInfer,
-	}
+	},
+	VIDEO_CLASSIFICATION: {
+		afterUploadURL: 'selectInstance',
+		folder: UploadTypes.FOLDER,
+		labelingView: LabelingImageClassification,
+		predictView: ImagePredict,
+		liveInferView: EmptyLiveInfer,
+	},
 }
 
 export default config

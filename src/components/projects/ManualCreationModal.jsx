@@ -17,7 +17,7 @@ import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 import clustering from 'src/assets/images/clustering.jpeg'
 import audio_classification from 'src/assets/images/audio_classification.jpeg'
-
+import video_classification from 'src/assets/images/video_classification.jpeg'
 const { Title, Text } = Typography
 // const { TextArea } = Input
 
@@ -35,6 +35,7 @@ const projType = [
 	'time_series_forecasting',
 	'clustering',
 	'audio_classification',
+	'video_classification',
 ]
 
 // const tagIcons = { ...unused icon map removed }
@@ -52,7 +53,8 @@ const imgArray = [
 	semantic_segmentation,
 	time_series_forecasting,
 	clustering,
-	audio_classification
+	audio_classification,
+	video_classification,
 ]
 
 const projectTypeImages = {}
@@ -290,7 +292,17 @@ For example:
 		difficulty: 'Advanced',
 		timeToTrain: '30-60 minutes',
 	}
-
+	,{
+		id: 'video_classification',
+		title: 'Video Classification',
+		subtitle: 'Classify videos into predefined categories',
+		description: 'Perfect for content moderation, action recognition, and video recommendation systems. Analyze video data to categorize content effectively.',
+		icon: '🎬',
+		explain: `📌 **This example shows how Video Classification works.**`,
+		image: video_classification,
+		difficulty: 'Advanced',
+		timeToTrain: '30-60 minutes',
+	}
 ]
 
 // const getImageByProjectType = (selectedProjectType) => projectTypeImages[selectedProjectType] || image_classification

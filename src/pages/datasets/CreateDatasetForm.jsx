@@ -67,6 +67,7 @@ export default function CreateDatasetForm({
         const allowedImageTypes = ['image/jpeg', 'image/png'];
         const allowedTextTypes = ['text/plain', 'text/csv', 'application/xml', 'text/xml'];
         const allowedAudioTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/flac'];
+        const allowedVideoTypes = ['video/mp4', 'video/x-m4v','video/webm', 'video/quicktime'];
         const allowedTypes = {
             IMAGE: [...allowedImageTypes, ...allowedTextTypes],
             TEXT: allowedTextTypes,
@@ -74,6 +75,7 @@ export default function CreateDatasetForm({
             MULTIMODAL: [...allowedImageTypes, ...allowedTextTypes],
             TIME_SERIES: [...allowedTextTypes],
             AUDIO: [...allowedAudioTypes, ...allowedTextTypes],
+            VIDEO: [...allowedVideoTypes, ...allowedTextTypes],
         };
         return files.filter((file) => file?.type && allowedTypes[datasetType]?.includes(file.type));
     };
@@ -291,7 +293,7 @@ export default function CreateDatasetForm({
         );
     };
 
-    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL'|| datasetType === 'AUDIO';
+    const isFolderUpload = datasetType === 'IMAGE' || datasetType === 'MULTIMODAL'|| datasetType === 'AUDIO' || datasetType === 'VIDEO';
     const fileInputProps = {
         ref: fileInputRef,
         type: 'file',
@@ -309,7 +311,8 @@ export default function CreateDatasetForm({
             TEXT: '.csv,.xlsx,.xls',
             TABULAR: '.csv,.xlsx,.xls',
             TIME_SERIES: '.csv,.xlsx,.xls',
-            AUDIO: '.mp3,.wav,.ogg,.m4a,.flac,.csv,.xml'
+            AUDIO: '.mp3,.wav,.ogg,.m4a,.flac,.csv,.xml',
+            VIDEO: '.mp4,.m4v,.csv,.xml,.mov,.webm',
         };
         fileInputProps.accept = allowedExtensions[datasetType] || ''
     }

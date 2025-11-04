@@ -51,6 +51,10 @@ export const TASK_TYPE_INFO = {
     AUDIO_CLASSIFICATION: {
         displayName: 'Audio Classification',
         description: 'Classify audio clips into predefined categories'
+    },
+    VIDEO_CLASSIFICATION: {
+        displayName: 'Video Classification',
+        description: 'Classify videos into predefined categories'
     }
 };
 
@@ -66,5 +70,6 @@ export const DATASET_TASK_MAPPING = {
     TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
     TIME_SERIES: ['TIME_SERIES_FORECASTING'],
-    AUDIO: ['AUDIO_CLASSIFICATION']
+    AUDIO: ['AUDIO_CLASSIFICATION'],
+    VIDEO: ['VIDEO_CLASSIFICATION']
 };
