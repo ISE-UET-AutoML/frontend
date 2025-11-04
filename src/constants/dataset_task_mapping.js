@@ -55,6 +55,10 @@ export const TASK_TYPE_INFO = {
     VIDEO_CLASSIFICATION: {
         displayName: 'Video Classification',
         description: 'Classify videos into predefined categories'
+    },
+    ANOMALY_DETECTION: {
+        displayName: 'Anomaly Detection',
+        description: 'Identify unusual patterns that do not conform to expected behavior'
     }
 };
 
@@ -67,7 +71,7 @@ export const DATASET_TASK_MAPPING = {
         'SEMANTIC_SEGMENTATION'
     ],
     TEXT: ['TEXT_CLASSIFICATION', 'MULTILABEL_TEXT_CLASSIFICATION'],
-    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING'],
+    TABULAR: ['TABULAR_CLASSIFICATION', 'TABULAR_REGRESSION', 'MULTILABEL_TABULAR_CLASSIFICATION', 'CLUSTERING', 'ANOMALY_DETECTION'],
     MULTIMODAL: ['MULTIMODAL_CLASSIFICATION'],
     TIME_SERIES: ['TIME_SERIES_FORECASTING'],
     AUDIO: ['AUDIO_CLASSIFICATION'],

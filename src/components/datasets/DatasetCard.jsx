@@ -244,6 +244,13 @@ export default function DatasetCard({ dataset, onDelete, isDeleting }) {
             tag: 'linear-gradient(135deg, #141821 0%, #0E1220 100%)',
             border: 'rgba(148, 163, 184, 0.25)',
         },
+        ANOMALY_DETECTION: {
+            card: 'linear-gradient(135deg, #0A0A12 0%, #1A1F2A 50%, #0E141F 100%)',
+            tag: 'linear-gradient(135deg, #0E1420 0%, #18243D 50%, #0C1625 100%)',
+            border: 'rgba(59, 130, 246, 0.35)',
+            accent: '#3B82F6',
+            progress: { from: '#BFDBFE', to: '#3B82F6' },
+        },
     }
     const gradientTheme = TYPE_GRADIENT_MAP[familyKey] ||
         TYPE_GRADIENT_MAP[normalizedTypeKey] || {

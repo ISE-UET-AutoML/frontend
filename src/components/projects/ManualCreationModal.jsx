@@ -18,6 +18,7 @@ import time_series_forecasting from 'src/assets/images/time_series_forecasting.j
 import clustering from 'src/assets/images/clustering.jpeg'
 import audio_classification from 'src/assets/images/audio_classification.jpeg'
 import video_classification from 'src/assets/images/video_classification.jpeg'
+import anomaly_detection from 'src/assets/images/anomaly_detection.JPG'
 const { Title, Text } = Typography
 // const { TextArea } = Input
 
@@ -36,6 +37,7 @@ const projType = [
 	'clustering',
 	'audio_classification',
 	'video_classification',
+	'anomaly_detection',
 ]
 
 // const tagIcons = { ...unused icon map removed }
@@ -55,6 +57,7 @@ const imgArray = [
 	clustering,
 	audio_classification,
 	video_classification,
+	anomaly_detection,
 ]
 
 const projectTypeImages = {}
@@ -300,6 +303,17 @@ For example:
 		icon: '🎬',
 		explain: `📌 **This example shows how Video Classification works.**`,
 		image: video_classification,
+		difficulty: 'Advanced',
+		timeToTrain: '30-60 minutes',
+	},
+	{
+		id: 'anomaly_detection',
+		title: 'Anomaly Detection',
+		subtitle: 'Identify unusual patterns in data',
+		description: 'Ideal for fraud detection, network security, and fault detection. Analyze data streams to detect anomalies in real-time.',
+		icon: '🔍',
+		explain: `📌 **This example shows how Anomaly Detection works.**`,
+		image: anomaly_detection,
 		difficulty: 'Advanced',
 		timeToTrain: '30-60 minutes',
 	}

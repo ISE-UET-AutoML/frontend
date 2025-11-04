@@ -32,6 +32,9 @@ import object_detection from 'src/assets/images/object_detection.jpg'
 import semantic_segmentation from 'src/assets/images/semantic_segmentation.jpg'
 import time_series_forecasting from 'src/assets/images/time_series_forecasting.jpg'
 import clustering from 'src/assets/images/clustering.jpeg'
+import anomaly_detection from 'src/assets/images/anomaly_detection.JPG'
+import audio_classification from 'src/assets/images/audio_classification.jpeg'
+import video_classification from 'src/assets/images/video_classification.jpeg'
 
 dayjs.extend(relativeTime)
 
@@ -83,7 +86,10 @@ export default function ProjectCard({ project, getProjects }) {
             OBJECT_DETECTION: object_detection,
             SEMANTIC_SEGMENTATION: semantic_segmentation,
             TIME_SERIES_FORECASTING: time_series_forecasting,
-            CLUSTERING: clustering
+            CLUSTERING: clustering,
+            ANOMALY_DETECTION: anomaly_detection,
+            AUDIO_CLASSIFICATION: audio_classification,
+            VIDEO_CLASSIFICATION: video_classification,
         }
         return imageMap[taskType] || image_classification
     }

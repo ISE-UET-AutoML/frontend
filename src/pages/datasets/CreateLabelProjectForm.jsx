@@ -395,7 +395,7 @@ export default function CreateLabelProjectForm({
 				)}
 
 				<>
-					{selectedTaskType === 'CLUSTERING' ? (
+					{selectedTaskType === 'CLUSTERING' || selectedTaskType === 'ANOMALY_DETECTION' ? (
 						<Form.Item
 							label="Features Column"
 							required

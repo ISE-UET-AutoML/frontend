@@ -105,6 +105,13 @@ const config = {
 		predictView: ImagePredict,
 		liveInferView: EmptyLiveInfer,
 	},
+	ANOMALY_DETECTION: {
+		folder: UploadTypes.CSV_SINGLE,
+		afterUploadURL: 'selectInstance',
+		labelingView: LabelingTextClassification,
+		predictView: TabularClassificationPredict,
+		liveInferView: EmptyLiveInfer,
+	},
 }
 
 export default config
