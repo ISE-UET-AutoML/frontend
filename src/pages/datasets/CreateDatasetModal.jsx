@@ -31,7 +31,7 @@ const CreateDatasetModal = ({ visible, onCancel, onCreate }) => {
         return files.every((file) => allowedAudioExtensions.includes(file.path.split('.').pop().toLowerCase()));
     };
     const isVideoFolder = (files) => {
-        const allowedVideoExtensions = ['mp4', 'm4v'];
+        const allowedVideoExtensions = ['mp4', 'm4v', 'avi'];
         return files.every((file) => allowedVideoExtensions.includes(file.path.split('.').pop().toLowerCase()));
     }
     const handleSubmit = async (labelProjectValues) => {
