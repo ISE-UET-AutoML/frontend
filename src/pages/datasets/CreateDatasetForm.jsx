@@ -67,7 +67,7 @@ export default function CreateDatasetForm({
         const allowedImageTypes = ['image/jpeg', 'image/png'];
         const allowedTextTypes = ['text/plain', 'text/csv', 'application/xml', 'text/xml'];
         const allowedAudioTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a', 'audio/flac'];
-        const allowedVideoTypes = ['video/mp4', 'video/x-m4v','video/webm', 'video/quicktime'];
+        const allowedVideoTypes = ['video/mp4', 'video/x-m4v','video/webm', 'video/quicktime', 'video/avi'];
         const allowedTypes = {
             IMAGE: [...allowedImageTypes, ...allowedTextTypes],
             TEXT: allowedTextTypes,
@@ -312,7 +312,7 @@ export default function CreateDatasetForm({
             TABULAR: '.csv,.xlsx,.xls',
             TIME_SERIES: '.csv,.xlsx,.xls',
             AUDIO: '.mp3,.wav,.ogg,.m4a,.flac,.csv,.xml',
-            VIDEO: '.mp4,.m4v,.csv,.xml,.mov,.webm',
+            VIDEO: '.mp4,.m4v,.csv,.xml,.mov,.webm,.avi',
         };
         fileInputProps.accept = allowedExtensions[datasetType] || ''
     }
