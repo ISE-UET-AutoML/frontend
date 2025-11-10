@@ -257,7 +257,7 @@ const UpDataDeploy = ({
     const uploadProps = {
         name: 'file',
         multiple: true,
-        accept: '.jpg,.jpeg,.png,.csv, .zip',
+        accept: '.jpg,.jpeg,.png,.csv, .zip, .mp3, .wav, .avi, .mp4',
         fileList,
         showUploadList: false,
         beforeUpload: (file) => {
@@ -479,7 +479,7 @@ const UpDataDeploy = ({
                         style={{ color: 'var(--secondary-text)' }}
                     >
                         Support for single file, multiple files, or entire
-                        folder upload. JPG, PNG, CSV, JSON, Excel files are
+                        folder upload. JPG, PNG, CSV, JSON, Excel, MP3, WAV, AVI, MP4 files are
                         allowed. (MAX. 10MB per file)
                     </p>
                 </Dragger>
