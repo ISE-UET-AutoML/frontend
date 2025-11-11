@@ -6,6 +6,7 @@ import MultilabelTextClassificationDemo from 'src/pages/demo/templates/Multilabe
 import TabularClassificationDemo from 'src/pages/demo/templates/TabularClassificationDemo'
 import TabularRegressionDemo from 'src/pages/demo/templates/TabularRegressionDemo'
 import MultilabelTabularClassificationDemo from 'src/pages/demo/templates/MultilabelTabularClassificationDemo'
+import AudioClassificationDemo from 'src/pages/demo/templates/AudioClassificationDemo'
 
 const ProjectDemo = () => {
 	const { projectId } = useParams()
@@ -109,6 +110,8 @@ const ProjectDemo = () => {
 				<TabularRegressionDemo metadata={metadata} />
 			) : metadata.taskType === 'MULTILABEL_TABULAR_CLASSIFICATION' ? (
 				<MultilabelTabularClassificationDemo metadata={metadata} />
+			) : metadata.taskType === 'AUDIO_CLASSIFICATION' ? (
+				<AudioClassificationDemo metadata={metadata} />
 			) : (
 				<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
 					<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-12 max-w-lg text-center">

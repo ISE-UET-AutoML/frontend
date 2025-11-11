@@ -8,6 +8,7 @@ import LabelingTextClassification from 'src/pages/project/build/labelData/labeli
 import LabelingImageClassification from 'src/pages/project/build/labelData/labeling/LabelingImageClassification'
 import MultiLabelImgPredict from 'src/components/Predict/MultiLabelImgPredict'
 import TextLiveInfer from 'src/components/LiveInfer/TextLiveInfer'
+import AudioClassificationPredict from 'src/components/Predict/AudioClassificationPredict'
 import { UploadTypes } from 'src/constants/file'
 
 // Empty component fallback
@@ -95,7 +96,7 @@ const config = {
 		afterUploadURL: 'selectInstance',
 		folder: UploadTypes.FOLDER,
 		labelingView: LabelingImageClassification,
-		predictView: ImagePredict,
+		predictView: AudioClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
 	VIDEO_CLASSIFICATION: {
