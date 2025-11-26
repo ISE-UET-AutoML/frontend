@@ -144,7 +144,7 @@ const SelectInstance = () => {
 		}
 	}
 
-	// Train model 
+	// Train model
 	const trainModel = async () => {
 		// For instance
 		let instanceSize = formData.instanceSize
@@ -185,17 +185,47 @@ const SelectInstance = () => {
 
 		const presignUrl = await createDownZipPU(selectedProject.dataset_id)
 		// const creating_instance_time = instanceInfoData.creating_time || 60
+
+		// Build dataset metadata based on task type
+		let datasetMetadata = selectedProject.meta_data || {}
+		let problemType = 'MULTICLASS'
+
+		// Handle different task types
+		if (projectInfo.task_type === 'OBJECT_DETECTION') {
+			// For object detection, we need to use bounding_boxes as target column
+			datasetMetadata = {
+				image_column:
+					selectedProject.meta_data?.image_column?.[0] || 'image',
+				target_column: ['bounding_boxes'], // Points to bounding_boxes from export
+			}
+			problemType = 'MULTICLASS'
+		} else if (projectInfo.task_type === 'SEMANTIC_SEGMENTATION') {
+			// For semantic segmentation
+			datasetMetadata = {
+				image_column:
+					selectedProject.meta_data?.image_column?.[0] || 'image',
+				target_column: selectedProject.meta_data?.target_column || [
+					'mask',
+				],
+			}
+			problemType = 'MULTICLASS'
+		} else {
+			// Default handling for other task types
+			problemType = selectedProject.meta_data?.is_binary_class
+				? 'BINARY'
+				: 'MULTICLASS'
+		}
+
 		const payload = {
 			cost: cost,
 			trainingTime: time * 3600,
 			presets: 'medium_quality',
+			task: projectInfo.task_type,
 			datasetUrl: presignUrl.data,
 			datasetLabelUrl: 'hello',
-			problemType: selectedProject.meta_data?.is_binary_class
-				? 'BINARY'
-				: 'MULTICLASS',
+			problemType: problemType,
 			framework: 'autogluon',
-			datasetMetadata: selectedProject.meta_data,
+			datasetMetadata: datasetMetadata,
 		}
 		console.log('Train payload: ', payload)
 		const res1 = await trainCloudModel(projectInfo.id, payload)

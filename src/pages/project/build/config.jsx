@@ -113,6 +113,13 @@ const config = {
 		predictView: TabularClassificationPredict,
 		liveInferView: EmptyLiveInfer,
 	},
+	OBJECT_DETECTION: {
+		afterUploadURL: 'selectInstance',
+		folder: UploadTypes.FOLDER,
+		labelingView: LabelingImageClassification,
+		predictView: ImagePredict,
+		liveInferView: EmptyLiveInfer,
+	},
 }
 
 export default config
