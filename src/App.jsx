@@ -6,7 +6,7 @@ import ChristmasTheme from './components/themes/christmas'
 function App() {
 	return (
 		<>
-			<TeacherDayTheme />
+			<ChristmasTheme />
 			<Router />
 		</>
 	)
