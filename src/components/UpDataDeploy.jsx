@@ -31,18 +31,20 @@ const UpDataDeploy = ({
 	const [verificationStatus, setVerificationStatus] = useState('idle') // 'idle', 'success', 'error'
 	const [verificationMessage, setVerificationMessage] = useState('')
 	const verifyData = async (files, taskType, featureColumns) => {
-		if (taskType === 'IMAGE_CLASSIFICATION') {
+		if (
+			taskType === 'IMAGE_CLASSIFICATION' ||
+			taskType === 'OBJECT_DETECTION'
+		) {
 			const allImages = files.every((f) =>
 				/\.(jpg|jpeg|png)$/i.test(f.name)
 			)
 			if (!allImages) {
 				return {
 					isValid: false,
-					message:
-						'For Image classification, only JPG/PNG files are allowed.',
+					message: `For ${taskType}, only JPG/PNG files are allowed.`,
 				}
 			}
-			return { isValid: true, message: 'Image files are valid.' }
+			return { isValid: true, message: `${taskType} files are valid.` }
 		}
 
 		if (taskType === 'AUDIO_CLASSIFICATION') {
