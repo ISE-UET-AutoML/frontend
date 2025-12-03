@@ -46,6 +46,7 @@ import Papa from 'papaparse'
 import ImageHistoryViewer from 'src/components/RecentPredictView/ImageHistoryViewer'
 import TextHistoryViewer from 'src/components/RecentPredictView/TextHistoryViewer'
 import MultilabelHistoryViewer from 'src/components/RecentPredictView/MultilabelHistoryViewer'
+import ObjectDetectionHistoryViewer from 'src/components/RecentPredictView/ObjectDetectionHistoryViewer'
 import BackgroundShapes from 'src/components/landing/BackgroundShapes'
 import { PATHS } from 'src/constants/paths'
 
@@ -112,7 +113,7 @@ export default function DeployedModelView() {
 			console.log('Prediction content:', jsonResponse.data)
 			const predictContent = jsonResponse.data
 
-			if (projectInfo.task_type.includes('IMAGE')) {
+			if (projectInfo.task_type.includes('IMAGE') || projectInfo.task_type.includes('OBJECT_DETECTION')) {
 				const imageUrlResponse =
 					await dataServiceAPI.getPresignedUrlsForImages(
 						prediction.data_url
@@ -947,6 +948,13 @@ export default function DeployedModelView() {
 								</div>
 							) : (
 								(() => {
+									if (projectInfo.task_type.includes('OBJECT_DETECTION')) {
+										return (
+											<ObjectDetectionHistoryViewer
+												data={selectedPredictionContent}
+											/>
+										)
+									}
 									if (
 										projectInfo.task_type.includes('IMAGE')
 									) {
