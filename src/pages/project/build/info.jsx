@@ -139,6 +139,7 @@ const ProjectInfo = () => {
     const { projectInfo } = useOutletContext()
     const [experiment, setExperiment] = useState(null)
     const [experimentId, setExperimentId] = useState(null)
+    const [experimentName, setExperimentName] = useState(null)
     const [model, setModel] = useState({})
     const [modelDeploy, setModelDeploy] = useState({})
     const [pollFlag, setPollFlag] = useState(false)
@@ -176,6 +177,7 @@ const ProjectInfo = () => {
 
     const simpleDataModalRef = useRef(null)
     const multilabelModalRef = useRef(null)
+
 
     const hideUpload = () => {
         setIsShowUpload(false)
@@ -618,6 +620,7 @@ const ProjectInfo = () => {
                 const { data } = await getAllExperiments(projectInfo?.id)
                 if (data && data.length > 0) {
                     setExperimentId(data[0]?.id)
+                    setExperimentName(data[0]?.name)
                     setIsPredictDone(false)
                     setIsPreparing(false)
                 } else {
@@ -803,14 +806,15 @@ const ProjectInfo = () => {
         const fetchConfig = async () => {
             try {
                 setIsChartLoading(true)
-                const res = await getExperimentConfig(experimentId)
-                const config = Array.isArray(res?.data)
-                    ? res.data[0]
-                    : res?.data
-                const history = config?.metrics?.training_history || []
-                const metricName = config?.metrics?.val_metric || 'Accuracy'
-                setValMetric(metricName)
-                setChartData(history)
+                const fitHistoryRes = await mlServiceAPI.getFitHistory(projectInfo.id, experimentName)
+                const data = fitHistoryRes.data
+                for (const key of Object.keys(data)) {
+                    if (key === 'epoch') {
+                        continue
+                    }
+                    setValMetric(key);
+                    setChartData(data[key])
+                }
             } catch (error) {
                 console.error('Error fetching config:', error)
                 setChartData([])
@@ -1415,7 +1419,7 @@ const ProjectInfo = () => {
                         </div>
 
                         {/* Live Predict Section */}
-                        {projectInfo && hasTraining && (
+                        {projectInfo && (
                             <div className="mt-8 mb-8">
                                 <Card
                                     title={
@@ -1548,7 +1552,7 @@ const ProjectInfo = () => {
                                                                 ...d,
                                                                 score: Math.abs(
                                                                     Number(
-                                                                        d?.score ??
+                                                                        d?.value ??
                                                                         0
                                                                     )
                                                                 ),

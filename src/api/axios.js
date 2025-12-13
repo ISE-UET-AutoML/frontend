@@ -6,7 +6,7 @@ import { message } from 'antd';
 const cookies = new Cookies();
 
 const instance = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL: "",
     // withCredentials: true,
 });
 

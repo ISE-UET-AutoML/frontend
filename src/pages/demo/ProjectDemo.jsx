@@ -22,6 +22,7 @@ const ProjectDemo = () => {
 				const metadataModule = await import(
 					`src/pages/demo/metadata/${projectId}.json`
 				)
+				console.log('Loaded metadata:', metadataModule)
 				setMetadata(metadataModule.default || metadataModule)
 			} catch (err) {
 				console.error('Error loading metadata:', err)

@@ -62,7 +62,7 @@ const FooterSection = () => {
 									className="text-gray-600 mt-2"
 									style={{ fontFamily: 'Poppins, sans-serif' }}
 								>
-									Automated System TRAL
+									Automated System TRALjdjkdawjđkjjwdkdăj
 								</p>
 							</div>
 							

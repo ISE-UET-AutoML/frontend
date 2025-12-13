@@ -243,6 +243,7 @@ const MultilabelTabularClassificationPredict = ({
 					}
 				})
 			}
+			
 
 			// Add Predicted Class column
 			if (visibleColumnsForDownload.includes('Predicted Class')) {
@@ -268,6 +269,14 @@ const MultilabelTabularClassificationPredict = ({
 						? predictedLabels.join(', ')
 						: 'No prediction'
 			}
+			if (visibleColumnsForDownload.includes('Confidence')) {
+                const prediction = predictResult[index]
+                const confidence = prediction?.confidence
+                
+                downloadRow['Confidence'] = confidence !== undefined && confidence !== null
+                    ? (confidence * 100).toFixed(1) + '%' 
+                    : '-'
+            }
 
 			return downloadRow
 		})
@@ -313,7 +322,7 @@ const MultilabelTabularClassificationPredict = ({
 						}
 
 						// Add Predicted Class and Actions columns
-						initialVisibleColumns.push('Predicted Class', 'Actions')
+						initialVisibleColumns.push('Predicted Class', 'Confidence', 'Actions')
 						const initialIncorrect = []
 
 						// Cập nhật lịch sử
@@ -821,6 +830,35 @@ const MultilabelTabularClassificationPredict = ({
 				},
 			})
 		}
+
+		if (visibleColumns.includes('Confidence')) {
+            conditionalColumns.push({
+                title: 'Confidence',
+                key: 'confidence',
+                width: 150,
+                render: (_, __, index) => {
+                    const globalIndex = index + (currentPage - 1) * pageSize
+                    const prediction = predictResult[globalIndex]
+                    
+                    const confidence = prediction?.confidence
+
+                    if (confidence === undefined || confidence === null) {
+                        return <Text className="text-slate-400">-</Text>
+                    }
+
+                    // Tô màu dựa trên độ tin cậy
+                    let color = 'green'
+                    if (confidence < 0.5) color = 'red'
+                    else if (confidence < 0.8) color = 'orange'
+
+                    return (
+                        <Tag color={color} className="text-xs">
+                            {(confidence * 100).toFixed(1)}%
+                        </Tag>
+                    )
+                }
+            })
+        }
 
 		// Add Actions column if visible
 		if (visibleColumns.includes('Actions')) {
@@ -1395,6 +1433,30 @@ const MultilabelTabularClassificationPredict = ({
 										</div>
 									</div>
 								</div>
+
+								<div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <Switch
+                                            checked={visibleColumns.includes('Confidence')}
+                                            onChange={() =>
+                                                handleColumnVisibilityToggle('Confidence')
+                                            }
+                                            size="small"
+                                        />
+                                        <div>
+                                            <Text className="font-semibold text-orange-600">
+                                                Confidence
+                                            </Text>
+                                            <Tag
+                                                color="orange"
+                                                size="small"
+                                                className="ml-2"
+                                            >
+                                                Score
+                                            </Tag>
+                                        </div>
+                                    </div>
+                                </div>
 							</div>
 						</div>
 

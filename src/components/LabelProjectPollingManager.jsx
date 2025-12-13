@@ -27,6 +27,7 @@ const handleCompletedDataset = async (item, removingPending) => {
       expectedLabels: labelProjectValues.expectedLabels,
       description: labelProjectValues.description || '',
       meta_data: labelProjectValues.meta_data || {},
+      model_type: labelProjectValues.model_type || 'ML',
     }
     console.log(`Dataset '${dataset.title}' is COMPLETED. Creating label project...`);
     await labelProjectAPI.createLbProject(payload);

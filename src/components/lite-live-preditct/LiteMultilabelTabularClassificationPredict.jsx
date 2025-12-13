@@ -99,6 +99,14 @@ const LiteMultilabelTabularClassificationPredict = ({
 						? predictedLabels.join(', ')
 						: 'No prediction'
 			}
+			 if (visibleColumnsForDownload.includes('Confidence')) {
+                const prediction = predictResult[index]
+                const confidence = prediction?.confidence
+                
+                downloadRow['Confidence'] = confidence !== undefined && confidence !== null
+                    ? (confidence * 100).toFixed(1) + '%' 
+                    : '-'
+            }
 
 			return downloadRow
 		})
@@ -132,7 +140,7 @@ const LiteMultilabelTabularClassificationPredict = ({
 				skipEmptyLines: true,
 				complete: ({ data, meta }) => {
 					const initialVisibleColumns = [...meta.fields]
-					initialVisibleColumns.push('Predicted Class')
+					initialVisibleColumns.push('Predicted Class', 'Confidence')
 
 					setPredictionHistory((prev) => {
 					const existingIndex = prev.findIndex(
@@ -310,6 +318,38 @@ const LiteMultilabelTabularClassificationPredict = ({
 				},
 			})
 		}
+
+		if (visibleColumns.includes('Confidence')) {
+            conditionalColumns.push({
+                title: 'Confidence',
+                key: 'confidence',
+                width: 150,
+                render: (_, record, index) => {
+                    if (record.__isPlaceholder) {
+                        return null
+                    }
+                    const globalIndex = index + (currentPage - 1) * pageSize
+                    const prediction = predictResult[globalIndex]
+                    
+                    const confidence = prediction?.confidence
+
+                    if (confidence === undefined || confidence === null) {
+                        return <Text className="text-slate-400">-</Text>
+                    }
+
+                    // Tô màu dựa trên độ tin cậy
+                    let color = 'green'
+                    if (confidence < 0.5) color = 'red'
+                    else if (confidence < 0.8) color = 'orange'
+
+                    return (
+                        <Tag color={color} className="text-xs">
+                            {(confidence * 100).toFixed(1)}%
+                        </Tag>
+                    )
+                }
+            })
+        }
 
 		return [...baseColumns, ...conditionalColumns]
 	}

@@ -12,7 +12,7 @@ import { uploadToS3 } from 'src/utils/s3'
 import { IMG_NUM_IN_ZIP } from 'src/constants/file'
 import { usePollingStore } from 'src/store/pollingStore' // Import polling store
 import { useNavigate } from 'react-router-dom'
-import { trainCloudModel } from 'src/api/mlService'
+import { trainCloudModel, trainLLMModel } from 'src/api/mlService'
 
 const { Step } = Steps
 
@@ -133,7 +133,7 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
             key: 'submit',
         })
         const finalDatasetData = { ...datasetData, ...values }
-
+        console.log('Final dataset data:', finalDatasetData)
         try {
             // 1. Create Project
 
@@ -267,9 +267,11 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                     file_count: chunk.files.length,
                     s3_path: `${datasetID}/zip/${chunk.name}`,
                 })),
+                model_type: finalDatasetData.model_type || 'ML',
                 status: 'active',
                 meta_data: extraMeta,
             }
+            console.log('Dataset finalized:', finalizePayload)
             await datasetAPI.finalizeDataset(datasetID, finalizePayload)
 
             // 5. Add to polling store instead of creating label project directly
@@ -277,15 +279,17 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                 name: createdProject.name,
                 taskType: createdProject.task_type,
                 datasetId: datasetID,
-                expectedLabels: finalDatasetData.detectedLabels || [],
+                expectedLabels: finalDatasetData.detectedLabels && finalDatasetData.detectedLabels.length > 0 ? finalDatasetData.detectedLabels : finalDatasetData.labels,
                 description: createdProject.description,
+                model_type: finalDatasetData.model_type || 'ML',
             }
+            console.log("labelProjectValues:", labelProjectValues);
 
             addPending({ dataset: createdDataset, labelProjectValues })
-
+            // finalDatasetData.model_type = "ML" or "LLM"
             try {
                 const payload = {
-                    cost: 3,
+                    cost: 1,
                     trainingTime: 86400,
                     presets: 'medium_quality',
                     datasetLabelUrl: 'hello',
@@ -293,10 +297,24 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                     datasetID: datasetID,
                 }
                 console.log('Train payload: ', payload)
-                const trainingRequest = await trainCloudModel(
-                    projectInfo.id,
-                    payload
-                )
+                let trainingRequest;
+                if (finalDatasetData.model_type === 'LLM') {
+                    const LLMpayload = {
+                        datasetID: datasetID,
+                        llm: finalDatasetData.model_selection || 'openai/gpt-oss-20b',
+                        prompt: finalDatasetData.prompt || '',
+                    }
+                    trainingRequest = await trainLLMModel(
+                        projectInfo.id,
+                        LLMpayload
+                    )
+                } else {
+                    trainingRequest = await trainCloudModel(
+                        projectInfo.id,
+                        payload
+                    )
+                }
+                
                 const trainingResult = trainingRequest.data
                 console.log('Training response:', trainingResult)
 

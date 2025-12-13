@@ -96,15 +96,15 @@ yarn start
 ```
 
 ### **Development Server**
-- **URL**: `http://localhost:3000`
+- **URL**: `http://0.0.0.0:3000`
 - **Hot Reload**: Enabled (changes reflect immediately)
 - **Environment**: Development mode with debugging enabled
 
 ### **Environment Variables**
 Create `.env` file in root:
 ```env
-REACT_APP_API_URL=http://localhost:8000
-REACT_APP_ML_API_URL=http://localhost:3008
+REACT_APP_API_URL=http://0.0.0.0:8000
+REACT_APP_ML_API_URL=http://0.0.0.0:3008
 REACT_APP_ENVIRONMENT=development
 ```
 
