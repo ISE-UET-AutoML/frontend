@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import * as modelAPI from 'src/api/model'
 import {
 	Card,
 	Typography,
@@ -15,6 +16,7 @@ import {
 	Menu,
 	Dropdown,
 	Input,
+	message,
 } from 'antd'
 import {
 	QuestionCircleOutlined,
@@ -37,6 +39,7 @@ const MultilabelTabularClassificationPredict = ({
 	uploadedFiles,
 	projectInfo,
 	handleUploadFiles,
+	s3_url,
 }) => {
 	const [csvData, setCsvData] = useState([])
 	const [predictionHistory, setPredictionHistory] = useState([])
@@ -58,6 +61,7 @@ const MultilabelTabularClassificationPredict = ({
 	const [editValue, setEditValue] = useState('')
 	const [editMode, setEditMode] = useState(false)
 	const [editedPredictions, setEditedPredictions] = useState({}) // Store edited prediction values
+	const [isSavingFeedback, setIsSavingFeedback] = useState(false)
 
 	const fileInputRef = useRef(null)
 	const pageSize = 9
@@ -286,6 +290,31 @@ const MultilabelTabularClassificationPredict = ({
 		document.body.appendChild(link)
 		link.click()
 		document.body.removeChild(link)
+	}
+
+	const handleUpdateFeedback = async () => {
+		if (!s3_url) {
+			message.error('Unable to save feedback: S3 URL is missing.')
+			return
+		}
+
+		const feedbackList = csvData.map((row, index) => ({
+			index,
+			data: row,
+			prediction: predictResult[index],
+			feedback: incorrectPredictions.includes(index) ? 'Incorrect' : 'Correct',
+		}))
+		
+		try {
+			setIsSavingFeedback(true)
+			await modelAPI.feedbackUpdate(s3_url, feedbackList)
+			message.success('Feedback updated successfully')
+		} catch (error) {
+			console.error('Error updating feedback:', error)
+			message.error(error.response?.data?.error || 'Failed to update feedback')
+		} finally {
+			setIsSavingFeedback(false)
+		}
 	}
 
 	// Parse CSV và cập nhật dữ liệu
@@ -977,6 +1006,18 @@ const MultilabelTabularClassificationPredict = ({
 									<span className="hidden sm:inline">
 										Download
 									</span>
+								</Button>
+							</Tooltip>
+
+							<Tooltip title="Update feedback status">
+								<Button
+									icon={<CheckOutlined />}
+									onClick={handleUpdateFeedback}
+									disabled={!csvData.length || isSavingFeedback}
+									loading={isSavingFeedback}
+									className="h-10 px-4 border-slate-200 hover:border-blue-300 rounded-lg"
+								>
+									<span className="hidden sm:inline">Update feedback</span>
 								</Button>
 							</Tooltip>
 

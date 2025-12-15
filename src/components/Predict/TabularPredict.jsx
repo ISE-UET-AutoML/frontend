@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import * as modelAPI from 'src/api/model'
 import {
     Card,
     Layout,
@@ -21,6 +22,7 @@ import {
     Spin,
     Menu,
     Dropdown,
+    message,
 } from 'antd'
 import {
     QuestionCircleOutlined,
@@ -40,7 +42,7 @@ const { Content, Header } = Layout
 const { Option } = Select
 
 
-const TabularPredict = ({ predictResult, uploadedFiles, projectInfo, handleUploadFiles }) => {
+const TabularPredict = ({ predictResult, uploadedFiles, projectInfo, handleUploadFiles, s3_url }) => {
     const [csvData, setCsvData] = useState([]);
     const [predictionHistory, setPredictionHistory] = useState([]);
     const [currentFileIndex, setCurrentFileIndex] = useState(-1); // -1 khi chưa có file
@@ -58,6 +60,7 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo, handleUploa
     const [visibleColumns, setVisibleColumns] = useState([]);
     const [confidenceFilter, setConfidenceFilter] = useState('all');
     const [uploading, setUploading] = useState(false);
+    const [isSavingFeedback, setIsSavingFeedback] = useState(false);
 
     const fileInputRef = useRef(null);
     const pageSize = 9;
@@ -207,6 +210,31 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo, handleUploa
         });
     };
 
+    const handleUpdateFeedback = async () => {
+		if (!s3_url) {
+			message.error('Unable to save feedback: S3 URL is missing.')
+			return
+		}
+
+		const feedbackList = csvData.map((row, index) => ({
+			index,
+			data: row,
+			prediction: predictResult[index],
+			feedback: incorrectPredictions.includes(index) ? 'Incorrect' : 'Correct',
+		}))
+		
+		try {
+			setIsSavingFeedback(true)
+			await modelAPI.feedbackUpdate(s3_url, feedbackList)
+			message.success('Feedback updated successfully')
+		} catch (error) {
+			console.error('Error updating feedback:', error)
+			message.error(error.response?.data?.error || 'Failed to update feedback')
+		} finally {
+			setIsSavingFeedback(false)
+		}
+	}
+
     const getFilteredData = () => {
         if (confidenceFilter === 'all') return csvData;
         return csvData.filter((_, index) => {
@@ -347,6 +375,16 @@ const TabularPredict = ({ predictResult, uploadedFiles, projectInfo, handleUploa
                                 <Button icon={<FilterOutlined />} onClick={() => setInfoDrawerVisible(true)}>
                                     Columns
                                 </Button>
+                            </Tooltip>
+                            <Tooltip title="Update feedback status">
+								<Button
+									icon={<CheckOutlined />}
+									onClick={handleUpdateFeedback}
+									disabled={!csvData.length || isSavingFeedback}
+									loading={isSavingFeedback}
+								>
+									Update feedback
+								</Button>
                             </Tooltip>
                             <Tooltip title="Upload new file for prediction">
                                 <Button icon={<UploadOutlined />} onClick={handleClick} loading={uploading} type="primary">

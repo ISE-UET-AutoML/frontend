@@ -30,8 +30,17 @@ const modelPredict = (formData, modelId) => {
 	return instance.post(`${AGGREGATE_URL}/model/${modelId}/predict`, formData)
 }
 
+
+
 const predictGenUI = (formData) => {
 	return instance.post(`${AGGREGATE_URL}/deploy/predictGenUI`, formData)
+}
+
+const feedbackUpdate = (s3_url, feedback) => {
+	return instance.post(`${AGGREGATE_URL}/deploy-data/feedback`, {
+		s3_url,
+		feedback,
+	})
 }
 
 export {
@@ -41,4 +50,5 @@ export {
 	predictGenUI,
 	getModelById,
 	getModelByExperimentId,
+	feedbackUpdate,
 }

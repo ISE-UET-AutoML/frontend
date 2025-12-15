@@ -13,6 +13,7 @@ import {
 	Tooltip,
 	Empty,
 	Tag,
+	message,
 } from 'antd'
 import {
 	LeftOutlined,
@@ -24,14 +25,16 @@ import {
 	BulbOutlined,
 	EyeInvisibleOutlined,
 	EyeOutlined,
+	CheckOutlined,
 } from '@ant-design/icons'
 import Papa from 'papaparse'
 import * as experimentAPI from 'src/api/experiment'
+import * as modelAPI from 'src/api/model'
 
 const { Title, Text, Paragraph } = Typography
 const { Content } = Layout
 
-const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
+const TextPredict = ({ predictResult, uploadedFiles, projectInfo, s3_url }) => {
 	const location = useLocation()
 	const searchParams = new URLSearchParams(location.search)
 	const experimentName = searchParams.get('experimentName')
@@ -43,6 +46,7 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 		incorrect: 0,
 		accuracy: 0,
 	})
+	const [isSavingFeedback, setIsSavingFeedback] = useState(false)
 	const [isExplaining, setIsExplaining] = useState(false)
 	// const [currentExplanation, setCurrentExplanation] = useState(null)
 	const [explanations, setExplanations] = useState({})
@@ -96,6 +100,31 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 
 	const currentPrediction = predictResult[currentIndex] || {}
 	const currentData = csvData[currentIndex] || {}
+
+	const handleUpdateFeedback = async () => {
+		if (!s3_url) {
+			message.error('Unable to save feedback: S3 URL is missing.')
+			return
+		}
+
+		const feedbackList = csvData.map((row, index) => ({
+			index,
+			data: row,
+			prediction: predictResult[index],
+			feedback: incorrectPredictions.includes(index) ? 'Incorrect' : 'Correct',
+		}))
+
+		try {
+			setIsSavingFeedback(true)
+			await modelAPI.feedbackUpdate(s3_url, feedbackList)
+			message.success('Feedback updated successfully')
+		} catch (error) {
+			console.error('Error updating feedback:', error)
+			message.error(error.response?.data?.error || 'Failed to update feedback')
+		} finally {
+			setIsSavingFeedback(false)
+		}
+	}
 
 	const handleExplain = async () => {
 		setIsExplaining(true)
@@ -542,6 +571,16 @@ const TextPredict = ({ predictResult, uploadedFiles, projectInfo }) => {
 							<span>
 								<FileTextOutlined /> All Predictions
 							</span>
+						}
+						extra={
+							<Button
+								icon={<CheckOutlined />}
+								onClick={handleUpdateFeedback}
+								loading={isSavingFeedback}
+								disabled={!csvData.length || isSavingFeedback}
+							>
+								Update Feedback
+							</Button>
 						}
 						className="mt-4"
 					>

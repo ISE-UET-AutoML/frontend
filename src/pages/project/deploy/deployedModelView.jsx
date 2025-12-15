@@ -76,6 +76,7 @@ export default function DeployedModelView() {
     const [isGeneratingUI, setIsGeneratingUI] = useState(false)
     const [isCheckingUIStatus, setIsCheckingUIStatus] = useState(true)
     const [isUIGenerated, setIsUIGenerated] = useState(false)
+    const [s3Url, setS3Url] = useState(null)
 
     const livePredictGradient =
         theme === 'dark'
@@ -215,6 +216,7 @@ export default function DeployedModelView() {
 
     // Live predict file upload handler
     const handleUploadFiles = async (files, s3_url) => {
+        setS3Url(s3_url)
         console.log('Files: ', files)
         const fileName = files[0]?.name || 'unknown'
         console.log('File name:', fileName)
@@ -247,6 +249,8 @@ export default function DeployedModelView() {
         formData.append('s3_url', s3_url)
         formData.append('api_base_url', deployData?.api_base_url)
         formData.append('file_name', fileName)
+        console.log("FormData: ", deployData?.api_base_url)
+        console.log("S3 URL: ", s3_url)
         try {
             // Make predictions
             const predictRequest = await modelAPI.modelPredict(
@@ -547,7 +551,7 @@ export default function DeployedModelView() {
                                             Uptime
                                         </span>
                                     }
-                                    value={`${Math.floor(dayjs().diff(dayjs(deployData?.create_time), 'minute') / 60)} hour(s) ${dayjs().diff(dayjs(deployData?.create_time), 'minute') % 60} minute(s)`}
+                                    value={`${Math.floor(dayjs().diff(dayjs(deployData?.created_at), 'minute') / 60)} hour(s) ${dayjs().diff(dayjs(deployData?.created_at), 'minute') % 60} minute(s)`}
                                     valueStyle={{
                                         color: '#f0b100',
                                     }}
@@ -808,6 +812,7 @@ export default function DeployedModelView() {
                                                     handleUploadFiles
                                                 }
                                                 model={model}
+                                                s3_url={s3Url || deployData?.s3_url}
                                             />
                                         )
                                     }

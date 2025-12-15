@@ -393,6 +393,39 @@ export default function CreateLabelProjectForm({
 						)}
 					</Form.Item>
 				)}
+				{datasetType === "TABULAR" &&
+					(
+						<Form.Item
+						label="Features Column"
+						required
+						// Không dùng name ở đây nếu bạn muốn tự quản lý qua state,
+						// hoặc thêm name="featureColumns" nếu vẫn muốn form.validateFields()
+					>
+						<Select
+							mode="multiple"
+							placeholder="Select one or more feature columns"
+							value={selectedFeaturesColumn}
+							onChange={(vals) =>
+								setSelectedFeaturesColumn(vals)
+								//setLabels(vals)
+							}
+							allowClear
+							showSearch
+							optionFilterProp="children"
+							maxTagCount="responsive"
+							style={{ width: '100%' }}
+						>
+							{columnOptions.map((col) => (
+								<Option key={col.value} value={col.value}>
+									{col.label}
+								</Option>
+							))}
+						</Select>
+
+					</Form.Item>
+					)
+				}
+				
 
 				<>
 					{selectedTaskType === 'CLUSTERING' || selectedTaskType === 'ANOMALY_DETECTION' ? (
