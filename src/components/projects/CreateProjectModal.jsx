@@ -262,6 +262,9 @@ const CreateProjectModal = ({ open, onCancel, onCreate }) => {
                 total_files: files.length,
                 total_size_kb: parseFloat(totalKbytes) || 0,
                 index_path: `${datasetID}/index.json`,
+                detected_labels: finalDatasetData.detected_labels && finalDatasetData.detected_labels.length > 0
+                    ? finalDatasetData.detected_labels
+                    : finalDatasetData.labels,
                 chunks: chunks.map((chunk) => ({
                     name: chunk.name,
                     file_count: chunk.files.length,
