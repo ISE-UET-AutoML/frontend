@@ -57,6 +57,11 @@ const PATHS = {
 	/*-----------------------------DEMO-------------------------------------*/
 	PROJECT_DEMO: (projectId) => `/demo/${projectId}`,
 
+	/*-----------------------------ADMIN-------------------------------------*/
+	ADMIN_LOGIN: '/admin',
+	ADMIN_DASHBOARD: '/admin/dashboard',
+	ADMIN_USER_DETAIL: (userId) => `/admin/user/${userId}`,
+
 	/*-----------------------------OTHER-------------------------------------*/
 	TESTING: '/testing',
 }

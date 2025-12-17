@@ -58,7 +58,6 @@ export default function Datasets() {
 			const statusData = await datasetAPI
 				.getProcessingStatus(datasetId)
 				.then((res) => res.data)
-
 			updateDataState({
 				datasets: datasetState.datasets.map((ds) =>
 					ds.id === datasetId
@@ -84,7 +83,7 @@ export default function Datasets() {
 
 		pollingRef.current = setInterval(async () => {
 			const processingDatasets = datasetState.datasets.filter(
-				(ds) => ds.processingStatus === 'PROCESSING'
+				(ds) => ds.processingStatus === 'PROCESSING' //|| ds.processingStatus === 'CREATING'
 			)
 
 			if (processingDatasets.length === 0) {
