@@ -3,6 +3,7 @@ import {
 	useSearchParams,
 	useOutletContext,
 	useNavigate,
+	useLocation,
 } from 'react-router-dom'
 import { trainCloudModel } from 'src/api/mlService'
 import { createDownZipPU } from 'src/api/dataset'
@@ -46,7 +47,9 @@ const { Text } = Typography
 const { Option } = Select
 
 const SelectInstance = () => {
-	const { projectInfo, updateFields, selectedProject } = useOutletContext()
+	const { updateFields, projectInfo, selectedProject } = useOutletContext()
+	const { state } = useLocation()
+	const [selectedInstance, setSelectedInstance] = useState(null)
 	const navigate = useNavigate()
 	const [activeTab, setActiveTab] = useState('automatic')
 	const [isLoading, setIsLoading] = useState(false)
@@ -183,7 +186,14 @@ const SelectInstance = () => {
 		const cost = formData.cost * formData.trainingTime
 		console.log('Cost: ', cost)
 
-		const presignUrl = await createDownZipPU(selectedProject.dataset_id)
+		const isRetraining = state?.isRetraining
+    	const datasetId = isRetraining ? state?.datasetId : selectedProject?.dataset_id
+		const datasetMetadata = isRetraining ? state?.metadata : selectedProject?.meta_data
+		const presignUrl = await createDownZipPU(datasetId)
+		if (!datasetId) {
+            message.error("Dataset ID not found!");
+            return;
+        }
 		// const creating_instance_time = instanceInfoData.creating_time || 60
 		const payload = {
 			cost: cost,
@@ -191,13 +201,14 @@ const SelectInstance = () => {
 			presets: 'medium_quality',
 			datasetUrl: presignUrl.data,
 			datasetLabelUrl: 'hello',
-			problemType: selectedProject.meta_data?.is_binary_class
+			problemType: datasetMetadata?.is_binary_class
 				? 'BINARY'
 				: 'MULTICLASS',
 			framework: 'autogluon',
-			datasetMetadata: selectedProject.meta_data,
+			datasetMetadata: datasetMetadata,
 		}
 		console.log('Train payload: ', payload)
+		console.log("Presigned url data: ", presignUrl.data)
 		const res1 = await trainCloudModel(projectInfo.id, payload)
 		const experimentName = res1.data.experimentName
 		return res1.data
@@ -209,6 +220,22 @@ const SelectInstance = () => {
 			message.error('Please input training time')
 			return
 		}
+
+		if (state?.isRetraining) {
+            updateFields({
+                selectedInstance: formData, // Lưu thông tin máy đã chọn
+                isRetraining: true,
+                previousModelId: state.previousModelId,
+                // Giả lập selectedProject để trang sau không bị lỗi khi truy cập
+                selectedProject: {
+                    project_id: state.datasetId,
+                    dataset_id: state.datasetId,
+                    isRetrained: true,
+                    name: "Retraining Dataset", 
+                    // Thêm các trường khác nếu trang Training cần dùng
+                }
+            })
+        }
 		setIsProcessing(true)
 
 		navigate(

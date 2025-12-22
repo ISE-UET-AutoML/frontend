@@ -34,6 +34,7 @@ import DeployedModelView from 'src/pages/project/deploy/deployedModelView'
 import DeploySettingUpView from 'src/pages/project/deploy/deploySettingUpView'
 import ModelView from 'src/pages/project/models/modelView'
 import ProjectInfo from 'src/pages/project/build/info'
+import RecentPredictionsPage from 'src/pages/project/models/RecentPredictionsPage'
 
 const routes = {
     element: <DefaultLayout />,
@@ -116,6 +117,10 @@ const routes = {
                                 {
                                     path: 'model/:modelId',
                                     element: <ModelView />
+                                },
+                                {
+                                    path: 'model/:modelId/retrain',
+                                    element: <RecentPredictionsPage />
                                 },
                                 {
                                     path: 'deploy',

@@ -422,6 +422,7 @@ const ModelView = () => {
                                             fontFamily: 'Poppins, sans-serif'
                                         }}
                                         className="hover:shadow-lg transition-all duration-300"
+                                        onClick={() => navigate(`/app/project/${id}/model/${modelId}/retrain`)}
                                     >
                                         Retrain Model
                                     </Button>

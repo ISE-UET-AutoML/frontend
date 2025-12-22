@@ -137,6 +137,10 @@ const getPresignedUrlsForImages = async (s3_key) => {
     return instance.get(`${URL_SERVICE}/s3/presignUrl-images`, { params: { s3_key } })
 }
 
+const createRetrainingDataset = (payload) => {
+    return instance.post(`${URL_SERVICE}/datasets/create-retraining-dataset`, payload);
+}
+
 export {
     createDataset,
     getDatasets,
@@ -156,5 +160,6 @@ export {
     createDownPresignedUrlsForFolder,
     getVersionCount,
     getAllDeployData,
-    getPresignedUrlsForImages
+    getPresignedUrlsForImages,
+    createRetrainingDataset
 }
